@@ -545,6 +545,18 @@
       <version>${jersey.version}</version>
     </dependency>
 
+    <!-- Apache HTTP -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.3.2</version>
+    </dependency>
+
     <!-- Apache Commons -->
     <dependency>
       <groupId>commons-configuration</groupId>

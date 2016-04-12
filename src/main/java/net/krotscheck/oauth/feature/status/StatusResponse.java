@@ -14,29 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.krotscheck.oauth.feature.status;
 
-package net.krotscheck.oauth;
-
-
-import net.krotscheck.oauth.feature.config.ConfigurationFeature;
-import net.krotscheck.oauth.feature.status.StatusFeature;
-import org.glassfish.jersey.server.ResourceConfig;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * The OID Servlet application, including all configured resources and
- * features.
+ * The status resource is a POJO that encapsulates common API metadata.
  *
  * @author Michael Krotscheck
  */
-public final class Server extends ResourceConfig {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class StatusResponse {
 
     /**
-     * Constructor. Creates a new application instance.
+     * The API version.
      */
-    public Server() {
+    private String version = "";
 
-        // Configuration loader
-        register(ConfigurationFeature.class);
-        register(StatusFeature.class);
+    /**
+     * Get the current API version.
+     *
+     * @return The released package version.
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set the API version.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(final String version) {
+        this.version = version;
     }
 }

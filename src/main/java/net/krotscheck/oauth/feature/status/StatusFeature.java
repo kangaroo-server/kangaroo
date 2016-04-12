@@ -15,28 +15,31 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth;
+package net.krotscheck.oauth.feature.status;
 
-
-import net.krotscheck.oauth.feature.config.ConfigurationFeature;
-import net.krotscheck.oauth.feature.status.StatusFeature;
-import org.glassfish.jersey.server.ResourceConfig;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
 
 /**
- * The OID Servlet application, including all configured resources and
- * features.
+ * This feature exposes a simple /status API endpoint that returns the current
+ * version of the application.
  *
- * @author Michael Krotscheck
+ * @author krotscheck
  */
-public final class Server extends ResourceConfig {
+public final class StatusFeature implements Feature {
 
     /**
-     * Constructor. Creates a new application instance.
+     * Register this feature.
      */
-    public Server() {
+    @Override
+    public boolean configure(final FeatureContext context) {
 
-        // Configuration loader
-        register(ConfigurationFeature.class);
-        register(StatusFeature.class);
+        // Add the configuration injector
+        context.register(new ServiceVersionFilter.Binder());
+
+        // Add the /status resource
+        context.register(StatusService.class);
+
+        return true;
     }
 }
