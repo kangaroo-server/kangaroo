@@ -19,7 +19,7 @@
 
   <servlet-mapping>
     <servlet-name>oauth-server</servlet-name>
-    <url-pattern>/oauth/*</url-pattern>
+    <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
 </web-app>
