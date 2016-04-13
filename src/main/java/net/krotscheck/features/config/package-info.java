@@ -16,6 +16,6 @@
  */
 
 /**
- * API heartbeat service.
+ * Injected system configuration.
  */
-package net.krotscheck.oauth.feature.status;
+package net.krotscheck.features.config;

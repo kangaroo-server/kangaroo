@@ -15,28 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth;
-
-
-import net.krotscheck.oauth.feature.config.ConfigurationFeature;
-import net.krotscheck.oauth.feature.status.StatusFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-
 /**
- * The OID Servlet application, including all configured resources and
- * features.
- *
- * @author Michael Krotscheck
+ * The status service.
  */
-public final class Server extends ResourceConfig {
-
-    /**
-     * Constructor. Creates a new application instance.
-     */
-    public Server() {
-
-        // Configuration loader
-        register(ConfigurationFeature.class);
-        register(StatusFeature.class);
-    }
-}
+package net.krotscheck.status;

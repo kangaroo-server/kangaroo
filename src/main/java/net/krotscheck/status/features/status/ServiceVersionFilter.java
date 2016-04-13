@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth.feature.status;
+package net.krotscheck.status.features.status;
 
-import net.krotscheck.oauth.feature.config.SystemConfiguration;
+import net.krotscheck.features.config.SystemConfiguration;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import java.io.IOException;

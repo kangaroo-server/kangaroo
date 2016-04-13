@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth.feature.status;
+package net.krotscheck.status.features.status;
 
 
-import net.krotscheck.oauth.feature.config.SystemConfiguration;
+import net.krotscheck.features.config.SystemConfiguration;
 import org.apache.http.HttpStatus;
 
 import javax.annotation.security.PermitAll;
@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
  *
  * @author krotscheck
  */
-@Path("/status")
+@Path("/")
 @PermitAll
 public final class StatusService {
 
@@ -55,6 +55,8 @@ public final class StatusService {
 
     /**
      * Always returns the version.
+     *
+     * @return HTTP Response object with the current service status.
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)

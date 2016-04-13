@@ -15,22 +15,31 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth.feature.config;
+package net.krotscheck.status.features.status;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
 /**
- * Configuration loading feature.
+ * This feature exposes a simple /status API endpoint that returns the current
+ * version of the application.
+ *
+ * @author krotscheck
  */
-public final class ConfigurationFeature implements Feature {
+public final class StatusFeature implements Feature {
 
     /**
      * Register this feature.
      */
     @Override
     public boolean configure(final FeatureContext context) {
-        context.register(new SystemConfiguration.Binder());
+
+        // Add the configuration injector
+        context.register(new ServiceVersionFilter.Binder());
+
+        // Add the /status resource
+        context.register(StatusService.class);
+
         return true;
     }
 }

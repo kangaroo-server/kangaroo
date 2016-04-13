@@ -15,7 +15,22 @@
  * limitations under the License.
  */
 
+package net.krotscheck.features.config;
+
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+
 /**
- * Injected system configuration.
+ * Configuration loading feature.
  */
-package net.krotscheck.oauth.feature.config;
+public final class ConfigurationFeature implements Feature {
+
+    /**
+     * Register this feature.
+     */
+    @Override
+    public boolean configure(final FeatureContext context) {
+        context.register(new SystemConfiguration.Binder());
+        return true;
+    }
+}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth.feature.config;
+package net.krotscheck.features.config;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;

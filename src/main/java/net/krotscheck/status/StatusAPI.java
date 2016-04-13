@@ -15,31 +15,24 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth.feature.status;
+package net.krotscheck.status;
 
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
+import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.status.features.status.StatusFeature;
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
- * This feature exposes a simple /status API endpoint that returns the current
- * version of the application.
- *
- * @author krotscheck
+ * Created by krotscheck on 4/13/16.
  */
-public final class StatusFeature implements Feature {
+public class StatusAPI extends ResourceConfig {
 
     /**
-     * Register this feature.
+     * Constructor. Creates a new application instance.
      */
-    @Override
-    public boolean configure(final FeatureContext context) {
-
-        // Add the configuration injector
-        context.register(new ServiceVersionFilter.Binder());
-
-        // Add the /status resource
-        context.register(StatusService.class);
-
-        return true;
+    public StatusAPI() {
+        // Configuration loader
+        register(ConfigurationFeature.class);
+        register(StatusFeature.class);
     }
+
 }
