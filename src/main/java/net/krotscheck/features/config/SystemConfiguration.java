@@ -32,6 +32,8 @@ import javax.ws.rs.core.Context;
 
 /**
  * Provides our configuration object, composite from various sources.
+ *
+ * @author Michael Krotscheck
  */
 public final class SystemConfiguration extends CompositeConfiguration {
 

@@ -22,6 +22,8 @@ import javax.ws.rs.core.FeatureContext;
 
 /**
  * Configuration loading feature.
+ *
+ * @author Michael Krotscheck
  */
 public final class ConfigurationFeature implements Feature {
 
