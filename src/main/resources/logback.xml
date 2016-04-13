@@ -2,70 +2,6 @@
 <configuration debug="true">
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-
-        <!-- Errors get reported -->
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>ERROR</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- Warnings get reported -->
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>WARN</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- The Crawler reporter is VERY chatty, turn it off -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>com.gargoylesoftware.htmlunit</packagePrefix>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- The So is HTTP Wire -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>org.apache.http</packagePrefix>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- Hibernate is chatty, make it not be chatty -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>org.hibernate</packagePrefix>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- Hibernate's threadpool manager is also chatty -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>com.mchange</packagePrefix>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- Flyway is also chatty -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>com.googlecode.flyway</packagePrefix>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- Flyway is also chatty -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>org.apache</packagePrefix>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
-        <!-- If it's our code, let it through -->
-        <filter class="net.krotscheck.logback.PackageFilter">
-            <packagePrefix>net.krotscheck</packagePrefix>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
-
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -74,4 +10,10 @@
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
+
+    <logger name="org.apache" level="WARN"/>
+    <logger name="org.apache.http" level="WARN"/>
+    <logger name="com.mchange" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="net.sourceforge.cobertura" level="WARN"/>
 </configuration>
