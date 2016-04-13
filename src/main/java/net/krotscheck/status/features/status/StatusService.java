@@ -32,7 +32,7 @@ import javax.ws.rs.core.Response;
 /**
  * A simple endpoint that returns the system status.
  *
- * @author krotscheck
+ * @author Michael Krotscheck
  */
 @Path("/")
 @PermitAll

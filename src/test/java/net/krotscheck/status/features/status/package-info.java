@@ -15,27 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.status;
-
-import net.krotscheck.features.config.ConfigurationFeature;
-import net.krotscheck.status.features.status.StatusFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-
 /**
- * The status api application.
- *
- * @author Michael Krotscheck
+ * Unit tests for Status Features.
  */
-public class StatusAPI extends ResourceConfig {
-
-    /**
-     * Constructor. Creates a new application instance.
-     */
-    public StatusAPI() {
-
-        // Configuration loader
-        register(ConfigurationFeature.class);
-        register(StatusFeature.class);
-    }
-
-}
+package net.krotscheck.status.features.status;

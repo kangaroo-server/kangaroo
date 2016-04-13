@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-package net.krotscheck.status;
+package net.krotscheck.status.features.status;
 
-import net.krotscheck.features.config.ConfigurationFeature;
-import net.krotscheck.status.features.status.StatusFeature;
-import org.glassfish.jersey.server.ResourceConfig;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * The status api application.
+ * Validate the status response POJO
  *
  * @author Michael Krotscheck
  */
-public class StatusAPI extends ResourceConfig {
+public class StatusResponseTest {
 
     /**
-     * Constructor. Creates a new application instance.
+     * Assert that the getter and setter works.
      */
-    public StatusAPI() {
+    @Test
+    public void testGetSetVersion() throws Exception {
+        StatusResponse instance = new StatusResponse();
 
-        // Configuration loader
-        register(ConfigurationFeature.class);
-        register(StatusFeature.class);
+        Assert.assertEquals("", instance.getVersion());
+        instance.setVersion("foo");
+        Assert.assertEquals("foo", instance.getVersion());
     }
-
 }

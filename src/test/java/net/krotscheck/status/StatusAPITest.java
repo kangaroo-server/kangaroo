@@ -17,25 +17,33 @@
 
 package net.krotscheck.status;
 
-import net.krotscheck.features.config.ConfigurationFeature;
-import net.krotscheck.status.features.status.StatusFeature;
-import org.glassfish.jersey.server.ResourceConfig;
+import net.krotscheck.status.features.status.StatusResponse;
+import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Assert;
+import org.junit.Test;
+
+import javax.ws.rs.core.Application;
 
 /**
- * The status api application.
+ * Sanity test that the status API loads as appropriate.
  *
  * @author Michael Krotscheck
  */
-public class StatusAPI extends ResourceConfig {
+public class StatusAPITest extends JerseyTest {
 
-    /**
-     * Constructor. Creates a new application instance.
-     */
-    public StatusAPI() {
-
-        // Configuration loader
-        register(ConfigurationFeature.class);
-        register(StatusFeature.class);
+    @Override
+    protected Application configure() {
+        return new StatusAPI();
     }
 
+    /**
+     * Sanity check that yes, we do have an application.
+     */
+    @Test
+    public void testApplication() {
+        StatusResponse response = target("/")
+                .request()
+                .get(StatusResponse.class);
+        Assert.assertEquals("dev", response.getVersion());
+    }
 }

@@ -17,6 +17,8 @@
 
 package net.krotscheck.status.features.status;
 
+import net.krotscheck.features.config.ConfigurationFeature;
+
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
@@ -24,7 +26,7 @@ import javax.ws.rs.core.FeatureContext;
  * This feature exposes a simple /status API endpoint that returns the current
  * version of the application.
  *
- * @author krotscheck
+ * @author Michael Krotscheck
  */
 public final class StatusFeature implements Feature {
 
@@ -33,6 +35,11 @@ public final class StatusFeature implements Feature {
      */
     @Override
     public boolean configure(final FeatureContext context) {
+
+        if (!context.getConfiguration()
+                .isRegistered(ConfigurationFeature.class)) {
+            context.register(ConfigurationFeature.class);
+        }
 
         // Add the configuration injector
         context.register(new ServiceVersionFilter.Binder());
