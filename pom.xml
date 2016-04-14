@@ -56,7 +56,7 @@
 
     <!-- velocity variables -->
     <site_version>${project.version}</site_version>
-    <jersey.version>2.19</jersey.version>
+    <jersey.version>2.22.2</jersey.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -567,6 +567,11 @@
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
       <version>1.10</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.3.2</version>
     </dependency>
   </dependencies>
 </project>

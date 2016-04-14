@@ -18,7 +18,10 @@
 package net.krotscheck.oauth;
 
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.features.exception.ExceptionFeature;
+import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -33,8 +36,14 @@ public final class OAuthAPI extends ResourceConfig {
      * Constructor. Creates a new application instance.
      */
     public OAuthAPI() {
+        // No autodiscovery, we load everything explicitly.
+        property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
-        // Configuration loader
-        register(ConfigurationFeature.class);
+        // Explicitly register our own Jackson provider, since we write our
+        // own exception handling.
+        register(JacksonJaxbJsonProvider.class);
+
+        register(ConfigurationFeature.class);    // Configuration loader
+        register(ExceptionFeature.class);        // Exception Mapping.
     }
 }
