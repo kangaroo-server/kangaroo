@@ -17,12 +17,11 @@
 
 package net.krotscheck.status;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
+import net.krotscheck.features.jackson.JacksonFeature;
 import net.krotscheck.status.features.status.StatusFeature;
 import org.glassfish.jersey.CommonProperties;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -39,13 +38,10 @@ public class StatusAPI extends ResourceConfig {
         // No autodiscovery, we load everything explicitly.
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
-        // Explicitly register our own Jackson provider, since we write our
-        // own exception handling.
-        register(JacksonJaxbJsonProvider.class);
-
-        register(ConfigurationFeature.class);       // Configuration loader
-        register(ExceptionFeature.class);           // Exception Mapping
-        register(StatusFeature.class);              // Status API
+        register(ConfigurationFeature.class); // Configuration loader
+        register(JacksonFeature.class);       // Data Type de/serialization
+        register(ExceptionFeature.class);     // Exception Mapping
+        register(StatusFeature.class);        // Status API
     }
 
 }
