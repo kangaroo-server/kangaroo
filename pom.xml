@@ -50,6 +50,9 @@
 
   <properties>
     <jdk.version>1.8</jdk.version>
+    <hibernate.version>4.3.11.Final</hibernate.version>
+    <hibernate-search.version>5.3.0.Final</hibernate-search.version>
+    <jersey2-toolkit.version>1.1.23</jersey2-toolkit.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -138,6 +141,20 @@
   </distributionManagement>
 
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/main/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+      </testResource>
+    </testResources>
+
     <plugins>
       <!-- Deploy the web site -->
       <plugin>
@@ -571,6 +588,60 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.3.2</version>
+    </dependency>
+
+    <!-- Jersey2 Toolkit -->
+    <dependency>
+      <groupId>net.krotscheck.jersey2</groupId>
+      <artifactId>jersey2-configuration</artifactId>
+      <version>${jersey2-toolkit.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.krotscheck.jersey2</groupId>
+      <artifactId>jersey2-hibernate</artifactId>
+      <version>${jersey2-toolkit.version}</version>
+    </dependency>
+
+    <!-- Hibernate -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-search</artifactId>
+      <version>${hibernate-search.version}</version>
+    </dependency>
+
+    <!-- Liquibase Migrations -->
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <version>3.5.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.liquibase.ext</groupId>
+      <artifactId>liquibase-hibernate4</artifactId>
+      <version>3.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mattbertolini</groupId>
+      <artifactId>liquibase-slf4j</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+
+    <!-- H2 database, used for testing. -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.190</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
