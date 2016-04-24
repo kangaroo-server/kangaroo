@@ -22,5 +22,26 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-  <include file="liquibase/db.changelog-1.0.0.xml"/>
+  <changeSet id="1" author="krotscheck">
+    <!-- Add users table -->
+    <createTable tableName="users">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true"
+                     nullable="false"
+                     primaryKeyName="pk_users_id"/>
+      </column>
+      <column name="createdDate" type="DATETIME"/>
+      <column name="modifiedDate" type="DATETIME"/>
+      <column name="email" type="varchar(255)">
+        <constraints unique="true"
+                     uniqueConstraintName="c_users_email"/>
+      </column>
+      <column name="name" type="text"/>
+    </createTable>
+
+    <rollback>
+      <dropTable tableName="users"/>
+    </rollback>
+  </changeSet>
+
 </databaseChangeLog>

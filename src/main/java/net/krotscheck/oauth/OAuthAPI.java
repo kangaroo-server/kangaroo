@@ -20,6 +20,7 @@ package net.krotscheck.oauth;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
 import org.glassfish.jersey.CommonProperties;
@@ -41,7 +42,8 @@ public final class OAuthAPI extends ResourceConfig {
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
         register(ConfigurationFeature.class);    // Configuration loader
-        register(JacksonFeature.class);          // Data Type de/serialization
+        register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
+        register(DatabaseFeature.class);         // Database Feature.
     }
 }

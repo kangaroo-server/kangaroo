@@ -43,5 +43,8 @@
     <!-- Hibernate ID Gen Configuration -->
     <property name="id.new_generator_mappings">true</property>
 
+    <!-- Entities -->
+    <mapping class="net.krotscheck.features.database.entity.User"/>
+
   </session-factory>
 </hibernate-configuration>
