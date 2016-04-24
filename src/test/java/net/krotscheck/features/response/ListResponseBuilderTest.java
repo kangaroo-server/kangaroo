@@ -17,13 +17,9 @@
 
 package net.krotscheck.features.response;
 
-import net.krotscheck.features.response.ListResponseBuilder.HttpHeaders;
-import net.krotscheck.features.response.ListResponseBuilder.SortOrder;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -60,8 +56,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.OFFSET));
-        Assert.assertEquals(HttpHeaders.OFFSET,
+                response.getHeaderString(ApiParam.OFFSET.headerName()));
+        Assert.assertEquals(ApiParam.OFFSET.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -77,8 +73,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.OFFSET));
-        Assert.assertEquals(HttpHeaders.OFFSET,
+                response.getHeaderString(ApiParam.OFFSET.headerName()));
+        Assert.assertEquals(ApiParam.OFFSET.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -94,8 +90,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.OFFSET));
-        Assert.assertEquals(HttpHeaders.OFFSET,
+                response.getHeaderString(ApiParam.OFFSET.headerName()));
+        Assert.assertEquals(ApiParam.OFFSET.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -111,8 +107,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.LIMIT));
-        Assert.assertEquals(HttpHeaders.LIMIT,
+                response.getHeaderString(ApiParam.LIMIT.headerName()));
+        Assert.assertEquals(ApiParam.LIMIT.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -128,8 +124,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.LIMIT));
-        Assert.assertEquals(HttpHeaders.LIMIT,
+                response.getHeaderString(ApiParam.LIMIT.headerName()));
+        Assert.assertEquals(ApiParam.LIMIT.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -145,8 +141,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.LIMIT));
-        Assert.assertEquals(HttpHeaders.LIMIT,
+                response.getHeaderString(ApiParam.LIMIT.headerName()));
+        Assert.assertEquals(ApiParam.LIMIT.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -162,8 +158,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.TOTAL));
-        Assert.assertEquals(HttpHeaders.TOTAL,
+                response.getHeaderString(ApiParam.TOTAL.headerName()));
+        Assert.assertEquals(ApiParam.TOTAL.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -179,8 +175,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.TOTAL));
-        Assert.assertEquals(HttpHeaders.TOTAL,
+                response.getHeaderString(ApiParam.TOTAL.headerName()));
+        Assert.assertEquals(ApiParam.TOTAL.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -196,8 +192,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(HttpHeaders.TOTAL));
-        Assert.assertEquals(HttpHeaders.TOTAL,
+                response.getHeaderString(ApiParam.TOTAL.headerName()));
+        Assert.assertEquals(ApiParam.TOTAL.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -213,8 +209,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("foo",
-                response.getHeaderString(HttpHeaders.SORT_ON));
-        Assert.assertEquals(HttpHeaders.SORT_ON,
+                response.getHeaderString(ApiParam.SORT.headerName()));
+        Assert.assertEquals(ApiParam.SORT.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -230,8 +226,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("DESC",
-                response.getHeaderString(HttpHeaders.SORT_ORDER));
-        Assert.assertEquals(HttpHeaders.SORT_ORDER,
+                response.getHeaderString(ApiParam.ORDER.headerName()));
+        Assert.assertEquals(ApiParam.ORDER.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -247,8 +243,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("DESC",
-                response.getHeaderString(HttpHeaders.SORT_ORDER));
-        Assert.assertEquals(HttpHeaders.SORT_ORDER,
+                response.getHeaderString(ApiParam.ORDER.headerName()));
+        Assert.assertEquals(ApiParam.ORDER.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -264,8 +260,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("foo",
-                response.getHeaderString(HttpHeaders.QUERY));
-        Assert.assertEquals(HttpHeaders.QUERY,
+                response.getHeaderString(ApiParam.QUERY.headerName()));
+        Assert.assertEquals(ApiParam.QUERY.headerName(),
                 response.getHeaderString("Vary"));
     }
 
@@ -293,34 +289,5 @@ public final class ListResponseBuilderTest {
     public void testSortToString() throws Exception {
         Assert.assertEquals("ASC", SortOrder.ASC.toString());
         Assert.assertEquals("DESC", SortOrder.DESC.toString());
-    }
-
-    /**
-     * Assert that the HTTPHeaders class has a private constructor.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testHttpHeaderPrivate() throws Exception {
-        Constructor<HttpHeaders> constructor =
-                HttpHeaders.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(constructor.getModifiers()));
-        constructor.setAccessible(true);
-        constructor.newInstance();
-    }
-
-    /**
-     * Assert that our header values are as expected.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testHttpHeaderProperties() throws Exception {
-        Assert.assertEquals("Sort-On", HttpHeaders.SORT_ON);
-        Assert.assertEquals("Sort-Order", HttpHeaders.SORT_ORDER);
-        Assert.assertEquals("Offset", HttpHeaders.OFFSET);
-        Assert.assertEquals("Limit", HttpHeaders.LIMIT);
-        Assert.assertEquals("Total", HttpHeaders.TOTAL);
-        Assert.assertEquals("Query", HttpHeaders.QUERY);
     }
 }

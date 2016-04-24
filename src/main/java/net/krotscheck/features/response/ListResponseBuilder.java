@@ -65,8 +65,9 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder limit(final Number limit) {
-        builder.header(HttpHeaders.LIMIT, limit.longValue());
-        addedHeaders.add(HttpHeaders.LIMIT);
+        String headerName = ApiParam.LIMIT.headerName();
+        builder.header(headerName, limit.longValue());
+        addedHeaders.add(headerName);
         return this;
     }
 
@@ -77,8 +78,9 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder total(final Number total) {
-        builder.header(HttpHeaders.TOTAL, total.longValue());
-        addedHeaders.add(HttpHeaders.TOTAL);
+        String headerName = ApiParam.TOTAL.headerName();
+        builder.header(headerName, total.longValue());
+        addedHeaders.add(headerName);
         return this;
     }
 
@@ -89,8 +91,9 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder offset(final Number offset) {
-        builder.header(HttpHeaders.OFFSET, offset.longValue());
-        addedHeaders.add(HttpHeaders.OFFSET);
+        String headerName = ApiParam.OFFSET.headerName();
+        builder.header(headerName, offset.longValue());
+        addedHeaders.add(headerName);
         return this;
     }
 
@@ -101,8 +104,9 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder sort(final String sort) {
-        builder.header(HttpHeaders.SORT_ON, sort);
-        addedHeaders.add(HttpHeaders.SORT_ON);
+        String headerName = ApiParam.SORT.headerName();
+        builder.header(headerName, sort);
+        addedHeaders.add(headerName);
         return this;
     }
 
@@ -113,8 +117,9 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder order(final SortOrder order) {
-        builder.header(HttpHeaders.SORT_ORDER, order.toString());
-        addedHeaders.add(HttpHeaders.SORT_ORDER);
+        String headerName = ApiParam.ORDER.headerName();
+        builder.header(headerName, order.toString());
+        addedHeaders.add(headerName);
         return this;
     }
 
@@ -135,8 +140,9 @@ public final class ListResponseBuilder {
      * @return This builder.
      */
     public ListResponseBuilder query(final String query) {
-        builder.header(HttpHeaders.QUERY, query);
-        addedHeaders.add(HttpHeaders.QUERY);
+        String headerName = ApiParam.QUERY.headerName();
+        builder.header(headerName, query);
+        addedHeaders.add(headerName);
         return this;
     }
 
@@ -149,103 +155,5 @@ public final class ListResponseBuilder {
         // Apply the vary headers
         builder.header("Vary", String.join(",", addedHeaders));
         return builder.build();
-    }
-
-    /**
-     * Collection of HTTP Headers that are used by the List Response Builder.
-     */
-    public enum SortOrder {
-
-        /**
-         * Sort in Ascending Order.
-         */
-        ASC("ASC"),
-
-        /**
-         * Sort in Descending Order.
-         */
-        DESC("DESC");
-
-        /**
-         * The string value of this enum.
-         */
-        private final String value;
-
-        /**
-         * Create a new instance of this enum.
-         *
-         * @param value The value of the enum.
-         */
-        SortOrder(final String value) {
-            this.value = value;
-        }
-
-        /**
-         * Convert a string into an Enum instance.
-         *
-         * @param value The value to interpret.
-         * @return Either ASC or DESC, default ASC.
-         */
-        public static SortOrder fromString(final String value) {
-            if (DESC.value.equals(value.toUpperCase())) {
-                return DESC;
-            } else {
-                return ASC;
-            }
-        }
-
-        /**
-         * Return the string representation of this enum.
-         *
-         * @return The string representation.
-         */
-        public String toString() {
-            return value;
-        }
-
-    }
-
-    /**
-     * Collection of HTTP Headers that are used by the List Response Builder.
-     */
-    public static final class HttpHeaders {
-
-        /**
-         * Private constructor, this is only for constants.
-         */
-        private HttpHeaders() {
-
-        }
-
-        /**
-         * HTTP Header for the sort parameter.
-         */
-        public static final String SORT_ON = "Sort-On";
-
-        /**
-         * HTTP Header for the sort order.
-         */
-        public static final String SORT_ORDER = "Sort-Order";
-
-        /**
-         * HTTP Header the for the page offset.
-         */
-        public static final String OFFSET = "Offset";
-
-        /**
-         * HTTP Header for the paging limit.
-         */
-        public static final String LIMIT = "Limit";
-
-        /**
-         * HTTP Header for the total available number of records.
-         */
-        public static final String TOTAL = "Total";
-
-        /**
-         * HTTP Header for the search query string.
-         */
-        public static final String QUERY = "Query";
-
     }
 }
