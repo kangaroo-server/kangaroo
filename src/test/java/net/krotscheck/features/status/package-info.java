@@ -16,6 +16,6 @@
  */
 
 /**
- * The status service.
+ * Unit tests for Status Features.
  */
-package net.krotscheck.status;
+package net.krotscheck.features.status;

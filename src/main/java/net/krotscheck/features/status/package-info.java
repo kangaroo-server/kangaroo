@@ -18,4 +18,4 @@
 /**
  * API heartbeat service.
  */
-package net.krotscheck.status.features.status;
+package net.krotscheck.features.status;

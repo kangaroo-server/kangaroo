@@ -8,16 +8,6 @@
   </session-config>
 
   <servlet>
-    <servlet-name>status</servlet-name>
-    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
-    <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
-      <param-value>net.krotscheck.status.StatusAPI</param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
     <servlet-name>oauth</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
@@ -29,12 +19,7 @@
 
   <servlet-mapping>
     <servlet-name>oauth</servlet-name>
-    <url-pattern>/oauth</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>status</servlet-name>
-    <url-pattern>/status</url-pattern>
+    <url-pattern>/</url-pattern>
   </servlet-mapping>
 
   <!-- JDNI Database Resource -->

@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package net.krotscheck.status;
+package net.krotscheck.features.status;
 
-import net.krotscheck.status.features.status.StatusResponse;
+import net.krotscheck.features.config.ConfigurationFeature;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,25 +26,25 @@ import org.junit.Test;
 import javax.ws.rs.core.Application;
 
 /**
- * Sanity test that the status API loads as appropriate.
+ * Unit tests to ensure that the status service returns the expected results.
  *
  * @author Michael Krotscheck
  */
-public class StatusAPITest extends JerseyTest {
+public final class StatusServiceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new StatusAPI();
+        ResourceConfig a = new ResourceConfig();
+        a.register(ConfigurationFeature.class);
+        a.register(StatusService.class);
+
+        return a;
     }
 
-    /**
-     * Sanity check that yes, we do have an application.
-     */
     @Test
-    public void testApplication() {
-        StatusResponse response = target("/")
-                .request()
-                .get(StatusResponse.class);
+    public void testStatus() throws Exception {
+        StatusResponse response =
+                target("/").request().get(StatusResponse.class);
         Assert.assertEquals("dev", response.getVersion());
     }
 }

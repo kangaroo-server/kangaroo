@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.status.features.status;
+package net.krotscheck.features.status;
 
 import net.krotscheck.features.config.SystemConfiguration;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;

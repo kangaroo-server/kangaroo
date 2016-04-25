@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.status.features.status;
+package net.krotscheck.features.status;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
