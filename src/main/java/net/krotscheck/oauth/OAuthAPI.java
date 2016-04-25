@@ -47,7 +47,6 @@ public final class OAuthAPI extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
 
-        // Services
-        register(StatusFeature.class);           // Status feature.
+        register(StatusFeature.class);           // Status service.
     }
 }
