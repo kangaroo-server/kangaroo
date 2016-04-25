@@ -59,6 +59,7 @@
     <!-- velocity variables -->
     <site_version>${project.version}</site_version>
     <jersey.version>2.22.2</jersey.version>
+    <jetty.version>9.1.1.v20140108</jetty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -530,8 +531,8 @@
     <!-- The servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -556,12 +557,6 @@
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-jackson</artifactId>
       <version>${jersey.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-      <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-      <version>${jersey.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <!-- Apache HTTP -->
@@ -646,6 +641,26 @@
       <artifactId>h2</artifactId>
       <version>1.4.190</version>
       <scope>runtime</scope>
+    </dependency>
+
+    <!-- Jetty test environment -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jndi</artifactId>
+      <version>${jetty.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jetty.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+      <artifactId>jersey-test-framework-provider-jetty</artifactId>
+      <version>${jersey.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
