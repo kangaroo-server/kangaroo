@@ -31,7 +31,7 @@ import java.lang.reflect.Modifier;
 public final class ApiParamTest {
 
     /**
-     * Assert that our header values are all represented.
+     * Assert the constructor is private.
      *
      * @throws Exception Should not be thrown.
      */

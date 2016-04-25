@@ -64,6 +64,8 @@ public abstract class AbstractEntity {
 
     /**
      * Return the DB record's ID.
+     *
+     * @return The id for this entity.
      */
     public final Long getId() {
         return id;
@@ -80,6 +82,8 @@ public abstract class AbstractEntity {
 
     /**
      * Get the date on which this record was created.
+     *
+     * @return The created date.
      */
     public final Date getCreatedDate() {
         if (createdDate == null) {
@@ -100,6 +104,8 @@ public abstract class AbstractEntity {
 
     /**
      * Get the last modified date.
+     *
+     * @return The last time this record was modified, or null.
      */
     public final Date getModifiedDate() {
         if (modifiedDate == null) {
@@ -125,7 +131,9 @@ public abstract class AbstractEntity {
      * @return True if the ID's are equal, otherwise false.
      */
     public final boolean equals(final Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (o == null || !this.getClass().isInstance(o)) {
             return false;
         }
@@ -134,7 +142,9 @@ public abstract class AbstractEntity {
         AbstractEntity other = (AbstractEntity) o;
 
         // if the id is missing, return false
-        if (id == null) return false;
+        if (id == null) {
+            return false;
+        }
 
         // equivalence by id
         return id.equals(other.getId());
@@ -142,6 +152,8 @@ public abstract class AbstractEntity {
 
     /**
      * Public Hashcode generation.
+     *
+     * @return A hashcode for this entity.
      */
     public final int hashCode() {
         return new HashCodeBuilder(17, 37)
@@ -152,8 +164,11 @@ public abstract class AbstractEntity {
 
     /**
      * Simplified Stringification.
+     *
+     * @return A string representation of the instance.
      */
     public final String toString() {
-        return String.format("%s [id=%s]", this.getClass().getCanonicalName(), getId());
+        return String.format("%s [id=%s]", this.getClass().getCanonicalName(),
+                getId());
     }
 }
