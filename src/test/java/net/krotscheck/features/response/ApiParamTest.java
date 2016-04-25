@@ -20,6 +20,9 @@ package net.krotscheck.features.response;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+
 /**
  * Test our API parameters.
  *
@@ -33,29 +36,42 @@ public final class ApiParamTest {
      * @throws Exception Should not be thrown.
      */
     @Test
+    public void testPrivateConstructor() throws Exception {
+        Constructor c = ApiParam.class.getDeclaredConstructor();
+        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+
+        // Create a new instance for coverage.
+        c.setAccessible(true);
+        c.newInstance();
+    }
+
+    /**
+     * Assert that our header values are all represented.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
     public void testApiParamProperties() throws Exception {
-        Assert.assertEquals("Limit", ApiParam.LIMIT.headerName());
-        Assert.assertEquals("limit", ApiParam.LIMIT.queryParam());
-        Assert.assertEquals("10", ApiParam.LIMIT.queryDefault());
+        Assert.assertEquals("Limit", ApiParam.LIMIT_HEADER);
+        Assert.assertEquals("limit", ApiParam.LIMIT_QUERY);
+        Assert.assertEquals("10", ApiParam.LIMIT_DEFAULT);
 
-        Assert.assertEquals("Offset", ApiParam.OFFSET.headerName());
-        Assert.assertEquals("offset", ApiParam.OFFSET.queryParam());
-        Assert.assertEquals("0", ApiParam.OFFSET.queryDefault());
+        Assert.assertEquals("Offset", ApiParam.OFFSET_HEADER);
+        Assert.assertEquals("offset", ApiParam.OFFSET_QUERY);
+        Assert.assertEquals("0", ApiParam.OFFSET_DEFAULT);
 
-        Assert.assertEquals("Total", ApiParam.TOTAL.headerName());
-        Assert.assertNull(ApiParam.TOTAL.queryParam());
-        Assert.assertNull(ApiParam.TOTAL.queryDefault());
+        Assert.assertEquals("Total", ApiParam.TOTAL_HEADER);
 
-        Assert.assertEquals("Query", ApiParam.QUERY.headerName());
-        Assert.assertEquals("q", ApiParam.QUERY.queryParam());
-        Assert.assertEquals("", ApiParam.QUERY.queryDefault());
+        Assert.assertEquals("Query", ApiParam.QUERY_HEADER);
+        Assert.assertEquals("q", ApiParam.QUERY_QUERY);
+        Assert.assertEquals("", ApiParam.QUERY_DEFAULT);
 
-        Assert.assertEquals("Sort", ApiParam.SORT.headerName());
-        Assert.assertEquals("sort", ApiParam.SORT.queryParam());
-        Assert.assertEquals("id", ApiParam.SORT.queryDefault());
+        Assert.assertEquals("Sort", ApiParam.SORT_HEADER);
+        Assert.assertEquals("sort", ApiParam.SORT_QUERY);
+        Assert.assertEquals("id", ApiParam.SORT_DEFAULT);
 
-        Assert.assertEquals("Order", ApiParam.ORDER.headerName());
-        Assert.assertEquals("order", ApiParam.ORDER.queryParam());
-        Assert.assertEquals("ASC", ApiParam.ORDER.queryDefault());
+        Assert.assertEquals("Order", ApiParam.ORDER_HEADER);
+        Assert.assertEquals("order", ApiParam.ORDER_QUERY);
+        Assert.assertEquals("ASC", ApiParam.ORDER_DEFAULT);
     }
 }

@@ -22,93 +22,92 @@ package net.krotscheck.features.response;
  *
  * @author Michael Krotscheck
  */
-public enum ApiParam {
+public final class ApiParam {
 
     /**
-     * List queries, on what field should we sort our response?
+     * Private constructor for utility class.
      */
-    SORT("Sort", "sort", "id"),
+    private ApiParam() {
+    }
 
     /**
-     * The sort order, ASC or DESC.
+     * Header name: Sort On.
      */
-    ORDER("Order", "order", "ASC"),
+    public static final String SORT_HEADER = "Sort";
 
     /**
-     * The paging offset, in records.
+     * Query Variable: Sort On.
      */
-    OFFSET("Offset", "offset", "0"),
+    public static final String SORT_QUERY = "sort";
 
     /**
-     * The paging limit, in records.
+     * Default Value: Sort On.
      */
-    LIMIT("Limit", "limit", "10"),
+    public static final String SORT_DEFAULT = "id";
+
+    /**
+     * Header name: List Order.
+     */
+    public static final String ORDER_HEADER = "Order";
+
+    /**
+     * Query variable: List Order.
+     */
+    public static final String ORDER_QUERY = "order";
+
+    /**
+     * Default Value: List Order.
+     */
+    public static final String ORDER_DEFAULT = "ASC";
+
+    /**
+     * Header name: List Offset.
+     */
+    public static final String OFFSET_HEADER = "Offset";
+
+    /**
+     * Query variable: List Offset.
+     */
+    public static final String OFFSET_QUERY = "offset";
+
+    /**
+     * Default value: List Offset.
+     */
+    public static final String OFFSET_DEFAULT = "0";
+
+    /**
+     * Header name: Search/Browse Paging Limit.
+     */
+    public static final String LIMIT_HEADER = "Limit";
+
+    /**
+     * Query name: Search/Browse Paging Limit.
+     */
+    public static final String LIMIT_QUERY = "limit";
+
+    /**
+     * Default Value: Search/Browse Paging Limit.
+     */
+    public static final String LIMIT_DEFAULT = "10";
 
     /**
      * The total number of results.
      */
-    TOTAL("Total", null, null),
+    public static final String TOTAL_HEADER = "Total";
 
     /**
-     * The search query string.
+     * Header Name: Query String.
      */
-    QUERY("Query", "q", "");
+    public static final String QUERY_HEADER = "Query";
 
     /**
-     * The HTTP header name.
+     * Query variable: Query String.
      */
-    private final String header;
+    public static final String QUERY_QUERY = "q";
 
     /**
-     * The parameter's representation in the query string.
+     * Default value: Query String.
      */
-    private final String queryParam;
+    public static final String QUERY_DEFAULT = "";
 
-    /**
-     * The default value for this query parameter.
-     */
-    private final String queryDefault;
-
-    /**
-     * Get the text header for this query parameter.
-     *
-     * @return The name of the header.
-     */
-    public String headerName() {
-        return header;
-    }
-
-    /**
-     * Get the query parameter name for this param.
-     *
-     * @return The query param
-     */
-    public String queryParam() {
-        return queryParam;
-    }
-
-    /**
-     * Get the default value for this parameter.
-     *
-     * @return The default value.
-     */
-    public String queryDefault() {
-        return queryDefault;
-    }
-
-    /**
-     * Create a new API parameter, represented via headers and/or query
-     * strings.
-     *
-     * @param header       The HTTP Header which represents this parameter.
-     * @param queryParam   The query parameter name.
-     * @param queryDefault The default value for the query parameter.
-     */
-    ApiParam(final String header,
-             final String queryParam,
-             final String queryDefault) {
-        this.header = header;
-        this.queryParam = queryParam;
-        this.queryDefault = queryDefault;
-    }
 }

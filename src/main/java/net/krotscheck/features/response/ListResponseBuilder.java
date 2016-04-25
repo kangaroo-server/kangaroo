@@ -65,7 +65,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder limit(final Number limit) {
-        String headerName = ApiParam.LIMIT.headerName();
+        String headerName = ApiParam.LIMIT_HEADER;
         builder.header(headerName, limit.longValue());
         addedHeaders.add(headerName);
         return this;
@@ -78,7 +78,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder total(final Number total) {
-        String headerName = ApiParam.TOTAL.headerName();
+        String headerName = ApiParam.TOTAL_HEADER;
         builder.header(headerName, total.longValue());
         addedHeaders.add(headerName);
         return this;
@@ -91,7 +91,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder offset(final Number offset) {
-        String headerName = ApiParam.OFFSET.headerName();
+        String headerName = ApiParam.OFFSET_HEADER;
         builder.header(headerName, offset.longValue());
         addedHeaders.add(headerName);
         return this;
@@ -104,7 +104,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder sort(final String sort) {
-        String headerName = ApiParam.SORT.headerName();
+        String headerName = ApiParam.SORT_HEADER;
         builder.header(headerName, sort);
         addedHeaders.add(headerName);
         return this;
@@ -117,7 +117,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder order(final SortOrder order) {
-        String headerName = ApiParam.ORDER.headerName();
+        String headerName = ApiParam.ORDER_HEADER;
         builder.header(headerName, order.toString());
         addedHeaders.add(headerName);
         return this;
@@ -140,7 +140,7 @@ public final class ListResponseBuilder {
      * @return This builder.
      */
     public ListResponseBuilder query(final String query) {
-        String headerName = ApiParam.QUERY.headerName();
+        String headerName = ApiParam.QUERY_HEADER;
         builder.header(headerName, query);
         addedHeaders.add(headerName);
         return this;

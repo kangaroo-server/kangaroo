@@ -56,8 +56,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.OFFSET.headerName()));
-        Assert.assertEquals(ApiParam.OFFSET.headerName(),
+                response.getHeaderString(ApiParam.OFFSET_HEADER));
+        Assert.assertEquals(ApiParam.OFFSET_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -73,8 +73,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.OFFSET.headerName()));
-        Assert.assertEquals(ApiParam.OFFSET.headerName(),
+                response.getHeaderString(ApiParam.OFFSET_HEADER));
+        Assert.assertEquals(ApiParam.OFFSET_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -90,8 +90,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.OFFSET.headerName()));
-        Assert.assertEquals(ApiParam.OFFSET.headerName(),
+                response.getHeaderString(ApiParam.OFFSET_HEADER));
+        Assert.assertEquals(ApiParam.OFFSET_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -107,8 +107,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.LIMIT.headerName()));
-        Assert.assertEquals(ApiParam.LIMIT.headerName(),
+                response.getHeaderString(ApiParam.LIMIT_HEADER));
+        Assert.assertEquals(ApiParam.LIMIT_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -124,8 +124,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.LIMIT.headerName()));
-        Assert.assertEquals(ApiParam.LIMIT.headerName(),
+                response.getHeaderString(ApiParam.LIMIT_HEADER));
+        Assert.assertEquals(ApiParam.LIMIT_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -141,8 +141,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.LIMIT.headerName()));
-        Assert.assertEquals(ApiParam.LIMIT.headerName(),
+                response.getHeaderString(ApiParam.LIMIT_HEADER));
+        Assert.assertEquals(ApiParam.LIMIT_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -158,8 +158,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.TOTAL.headerName()));
-        Assert.assertEquals(ApiParam.TOTAL.headerName(),
+                response.getHeaderString(ApiParam.TOTAL_HEADER));
+        Assert.assertEquals(ApiParam.TOTAL_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -175,8 +175,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.TOTAL.headerName()));
-        Assert.assertEquals(ApiParam.TOTAL.headerName(),
+                response.getHeaderString(ApiParam.TOTAL_HEADER));
+        Assert.assertEquals(ApiParam.TOTAL_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -192,8 +192,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("10",
-                response.getHeaderString(ApiParam.TOTAL.headerName()));
-        Assert.assertEquals(ApiParam.TOTAL.headerName(),
+                response.getHeaderString(ApiParam.TOTAL_HEADER));
+        Assert.assertEquals(ApiParam.TOTAL_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -209,8 +209,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("foo",
-                response.getHeaderString(ApiParam.SORT.headerName()));
-        Assert.assertEquals(ApiParam.SORT.headerName(),
+                response.getHeaderString(ApiParam.SORT_HEADER));
+        Assert.assertEquals(ApiParam.SORT_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -226,8 +226,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("DESC",
-                response.getHeaderString(ApiParam.ORDER.headerName()));
-        Assert.assertEquals(ApiParam.ORDER.headerName(),
+                response.getHeaderString(ApiParam.ORDER_HEADER));
+        Assert.assertEquals(ApiParam.ORDER_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -243,8 +243,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("DESC",
-                response.getHeaderString(ApiParam.ORDER.headerName()));
-        Assert.assertEquals(ApiParam.ORDER.headerName(),
+                response.getHeaderString(ApiParam.ORDER_HEADER));
+        Assert.assertEquals(ApiParam.ORDER_HEADER,
                 response.getHeaderString("Vary"));
     }
 
@@ -260,8 +260,8 @@ public final class ListResponseBuilderTest {
         Response response = b.build();
 
         Assert.assertEquals("foo",
-                response.getHeaderString(ApiParam.QUERY.headerName()));
-        Assert.assertEquals(ApiParam.QUERY.headerName(),
+                response.getHeaderString(ApiParam.QUERY_HEADER));
+        Assert.assertEquals(ApiParam.QUERY_HEADER,
                 response.getHeaderString("Vary"));
     }
 
