@@ -50,7 +50,6 @@ public final class DatabaseFeatureTest extends DatabaseTest {
      */
     @Override
     protected Application configure() {
-
         ResourceConfig a = new ResourceConfig();
         a.register(DatabaseFeature.class);
         a.register(MockService.class);

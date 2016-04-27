@@ -21,6 +21,8 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -43,10 +45,21 @@ import liquibase.resource.FileSystemResourceAccessor;
 public abstract class DatabaseTest extends JerseyTest {
 
     /**
+     * Logger instance.
+     */
+    private static Logger logger = LoggerFactory.getLogger(DatabaseTest.class);
+
+    /**
      * JDBC Connection string.
      */
     private static final String JDBC =
             "jdbc:h2:mem:target/test/db/h2/hibernate";
+
+    /**
+     * The JNDI Identity.
+     */
+    private static final String JNDI =
+            "java:/comp/env/jdbc/OIDServerDB";
 
     /**
      * The JNDI connection for the test.
@@ -64,9 +77,9 @@ public abstract class DatabaseTest extends JerseyTest {
      * @throws Exception Initialization exception.
      */
     @BeforeClass
-    public static void setupClass() throws Exception {
+    public static void setupDatabaseSchema() throws Exception {
         setupJNDI();
-        migrateDatabase();
+        migrateDatabaseSchema();
     }
 
     /**
@@ -75,14 +88,15 @@ public abstract class DatabaseTest extends JerseyTest {
      * @throws Exception Teardown Exceptions.
      */
     @AfterClass
-    public static void removeTestData() throws Exception {
-        cleanDatabase();
+    public static void removeDatabaseSchema() throws Exception {
+        cleanDatabaseSchema();
     }
 
     /**
      * Setup the JNDI resource for our database tests.
      */
     private static void setupJNDI() {
+        logger.info("Setting up JNDI.");
         // Create initial context
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
                 "org.eclipse.jetty.jndi.InitialContextFactory");
@@ -97,7 +111,7 @@ public abstract class DatabaseTest extends JerseyTest {
 
             JdbcConnectionPool ds = JdbcConnectionPool.create(
                     JDBC, "sa", "sa");
-            ic.bind("java:/comp/env/jdbc/OIDServerDB", ds);
+            ic.bind(JNDI, ds);
         } catch (NamingException ne) {
             ne.getMessage();
         }
@@ -108,7 +122,8 @@ public abstract class DatabaseTest extends JerseyTest {
      *
      * @throws Exception Liquibase migration exception.
      */
-    private static void migrateDatabase() throws Exception {
+    private static void migrateDatabaseSchema() throws Exception {
+        logger.info("Migrating Database Schema.");
         Class.forName("org.h2.Driver");
         conn = DriverManager
                 .getConnection(JDBC, "sa", "sa");
@@ -126,7 +141,8 @@ public abstract class DatabaseTest extends JerseyTest {
      *
      * @throws Exception Liquibase migration exception.
      */
-    private static void cleanDatabase() throws Exception {
+    private static void cleanDatabaseSchema() throws Exception {
+        logger.info("Cleaning Database.");
         liquibase.rollback(1000, null);
         liquibase = null;
 

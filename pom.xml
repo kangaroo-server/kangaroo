@@ -50,9 +50,9 @@
 
   <properties>
     <jdk.version>1.8</jdk.version>
-    <hibernate.version>4.3.11.Final</hibernate.version>
-    <hibernate-search.version>5.3.0.Final</hibernate-search.version>
-    <jersey2-toolkit.version>1.1.23</jersey2-toolkit.version>
+    <hibernate.version>5.0.6.Final</hibernate.version>
+    <hibernate-search.version>5.5.1.Final</hibernate-search.version>
+    <jersey2-toolkit.version>2.0.2</jersey2-toolkit.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -603,6 +603,11 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-envers</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-search</artifactId>
       <version>${hibernate-search.version}</version>
     </dependency>
@@ -626,6 +631,10 @@
         <exclusion>
           <artifactId>hibernate-jpa-2.0-api</artifactId>
           <groupId>org.hibernate.javax.persistence</groupId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-envers</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -660,6 +669,14 @@
       <groupId>org.glassfish.jersey.test-framework.providers</groupId>
       <artifactId>jersey-test-framework-provider-jetty</artifactId>
       <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- DbUnit -->
+    <dependency>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <version>2.4.9</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

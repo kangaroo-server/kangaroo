@@ -39,6 +39,7 @@ public final class OAuthAPITest extends DatabaseTest {
         return new OAuthAPI();
     }
 
+
     /**
      * The application smoketest.
      */
