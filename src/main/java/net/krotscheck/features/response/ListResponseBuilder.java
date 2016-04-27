@@ -85,6 +85,19 @@ public final class ListResponseBuilder {
     }
 
     /**
+     * Add a total to the response.
+     *
+     * @param total The total.
+     * @return The builder.
+     */
+    public ListResponseBuilder total(final Object total) {
+        String headerName = ApiParam.TOTAL_HEADER;
+        builder.header(headerName, Long.valueOf(total.toString()));
+        addedHeaders.add(headerName);
+        return this;
+    }
+
+    /**
      * Add an offset to the response.
      *
      * @param offset The offset.

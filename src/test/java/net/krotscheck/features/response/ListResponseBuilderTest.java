@@ -164,6 +164,23 @@ public final class ListResponseBuilderTest {
     }
 
     /**
+     * Assert that adding an object total works.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testObjectTotal() throws Exception {
+        ListResponseBuilder b = ListResponseBuilder.builder();
+        b.total((Object) Integer.valueOf(10));
+        Response response = b.build();
+
+        Assert.assertEquals("10",
+                response.getHeaderString(ApiParam.TOTAL_HEADER));
+        Assert.assertEquals(ApiParam.TOTAL_HEADER,
+                response.getHeaderString("Vary"));
+    }
+
+    /**
      * Assert that adding a long total works.
      *
      * @throws Exception Should not be thrown.
