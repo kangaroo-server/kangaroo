@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.status;
+package net.krotscheck.features.version;
 
 import net.krotscheck.features.config.ConfigurationFeature;
 
@@ -23,12 +23,11 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
 /**
- * This feature exposes a simple /status API endpoint that returns the current
- * version of the application.
+ * This feature attaches the version to every request.
  *
  * @author Michael Krotscheck
  */
-public final class StatusFeature implements Feature {
+public final class VersionFeature implements Feature {
 
     /**
      * Register this feature.
@@ -41,8 +40,8 @@ public final class StatusFeature implements Feature {
             context.register(ConfigurationFeature.class);
         }
 
-        // Add the /status resource
-        context.register(StatusService.class);
+        // Add the configuration injector
+        context.register(new VersionFilter.Binder());
 
         return true;
     }

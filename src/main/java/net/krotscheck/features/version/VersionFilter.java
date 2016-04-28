@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.status;
+package net.krotscheck.features.version;
 
 import net.krotscheck.features.config.SystemConfiguration;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -32,7 +32,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
  *
  * @author Michael Krotscheck
  */
-public final class ServiceVersionFilter implements ContainerResponseFilter {
+public final class VersionFilter implements ContainerResponseFilter {
 
     /**
      * Version to attach to the response context.
@@ -45,7 +45,7 @@ public final class ServiceVersionFilter implements ContainerResponseFilter {
      * @param config The system configuration, injected.
      */
     @Inject
-    public ServiceVersionFilter(final SystemConfiguration config) {
+    public VersionFilter(final SystemConfiguration config) {
         this.version = config.getVersion();
     }
 
@@ -71,7 +71,7 @@ public final class ServiceVersionFilter implements ContainerResponseFilter {
 
         @Override
         protected void configure() {
-            bind(ServiceVersionFilter.class)
+            bind(VersionFilter.class)
                     .to(ContainerResponseFilter.class)
                     .in(Singleton.class);
         }

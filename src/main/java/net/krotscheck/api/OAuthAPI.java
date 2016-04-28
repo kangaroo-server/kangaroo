@@ -24,6 +24,7 @@ import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
 import net.krotscheck.api.status.StatusFeature;
 import net.krotscheck.api.user.UserFeature;
+import net.krotscheck.features.version.VersionFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -47,6 +48,7 @@ public final class OAuthAPI extends ResourceConfig {
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
+        register(VersionFeature.class);          // Version response attachment.
 
         // API Services
         register(StatusFeature.class);           // Status service.

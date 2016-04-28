@@ -15,49 +15,45 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.status;
+package net.krotscheck.features.version;
 
-import net.krotscheck.features.config.SystemConfiguration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
- * Test the Service Version Filter, which attaches the current project version
- * to every HTTP Request.
+ * General smoke test for the status feature.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SystemConfiguration.class)
-public final class ServiceVersionFilterTest extends JerseyTest {
+public class VersionFeatureTest extends JerseyTest {
 
+    /**
+     * Construct the application.
+     *
+     * @return A filtered application.
+     */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();
-        a.register(StatusFeature.class);
+        a.register(VersionFeature.class);
         return a;
     }
 
     /**
-     * Assert that an injected version string is applied to the response
-     * context.
+     * Test the simple request.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Add an exception.
      */
     @Test
-    public void testVersionAppliedToResponse() throws Exception {
+    public void testSimpleRequest() throws Exception {
         Response response = target("/")
                 .request()
                 .get();
         Assert.assertEquals("dev", response.getHeaderString("API-Version"));
     }
 }
-
