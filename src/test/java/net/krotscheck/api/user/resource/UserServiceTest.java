@@ -22,6 +22,7 @@ import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
+import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
 import net.krotscheck.test.DatabaseTest;
 import net.krotscheck.test.DatabaseUtil;
 import net.krotscheck.util.ResourceUtil;
@@ -34,9 +35,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
+import javax.servlet.ServletContextEvent;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for the UserService API.
@@ -76,7 +80,11 @@ public final class UserServiceTest extends DatabaseTest {
      */
     @BeforeClass
     public static void setupTestData() {
+        // Load data
         DatabaseUtil.loadTestData(TEST_DATA);
+        // Rebuild the search index.
+        new SearchIndexContextListener()
+                .contextInitialized(mock(ServletContextEvent.class));
     }
 
     /**
