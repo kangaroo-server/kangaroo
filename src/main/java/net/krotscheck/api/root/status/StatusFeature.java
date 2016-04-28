@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.status;
+package net.krotscheck.api.root.status;
 
 import net.krotscheck.features.config.ConfigurationFeature;
 

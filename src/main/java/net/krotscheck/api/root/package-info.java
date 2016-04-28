@@ -16,6 +16,6 @@
  */
 
 /**
- * API heartbeat service.
+ * Root API for the servlet context.
  */
-package net.krotscheck.api.status;
+package net.krotscheck.api.root;

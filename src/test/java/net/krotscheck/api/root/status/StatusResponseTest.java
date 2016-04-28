@@ -15,34 +15,27 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.status;
+package net.krotscheck.api.root.status;
 
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.ws.rs.core.Application;
-
 /**
- * General smoke test for the status feature.
+ * Validate the status response POJO
  *
  * @author Michael Krotscheck
  */
-public class StatusFeatureTest extends JerseyTest {
+public class StatusResponseTest {
 
-    @Override
-    protected Application configure() {
-        ResourceConfig a = new ResourceConfig();
-        a.register(StatusFeature.class);
-        return a;
-    }
-
+    /**
+     * Assert that the getter and setter works.
+     */
     @Test
-    public void testSimpleRequest() throws Exception {
-        StatusResponse statusResponse = target("/")
-                .request()
-                .get(StatusResponse.class);
-        Assert.assertEquals("dev", statusResponse.getVersion());
+    public void testGetSetVersion() throws Exception {
+        StatusResponse instance = new StatusResponse();
+
+        Assert.assertEquals("", instance.getVersion());
+        instance.setVersion("foo");
+        Assert.assertEquals("foo", instance.getVersion());
     }
 }

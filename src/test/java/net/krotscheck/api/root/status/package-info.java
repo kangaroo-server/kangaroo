@@ -18,4 +18,4 @@
 /**
  * Unit tests for Status Features.
  */
-package net.krotscheck.api.status;
+package net.krotscheck.api.root.status;

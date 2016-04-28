@@ -15,27 +15,38 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.status;
+package net.krotscheck.api.root.status;
 
-import org.junit.Assert;
-import org.junit.Test;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Validate the status response POJO
+ * The status resource is a POJO that encapsulates common API metadata.
  *
  * @author Michael Krotscheck
  */
-public class StatusResponseTest {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class StatusResponse {
 
     /**
-     * Assert that the getter and setter works.
+     * The API version.
      */
-    @Test
-    public void testGetSetVersion() throws Exception {
-        StatusResponse instance = new StatusResponse();
+    private String version = "";
 
-        Assert.assertEquals("", instance.getVersion());
-        instance.setVersion("foo");
-        Assert.assertEquals("foo", instance.getVersion());
+    /**
+     * Get the current API version.
+     *
+     * @return The released package version.
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set the API version.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(final String version) {
+        this.version = version;
     }
 }

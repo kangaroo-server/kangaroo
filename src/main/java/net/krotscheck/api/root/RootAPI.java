@@ -15,31 +15,27 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api;
+package net.krotscheck.api.root;
 
-
+import net.krotscheck.api.root.status.StatusFeature;
 import net.krotscheck.features.config.ConfigurationFeature;
-import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
-import net.krotscheck.api.root.status.StatusFeature;
-import net.krotscheck.api.user.UserFeature;
 import net.krotscheck.features.version.VersionFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
- * The OID Servlet application, including all configured resources and
- * features.
+ * The root API for the application.
  *
  * @author Michael Krotscheck
  */
-public final class OAuthAPI extends ResourceConfig {
+public class RootAPI extends ResourceConfig {
 
     /**
      * Constructor. Creates a new application instance.
      */
-    public OAuthAPI() {
+    public RootAPI() {
         // No autodiscovery, we load everything explicitly.
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
@@ -47,10 +43,10 @@ public final class OAuthAPI extends ResourceConfig {
         register(ConfigurationFeature.class);    // Configuration loader
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
-        register(DatabaseFeature.class);         // Database Feature.
         register(VersionFeature.class);          // Version response attachment.
 
         // API Services
-        register(UserFeature.class);             // User service.
+        register(StatusFeature.class);           // Status service.
     }
 }
+
