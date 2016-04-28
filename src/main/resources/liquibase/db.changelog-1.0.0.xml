@@ -39,7 +39,29 @@
       <column name="name" type="text"/>
     </createTable>
 
+    <!-- Add applications table -->
+    <createTable tableName="applications">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true"
+                     nullable="false"
+                     primaryKeyName="pk_applications_id"/>
+      </column>
+      <column name="createdDate" type="DATETIME"/>
+      <column name="modifiedDate" type="DATETIME"/>
+      <column name="user" type="BIGINT"/>
+      <column name="name" type="text"/>
+    </createTable>
+
+    <addForeignKeyConstraint
+        baseTableName="applications"
+        baseColumnNames="user"
+        constraintName="fk_applications_user"
+        referencedTableName="users"
+        referencedColumnNames="id"
+    />
+
     <rollback>
+      <dropTable tableName="applications"/>
       <dropTable tableName="users"/>
     </rollback>
   </changeSet>

@@ -17,7 +17,7 @@
 
 package net.krotscheck.features.database.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
@@ -25,41 +25,36 @@ import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilterFacto
 import org.apache.lucene.analysis.miscellaneous.TrimFilterFactory;
 import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.CharFilterDef;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
-import java.security.Principal;
-import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
- * The user entity, as persisted to the database.
+ * The application entity, representing an app which uses our system for
+ * authentication.
  *
  * @author Michael Krotscheck
  */
 @Entity
-@Table(name = "users",
-        uniqueConstraints =
-        @UniqueConstraint(columnNames = {"email"})
-)
-@Indexed(index = "users")
-@AnalyzerDef(name = "useranalyzer",
+@Table(name = "applications")
+@Indexed(index = "applications")
+@AnalyzerDef(name = "applicationsanalyzer",
         charFilters = {
                 @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
         },
@@ -75,18 +70,18 @@ import javax.persistence.UniqueConstraint;
                 @TokenFilterDef(
                         factory = RemoveDuplicatesTokenFilterFactory.class)
         })
-public final class User extends AbstractEntity implements Principal {
+public final class Application extends AbstractEntity {
 
     /**
-     * The user's email address.
+     * User record to whom this application belongs.
      */
-    @Basic(optional = false)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user", nullable = false, updatable = false)
+    @JsonIdentityReference(alwaysAsId = true)
+    private User user;
 
     /**
-     * The user's full name.
+     * The name of the application.
      */
     @Basic(optional = false)
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -94,63 +89,38 @@ public final class User extends AbstractEntity implements Principal {
     private String name;
 
     /**
-     * List of the user's applications.
+     * Get the user record.
+     *
+     * @return The current user record, or null.
      */
-    @OneToMany(fetch = FetchType.LAZY)
-    @Cascade(CascadeType.ALL)
-    @JsonIgnore
-    private List<Application> applications;
+    public User getUser() {
+        return user;
+    }
 
     /**
-     * Get the name.
+     * Set the user record.
+     *
+     * @param user The new owner for this application.
      */
-    @Override
+    public void setUser(final User user) {
+        this.user = user;
+    }
+
+    /**
+     * Get the name for this application.
+     *
+     * @return The application's name.
+     */
     public String getName() {
         return name;
     }
 
     /**
-     * Set the name.
+     * Set the name for this application.
      *
-     * @param name Set the name.
+     * @param name A new name.
      */
     public void setName(final String name) {
         this.name = name;
-    }
-
-    /**
-     * Retrieves this user's email address.
-     *
-     * @return The user's email address.
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Sets this user's email address.
-     *
-     * @param email The email address.
-     */
-    public void setEmail(final String email) {
-        this.email = email;
-    }
-
-    /**
-     * Retrieves the user's application.
-     *
-     * @return The user's application list.
-     */
-    public List<Application> getApplications() {
-        return applications;
-    }
-
-    /**
-     * Set the list of applications.
-     *
-     * @param applications A new list of applications.
-     */
-    public void setApplications(final List<Application> applications) {
-        this.applications = applications;
     }
 }

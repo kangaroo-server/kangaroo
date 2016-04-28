@@ -20,50 +20,35 @@ package net.krotscheck.features.database.entity;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Test the user entity.
+ * Test the application entity.
  *
  * @author Michael Krotscheck
  */
-public final class UserTest {
+public final class ApplicationTest {
 
     /**
      * Test get/set name.
      */
     @Test
     public void testGetSetName() {
-        User u = new User();
+        Application a = new Application();
 
-        Assert.assertNull(u.getName());
-        u.setName("foo");
-        Assert.assertEquals("foo", u.getName());
+        Assert.assertNull(a.getName());
+        a.setName("foo");
+        Assert.assertEquals("foo", a.getName());
     }
 
     /**
-     * Test get/set email.
-     */
-    @Test
-    public void testGetSetEmail() {
-        User u = new User();
-
-        Assert.assertNull(u.getEmail());
-        u.setEmail("foo");
-        Assert.assertEquals("foo", u.getEmail());
-    }
-
-    /**
-     * Test get/set applications.
+     * Test get/set user record.
      */
     @Test
     public void testGetSetApplications() {
+        Application a = new Application();
         User u = new User();
-        List<Application> apps = new ArrayList<>();
 
-        Assert.assertNull(u.getApplications());
-        u.setApplications(apps);
-        Assert.assertEquals(apps, u.getApplications());
+        Assert.assertNull(a.getUser());
+        a.setUser(u);
+        Assert.assertEquals(u, a.getUser());
     }
 }
