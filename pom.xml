@@ -679,5 +679,13 @@
       <version>2.4.9</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Lucene test harness -->
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-test-framework</artifactId>
+      <version>5.3.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

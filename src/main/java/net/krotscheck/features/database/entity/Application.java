@@ -18,6 +18,7 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import net.krotscheck.features.database.filters.UserFilter;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
@@ -29,6 +30,9 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.CharFilterDef;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -54,6 +58,11 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "applications")
 @Indexed(index = "applications")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "user",
+                impl = UserFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+})
 @AnalyzerDef(name = "applicationsanalyzer",
         charFilters = {
                 @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
@@ -78,6 +87,7 @@ public final class Application extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @IndexedEmbedded(includePaths = {"id"})
     private User user;
 
     /**
