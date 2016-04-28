@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api;
+package net.krotscheck.api.admin.v1;
 
 
+import net.krotscheck.api.admin.v1.user.UserFeature;
 import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
-import net.krotscheck.api.root.status.StatusFeature;
-import net.krotscheck.api.user.UserFeature;
 import net.krotscheck.features.version.VersionFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -34,12 +33,12 @@ import org.glassfish.jersey.server.ResourceConfig;
  *
  * @author Michael Krotscheck
  */
-public final class OAuthAPI extends ResourceConfig {
+public final class AdminV1API extends ResourceConfig {
 
     /**
      * Constructor. Creates a new application instance.
      */
-    public OAuthAPI() {
+    public AdminV1API() {
         // No autodiscovery, we load everything explicitly.
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 

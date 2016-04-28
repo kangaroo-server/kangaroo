@@ -16,8 +16,6 @@
  */
 
 /**
- * User and user preference management.
- *
- * @author Michael Krotscheck
+ * The server administration API.
  */
-package net.krotscheck.api.user;
+package net.krotscheck.api.admin.v1;

@@ -18,4 +18,4 @@
 /**
  * The user management feature.
  */
-package net.krotscheck.api.user.resource;
+package net.krotscheck.api.admin.v1.user.resource;

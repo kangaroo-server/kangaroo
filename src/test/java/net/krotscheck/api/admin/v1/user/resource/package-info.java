@@ -16,7 +16,6 @@
  */
 
 /**
- * All services in this package, including the root service, the admin services
- * (all versions), and the oauth service.
+ * Unit tests for the user service.
  */
-package net.krotscheck.api;
+package net.krotscheck.api.admin.v1.user.resource;

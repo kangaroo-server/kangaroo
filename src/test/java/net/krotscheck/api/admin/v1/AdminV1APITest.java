@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api;
+package net.krotscheck.api.admin.v1;
 
 import net.krotscheck.test.DatabaseTest;
 import org.junit.Assert;
@@ -25,9 +25,9 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
- * General API smoketest to make sure the application can be loaded.
+ * Test for the admin API.
  */
-public final class OAuthAPITest extends DatabaseTest {
+public final class AdminV1APITest extends DatabaseTest {
 
     /**
      * Create a test instance of the application to test against.
@@ -36,9 +36,9 @@ public final class OAuthAPITest extends DatabaseTest {
      */
     @Override
     protected Application configure() {
-        return new OAuthAPI();
+        return new AdminV1API();
     }
-    
+
     /**
      * The application smoketest.
      */

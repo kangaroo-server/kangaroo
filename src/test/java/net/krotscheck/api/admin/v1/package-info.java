@@ -16,6 +16,6 @@
  */
 
 /**
- * Unit tests for the user service.
+ * Unit tests for the admin API, version 1.
  */
-package net.krotscheck.api.user.resource;
+package net.krotscheck.api.admin.v1;

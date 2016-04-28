@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.user;
+package net.krotscheck.api.admin.v1.user;
 
-import net.krotscheck.api.user.resource.UserService;
+import net.krotscheck.api.admin.v1.user.resource.UserService;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
