@@ -16,6 +16,6 @@
  */
 
 /**
- * API heartbeat service.
+ * The user management feature.
  */
-package net.krotscheck.features.status;
+package net.krotscheck.api.user.resource;

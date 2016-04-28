@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.user.resource;
+package net.krotscheck.api.user.resource;
 
 import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
@@ -49,7 +49,7 @@ public final class UserServiceTest extends DatabaseTest {
      * The tests's backing data.
      */
     private static final File TEST_DATA = ResourceUtil.getFileForResource(
-            "net/krotscheck/features/user/UserServiceTest.xml");
+            "net/krotscheck/api/user/UserServiceTest.xml");
 
     /**
      * Build and configure the application.

@@ -15,7 +15,29 @@
  * limitations under the License.
  */
 
+package net.krotscheck.api.user;
+
+import net.krotscheck.api.user.resource.UserService;
+
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+
 /**
- * Unit tests for the database feature.
+ * The User Management API.
+ *
+ * @author Michael Krotscheck
  */
-package net.krotscheck.oauth;
+public final class UserFeature implements Feature {
+
+    /**
+     * Register this feature.
+     */
+    @Override
+    public boolean configure(final FeatureContext context) {
+
+        // User service
+        context.register(UserService.class);
+
+        return true;
+    }
+}

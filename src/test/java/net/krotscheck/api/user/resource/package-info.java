@@ -16,7 +16,6 @@
  */
 
 /**
- * An OpenID connect server, which delegates authentication to various current
- * social services.
+ * Unit tests for the user service.
  */
-package net.krotscheck.oauth;
+package net.krotscheck.api.user.resource;

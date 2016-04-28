@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package net.krotscheck.oauth;
+package net.krotscheck.api;
 
 
 import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
-import net.krotscheck.features.status.StatusFeature;
-import net.krotscheck.features.user.UserFeature;
+import net.krotscheck.api.status.StatusFeature;
+import net.krotscheck.api.user.UserFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -42,11 +42,13 @@ public final class OAuthAPI extends ResourceConfig {
         // No autodiscovery, we load everything explicitly.
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
+        // Common features.
         register(ConfigurationFeature.class);    // Configuration loader
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
 
+        // API Services
         register(StatusFeature.class);           // Status service.
         register(UserFeature.class);             // User service.
     }

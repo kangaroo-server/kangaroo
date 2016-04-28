@@ -15,31 +15,36 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.status;
+package net.krotscheck.api;
 
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import net.krotscheck.api.status.StatusResponse;
+import net.krotscheck.test.DatabaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Application;
 
 /**
- * General smoke test for the status feature.
- *
- * @author Michael Krotscheck
+ * General API smoketest to make sure the application can be loaded.
  */
-public class StatusFeatureTest extends JerseyTest {
+public final class OAuthAPITest extends DatabaseTest {
 
+    /**
+     * Create a test instance of the application to test against.
+     *
+     * @return The constructed application.
+     */
     @Override
     protected Application configure() {
-        ResourceConfig a = new ResourceConfig();
-        a.register(StatusFeature.class);
-        return a;
+        return new OAuthAPI();
     }
 
+
+    /**
+     * The application smoketest.
+     */
     @Test
-    public void testSimpleRequest() throws Exception {
+    public void smokeTest() {
         StatusResponse statusResponse = target("/")
                 .request()
                 .get(StatusResponse.class);

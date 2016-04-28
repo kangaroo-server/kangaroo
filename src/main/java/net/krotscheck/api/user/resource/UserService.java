@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.user.resource;
+package net.krotscheck.api.user.resource;
 
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.database.util.SortUtil;

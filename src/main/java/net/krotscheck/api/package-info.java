@@ -16,6 +16,7 @@
  */
 
 /**
- * Unit tests for Status Features.
+ * An OpenID connect server, which delegates authentication to various current
+ * social services.
  */
-package net.krotscheck.features.status;
+package net.krotscheck.api;

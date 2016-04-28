@@ -16,8 +16,6 @@
  */
 
 /**
- * User and user preference management.
- *
- * @author Michael Krotscheck
+ * API heartbeat service.
  */
-package net.krotscheck.features.user;
+package net.krotscheck.api.status;

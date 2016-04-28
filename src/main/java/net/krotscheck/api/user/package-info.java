@@ -16,6 +16,8 @@
  */
 
 /**
- * Unit tests for the user service.
+ * User and user preference management.
+ *
+ * @author Michael Krotscheck
  */
-package net.krotscheck.features.user.resource;
+package net.krotscheck.api.user;

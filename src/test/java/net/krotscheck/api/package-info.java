@@ -16,6 +16,6 @@
  */
 
 /**
- * The user management feature.
+ * Unit tests for the database feature.
  */
-package net.krotscheck.features.user.resource;
+package net.krotscheck.api;

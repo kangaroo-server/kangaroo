@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.user;
+package net.krotscheck.api.status;
 
-import net.krotscheck.features.user.resource.UserService;
+import net.krotscheck.features.config.ConfigurationFeature;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
 /**
- * The User Management API.
+ * This feature exposes a simple /status API endpoint that returns the current
+ * version of the application.
  *
  * @author Michael Krotscheck
  */
-public final class UserFeature implements Feature {
+public final class StatusFeature implements Feature {
 
     /**
      * Register this feature.
@@ -35,8 +36,16 @@ public final class UserFeature implements Feature {
     @Override
     public boolean configure(final FeatureContext context) {
 
-        // User service
-        context.register(UserService.class);
+        if (!context.getConfiguration()
+                .isRegistered(ConfigurationFeature.class)) {
+            context.register(ConfigurationFeature.class);
+        }
+
+        // Add the configuration injector
+        context.register(new ServiceVersionFilter.Binder());
+
+        // Add the /status resource
+        context.register(StatusService.class);
 
         return true;
     }
