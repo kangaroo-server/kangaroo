@@ -383,6 +383,9 @@ public final class UserServiceTest extends DatabaseTest {
 
         Assert.assertEquals(Long.valueOf(1), responseUser.getId());
         Assert.assertEquals("D Test User 1", responseUser.getName());
+
+        // Should NOT include a reference to the applications.
+        Assert.assertNull(responseUser.getApplications());
     }
 
     /**
