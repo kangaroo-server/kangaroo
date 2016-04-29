@@ -17,11 +17,17 @@
 
 package net.krotscheck.features.database.entity;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import net.krotscheck.features.database.entity.User.Deserializer;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test the user entity.
@@ -65,5 +71,23 @@ public final class UserTest {
         Assert.assertNull(u.getApplications());
         u.setApplications(apps);
         Assert.assertEquals(apps, u.getApplications());
+    }
+
+    /**
+     * Test the user deserializer.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testDeserializeSimple() throws Exception {
+        JsonFactory f = new JsonFactory();
+        JsonParser preloadedParser = f.createParser("1");
+        preloadedParser.nextToken(); // Advance to the first value.
+
+        Deserializer deserializer = new Deserializer();
+        User u = deserializer.deserialize(preloadedParser,
+                mock(DeserializationContext.class));
+
+        Assert.assertEquals((long) 1, (long) u.getId());
     }
 }

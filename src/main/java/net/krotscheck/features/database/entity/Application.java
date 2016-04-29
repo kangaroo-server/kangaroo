@@ -18,6 +18,8 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import net.krotscheck.features.database.filters.UserFilter;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
@@ -87,6 +89,7 @@ public final class Application extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = User.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id"})
     private User user;
 
@@ -132,5 +135,21 @@ public final class Application extends AbstractEntity {
      */
     public void setName(final String name) {
         this.name = name;
+    }
+
+    /**
+     * Deserialize a reference to an Application.
+     *
+     * @author Michael Krotschecks
+     */
+    public static final class Deserializer
+            extends AbstractEntityReferenceDeserializer<Application> {
+
+        /**
+         * Constructor.
+         */
+        public Deserializer() {
+            super(Application.class);
+        }
     }
 }

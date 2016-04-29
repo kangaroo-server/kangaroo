@@ -18,6 +18,7 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
@@ -152,5 +153,21 @@ public final class User extends AbstractEntity implements Principal {
      */
     public void setApplications(final List<Application> applications) {
         this.applications = applications;
+    }
+
+    /**
+     * Deserialize a reference to an User.
+     *
+     * @author Michael Krotschecks
+     */
+    public static final class Deserializer
+            extends AbstractEntityReferenceDeserializer<User> {
+
+        /**
+         * Constructor.
+         */
+        public Deserializer() {
+            super(User.class);
+        }
     }
 }
