@@ -21,7 +21,6 @@ import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
@@ -30,10 +29,13 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class UnhandledExceptionMapperTest {
+public final class UnhandledExceptionMapperTest {
 
+    /**
+     * Test converting to a response.
+     */
     @Test
-    public void testToResponse() throws Exception {
+    public void testToResponse() {
         UnhandledExceptionMapper mapper = new UnhandledExceptionMapper();
         Exception e = new Exception("test");
 

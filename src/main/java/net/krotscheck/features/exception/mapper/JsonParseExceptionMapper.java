@@ -19,7 +19,6 @@ package net.krotscheck.features.exception.mapper;
 
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import net.krotscheck.features.exception.ErrorResponseBuilder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 

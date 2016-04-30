@@ -36,10 +36,13 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class ErrorResponseBuilderTest {
+public final class ErrorResponseBuilderTest {
 
+    /**
+     * Test building an error response from a status code.
+     */
     @Test
-    public void testFromHttpStatusCode() throws Exception {
+    public void testFromHttpStatusCode() {
         Response r = ErrorResponseBuilder.from(
                 HttpStatus.SC_NOT_FOUND).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
@@ -51,8 +54,11 @@ public class ErrorResponseBuilderTest {
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test building an error from a status code and a message.
+     */
     @Test
-    public void testFromStatusAndMessage() throws Exception {
+    public void testFromStatusAndMessage() {
         Response r = ErrorResponseBuilder.from(
                 HttpStatus.SC_NOT_FOUND,
                 "message").build();
@@ -65,8 +71,11 @@ public class ErrorResponseBuilderTest {
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test building with a redirect.
+     */
     @Test
-    public void testFromStatusMessageRedirect() throws Exception {
+    public void testFromStatusMessageRedirect() {
         Response r = ErrorResponseBuilder.from(
                 HttpStatus.SC_NOT_FOUND,
                 "message",
@@ -74,13 +83,16 @@ public class ErrorResponseBuilderTest {
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
-        Assert.assertEquals("http://example.com/" +
-                "?error=true&http_status=404&error_message=message",
+        Assert.assertEquals("http://example.com/"
+                        + "?error=true&http_status=404&error_message=message",
                 r.getHeaderString(HttpHeaders.LOCATION));
     }
 
+    /**
+     * Test building a JSONParseException.
+     */
     @Test
-    public void testFromJsonParseException() throws Exception {
+    public void testFromJsonParseException() {
         JsonParseException e = new JsonParseException("foo",
                 mock(JsonLocation.class));
 
@@ -94,8 +106,11 @@ public class ErrorResponseBuilderTest {
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test building from an HttpStatusException.
+     */
     @Test
-    public void testFromHttpStatusException() throws Exception {
+    public void testFromHttpStatusException() {
         HttpStatusException e =
                 new HttpStatusException(HttpStatus.SC_NOT_FOUND, "foo");
 
@@ -109,29 +124,37 @@ public class ErrorResponseBuilderTest {
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test building from a WebApplicationException.
+     */
     @Test
-    public void testFromWebApplicationException() throws Exception {
+    public void testFromWebApplicationException() {
         WebApplicationException e = new WebApplicationException();
 
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorMessage());
         Assert.assertEquals("", er.getRedirectUrl());
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test building from a generic exception.
+     */
     @Test
-    public void testFromException() throws Exception {
+    public void testFromException() {
         Exception e = new Exception();
 
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorMessage());
         Assert.assertEquals("", er.getRedirectUrl());
         Assert.assertEquals(true, er.isError());

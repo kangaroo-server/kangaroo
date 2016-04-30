@@ -35,10 +35,13 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class HttpStatusExceptionMapperTest {
+public final class HttpStatusExceptionMapperTest {
 
+    /**
+     * Test mapping a forbidden error.
+     */
     @Test
-    public void testForbidden() throws Exception {
+    public void testForbidden() {
         HttpStatusExceptionMapper mapper = new HttpStatusExceptionMapper();
         HttpForbiddenException e = new HttpForbiddenException();
 
@@ -52,8 +55,11 @@ public class HttpStatusExceptionMapperTest {
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test mapping Not Found.
+     */
     @Test
-    public void testNotFound() throws Exception {
+    public void testNotFound() {
         HttpStatusExceptionMapper mapper = new HttpStatusExceptionMapper();
         HttpNotFoundException e = new HttpNotFoundException();
 
@@ -67,8 +73,11 @@ public class HttpStatusExceptionMapperTest {
         Assert.assertEquals(true, er.isError());
     }
 
+    /**
+     * Test Redirect code.
+     */
     @Test
-    public void testRedirect() throws Exception {
+    public void testRedirect() {
         HttpStatusExceptionMapper mapper = new HttpStatusExceptionMapper();
         HttpRedirectException e =
                 new HttpRedirectException("http://example.com/");
@@ -76,13 +85,16 @@ public class HttpStatusExceptionMapperTest {
         Response r = mapper.toResponse(e);
 
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
-        Assert.assertEquals("http://example.com/" +
-                "?error=true&http_status=303&error_message=See+Other",
+        Assert.assertEquals("http://example.com/"
+                        + "?error=true&http_status=303&error_message=See+Other",
                 r.getHeaderString(HttpHeaders.LOCATION));
     }
 
+    /**
+     * Test Unauthorized Exception.
+     */
     @Test
-    public void testUnauthorized() throws Exception {
+    public void testUnauthorized() {
         HttpStatusExceptionMapper mapper = new HttpStatusExceptionMapper();
         HttpUnauthorizedException e = new HttpUnauthorizedException();
 
@@ -95,5 +107,4 @@ public class HttpStatusExceptionMapperTest {
         Assert.assertEquals("", er.getRedirectUrl());
         Assert.assertEquals(true, er.isError());
     }
-
 }

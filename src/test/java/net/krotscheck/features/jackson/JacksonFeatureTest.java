@@ -62,8 +62,10 @@ public final class JacksonFeatureTest extends JerseyTest {
     @Test
     public void testProperDeserialization() {
         MockPojo pojo = new MockPojo();
-        Entity pojoEntity = Entity.entity(pojo, MediaType.APPLICATION_JSON_TYPE);
-        MockPojo response = target("/").request().post(pojoEntity, MockPojo.class);
+        Entity pojoEntity = Entity.entity(pojo,
+                MediaType.APPLICATION_JSON_TYPE);
+        MockPojo response = target("/").request()
+                .post(pojoEntity, MockPojo.class);
 
         Assert.assertTrue(response.isInvokedDeserializer());
         Assert.assertTrue(response.isInvokedSerializer());
@@ -72,7 +74,7 @@ public final class JacksonFeatureTest extends JerseyTest {
 
 
     /**
-     * A simple endpoint that manipulates the MockPojo
+     * A simple endpoint that manipulates the MockPojo.
      *
      * @author Michael Krotscheck
      */

@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class VersionFeatureTest extends JerseyTest {
+public final class VersionFeatureTest extends JerseyTest {
 
     /**
      * Construct the application.

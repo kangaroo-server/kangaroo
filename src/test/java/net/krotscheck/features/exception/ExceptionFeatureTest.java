@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class ExceptionFeatureTest extends JerseyTest {
+public final class ExceptionFeatureTest extends JerseyTest {
 
     /**
      * Build the application.
@@ -68,7 +68,7 @@ public class ExceptionFeatureTest extends JerseyTest {
      * Confirm that HTTP status parsing is loaded.
      */
     @Test
-    public void testHttpStatusException() throws Exception {
+    public void testHttpStatusException() {
         Response r = target("/http").request().get();
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
@@ -83,7 +83,7 @@ public class ExceptionFeatureTest extends JerseyTest {
      * Confirm that jersey exception parsing is loaded.
      */
     @Test
-    public void testJerseyException() throws Exception {
+    public void testJerseyException() {
         Response r = target("/jersey").request().get();
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
@@ -99,7 +99,7 @@ public class ExceptionFeatureTest extends JerseyTest {
      * Confirm that JSON exception parsing is loaded.
      */
     @Test
-    public void testJsonException() throws Exception {
+    public void testJsonException() {
         Response r = target("/json").request().get();
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
@@ -113,7 +113,7 @@ public class ExceptionFeatureTest extends JerseyTest {
      * Confirm that generic exception parsing is loaded.
      */
     @Test
-    public void testGenericException() throws Exception {
+    public void testGenericException() {
         Response r = target("/generic").request().get();
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
@@ -158,9 +158,10 @@ public class ExceptionFeatureTest extends JerseyTest {
         }
 
         /**
-         * Throw a JsonParseException
+         * Throw a JsonParseException.
          *
          * @return Nothing, error thrown.
+         * @throws Exception Test Exception.
          */
         @GET
         @Path("/json")
@@ -173,6 +174,7 @@ public class ExceptionFeatureTest extends JerseyTest {
          * Throw a generic exception.
          *
          * @return Nothing, error thrown.
+         * @throws Exception Test Exception.
          */
         @GET
         @Path("/generic")

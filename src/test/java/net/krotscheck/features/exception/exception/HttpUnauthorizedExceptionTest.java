@@ -25,14 +25,20 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class HttpUnauthorizedExceptionTest {
+public final class HttpUnauthorizedExceptionTest {
 
+    /**
+     * Identity Test.
+     */
     @Test
     public void testHttpStatusException() {
         HttpUnauthorizedException e = new HttpUnauthorizedException();
         Assert.assertTrue(e instanceof HttpUnauthorizedException);
     }
 
+    /**
+     * Test default values.
+     */
     @Test
     public void testBasicExceptions() {
         HttpUnauthorizedException e = new HttpUnauthorizedException();

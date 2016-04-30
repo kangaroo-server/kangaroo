@@ -25,14 +25,20 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class HttpNotFoundExceptionTest {
+public final class HttpNotFoundExceptionTest {
 
+    /**
+     * Identity Test.
+     */
     @Test
     public void testHttpStatusException() {
         HttpForbiddenException e = new HttpForbiddenException();
         Assert.assertTrue(e instanceof HttpStatusException);
     }
 
+    /**
+     * Test default values.
+     */
     @Test
     public void testBasicExceptions() {
         HttpNotFoundException e = new HttpNotFoundException();

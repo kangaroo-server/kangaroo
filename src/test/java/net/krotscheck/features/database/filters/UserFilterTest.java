@@ -84,5 +84,4 @@ public final class UserFilterTest extends LuceneTestCase {
 
         directory.close();
     }
-
 }

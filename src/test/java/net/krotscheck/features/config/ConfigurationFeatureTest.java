@@ -36,8 +36,13 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class ConfigurationFeatureTest extends JerseyTest {
+public final class ConfigurationFeatureTest extends JerseyTest {
 
+    /**
+     * Build the configured application.
+     *
+     * @return The configured application.
+     */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();
@@ -50,7 +55,7 @@ public class ConfigurationFeatureTest extends JerseyTest {
      * Quick check to see if we can inject and access the configuration.
      */
     @Test
-    public void testStatus() throws Exception {
+    public void testStatus() {
         String response = target("/").request().get(String.class);
         Assert.assertEquals("dev", response);
     }
@@ -92,5 +97,4 @@ public class ConfigurationFeatureTest extends JerseyTest {
                     .build();
         }
     }
-
 }

@@ -26,14 +26,20 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class HttpStatusExceptionTest {
+public final class HttpStatusExceptionTest {
 
+    /**
+     * Identity Test.
+     */
     @Test
     public void testHttpStatusException() {
         HttpForbiddenException e = new HttpForbiddenException();
         Assert.assertTrue(e instanceof HttpStatusException);
     }
 
+    /**
+     * Test construction with a status code.
+     */
     @Test
     public void testHttpStatusConstruction() {
         HttpStatusException e =
@@ -43,6 +49,9 @@ public class HttpStatusExceptionTest {
         Assert.assertEquals("OK", e.getMessage());
     }
 
+    /**
+     * Test construction with a status code and a message.
+     */
     @Test
     public void testHttpStatusMessageConstructor() {
         HttpStatusException e =

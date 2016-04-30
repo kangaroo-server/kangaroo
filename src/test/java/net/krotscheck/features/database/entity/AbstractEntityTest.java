@@ -123,7 +123,7 @@ public final class AbstractEntityTest {
     }
 
     /**
-     * Test toString
+     * Test toString.
      */
     @Test
     public void testToString() {
@@ -131,10 +131,10 @@ public final class AbstractEntityTest {
         a.setId((long) 1);
         AbstractEntity b = new TestEntity();
 
-        Assert.assertEquals("net.krotscheck.features.database.entity" +
-                ".AbstractEntityTest.TestEntity [id=1]", a.toString());
-        Assert.assertEquals("net.krotscheck.features.database.entity" +
-                ".AbstractEntityTest.TestEntity [id=null]", b.toString());
+        Assert.assertEquals("net.krotscheck.features.database.entity"
+                + ".AbstractEntityTest.TestEntity [id=1]", a.toString());
+        Assert.assertEquals("net.krotscheck.features.database.entity"
+                + ".AbstractEntityTest.TestEntity [id=null]", b.toString());
     }
 
     /**

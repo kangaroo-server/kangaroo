@@ -67,8 +67,8 @@ public abstract class AbstractEntityReferenceDeserializer
                 instance.setId(id);
                 return instance;
             } catch (InstantiationException | IllegalAccessException ie) {
-                throw context.mappingException("Cannot instantiate mapped " +
-                        "type");
+                throw context.mappingException("Cannot instantiate mapped "
+                        + "type");
             }
         }
 

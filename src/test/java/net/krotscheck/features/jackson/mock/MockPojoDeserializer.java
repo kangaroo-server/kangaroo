@@ -72,6 +72,9 @@ public final class MockPojoDeserializer extends
         return pojo;
     }
 
+    /**
+     * Bind our deserializer into the binding scope.
+     */
     public static final class Binder extends AbstractBinder {
 
         @Override

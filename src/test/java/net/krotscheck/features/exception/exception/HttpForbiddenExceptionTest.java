@@ -25,14 +25,20 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class HttpForbiddenExceptionTest {
+public final class HttpForbiddenExceptionTest {
 
+    /**
+     * Identity Test.
+     */
     @Test
     public void testHttpStatusException() {
         HttpForbiddenException e = new HttpForbiddenException();
         Assert.assertTrue(e instanceof HttpStatusException);
     }
 
+    /**
+     * Test default values.
+     */
     @Test
     public void testBasicExceptions() {
         HttpForbiddenException e = new HttpForbiddenException();

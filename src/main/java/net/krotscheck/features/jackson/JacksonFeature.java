@@ -37,7 +37,7 @@ public final class JacksonFeature implements Feature {
 
         // Pull in the Jackson provider, but not the exception mappers.
         context.register(JacksonJaxbJsonProvider.class);
-        
+
         // Jackson configuration.
         context.register(new JacksonSerializerModule.Binder());
         context.register(new ObjectMapperFactory.Binder());

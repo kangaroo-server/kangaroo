@@ -30,10 +30,13 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class JerseyExceptionMapperTest {
+public final class JerseyExceptionMapperTest {
 
+    /**
+     * Test converting an exception to a response.
+     */
     @Test
-    public void testToResponse() throws Exception {
+    public void testToResponse() {
         JerseyExceptionMapper mapper = new JerseyExceptionMapper();
         WebApplicationException e = new WebApplicationException("test");
 

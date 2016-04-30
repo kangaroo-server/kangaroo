@@ -33,10 +33,13 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class JsonParseExceptionMapperTest {
+public final class JsonParseExceptionMapperTest {
 
+    /**
+     * Test converting to a response.
+     */
     @Test
-    public void testToResponse() throws Exception {
+    public void testToResponse() {
         JsonParseExceptionMapper mapper = new JsonParseExceptionMapper();
         JsonParseException jpe = new JsonParseException("foo",
                 mock(JsonLocation.class));

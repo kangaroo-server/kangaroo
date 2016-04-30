@@ -27,7 +27,7 @@ import net.krotscheck.features.database.entity.AbstractEntity;
 public final class TestPrivateEntity extends AbstractEntity {
 
     /**
-     * Private constructor
+     * Private constructor.
      */
     private TestPrivateEntity() {
 

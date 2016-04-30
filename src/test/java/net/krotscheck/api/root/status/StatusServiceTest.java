@@ -32,6 +32,11 @@ import javax.ws.rs.core.Application;
  */
 public final class StatusServiceTest extends JerseyTest {
 
+    /**
+     * Setup the test application.
+     *
+     * @return A configured application for this test harness.
+     */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();
@@ -41,8 +46,11 @@ public final class StatusServiceTest extends JerseyTest {
         return a;
     }
 
+    /**
+     * Test the status services.
+     */
     @Test
-    public void testStatus() throws Exception {
+    public void testStatus() {
         StatusResponse response =
                 target("/").request().get(StatusResponse.class);
         Assert.assertEquals("dev", response.getVersion());

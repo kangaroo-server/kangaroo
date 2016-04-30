@@ -25,14 +25,20 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class HttpInvalidFieldExceptionTest {
+public final class HttpInvalidFieldExceptionTest {
 
+    /**
+     * Identity Test.
+     */
     @Test
     public void testHttpStatusException() {
         HttpForbiddenException e = new HttpForbiddenException();
         Assert.assertTrue(e instanceof HttpStatusException);
     }
 
+    /**
+     * Test default values.
+     */
     @Test
     public void testBasicExceptions() {
         HttpInvalidFieldException e = new HttpInvalidFieldException("foo");

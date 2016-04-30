@@ -22,9 +22,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
@@ -38,6 +36,11 @@ import javax.ws.rs.core.Response;
 @PrepareForTest(SystemConfiguration.class)
 public final class VersionFilterTest extends JerseyTest {
 
+    /**
+     * Build a test application.
+     *
+     * @return Configured version filter app.
+     */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();

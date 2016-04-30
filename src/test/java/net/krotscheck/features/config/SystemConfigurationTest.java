@@ -31,8 +31,11 @@ import static org.mockito.Mockito.when;
  *
  * @author Michael Krotscheck
  */
-public class SystemConfigurationTest {
+public final class SystemConfigurationTest {
 
+    /**
+     * Test the configuration that's detected.
+     */
     @Test
     public void testConfigurationDefaults() {
         ServletContext context = mock(ServletContext.class);
@@ -43,6 +46,9 @@ public class SystemConfigurationTest {
         Assert.assertEquals(TimeZone.getTimeZone("UTC"), config.getTimezone());
     }
 
+    /**
+     * Test that a file configuration is parsed.
+     */
     @Test
     public void testConfigurationFromFile() {
         ServletContext context = mock(ServletContext.class);

@@ -27,8 +27,11 @@ import java.net.URL;
  *
  * @author Michael Krotscheck
  */
-public class HttpRedirectExceptionTest {
+public final class HttpRedirectExceptionTest {
 
+    /**
+     * Identity Test.
+     */
     @Test
     public void testHttpStatusException() {
         HttpRedirectException e =
@@ -36,6 +39,9 @@ public class HttpRedirectExceptionTest {
         Assert.assertTrue(e instanceof HttpStatusException);
     }
 
+    /**
+     * Test that only URL's are accepted in the constructor.
+     */
     @Test
     public void testMalformedConstructor() {
         HttpRedirectException e = new HttpRedirectException("foo");
@@ -45,6 +51,9 @@ public class HttpRedirectExceptionTest {
         Assert.assertNull(e.getRedirectUrl());
     }
 
+    /**
+     * Test building with a string URL.
+     */
     @Test
     public void testStringConstructor() {
         HttpRedirectException e =
@@ -58,6 +67,11 @@ public class HttpRedirectExceptionTest {
                 e.getRedirectUrl().toString());
     }
 
+    /**
+     * Test building with a URL.
+     *
+     * @throws Exception URLParseException, not thrown.
+     */
     @Test
     public void testUrlConstructor() throws Exception {
         URL url = new URL("http://test.example.com");

@@ -29,8 +29,13 @@ import javax.ws.rs.core.Application;
  *
  * @author Michael Krotscheck
  */
-public class StatusFeatureTest extends JerseyTest {
+public final class StatusFeatureTest extends JerseyTest {
 
+    /**
+     * Configure the test application.
+     *
+     * @return A configured app.
+     */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();
@@ -38,8 +43,11 @@ public class StatusFeatureTest extends JerseyTest {
         return a;
     }
 
+    /**
+     * Smoke test a simple status request.
+     */
     @Test
-    public void testSimpleRequest() throws Exception {
+    public void testSimpleRequest() {
         StatusResponse statusResponse = target("/")
                 .request()
                 .get(StatusResponse.class);

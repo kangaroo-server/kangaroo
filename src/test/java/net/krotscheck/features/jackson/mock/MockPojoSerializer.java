@@ -67,6 +67,9 @@ public final class MockPojoSerializer extends
         jgen.writeEndObject();
     }
 
+    /**
+     * Bind our serializer into the application scope.
+     */
     public static final class Binder extends AbstractBinder {
 
         @Override
