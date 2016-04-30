@@ -34,9 +34,12 @@
       <column name="modifiedDate" type="DATETIME"/>
       <column name="email" type="varchar(255)">
         <constraints unique="true"
-                     uniqueConstraintName="c_users_email"/>
+                     uniqueConstraintName="c_users_email"
+                     nullable="false"/>
       </column>
-      <column name="name" type="text"/>
+      <column name="name" type="text">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
 
     <!-- Add applications table -->
@@ -48,8 +51,12 @@
       </column>
       <column name="createdDate" type="DATETIME"/>
       <column name="modifiedDate" type="DATETIME"/>
-      <column name="user" type="BIGINT"/>
-      <column name="name" type="text"/>
+      <column name="user" type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column name="name" type="text">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
 
     <addForeignKeyConstraint
@@ -58,6 +65,8 @@
         constraintName="fk_applications_user"
         referencedTableName="users"
         referencedColumnNames="id"
+        onUpdate="CASCADE"
+        onDelete="CASCADE"
     />
 
     <rollback>
