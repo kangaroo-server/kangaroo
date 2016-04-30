@@ -87,7 +87,7 @@ public final class Application extends AbstractEntity {
      * User record to whom this application belongs.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false, updatable = false)
+    @JoinColumn(name = "user", nullable = false, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = User.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id"})
