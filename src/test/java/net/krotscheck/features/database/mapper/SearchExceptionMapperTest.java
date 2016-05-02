@@ -46,7 +46,7 @@ public final class SearchExceptionMapperTest {
         Assert.assertEquals(500, r.getStatus());
         Assert.assertEquals(500, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
+        Assert.assertNull(er.getRedirectUrl());
     }
 
     /**
@@ -63,6 +63,6 @@ public final class SearchExceptionMapperTest {
         Assert.assertEquals(400, r.getStatus());
         Assert.assertEquals(400, er.getHttpStatus());
         Assert.assertEquals("Bad Request", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
+        Assert.assertNull(er.getRedirectUrl());
     }
 }

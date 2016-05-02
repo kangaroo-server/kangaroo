@@ -25,8 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import javax.ws.rs.WebApplicationException;
@@ -43,12 +41,6 @@ import javax.ws.rs.core.UriBuilder;
 public final class ErrorResponseBuilder {
 
     /**
-     * Logger instance.
-     */
-    private static Logger logger =
-            LoggerFactory.getLogger(ErrorResponseBuilder.class);
-
-    /**
      * The error response which this builder exists to manage.
      */
     private final ErrorResponse response;
@@ -60,7 +52,6 @@ public final class ErrorResponseBuilder {
         this.response = new ErrorResponse();
     }
 
-
     /**
      * Create an error response object from a status code.
      *
@@ -68,10 +59,10 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final int httpStatus) {
-        ErrorResponseBuilder builder = new ErrorResponseBuilder();
-        builder.response.httpStatus = httpStatus;
-        builder.response.errorMessage = messageForCode(httpStatus);
-        return builder;
+        return from(httpStatus,
+                messageForCode(httpStatus),
+                errorForCode(httpStatus),
+                null);
     }
 
     /**
@@ -83,10 +74,24 @@ public final class ErrorResponseBuilder {
      */
     public static ErrorResponseBuilder from(final int httpStatus,
                                             final String message) {
-        ErrorResponseBuilder builder = new ErrorResponseBuilder();
-        builder.response.httpStatus = httpStatus;
-        builder.response.errorMessage = message;
-        return builder;
+        return from(httpStatus,
+                message,
+                errorForCode(httpStatus),
+                null);
+    }
+
+    /**
+     * Create an error response object from a status code and a message.
+     *
+     * @param httpStatus The HTTP Status code to return.
+     * @param message    The error message to provide.
+     * @param error      A short error code.
+     * @return This builder.
+     */
+    public static ErrorResponseBuilder from(final int httpStatus,
+                                            final String message,
+                                            final String error) {
+        return from(httpStatus, message, error, null);
     }
 
     /**
@@ -95,14 +100,17 @@ public final class ErrorResponseBuilder {
      *
      * @param httpStatus  The HTTP Status code to return.
      * @param message     The error message to provide.
+     * @param error       A short error code.
      * @param redirectUrl The URL to redirect the request to.
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final int httpStatus,
                                             final String message,
+                                            final String error,
                                             final String redirectUrl) {
         ErrorResponseBuilder builder = new ErrorResponseBuilder();
         builder.response.httpStatus = httpStatus;
+        builder.response.error = error;
         builder.response.errorMessage = message;
         builder.response.redirectUrl = redirectUrl;
 
@@ -119,6 +127,7 @@ public final class ErrorResponseBuilder {
     public static ErrorResponseBuilder from(final JsonParseException e) {
         ErrorResponseBuilder builder = new ErrorResponseBuilder();
         builder.response.httpStatus = HttpStatus.SC_BAD_REQUEST;
+        builder.response.error = errorForCode(builder.response.httpStatus);
         builder.response.errorMessage = e.getMessage();
 
         return builder;
@@ -131,16 +140,16 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final HttpStatusException e) {
-        ErrorResponseBuilder builder = new ErrorResponseBuilder();
-        builder.response.httpStatus = e.getHttpStatus();
-        builder.response.errorMessage = e.getMessage();
-
+        String redirectUrl = null;
         if (e instanceof HttpRedirectException) {
-            builder.response.redirectUrl =
+            redirectUrl =
                     ((HttpRedirectException) e).getRedirectUrl().toString();
         }
 
-        return builder;
+        return from(e.getHttpStatus(),
+                e.getMessage(),
+                errorForCode(e.getHttpStatus()),
+                redirectUrl);
     }
 
     /**
@@ -150,14 +159,7 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final WebApplicationException e) {
-        logger.error("Exception", e);
-
-        ErrorResponseBuilder builder = new ErrorResponseBuilder();
-        builder.response.httpStatus = e.getResponse().getStatus();
-        builder.response.errorMessage =
-                messageForCode(e.getResponse().getStatus());
-
-        return builder;
+        return from(e.getResponse().getStatus());
     }
 
     /**
@@ -168,14 +170,7 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final Exception e) {
-        logger.error("Exception", e);
-
-        ErrorResponseBuilder builder = new ErrorResponseBuilder();
-        builder.response.httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-        builder.response.errorMessage =
-                messageForCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-
-        return builder;
+        return from(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -188,6 +183,18 @@ public final class ErrorResponseBuilder {
     private static String messageForCode(final int httpStatus) {
         return EnglishReasonPhraseCatalog.INSTANCE
                 .getReason(httpStatus, Locale.getDefault());
+    }
+
+    /**
+     * Helper method that converts a status code to a short-form error code.
+     *
+     * @param httpStatus The HTTP status.
+     * @return The HTTP Phrase catalog for this status.
+     */
+    private static String errorForCode(final int httpStatus) {
+        return messageForCode(httpStatus)
+                .toLowerCase()
+                .replace(" ", "_");
     }
 
     /**
@@ -221,7 +228,7 @@ public final class ErrorResponseBuilder {
         /**
          * The error message.
          */
-        private boolean error = true;
+        private String error = "";
 
         /**
          * The error message.
@@ -248,11 +255,11 @@ public final class ErrorResponseBuilder {
         }
 
         /**
-         * Is this an error?
+         * Return a machine-readable error short-code.
          *
-         * @return Always true.
+         * @return A short error identifier.
          */
-        public boolean isError() {
+        public String getError() {
             return error;
         }
 

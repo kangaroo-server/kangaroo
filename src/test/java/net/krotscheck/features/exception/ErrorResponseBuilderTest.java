@@ -50,8 +50,8 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("Not Found", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("not_found", er.getError());
     }
 
     /**
@@ -67,24 +67,44 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("message", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("not_found", er.getError());
+    }
+
+    /**
+     * Test building an error from a status code, message, and error code.
+     */
+    @Test
+    public void testFromStatusCodeAndMessage() {
+        Response r = ErrorResponseBuilder.from(
+                HttpStatus.SC_NOT_FOUND,
+                "message", "test_code").build();
+        ErrorResponse er = (ErrorResponse) r.getEntity();
+
+        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
+        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
+        Assert.assertEquals("message", er.getErrorMessage());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("test_code", er.getError());
     }
 
     /**
      * Test building with a redirect.
      */
     @Test
-    public void testFromStatusMessageRedirect() {
+    public void testFromStatusMessageCodeRedirect() {
         Response r = ErrorResponseBuilder.from(
                 HttpStatus.SC_NOT_FOUND,
                 "message",
+                "not_found",
                 "http://example.com/").build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
         Assert.assertEquals("http://example.com/"
-                        + "?error=true&http_status=404&error_message=message",
+                        + "?error=not_found"
+                        + "&http_status=404"
+                        + "&error_message=message",
                 r.getHeaderString(HttpHeaders.LOCATION));
     }
 
@@ -103,7 +123,7 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
         Assert.assertTrue(er.getErrorMessage().indexOf("foo") > -1);
         Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertEquals("bad_request", er.getError());
     }
 
     /**
@@ -120,8 +140,8 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("foo", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("not_found", er.getError());
     }
 
     /**
@@ -138,8 +158,8 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
                 er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("internal_server_error", er.getError());
     }
 
     /**
@@ -156,7 +176,7 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
                 er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("internal_server_error", er.getError());
     }
 }

@@ -51,8 +51,8 @@ public final class HttpStatusExceptionMapperTest {
         Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_FORBIDDEN, er.getHttpStatus());
         Assert.assertEquals("Forbidden", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("forbidden", er.getError());
     }
 
     /**
@@ -69,8 +69,8 @@ public final class HttpStatusExceptionMapperTest {
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("Not Found", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("not_found", er.getError());
     }
 
     /**
@@ -86,7 +86,9 @@ public final class HttpStatusExceptionMapperTest {
 
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
         Assert.assertEquals("http://example.com/"
-                        + "?error=true&http_status=303&error_message=See+Other",
+                        + "?error=see_other"
+                        + "&http_status=303"
+                        + "&error_message=See+Other",
                 r.getHeaderString(HttpHeaders.LOCATION));
     }
 
@@ -104,7 +106,7 @@ public final class HttpStatusExceptionMapperTest {
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, er.getHttpStatus());
         Assert.assertEquals("Unauthorized", er.getErrorMessage());
-        Assert.assertEquals("", er.getRedirectUrl());
-        Assert.assertEquals(true, er.isError());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("unauthorized", er.getError());
     }
 }
