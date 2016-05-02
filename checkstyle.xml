@@ -71,7 +71,9 @@
 
 
         <!-- Checks for Size Violations.                    -->
-        <module name="LineLength"/>
+        <module name="LineLength">
+            <property name="ignorePattern" value="^ *\* \@see .*$"/>
+        </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber"/>
 
