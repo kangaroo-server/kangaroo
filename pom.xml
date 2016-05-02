@@ -46,6 +46,29 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>h2</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <test.db.jdbc>jdbc:h2:mem:target/test/db/h2/hibernate</test.db.jdbc>
+        <test.db.driver>org.h2.Driver</test.db.driver>
+        <test.db.user>oid</test.db.user>
+        <test.db.password>oid</test.db.password>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>mysql</id>
+      <properties>
+        <test.db.jdbc>jdbc:mysql://localhost:3306/oid</test.db.jdbc>
+        <test.db.driver>com.mysql.jdbc.Driver</test.db.driver>
+        <test.db.user>oid</test.db.user>
+        <test.db.password>oid</test.db.password>
+      </properties>
+    </profile>
   </profiles>
 
   <properties>
@@ -278,6 +301,26 @@
               <version>2.16</version>
             </dependency>
           </dependencies>
+          <configuration>
+            <systemProperties>
+              <property>
+                <name>test.db.jdbc</name>
+                <value>${test.db.jdbc}</value>
+              </property>
+              <property>
+                <name>test.db.driver</name>
+                <value>${test.db.driver}</value>
+              </property>
+              <property>
+                <name>test.db.user</name>
+                <value>${test.db.user}</value>
+              </property>
+              <property>
+                <name>test.db.password</name>
+                <value>${test.db.password}</value>
+              </property>
+            </systemProperties>
+          </configuration>
         </plugin>
 
         <!-- Test coverage -->
@@ -678,6 +721,18 @@
       <artifactId>dbunit</artifactId>
       <version>2.4.9</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>2.1.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.31</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- Lucene test harness -->

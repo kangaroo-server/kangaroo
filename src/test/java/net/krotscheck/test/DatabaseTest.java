@@ -17,8 +17,8 @@
 
 package net.krotscheck.test;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.glassfish.jersey.test.JerseyTest;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -56,10 +56,24 @@ public abstract class DatabaseTest extends JerseyTest {
             "jdbc:h2:mem:target/test/db/h2/hibernate";
 
     /**
+     * JDBC Connection string.
+     */
+    private static final String DRIVER = "org.h2.Driver";
+
+    /**
+     * JDBC Connection string.
+     */
+    private static final String USER = "oid";
+
+    /**
+     * JDBC Connection string.
+     */
+    private static final String PASSWORD = "oid";
+
+    /**
      * The JNDI Identity.
      */
-    private static final String JNDI =
-            "java:/comp/env/jdbc/OIDServerDB";
+    private static final String JNDI = "java:/comp/env/jdbc/OIDServerDB";
 
     /**
      * The JNDI connection for the test.
@@ -109,9 +123,13 @@ public abstract class DatabaseTest extends JerseyTest {
             ic.createSubcontext("java:/comp/env");
             ic.createSubcontext("java:/comp/env/jdbc");
 
-            JdbcConnectionPool ds = JdbcConnectionPool.create(
-                    JDBC, "sa", "sa");
-            ic.bind(JNDI, ds);
+            BasicDataSource bds = new BasicDataSource();
+            bds.setDriverClassName(
+                    System.getProperty("test.db.driver", DRIVER));
+            bds.setUrl(System.getProperty("test.db.jdbc", JDBC));
+            bds.setUsername(System.getProperty("test.db.user", USER));
+            bds.setPassword(System.getProperty("test.db.password", PASSWORD));
+            ic.bind(JNDI, bds);
         } catch (NamingException ne) {
             ne.getMessage();
         }
@@ -124,14 +142,17 @@ public abstract class DatabaseTest extends JerseyTest {
      */
     private static void migrateDatabaseSchema() throws Exception {
         logger.info("Migrating Database Schema.");
-        Class.forName("org.h2.Driver");
-        conn = DriverManager
-                .getConnection(JDBC, "sa", "sa");
+
+        Class.forName(System.getProperty("test.db.driver", DRIVER));
+        conn = DriverManager.getConnection(
+                System.getProperty("test.db.jdbc", JDBC),
+                System.getProperty("test.db.user", USER),
+                System.getProperty("test.db.password", PASSWORD));
 
         Database database = DatabaseFactory.getInstance()
                 .findCorrectDatabaseImplementation(new JdbcConnection(conn));
 
-        liquibase = new Liquibase("liquibase/db.changelog-master.xml",
+        liquibase = new Liquibase("liquibase/db.changelog-master.yaml",
                 new FileSystemResourceAccessor("src/main/resources"), database);
         liquibase.update(new Contexts());
     }
