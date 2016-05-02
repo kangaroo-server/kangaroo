@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: krotscheck
+      changes:
+      - createTable:
+          tableName: users
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_users_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: name
+                type: varchar(255)
+            - column:
+                name: email
+                type: varchar(255)
+                constraints:
+                  unique: true
+                  uniqueConstraintName: uq_users_email
+                  nullable: false
+      - createTable:
+          tableName: applications
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_applications_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: user
+                type: bigint
+                constraints:
+                  nullable: false
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - addForeignKeyConstraint:
+          baseColumnNames: user
+          baseTableName: applications
+          constraintName: fk_applications_user
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+      rollback:
+        - dropTable:
+            tableName: applications
+        - dropTable:
+            tableName: users

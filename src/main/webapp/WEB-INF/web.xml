@@ -55,7 +55,7 @@
   <!-- Liquibase -->
   <context-param>
     <param-name>liquibase.changelog</param-name>
-    <param-value>liquibase/db.changelog-master.xml</param-value>
+    <param-value>liquibase/db.changelog-master.yaml</param-value>
   </context-param>
   <context-param>
     <param-name>liquibase.datasource</param-name>
