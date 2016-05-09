@@ -47,6 +47,7 @@
     <!-- Entities -->
     <mapping class="net.krotscheck.features.database.entity.User"/>
     <mapping class="net.krotscheck.features.database.entity.Application"/>
+    <mapping class="net.krotscheck.features.database.entity.Client"/>
 
   </session-factory>
 </hibernate-configuration>

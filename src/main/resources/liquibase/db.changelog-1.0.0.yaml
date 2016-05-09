@@ -65,8 +65,70 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: users
+      - createTable:
+          tableName: clients
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_clients_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: application
+                type: bigint
+                constraints:
+                  nullable: false
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: clientId
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: referrer
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: redirect
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: authTokenExpire
+                type: int
+                constraints:
+                  nullable: false
+            - column:
+                name: refreshTokenExpire
+                type: int
+                constraints:
+                  nullable: false
+      - addForeignKeyConstraint:
+          baseColumnNames: application
+          baseTableName: clients
+          constraintName: fk_clients_application
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
 
       rollback:
+        - dropTable:
+            tableName: clients
         - dropTable:
             tableName: applications
         - dropTable:

@@ -18,6 +18,7 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import net.krotscheck.features.database.filters.UserFilter;
@@ -28,6 +29,8 @@ import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilterFacto
 import org.apache.lucene.analysis.miscellaneous.TrimFilterFactory;
 import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.CharFilterDef;
@@ -43,12 +46,15 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -102,6 +108,14 @@ public final class Application extends AbstractEntity {
     private String name;
 
     /**
+     * List of the application's clients
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @Cascade(CascadeType.ALL)
+    @JsonIgnore
+    private List<Client> clients;
+
+    /**
      * Get the user record.
      *
      * @return The current user record, or null.
@@ -135,6 +149,24 @@ public final class Application extends AbstractEntity {
      */
     public void setName(final String name) {
         this.name = name;
+    }
+
+    /**
+     * Get this application's clients.
+     *
+     * @return A list of clients.
+     */
+    public List<Client> getClients() {
+        return clients;
+    }
+
+    /**
+     * Set this application's clients.
+     *
+     * @param clients A new list of clients.
+     */
+    public void setClients(final List<Client> clients) {
+        this.clients = new ArrayList<>(clients);
     }
 
     /**
