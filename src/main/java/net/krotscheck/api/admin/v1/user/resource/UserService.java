@@ -32,6 +32,7 @@ import org.hibernate.search.SearchFactory;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -108,7 +109,7 @@ public final class UserService {
         org.apache.lucene.search.Query luceneQuery = builder
                 .keyword()
                 .fuzzy()
-                .onFields("name", "email")
+                .onFields("identities.claims")
                 .matching(queryString)
                 .createQuery();
 
@@ -155,6 +156,7 @@ public final class UserService {
             @DefaultValue(ApiParam.ORDER_DEFAULT)
             final SortOrder order) {
 
+        // Assert that the sort is on a valid column
         Criteria countCriteria = session.createCriteria(User.class);
         countCriteria.setProjection(Projections.rowCount());
 
@@ -180,11 +182,11 @@ public final class UserService {
      * @return A response with the user that was requested.
      */
     @GET
-    @Path("/{id: [0-9^/]+$}")
+    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
     @Produces(MediaType.APPLICATION_JSON)
     @PermitAll
-    public Response getUser(@PathParam("id") final long id) {
-        User user = (User) session.get(User.class, id);
+    public Response getUser(@PathParam("id") final UUID id) {
+        User user = session.get(User.class, id);
         if (user == null) {
             throw new HttpNotFoundException();
         }

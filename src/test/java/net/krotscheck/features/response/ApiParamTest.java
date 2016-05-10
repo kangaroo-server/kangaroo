@@ -68,7 +68,7 @@ public final class ApiParamTest {
 
         Assert.assertEquals("Sort", ApiParam.SORT_HEADER);
         Assert.assertEquals("sort", ApiParam.SORT_QUERY);
-        Assert.assertEquals("id", ApiParam.SORT_DEFAULT);
+        Assert.assertEquals("createdDate", ApiParam.SORT_DEFAULT);
 
         Assert.assertEquals("Order", ApiParam.ORDER_HEADER);
         Assert.assertEquals("order", ApiParam.ORDER_QUERY);

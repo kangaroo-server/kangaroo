@@ -20,6 +20,7 @@ package net.krotscheck.features.database;
 import net.krotscheck.features.database.listener.CreatedUpdatedListener;
 import net.krotscheck.features.database.mapper.HibernateExceptionMapper;
 import net.krotscheck.features.database.mapper.PropertyValueExceptionMapper;
+import net.krotscheck.features.database.mapper.QueryExceptionMapper;
 import net.krotscheck.features.database.mapper.SearchExceptionMapper;
 import net.krotscheck.jersey2.hibernate.HibernateFeature;
 
@@ -45,6 +46,7 @@ public final class DatabaseFeature implements Feature {
 
         // Listeners
         context.register(new CreatedUpdatedListener.Binder());
+        context.register(new QueryExceptionMapper.Binder());
         context.register(new HibernateExceptionMapper.Binder());
         context.register(new PropertyValueExceptionMapper.Binder());
         context.register(new SearchExceptionMapper.Binder());

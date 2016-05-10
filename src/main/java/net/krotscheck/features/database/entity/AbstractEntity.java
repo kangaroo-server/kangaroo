@@ -22,11 +22,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Date;
+import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
@@ -46,9 +47,10 @@ public abstract class AbstractEntity {
      * The DB ID.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = true)
-    private Long id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Column(name = "id", unique = true, nullable = false, updatable = false)
+    private UUID id;
 
     /**
      * The date this record was created.
@@ -67,7 +69,7 @@ public abstract class AbstractEntity {
      *
      * @return The id for this entity.
      */
-    public final Long getId() {
+    public final UUID getId() {
         return id;
     }
 
@@ -76,7 +78,7 @@ public abstract class AbstractEntity {
      *
      * @param id The unique ID for this entity.
      */
-    public final void setId(final Long id) {
+    public final void setId(final UUID id) {
         this.id = id;
     }
 

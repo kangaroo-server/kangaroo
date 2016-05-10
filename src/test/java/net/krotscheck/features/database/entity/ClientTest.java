@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -67,6 +68,18 @@ public final class ClientTest {
         Assert.assertNull(c.getName());
         c.setName(name);
         Assert.assertEquals(name, c.getName());
+    }
+
+    /**
+     * Assert that we can get and set the type.
+     */
+    @Test
+    public void testGetSetType() {
+        Client c = new Client();
+
+        Assert.assertEquals(ClientType.Public, c.getType());
+        c.setType(ClientType.Confidential);
+        Assert.assertEquals(ClientType.Confidential, c.getType());
     }
 
     /**
@@ -143,6 +156,36 @@ public final class ClientTest {
     }
 
     /**
+     * Test get/set states list.
+     */
+    @Test
+    public void testGetSetStates() {
+        Client client = new Client();
+        List<AuthenticatorState> states = new ArrayList<>();
+        states.add(new AuthenticatorState());
+
+        Assert.assertNull(client.getStates());
+        client.setStates(states);
+        Assert.assertEquals(states, client.getStates());
+        Assert.assertNotSame(states, client.getStates());
+    }
+
+    /**
+     * Test get/set tokens list.
+     */
+    @Test
+    public void testGetSetTokens() {
+        Client client = new Client();
+        List<OAuthToken> tokens = new ArrayList<>();
+        tokens.add(new OAuthToken());
+
+        Assert.assertNull(client.getTokens());
+        client.setTokens(tokens);
+        Assert.assertEquals(tokens, client.getTokens());
+        Assert.assertNotSame(tokens, client.getTokens());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and doesn't
      * carry an unexpected payload.
      *
@@ -150,20 +193,36 @@ public final class ClientTest {
      */
     @Test
     public void testJacksonSerializable() throws Exception {
-        Client c = new Client();
-        Application a = new Application();
-        a.setId((long) 100);
+        Application application = new Application();
+        application.setId(UUID.randomUUID());
+
+        List<OAuthToken> tokens = new ArrayList<>();
+        OAuthToken token = new OAuthToken();
+        token.setId(UUID.randomUUID());
+        tokens.add(token);
+
+        List<AuthenticatorState> states = new ArrayList<>();
+        AuthenticatorState state = new AuthenticatorState();
+        state.setId(UUID.randomUUID());
+        states.add(state);
+
         String path = "https://example.com/oauth/foo?lol=cat#omg";
         URL url = new URL(path);
 
-        c.setApplication(a);
-        c.setId((long) 100);
+        Client c = new Client();
+        c.setApplication(application);
+        c.setId(UUID.randomUUID());
         c.setCreatedDate(new Date());
         c.setModifiedDate(new Date());
         c.setName("name");
+        c.setType(ClientType.Confidential);
         c.setRedirect(url);
         c.setReferrer(url);
         c.setClientId("clientId");
+
+        // These should not serialize.
+        c.setTokens(tokens);
+        c.setStates(states);
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapper();
@@ -171,8 +230,8 @@ public final class ClientTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                (long) c.getId(),
-                node.get("id").asLong());
+                c.getId().toString(),
+                node.get("id").asText());
         Assert.assertEquals(
                 c.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
@@ -181,11 +240,14 @@ public final class ClientTest {
                 node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
-                (long) c.getApplication().getId(),
-                node.get("application").asLong());
+                c.getApplication().getId().toString(),
+                node.get("application").asText());
         Assert.assertEquals(
                 c.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                c.getType().toString(),
+                node.get("type").asText());
         Assert.assertEquals(
                 c.getRedirect().toString(),
                 node.get("redirect").asText());
@@ -202,13 +264,16 @@ public final class ClientTest {
                 (long) c.getRefreshTokenExpire(),
                 node.get("refreshTokenExpire").asLong());
 
+        Assert.assertFalse(node.has("tokens"));
+        Assert.assertFalse(node.has("states"));
+
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
         Iterator<String> nameIterator = node.fieldNames();
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(10, names.size());
+        Assert.assertEquals(11, names.size());
     }
 
     /**
@@ -220,10 +285,11 @@ public final class ClientTest {
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapper();
         ObjectNode node = m.createObjectNode();
-        node.put("id", 100);
+        node.put("id", UUID.randomUUID().toString());
         node.put("createdDate", new Date().getTime());
         node.put("modifiedDate", new Date().getTime());
         node.put("name", "name");
+        node.put("type", "Confidential");
         node.put("redirect", "https://example.com/oauth/foo?lol=cat#omg");
         node.put("referrer", "https://example.com/oauth/foo?lol=cat#omg");
         node.put("clientId", "clientId");
@@ -234,8 +300,8 @@ public final class ClientTest {
         Client c = m.readValue(output, Client.class);
 
         Assert.assertEquals(
-                (long) c.getId(),
-                node.get("id").asLong());
+                c.getId().toString(),
+                node.get("id").asText());
         Assert.assertEquals(
                 c.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
@@ -246,6 +312,9 @@ public final class ClientTest {
         Assert.assertEquals(
                 c.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                c.getType().toString(),
+                node.get("type").asText());
         Assert.assertEquals(
                 c.getRedirect().toString(),
                 node.get("redirect").asText());
@@ -270,7 +339,8 @@ public final class ClientTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        String id = String.format("\"%s\"", 1);
+        UUID uuid = UUID.randomUUID();
+        String id = String.format("\"%s\"", uuid);
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -279,6 +349,6 @@ public final class ClientTest {
         Client c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals((long) 1, (long) c.getId());
+        Assert.assertEquals(uuid, c.getId());
     }
 }

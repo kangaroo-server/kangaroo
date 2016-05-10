@@ -3,40 +3,15 @@ databaseChangeLog:
       id: 1
       author: krotscheck
       changes:
-      - createTable:
-          tableName: users
-          columns:
-            - column:
-                name: id
-                type: bigint
-                autoIncrement: true
-                constraints:
-                  primaryKey: true
-                  nullable: false
-                  primaryKeyName: pk_users_id
-            - column:
-                name: createdDate
-                type: datetime
-            - column:
-                name: modifiedDate
-                type: datetime
-            - column:
-                name: name
-                type: varchar(255)
-            - column:
-                name: email
-                type: varchar(255)
-                constraints:
-                  unique: true
-                  uniqueConstraintName: uq_users_email
-                  nullable: false
+
+      # The Application table, the root resource from which everything else
+      # is derived.
       - createTable:
           tableName: applications
           columns:
             - column:
                 name: id
-                type: bigint
-                autoIncrement: true
+                type: UUID
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -48,8 +23,36 @@ databaseChangeLog:
                 name: modifiedDate
                 type: datetime
             - column:
-                name: user
-                type: bigint
+                name: owner
+                type: UUID
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+
+      # Every application has certain user roles. We need to make sure that
+      # every application has at least one "owner" role, and that this role
+      # cannot be deleted.
+      - createTable:
+          tableName: roles
+          columns:
+            - column:
+                name: id
+                type: UUID
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_roles_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: application
+                type: UUID
                 constraints:
                   nullable: false
             - column:
@@ -58,20 +61,80 @@ databaseChangeLog:
                 constraints:
                   nullable: false
       - addForeignKeyConstraint:
-          baseColumnNames: user
+          baseColumnNames: application
+          baseTableName: roles
+          constraintName: fk_roles_application
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
+      - addUniqueConstraint:
+          columnNames: application, name
+          constraintName: uq_role_application_name
+          tableName: roles
+
+      # Every application has users, and every user has a role.
+      - createTable:
+          tableName: users
+          columns:
+            - column:
+                name: id
+                type: UUID
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_users_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: application
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: role
+                type: UUID
+                constraints:
+                  nullable: false
+      - addForeignKeyConstraint:
+          baseColumnNames: application
+          baseTableName: users
+          constraintName: fk_users_applications
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
+      - addForeignKeyConstraint:
+          baseColumnNames: role
+          baseTableName: users
+          constraintName: fk_users_roles
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: roles
+
+      # This key constraint locks down owners of applications.
+      - addForeignKeyConstraint:
+          baseColumnNames: owner
           baseTableName: applications
-          constraintName: fk_applications_user
+          constraintName: fk_applications_owner
           onDelete: CASCADE
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: users
+
+      # Every application can have more than one 'client' from which an
+      # authentication request may be issued.
       - createTable:
           tableName: clients
           columns:
             - column:
                 name: id
-                type: bigint
-                autoIncrement: true
+                type: UUID
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -84,12 +147,17 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: bigint
+                type: UUID
                 constraints:
                   nullable: false
             - column:
                 name: name
                 type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: type
+                type: varchar(12)
                 constraints:
                   nullable: false
             - column:
@@ -126,10 +194,382 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: applications
 
+      # Every application can have multiple 'authenticators' which describe a
+      # remote authentication/identity provider that may be used as an
+      # authorization endpoint. The type refers to the in-code implemented
+      # authenticator.
+      - createTable:
+          tableName: authenticators
+          columns:
+            - column:
+                name: id
+                type: UUID
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_authenticators_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: application
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: type
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - addForeignKeyConstraint:
+          baseColumnNames: application
+          baseTableName: authenticators
+          constraintName: fk_authenticators_application
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
+
+      # Each authenticator may require several custom configuration
+      # parameters. Note that this table does not follow the
+      # id/createdDate/modifiedDate pattern.
+      - createTable:
+          tableName: authenticator_params
+          columns:
+            - column:
+                name: authenticator
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: true
+      - createIndex:
+          columns:
+          - column:
+              name: authenticator
+              type: varchar(255)
+          indexName: idx_authenticator_params_authenticator
+          tableName: authenticator_params
+      - createIndex:
+          columns:
+          - column:
+              name: name
+              type: varchar(255)
+          indexName: idx_authenticator_params_name
+          tableName: authenticator_params
+      - addUniqueConstraint:
+          columnNames: authenticator, name
+          constraintName: uq_authenticator_params_authenticator_name
+          tableName: authenticator_params
+      - addForeignKeyConstraint:
+          baseColumnNames: authenticator
+          baseTableName: authenticator_params
+          constraintName: fk_authenticator_params_authenticators
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: authenticators
+
+
+      # Every authenticator will have a per-request 'state', which contains
+      # original user request parameters, as well as parameters sent to the
+      # authenticator itself. It's intended to act as a storage cache for data
+      # while a user-agent has been passed to the authenticator.
+      - createTable:
+          tableName: authenticator_states
+          columns:
+            - column:
+                name: id
+                type: UUID
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_authenticator_states_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: client
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: authenticator
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: authenticatorState
+                type: varchar(255)
+                constraints:
+                  nullable: false
+                  unique: true
+            - column:
+                name: authenticatorNonce
+                type: varchar(255)
+                constraints:
+                  nullable: false
+                  unique: true
+            - column:
+                name: clientState
+                type: varchar(255)
+                constraints:
+                  nullable: false
+                  unique: true
+            - column:
+                name: clientNonce
+                type: varchar(255)
+                constraints:
+                  nullable: false
+                  unique: true
+      - createIndex:
+          columns:
+          - column:
+              name: clientState
+              type: varchar(255)
+          indexName: idx_authenticator_states_client_state
+          tableName: authenticator_states
+      - createIndex:
+          columns:
+          - column:
+              name: authenticatorState
+              type: varchar(255)
+          indexName: idx_authenticator_states_authenticator_state
+          tableName: authenticator_states
+      - addForeignKeyConstraint:
+          baseColumnNames: authenticator
+          baseTableName: authenticator_states
+          constraintName: fk_authenticator_states_authenticators
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: authenticators
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: authenticator_states
+          constraintName: fk_authenticator_states_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
+
+      # Every user in an application will have a series of 'identities',
+      # which are equivalent to a user claim provided by an authenticator.
+      # This effectively serves to store the remote-id of a particular claim
+      # from an authenticator.
+      - createTable:
+          tableName: user_identities
+          columns:
+            - column:
+                name: id
+                type: UUID
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_user_identities_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: user
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: authenticator
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: remoteId
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: remoteId
+              type: varchar(255)
+          indexName: idx_user_identities_remote_id
+          tableName: user_identities
+      - addUniqueConstraint:
+          columnNames: authenticator, user, remoteId
+          constraintName: uq_user_identities_authenticator_user_remoteId
+          tableName: user_identities
+      - addForeignKeyConstraint:
+          baseColumnNames: authenticator
+          baseTableName: user_identities
+          constraintName: fk_user_identities_authenticators
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: authenticators
+      - addForeignKeyConstraint:
+          baseColumnNames: user
+          baseTableName: user_identities
+          constraintName: fk_user_identities_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+      # Each authenticator will make claims on a particular identity, such as
+      # names and/or emails. This table stores those claims.
+      - createTable:
+          tableName: user_identity_claims
+          columns:
+            - column:
+                name: user_identity
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: key
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: true
+      - createIndex:
+          columns:
+          - column:
+              name: user_identity
+              type: varchar(255)
+          indexName: idx_user_identity_claims_user_identity
+          tableName: user_identity_claims
+      - createIndex:
+          columns:
+          - column:
+              name: key
+              type: varchar(255)
+          indexName: idx_user_identity_claims_name
+          tableName: user_identity_claims
+      - addUniqueConstraint:
+          columnNames: user_identity, key
+          constraintName: uq_user_identity_claims_user_identity_name
+          tableName: user_identity_claims
+      - addForeignKeyConstraint:
+          baseColumnNames: user_identity
+          baseTableName: user_identity_claims
+          constraintName: fk_user_identity_claims_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+      # An OAuth Token is issued to a given, valid, identity, on one
+      # particular application client.
+      - createTable:
+          tableName: oauth_tokens
+          columns:
+            - column:
+                name: id
+                type: UUID
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_oauth_tokens_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: identity
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: client
+                type: UUID
+                constraints:
+                  nullable: false
+            - column:
+                name: tokenType
+                type: varchar(13)
+                constraints:
+                  nullable: false
+            - column:
+                name: accessToken
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: expiresIn
+                type: int
+                constraints:
+                  nullable: false
+      - addForeignKeyConstraint:
+          baseColumnNames: identity
+          baseTableName: oauth_tokens
+          constraintName: fk_oauth_tokens_user_identities
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_identities
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: oauth_tokens
+          constraintName: fk_oauth_tokens_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
+
+      # The last thing we do is insert the root application, and the initial
+      # root application user.
+      - insert:
+          tableName: applications
+          columns:
+          - column:
+              name: id
+              type: UUID
+              value: '1078212b-af7b-463f-8717-c9cdee68bc5e'
+          - column:
+              name: name
+              type: varchar(255)
+              value: 'OAuthServer'
+
+
       rollback:
+        - dropTable:
+            tableName: oauth_tokens
+        - dropTable:
+            tableName: user_identity_claims
+        - dropTable:
+            tableName: user_identities
+        - dropTable:
+            tableName: authenticator_states
+        - dropTable:
+            tableName: authenticator_params
+        - dropTable:
+            tableName: authenticators
         - dropTable:
             tableName: clients
         - dropTable:
-            tableName: applications
-        - dropTable:
             tableName: users
+        - dropTable:
+            tableName: roles
+        - dropTable:
+            tableName: applications

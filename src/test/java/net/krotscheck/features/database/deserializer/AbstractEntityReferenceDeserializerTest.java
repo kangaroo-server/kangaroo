@@ -28,6 +28,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import java.util.UUID;
+
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 
@@ -49,18 +51,20 @@ public final class AbstractEntityReferenceDeserializerTest {
      */
     @Test
     public void testAbstractConstructor() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        String id = String.format("\"%s\"", uuid);
         StdScalarDeserializer deserializer =
                 new TestDeserializer();
 
         JsonFactory f = new JsonFactory();
-        JsonParser preloadedParser = f.createParser("1");
+        JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
 
         TestChildEntity e = (TestChildEntity)
                 deserializer.deserialize(preloadedParser,
                         mock(DeserializationContext.class));
 
-        Assert.assertEquals((long) 1, (long) e.getId());
+        Assert.assertEquals(uuid, e.getId());
     }
 
     /**
@@ -70,15 +74,17 @@ public final class AbstractEntityReferenceDeserializerTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        String id = String.format("\"%s\"", uuid);
         JsonFactory f = new JsonFactory();
-        JsonParser preloadedParser = f.createParser("1");
+        JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
 
         TestDeserializer deserializer = new TestDeserializer();
         TestChildEntity e = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals((long) 1, (long) e.getId());
+        Assert.assertEquals(uuid, e.getId());
     }
 
     /**
@@ -88,8 +94,10 @@ public final class AbstractEntityReferenceDeserializerTest {
      */
     @Test(expected = JsonMappingException.class)
     public void testSerializePrivate() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        String id = String.format("\"%s\"", uuid);
         JsonFactory f = new JsonFactory();
-        JsonParser preloadedParser = f.createParser("1");
+        JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
 
         TestPrivateDeserializer deserializer = new TestPrivateDeserializer();
@@ -108,7 +116,26 @@ public final class AbstractEntityReferenceDeserializerTest {
     @Test(expected = JsonMappingException.class)
     public void testSerializeNoValue() throws Exception {
         JsonFactory f = new JsonFactory();
-        JsonParser preloadedParser = f.createParser("null");
+        JsonParser preloadedParser = f.createParser("\"\"");
+        preloadedParser.nextToken(); // Advance to the first value.
+
+        TestPrivateDeserializer deserializer = new TestPrivateDeserializer();
+        DeserializationContext context = mock(DeserializationContext.class);
+        doCallRealMethod().when(context)
+                .mappingException(Matchers.anyString());
+
+        deserializer.deserialize(preloadedParser, context);
+    }
+
+    /**
+     * Test deserialization with null value.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test(expected = JsonMappingException.class)
+    public void testSerializeNullValue() throws Exception {
+        JsonFactory f = new JsonFactory();
+        JsonParser preloadedParser = f.createParser("\"null\"");
         preloadedParser.nextToken(); // Advance to the first value.
 
         TestPrivateDeserializer deserializer = new TestPrivateDeserializer();

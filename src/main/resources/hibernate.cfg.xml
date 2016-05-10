@@ -22,7 +22,8 @@
 <hibernate-configuration>
   <session-factory>
     <!-- Connection properties -->
-    <property name="connection.datasource">java:comp/env/jdbc/OIDServerDB</property>
+    <property name="connection.datasource">java:comp/env/jdbc/OIDServerDB
+    </property>
 
     <!-- Generic hibernate configuration -->
     <property name="current_session_context_class">
@@ -37,7 +38,8 @@
 
     <!-- Hibernate Search Configuration -->
     <property name="search.default.directory_provider">filesystem</property>
-    <property name="hibernate.search.default.indexBase">/tmp/oid_lucene</property>
+    <property name="hibernate.search.default.indexBase">/tmp/oid_lucene
+    </property>
     <property name="search.default.optimizer.operation_limit">1000</property>
     <property name="search.default.optimizer.transaction_limit">100</property>
 
@@ -45,9 +47,14 @@
     <property name="id.new_generator_mappings">true</property>
 
     <!-- Entities -->
-    <mapping class="net.krotscheck.features.database.entity.User"/>
     <mapping class="net.krotscheck.features.database.entity.Application"/>
+    <mapping class="net.krotscheck.features.database.entity.Authenticator"/>
+    <mapping class="net.krotscheck.features.database.entity.AuthenticatorState"/>
     <mapping class="net.krotscheck.features.database.entity.Client"/>
+    <mapping class="net.krotscheck.features.database.entity.OAuthToken"/>
+    <mapping class="net.krotscheck.features.database.entity.Role"/>
+    <mapping class="net.krotscheck.features.database.entity.User"/>
+    <mapping class="net.krotscheck.features.database.entity.UserIdentity"/>
 
   </session-factory>
 </hibernate-configuration>

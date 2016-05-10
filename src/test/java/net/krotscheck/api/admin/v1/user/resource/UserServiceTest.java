@@ -26,6 +26,7 @@ import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
 import net.krotscheck.test.DatabaseTest;
 import net.krotscheck.test.DatabaseUtil;
 import net.krotscheck.util.ResourceUtil;
+import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.AfterClass;
@@ -130,7 +131,8 @@ public final class UserServiceTest extends DatabaseTest {
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals("Single", response.getHeaderString("Query"));
         Assert.assertEquals(1, users.size());
-        Assert.assertEquals(Long.valueOf(4), users.get(0).getId());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
+                users.get(0).getId().toString());
     }
 
     /**
@@ -193,8 +195,10 @@ public final class UserServiceTest extends DatabaseTest {
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals("Search", response.getHeaderString("Query"));
         Assert.assertEquals(2, users.size());
-        Assert.assertEquals(Long.valueOf(3), users.get(0).getId());
-        Assert.assertEquals(Long.valueOf(4), users.get(1).getId());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
+                users.get(0).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
+                users.get(1).getId().toString());
     }
 
     /**
@@ -279,7 +283,7 @@ public final class UserServiceTest extends DatabaseTest {
     @Test
     public void testBrowseUsersSort() {
         Response response = target("/user")
-                .queryParam("sort", "name")
+                .queryParam("sort", "createdDate")
                 .request()
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
@@ -291,10 +295,26 @@ public final class UserServiceTest extends DatabaseTest {
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals(4, users.size());
 
-        Assert.assertEquals(Long.valueOf(4), users.get(0).getId());
-        Assert.assertEquals(Long.valueOf(3), users.get(1).getId());
-        Assert.assertEquals(Long.valueOf(2), users.get(2).getId());
-        Assert.assertEquals(Long.valueOf(1), users.get(3).getId());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
+                users.get(0).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
+                users.get(1).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
+                users.get(2).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
+                users.get(3).getId().toString());
+    }
+
+    /**
+     * Assert that an invalid sort field gives us an expected error.
+     */
+    @Test
+    public void testBrowseUsersSortInvalid() {
+        Response response = target("/user")
+                .queryParam("sort", "invalidfield")
+                .request()
+                .get();
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
     }
 
     /**
@@ -303,7 +323,7 @@ public final class UserServiceTest extends DatabaseTest {
     @Test
     public void testBrowseUsersSortOrderAsc() {
         Response response = target("/user")
-                .queryParam("sort", "name")
+                .queryParam("sort", "createdDate")
                 .queryParam("order", "asc")
                 .request()
                 .get();
@@ -316,10 +336,14 @@ public final class UserServiceTest extends DatabaseTest {
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals(4, users.size());
 
-        Assert.assertEquals(Long.valueOf(4), users.get(0).getId());
-        Assert.assertEquals(Long.valueOf(3), users.get(1).getId());
-        Assert.assertEquals(Long.valueOf(2), users.get(2).getId());
-        Assert.assertEquals(Long.valueOf(1), users.get(3).getId());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
+                users.get(0).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
+                users.get(1).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
+                users.get(2).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
+                users.get(3).getId().toString());
     }
 
     /**
@@ -328,7 +352,7 @@ public final class UserServiceTest extends DatabaseTest {
     @Test
     public void testBrowseUsersSortOrderDesc() {
         Response response = target("/user")
-                .queryParam("sort", "name")
+                .queryParam("sort", "createdDate")
                 .queryParam("order", "desc")
                 .request()
                 .get();
@@ -341,10 +365,14 @@ public final class UserServiceTest extends DatabaseTest {
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals(4, users.size());
 
-        Assert.assertEquals(Long.valueOf(1), users.get(0).getId());
-        Assert.assertEquals(Long.valueOf(2), users.get(1).getId());
-        Assert.assertEquals(Long.valueOf(3), users.get(2).getId());
-        Assert.assertEquals(Long.valueOf(4), users.get(3).getId());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
+                users.get(0).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
+                users.get(1).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
+                users.get(2).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
+                users.get(3).getId().toString());
     }
 
     /**
@@ -353,7 +381,7 @@ public final class UserServiceTest extends DatabaseTest {
     @Test
     public void testBrowseUsersSortOrderInvalid() {
         Response response = target("/user")
-                .queryParam("sort", "name")
+                .queryParam("sort", "createdDate")
                 .queryParam("order", "aasdfasdf")
                 .request()
                 .get();
@@ -366,49 +394,13 @@ public final class UserServiceTest extends DatabaseTest {
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals(4, users.size());
 
-        Assert.assertEquals(Long.valueOf(4), users.get(0).getId());
-        Assert.assertEquals(Long.valueOf(3), users.get(1).getId());
-        Assert.assertEquals(Long.valueOf(2), users.get(2).getId());
-        Assert.assertEquals(Long.valueOf(1), users.get(3).getId());
-    }
-
-    /**
-     * Assert that you can read individual users.
-     */
-    @Test
-    public void testGetUser() {
-        User responseUser = target("/user/1")
-                .request()
-                .get(User.class);
-
-        Assert.assertEquals(Long.valueOf(1), responseUser.getId());
-        Assert.assertEquals("D Test User 1", responseUser.getName());
-
-        // Should NOT include a reference to the applications.
-        Assert.assertNull(responseUser.getApplications());
-    }
-
-    /**
-     * Make sure that an unknown user returns a 404.
-     */
-    @Test
-    public void testGetUnknownUser() {
-        Response response = target("/user/100")
-                .request()
-                .get();
-
-        Assert.assertEquals(404, response.getStatus());
-    }
-
-    /**
-     * Make sure that an unknown request returns a 404.
-     */
-    @Test
-    public void testGetImproperlyFormattedUser() {
-        Response response = target("/user/alskdfjasdf")
-                .request()
-                .get();
-
-        Assert.assertEquals(404, response.getStatus());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
+                users.get(0).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
+                users.get(1).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
+                users.get(2).getId().toString());
+        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
+                users.get(3).getId().toString());
     }
 }

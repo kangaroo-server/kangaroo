@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Unit tests for our abstract entity.
@@ -32,10 +33,11 @@ public final class AbstractEntityTest {
      */
     @Test
     public void testGetSetId() {
+        UUID id = UUID.randomUUID();
         AbstractEntity a = new TestEntity();
         Assert.assertNull(a.getId());
-        a.setId((long) 100);
-        Assert.assertEquals(Long.valueOf(100), a.getId());
+        a.setId(id);
+        Assert.assertEquals(id, a.getId());
     }
 
     /**
@@ -71,19 +73,20 @@ public final class AbstractEntityTest {
      */
     @Test
     public void testEquality() {
+        UUID id = UUID.randomUUID();
         AbstractEntity a = new TestEntity();
-        a.setId((long) 1);
+        a.setId(id);
 
         AbstractEntity b = new TestEntity();
-        b.setId((long) 1);
+        b.setId(id);
 
         AbstractEntity c = new TestEntity();
-        c.setId((long) 2);
+        c.setId(UUID.randomUUID());
 
         AbstractEntity d = new TestEntity();
 
         AbstractEntity e = new TestEntity2();
-        e.setId((long) 1);
+        e.setId(UUID.randomUUID());
 
         Assert.assertTrue(a.equals(a));
         Assert.assertFalse(a.equals(null));
@@ -102,19 +105,20 @@ public final class AbstractEntityTest {
      */
     @Test
     public void testHashCode() {
+        UUID id = UUID.randomUUID();
         AbstractEntity a = new TestEntity();
-        a.setId((long) 1);
+        a.setId(id);
 
         AbstractEntity b = new TestEntity();
-        b.setId((long) 1);
+        b.setId(id);
 
         AbstractEntity c = new TestEntity();
-        c.setId((long) 2);
+        c.setId(UUID.randomUUID());
 
         AbstractEntity d = new TestEntity();
 
         AbstractEntity e = new TestEntity2();
-        e.setId((long) 1);
+        e.setId(UUID.randomUUID());
 
         Assert.assertEquals(a.hashCode(), b.hashCode());
         Assert.assertNotEquals(a.hashCode(), c.hashCode());
@@ -128,11 +132,14 @@ public final class AbstractEntityTest {
     @Test
     public void testToString() {
         AbstractEntity a = new TestEntity();
-        a.setId((long) 1);
+        a.setId(UUID.randomUUID());
         AbstractEntity b = new TestEntity();
 
-        Assert.assertEquals("net.krotscheck.features.database.entity"
-                + ".AbstractEntityTest.TestEntity [id=1]", a.toString());
+        Assert.assertEquals(
+                String.format("net.krotscheck.features.database.entity." +
+                                "AbstractEntityTest.TestEntity [id=%s]",
+                        a.getId()),
+                a.toString());
         Assert.assertEquals("net.krotscheck.features.database.entity"
                 + ".AbstractEntityTest.TestEntity [id=null]", b.toString());
     }

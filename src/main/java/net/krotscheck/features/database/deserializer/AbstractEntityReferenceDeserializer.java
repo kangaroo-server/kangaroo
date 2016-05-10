@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import net.krotscheck.features.database.entity.AbstractEntity;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * A hibernate reference deserializer for generic references - converts incoming
@@ -59,19 +60,15 @@ public abstract class AbstractEntityReferenceDeserializer
                                final DeserializationContext context)
             throws IOException {
 
-        Long id = _parseLong(parser, context);
+        String id = _parseString(parser, context);
 
-        if (id != null) {
-            try {
-                T instance = (T) handledType().newInstance();
-                instance.setId(id);
-                return instance;
-            } catch (InstantiationException | IllegalAccessException ie) {
-                throw context.mappingException("Cannot instantiate mapped "
-                        + "type");
-            }
+        try {
+            T instance = (T) handledType().newInstance();
+            instance.setId(UUID.fromString(id));
+            return instance;
+        } catch (InstantiationException | IllegalAccessException ie) {
+            throw context.mappingException("Cannot instantiate mapped "
+                    + "type");
         }
-
-        throw context.mappingException("Expected JSON Number");
     }
 }

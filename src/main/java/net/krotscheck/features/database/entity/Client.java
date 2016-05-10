@@ -18,15 +18,23 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -49,11 +57,34 @@ public final class Client extends AbstractEntity {
     private Application application;
 
     /**
+     * OAuth tokens issued to this client.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
+    @Cascade(CascadeType.ALL)
+    @JsonIgnore
+    private List<OAuthToken> tokens;
+
+    /**
+     * List of all authenticator states currently active.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
+    @Cascade(CascadeType.ALL)
+    @JsonIgnore
+    private List<AuthenticatorState> states;
+
+    /**
      * Human recognizable name for this client.
      */
     @Basic(optional = false)
     @Column(name = "name", nullable = false)
     private String name;
+
+    /**
+     * Human recognizable name for this client.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private ClientType type = ClientType.Public;
 
     /**
      * The unique client ID by which the API client identifies itself. This is
@@ -216,6 +247,51 @@ public final class Client extends AbstractEntity {
      */
     public void setRefreshTokenExpire(final Integer refreshTokenExpire) {
         this.refreshTokenExpire = refreshTokenExpire;
+    }
+
+    /**
+     * Get all the tokens issued under this client.
+     *
+     * @return A list of all tokens (lazy loaded)
+     */
+    public List<OAuthToken> getTokens() {
+        return tokens;
+    }
+
+    /**
+     * Set the list of tokens for this client.
+     *
+     * @param tokens A new list of tokens.
+     */
+    public void setTokens(final List<OAuthToken> tokens) {
+        this.tokens = new ArrayList<>(tokens);
+    }
+
+    /**
+     * Get the list of currently active query states.
+     *
+     * @return The list of states.
+     */
+    public List<AuthenticatorState> getStates() {
+        return states;
+    }
+
+    /**
+     * Set the list of states.
+     *
+     * @param states The list of states.
+     */
+    public void setStates(final List<AuthenticatorState> states) {
+        this.states = new ArrayList<>(states);
+    }
+
+    public ClientType getType() {
+        return type;
+    }
+
+    public void setType(
+            ClientType type) {
+        this.type = type;
     }
 
     /**

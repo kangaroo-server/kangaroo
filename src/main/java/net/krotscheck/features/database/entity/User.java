@@ -17,7 +17,9 @@
 
 package net.krotscheck.features.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
@@ -28,26 +30,22 @@ import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.CharFilterDef;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Parameter;
-import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
-import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * The user entity, as persisted to the database.
@@ -55,10 +53,7 @@ import javax.persistence.UniqueConstraint;
  * @author Michael Krotscheck
  */
 @Entity
-@Table(name = "users",
-        uniqueConstraints =
-        @UniqueConstraint(columnNames = {"email"})
-)
+@Table(name = "users")
 @Indexed(index = "users")
 @AnalyzerDef(name = "useranalyzer",
         charFilters = {
@@ -76,83 +71,87 @@ import javax.persistence.UniqueConstraint;
                 @TokenFilterDef(
                         factory = RemoveDuplicatesTokenFilterFactory.class)
         })
-public final class User extends AbstractEntity implements Principal {
+public final class User extends AbstractEntity {
 
     /**
-     * The user's email address.
+     * The Application to whom this user belongs.
      */
-    @Basic(optional = false)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "application", nullable = false, updatable = false)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = Application.Deserializer.class)
+    private Application application;
 
     /**
-     * The user's full name.
+     * The user's role in this application.
      */
-    @Basic(optional = false)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-    @Column(name = "name", nullable = false)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role", nullable = false, updatable = true)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = Role.Deserializer.class)
+    private Role role;
 
     /**
-     * List of the user's applications.
+     * List of this user's identities.
      */
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @Cascade(CascadeType.ALL)
     @JsonIgnore
-    private List<Application> applications;
+    @IndexedEmbedded(includePaths = {"claims"})
+    private List<UserIdentity> identities;
 
     /**
-     * Get the name.
+     * Get the application this user belongs to.`
+     *
+     * @return The application.
      */
-    @Override
-    public String getName() {
-        return name;
+    public Application getApplication() {
+        return application;
     }
 
     /**
-     * Set the name.
+     * Set the application which this user belongs.
      *
-     * @param name Set the name.
+     * @param application The new application.
      */
-    public void setName(final String name) {
-        this.name = name;
+    public void setApplication(final Application application) {
+        this.application = application;
     }
 
     /**
-     * Retrieves this user's email address.
+     * Get the role for this user.
      *
-     * @return The user's email address.
+     * @return The user's role.
      */
-    public String getEmail() {
-        return email;
+    public Role getRole() {
+        return role;
     }
 
     /**
-     * Sets this user's email address.
+     * Set the role for this user.
      *
-     * @param email The email address.
+     * @param role The user's new role.
      */
-    public void setEmail(final String email) {
-        this.email = email;
+    public void setRole(final Role role) {
+        this.role = role;
     }
 
     /**
-     * Retrieves the user's application.
+     * Get the identities for this user.
      *
-     * @return The user's application list.
+     * @return A list of identities.
      */
-    public List<Application> getApplications() {
-        return applications;
+    public List<UserIdentity> getIdentities() {
+        return identities;
     }
 
     /**
-     * Set the list of applications.
+     * Set the value for this user's identities.
      *
-     * @param applications A new list of applications.
+     * @param identities The new list of identities.
      */
-    public void setApplications(final List<Application> applications) {
-        this.applications = applications;
+    public void setIdentities(final List<UserIdentity> identities) {
+        this.identities = new ArrayList<>(identities);
     }
 
     /**

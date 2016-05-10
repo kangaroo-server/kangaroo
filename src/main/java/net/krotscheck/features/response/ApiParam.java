@@ -43,7 +43,7 @@ public final class ApiParam {
     /**
      * Default Value: Sort On.
      */
-    public static final String SORT_DEFAULT = "id";
+    public static final String SORT_DEFAULT = "createdDate";
 
     /**
      * Header name: List Order.

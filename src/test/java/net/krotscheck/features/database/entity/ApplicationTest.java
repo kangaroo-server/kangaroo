@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -40,6 +41,19 @@ import static org.mockito.Mockito.mock;
  * @author Michael Krotscheck
  */
 public final class ApplicationTest {
+
+    /**
+     * Test getting/setting the owner.
+     */
+    @Test
+    public void testGetSetOwner() {
+        Application application = new Application();
+        User user = new User();
+
+        Assert.assertNull(application.getOwner());
+        application.setOwner(user);
+        Assert.assertEquals(user, application.getOwner());
+    }
 
     /**
      * Test get/set name.
@@ -54,16 +68,18 @@ public final class ApplicationTest {
     }
 
     /**
-     * Test get/set user record.
+     * Test get/set user list.
      */
     @Test
-    public void testGetSetApplications() {
+    public void testGetSetUsers() {
         Application a = new Application();
-        User u = new User();
+        List<User> users = new ArrayList<>();
+        users.add(new User());
 
-        Assert.assertNull(a.getUser());
-        a.setUser(u);
-        Assert.assertEquals(u, a.getUser());
+        Assert.assertNull(a.getUsers());
+        a.setUsers(users);
+        Assert.assertEquals(users, a.getUsers());
+        Assert.assertNotSame(users, a.getUsers());
     }
 
     /**
@@ -82,21 +98,33 @@ public final class ApplicationTest {
     }
 
     /**
-     * Test the application deserializer.
-     *
-     * @throws Exception Should not be thrown.
+     * Test get/set roles list.
      */
     @Test
-    public void testDeserializeSimple() throws Exception {
-        JsonFactory f = new JsonFactory();
-        JsonParser preloadedParser = f.createParser("1");
-        preloadedParser.nextToken(); // Advance to the first value.
+    public void testGetSetRoles() {
+        Application a = new Application();
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role());
 
-        Deserializer deserializer = new Deserializer();
-        Application a = deserializer.deserialize(preloadedParser,
-                mock(DeserializationContext.class));
+        Assert.assertNull(a.getRoles());
+        a.setRoles(roles);
+        Assert.assertEquals(roles, a.getRoles());
+        Assert.assertNotSame(roles, a.getRoles());
+    }
 
-        Assert.assertEquals((long) 1, (long) a.getId());
+    /**
+     * Test get/set authenticator list.
+     */
+    @Test
+    public void testGetSetAuthenticators() {
+        Application a = new Application();
+        List<Authenticator> authenticators = new ArrayList<>();
+        authenticators.add(new Authenticator());
+
+        Assert.assertNull(a.getAuthenticators());
+        a.setAuthenticators(authenticators);
+        Assert.assertEquals(authenticators, a.getAuthenticators());
+        Assert.assertNotSame(authenticators, a.getAuthenticators());
     }
 
     /**
@@ -107,25 +135,42 @@ public final class ApplicationTest {
      */
     @Test
     public void testJacksonSerializable() throws Exception {
-        Client c = new Client();
-        User u = new User();
-        u.setId((long) 199);
+
+        User owner = new User();
+        owner.setId(UUID.randomUUID());
+
+        List<User> users = new ArrayList<>();
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        users.add(user);
+
         List<Client> clients = new ArrayList<>();
-        Client one = new Client();
-        one.setId((long) 1);
-        Client two = new Client();
-        two.setId((long) 2);
-        clients.add(one);
-        clients.add(two);
+        Client client = new Client();
+        client.setId(UUID.randomUUID());
+        clients.add(client);
+
+        List<Role> roles = new ArrayList<>();
+        Role role = new Role();
+        role.setId(UUID.randomUUID());
+        roles.add(role);
+
+        List<Authenticator> authenticators = new ArrayList<>();
+        Authenticator authenticator = new Authenticator();
+        authenticator.setId(UUID.randomUUID());
+        authenticators.add(authenticator);
 
         Application a = new Application();
-        a.setId((long) 100);
+        a.setId(UUID.randomUUID());
         a.setCreatedDate(new Date());
         a.setModifiedDate(new Date());
-
-        a.setUser(u);
-        a.setClients(clients);
+        a.setOwner(owner);
         a.setName("name");
+
+        // These four should not show up in the deserialized version.
+        a.setClients(clients);
+        a.setRoles(roles);
+        a.setUsers(users);
+        a.setAuthenticators(authenticators);
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapper();
@@ -133,8 +178,8 @@ public final class ApplicationTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                (long) a.getId(),
-                node.get("id").asLong());
+                a.getId().toString(),
+                node.get("id").asText());
         Assert.assertEquals(
                 a.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
@@ -142,12 +187,15 @@ public final class ApplicationTest {
                 a.getModifiedDate().getTime(),
                 node.get("modifiedDate").asLong());
         Assert.assertEquals(
-                (long) a.getUser().getId(),
-                node.get("user").asLong());
+                a.getOwner().getId().toString(),
+                node.get("owner").asText());
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
         Assert.assertFalse(node.has("clients"));
+        Assert.assertFalse(node.has("roles"));
+        Assert.assertFalse(node.has("authenticators"));
+        Assert.assertFalse(node.has("users"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -167,7 +215,7 @@ public final class ApplicationTest {
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapper();
         ObjectNode node = m.createObjectNode();
-        node.put("id", 100);
+        node.put("id", UUID.randomUUID().toString());
         node.put("createdDate", new Date().getTime());
         node.put("modifiedDate", new Date().getTime());
         node.put("name", "name");
@@ -176,8 +224,8 @@ public final class ApplicationTest {
         Application a = m.readValue(output, Application.class);
 
         Assert.assertEquals(
-                (long) a.getId(),
-                node.get("id").asLong());
+                a.getId().toString(),
+                node.get("id").asText());
         Assert.assertEquals(
                 a.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
@@ -187,5 +235,25 @@ public final class ApplicationTest {
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
+    }
+
+    /**
+     * Test the application deserializer.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testDeserializeSimple() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        String id = String.format("\"%s\"", uuid);
+        JsonFactory f = new JsonFactory();
+        JsonParser preloadedParser = f.createParser(id);
+        preloadedParser.nextToken(); // Advance to the first value.
+
+        Deserializer deserializer = new Deserializer();
+        Application a = deserializer.deserialize(preloadedParser,
+                mock(DeserializationContext.class));
+
+        Assert.assertEquals(uuid, a.getId());
     }
 }

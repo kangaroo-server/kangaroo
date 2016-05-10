@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.krotscheck.features.database.entity.User.Deserializer;
+import net.krotscheck.features.database.entity.Role.Deserializer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,52 +36,52 @@ import java.util.UUID;
 import static org.mockito.Mockito.mock;
 
 /**
- * Test the user entity.
+ * Unit test for the role data model.
  *
  * @author Michael Krotscheck
  */
-public final class UserTest {
+public final class RoleTest {
 
     /**
-     * Assert that we can get and set the application to which this user
+     * Assert that we can get and set the application to which this role
      * belongs.
      */
     @Test
     public void testGetSetApplication() {
-        User u = new User();
+        Role c = new Role();
         Application a = new Application();
 
-        Assert.assertNull(u.getApplication());
-        u.setApplication(a);
-        Assert.assertEquals(a, u.getApplication());
+        Assert.assertNull(c.getApplication());
+        c.setApplication(a);
+        Assert.assertEquals(a, c.getApplication());
     }
 
     /**
-     * Assert that we can get and set the user's role.
+     * Assert that we can get and set the name.
      */
     @Test
-    public void testGetSetRole() {
-        User user = new User();
+    public void testGetSetName() {
         Role role = new Role();
+        String name = "test";
 
-        Assert.assertNull(user.getRole());
-        user.setRole(role);
-        Assert.assertEquals(role, user.getRole());
+        Assert.assertNull(role.getName());
+        role.setName(name);
+        Assert.assertEquals(name, role.getName());
     }
 
     /**
-     * Assert that we can get and set the identities.
+     * Test get/set user list.
      */
     @Test
-    public void testGetSetIdentities() {
-        List<UserIdentity> identities = new ArrayList<>();
-        identities.add(new UserIdentity());
-        User user = new User();
+    public void testGetSetUsers() {
+        Role role = new Role();
+        List<User> users = new ArrayList<>();
+        users.add(new User());
 
-        Assert.assertNull(user.getIdentities());
-        user.setIdentities(identities);
-        Assert.assertEquals(identities, user.getIdentities());
-        Assert.assertNotSame(identities, user.getIdentities());
+        Assert.assertNull(role.getUsers());
+        role.setUsers(users);
+        Assert.assertEquals(users, role.getUsers());
+        Assert.assertNotSame(users, role.getUsers());
     }
 
     /**
@@ -92,49 +92,46 @@ public final class UserTest {
      */
     @Test
     public void testJacksonSerializable() throws Exception {
-        List<UserIdentity> identities = new ArrayList<>();
-        UserIdentity identity = new UserIdentity();
-        identity.setId(UUID.randomUUID());
-        identities.add(identity);
-
-        Role role = new Role();
-        role.setId(UUID.randomUUID());
-
-        Application application = new Application();
-        application.setId(UUID.randomUUID());
-
+        List<User> users = new ArrayList<>();
         User user = new User();
         user.setId(UUID.randomUUID());
-        user.setCreatedDate(new Date());
-        user.setModifiedDate(new Date());
-        user.setApplication(application);
-        user.setRole(role);
-        user.setIdentities(identities);
+        users.add(user);
+
+        Application a = new Application();
+        a.setId(UUID.randomUUID());
+
+        Role role = new Role();
+        role.setApplication(a);
+        role.setId(UUID.randomUUID());
+        role.setCreatedDate(new Date());
+        role.setModifiedDate(new Date());
+        role.setName("name");
+        role.setUsers(users);
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapper();
-        String output = m.writeValueAsString(user);
+        String output = m.writeValueAsString(role);
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                user.getId().toString(),
+                role.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                user.getCreatedDate().getTime(),
+                role.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
         Assert.assertEquals(
-                user.getModifiedDate().getTime(),
+                role.getModifiedDate().getTime(),
                 node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
-                user.getRole().getId().toString(),
-                node.get("role").asText());
-        Assert.assertEquals(
-                user.getApplication().getId().toString(),
+                role.getApplication().getId().toString(),
                 node.get("application").asText());
+        Assert.assertEquals(
+                role.getName(),
+                node.get("name").asText());
 
         // Should not be serialized.
-        Assert.assertFalse(node.has("identities"));
+        Assert.assertFalse(node.has("users"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -157,24 +154,28 @@ public final class UserTest {
         node.put("id", UUID.randomUUID().toString());
         node.put("createdDate", new Date().getTime());
         node.put("modifiedDate", new Date().getTime());
+        node.put("name", "name");
 
         String output = m.writeValueAsString(node);
-        User user = m.readValue(output, User.class);
+        Role c = m.readValue(output, Role.class);
 
         Assert.assertEquals(
-                user.getId().toString(),
+                c.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                user.getCreatedDate().getTime(),
+                c.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
         Assert.assertEquals(
-                user.getModifiedDate().getTime(),
+                c.getModifiedDate().getTime(),
                 node.get("modifiedDate").asLong());
+
+        Assert.assertEquals(
+                c.getName(),
+                node.get("name").asText());
     }
 
-
     /**
-     * Test the user deserializer.
+     * Test the deserializer.
      *
      * @throws Exception Should not be thrown.
      */
@@ -187,9 +188,9 @@ public final class UserTest {
         preloadedParser.nextToken(); // Advance to the first value.
 
         Deserializer deserializer = new Deserializer();
-        User u = deserializer.deserialize(preloadedParser,
+        Role c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, u.getId());
+        Assert.assertEquals(uuid, c.getId());
     }
 }
