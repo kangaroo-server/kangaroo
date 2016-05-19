@@ -30,6 +30,7 @@ import org.apache.lucene.analysis.miscellaneous.TrimFilterFactory;
 import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.CharFilterDef;
 import org.hibernate.search.annotations.Parameter;
@@ -77,6 +78,7 @@ public abstract class AbstractEntity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Type(type = "uuid-binary")
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private UUID id;
 
