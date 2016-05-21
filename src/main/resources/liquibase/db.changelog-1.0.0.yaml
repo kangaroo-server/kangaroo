@@ -208,30 +208,10 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: clientId
+                name: clientSecret
                 type: varchar(255)
                 constraints:
-                  nullable: false
-            - column:
-                name: referrer
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: redirect
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: authTokenExpire
-                type: int
-                constraints:
-                  nullable: false
-            - column:
-                name: refreshTokenExpire
-                type: int
-                constraints:
-                  nullable: false
+                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: application
           baseTableName: clients
@@ -240,6 +220,78 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: applications
+
+      # Some clients may have a list of application-unique referrers. These
+      # should be fully qualified Host URL's with a host, protocol, and port.
+      # Other parameters (such as fragments, paths, and query strings) are
+      # not used.
+      - createTable:
+          tableName: client_referrers
+          columns:
+            - column:
+                name: client
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: referrer
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: client
+              type: BINARY(16)
+          indexName: idx_client_referrers_client
+          tableName: client_referrers
+      - addUniqueConstraint:
+          columnNames: client, referrer
+          constraintName: uq_client_referrers_client_referrer
+          tableName: client_referrers
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: client_referrers
+          constraintName: fk_client_referrers_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
+
+      # Some clients may have a list of application-unique redirection url's,
+      # used for authorization paths that require a redirect.
+      - createTable:
+          tableName: client_redirects
+          columns:
+            - column:
+                name: client
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: redirect
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: client
+              type: BINARY(16)
+          indexName: idx_client_redirects_client
+          tableName: client_redirects
+      - addUniqueConstraint:
+          columnNames: client, redirect
+          constraintName: uq_client_redirects_client_redirect
+          tableName: client_redirects
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: client_redirects
+          constraintName: fk_client_redirects_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
 
       # Every application can have multiple 'authenticators' which describe a
       # remote authentication/identity provider that may be used as an
@@ -598,6 +650,10 @@ databaseChangeLog:
             tableName: authenticator_params
         - dropTable:
             tableName: authenticators
+        - dropTable:
+            tableName: client_redirects
+        - dropTable:
+            tableName: client_referrers
         - dropTable:
             tableName: clients
         - dropTable:

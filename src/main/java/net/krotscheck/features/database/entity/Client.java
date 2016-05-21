@@ -23,11 +23,14 @@ import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDese
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -88,40 +91,30 @@ public final class Client extends AbstractEntity {
     private ClientType type = ClientType.Public;
 
     /**
-     * The unique client ID by which the API client identifies itself. This is
-     * matched against the permitted URL's.
+     * A client secret, indicating a password which must be provided to the
+     * client.
      */
-    @Basic(optional = false)
-    @Column(name = "clientId", unique = true, updatable = false)
-    private String clientId;
+    @Basic
+    @Column(name = "clientSecret", updatable = true, nullable = true)
+    private String clientSecret;
 
     /**
-     * The base URL from which all authorization referrals must originate.
+     * A collection of referral URL's, used for CORS matching.
      */
-    @Basic(optional = false)
-    @Column(name = "referrer", nullable = false)
-    private URL referrer;
+    @ElementCollection
+    @CollectionTable(name = "client_referrers",
+            joinColumns = @JoinColumn(name = "client"))
+    @Column(name = "referrer")
+    private Set<URI> referrers;
 
     /**
-     * The target redirection URL for all return requests.
+     * A list of redirect URL's, used for redirection-based flows.
      */
-    @Basic(optional = false)
-    @Column(name = "redirect", nullable = false)
-    private URL redirect;
-
-    /**
-     * Expiration time for auth tokens, in seconds. Default one hour.
-     */
-    @Basic(optional = false)
-    @Column(name = "authTokenExpire", nullable = false)
-    private Integer authTokenExpire = 3600;
-
-    /**
-     * Expiration time for refresh tokens, in seconds. Default one week.
-     */
-    @Basic(optional = false)
-    @Column(name = "refreshTokenExpire", nullable = false)
-    private Integer refreshTokenExpire = 604800;
+    @ElementCollection
+    @CollectionTable(name = "client_redirects",
+            joinColumns = @JoinColumn(name = "client"))
+    @Column(name = "redirect")
+    private Set<URI> redirects;
 
     /**
      * Get the application this client belongs to.
@@ -160,95 +153,57 @@ public final class Client extends AbstractEntity {
     }
 
     /**
-     * Get the client ID.
+     * Retrieve the client secret.
      *
-     * @return The client ID.
+     * @return The client secret.
      */
-    public String getClientId() {
-        return clientId;
+    public String getClientSecret() {
+        return clientSecret;
     }
 
     /**
-     * Set the client ID.
+     * Set the client secret.
      *
-     * @param clientId The new client ID.
+     * @param clientSecret A new client secret.
      */
-    public void setClientId(final String clientId) {
-        this.clientId = clientId;
+    public void setClientSecret(final String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 
     /**
-     * Get the valid referrer for this client.
+     * Get the list of valid referrers.
      *
-     * @return The referrer URI.
+     * @return This client's list of valid referrers.
      */
-    public URL getReferrer() {
-        return referrer;
+    public Set<URI> getReferrers() {
+        return referrers;
     }
 
     /**
-     * Set the referrer URL.
+     * Update the set of valid referrers.
      *
-     * @param referrer A new referrer URL.
+     * @param referrers A new set of referrers.
      */
-    public void setReferrer(final URL referrer) {
-        this.referrer = referrer;
+    public void setReferrers(final Set<URI> referrers) {
+        this.referrers = referrers;
     }
 
     /**
-     * The eventual redirect location for the client. Must match what the
-     * client
-     * provides.
+     * Get the valid redirect URI's.
      *
-     * @return The new redirect URI.
+     * @return The valid redirect url's.
      */
-    public URL getRedirect() {
-        return redirect;
+    public Set<URI> getRedirects() {
+        return redirects;
     }
 
     /**
-     * Set a new redirect URI.
+     * Set the list of redirects.
      *
-     * @param redirect The new URI.
+     * @param redirects The redirects.
      */
-    public void setRedirect(final URL redirect) {
-        this.redirect = redirect;
-    }
-
-    /**
-     * Get the Auth token expiration time, in seconds.
-     *
-     * @return The time in seconds.
-     */
-    public Integer getAuthTokenExpire() {
-        return authTokenExpire;
-    }
-
-    /**
-     * Set the new timeout for the auth token.
-     *
-     * @param authTokenExpire New timeout, in seconds.
-     */
-    public void setAuthTokenExpire(final Integer authTokenExpire) {
-        this.authTokenExpire = authTokenExpire;
-    }
-
-    /**
-     * Get the expiration time of the refresh token.
-     *
-     * @return Expiration time, in seconds.
-     */
-    public Integer getRefreshTokenExpire() {
-        return refreshTokenExpire;
-    }
-
-    /**
-     * Set a new expiration time for the refresh token.
-     *
-     * @param refreshTokenExpire New expiration, in seconds.
-     */
-    public void setRefreshTokenExpire(final Integer refreshTokenExpire) {
-        this.refreshTokenExpire = refreshTokenExpire;
+    public void setRedirects(final Set<URI> redirects) {
+        this.redirects = redirects;
     }
 
     /**
