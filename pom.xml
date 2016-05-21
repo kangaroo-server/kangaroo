@@ -75,7 +75,7 @@
     <jdk.version>1.8</jdk.version>
     <hibernate.version>5.0.6.Final</hibernate.version>
     <hibernate-search.version>5.5.1.Final</hibernate-search.version>
-    <jersey2-toolkit.version>2.1.0</jersey2-toolkit.version>
+    <jersey2-toolkit.version>2.1.1</jersey2-toolkit.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
