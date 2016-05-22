@@ -101,7 +101,7 @@ public final class User extends AbstractEntity {
     private List<UserIdentity> identities;
 
     /**
-     * Get the application this user belongs to.`
+     * Get the application this user belongs to.
      *
      * @return The application.
      */

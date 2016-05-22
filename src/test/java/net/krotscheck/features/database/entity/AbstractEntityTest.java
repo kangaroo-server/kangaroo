@@ -136,8 +136,8 @@ public final class AbstractEntityTest {
         AbstractEntity b = new TestEntity();
 
         Assert.assertEquals(
-                String.format("net.krotscheck.features.database.entity." +
-                                "AbstractEntityTest.TestEntity [id=%s]",
+                String.format("net.krotscheck.features.database.entity."
+                                + "AbstractEntityTest.TestEntity [id=%s]",
                         a.getId()),
                 a.toString());
         Assert.assertEquals("net.krotscheck.features.database.entity"

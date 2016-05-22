@@ -25,12 +25,12 @@ package net.krotscheck.features.database.entity;
 public enum OAuthTokenType {
 
     /**
-     * A Bearer token
+     * A Bearer token.
      */
     Bearer,
 
     /**
-     * An authorization token
+     * An authorization token.
      */
     Authorization
 }

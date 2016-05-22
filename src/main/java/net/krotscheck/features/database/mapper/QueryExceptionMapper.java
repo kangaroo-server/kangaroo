@@ -20,7 +20,6 @@ package net.krotscheck.features.database.mapper;
 import net.krotscheck.features.exception.ErrorResponseBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.hibernate.HibernateException;
 import org.hibernate.QueryException;
 
 import javax.inject.Singleton;

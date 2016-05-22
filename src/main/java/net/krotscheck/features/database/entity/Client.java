@@ -38,7 +38,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * This represents a registered client, as well as it's connection metadata, for
+ * This represents a registered client, as well as it's connection metadata,
+ * for
  * a specific application. Multiple different clients may exist per
  * application.
  *
@@ -195,7 +196,8 @@ public final class Client extends AbstractEntity {
     }
 
     /**
-     * The eventual redirect location for the client. Must match what the client
+     * The eventual redirect location for the client. Must match what the
+     * client
      * provides.
      *
      * @return The new redirect URI.
@@ -285,12 +287,21 @@ public final class Client extends AbstractEntity {
         this.states = new ArrayList<>(states);
     }
 
+    /**
+     * Get the client type.
+     *
+     * @return The client type.
+     */
     public ClientType getType() {
         return type;
     }
 
-    public void setType(
-            ClientType type) {
+    /**
+     * Set the client type.
+     *
+     * @param type The client type!
+     */
+    public void setType(final ClientType type) {
         this.type = type;
     }
 

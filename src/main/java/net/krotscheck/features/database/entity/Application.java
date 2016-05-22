@@ -204,7 +204,7 @@ public final class Application extends AbstractEntity {
     }
 
     /**
-     * The list of authenticators active in this application.s
+     * The list of authenticators active in this application.
      *
      * @return The list of authenticators.
      */

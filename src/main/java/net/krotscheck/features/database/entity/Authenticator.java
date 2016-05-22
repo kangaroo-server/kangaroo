@@ -50,7 +50,7 @@ import javax.persistence.Table;
 public final class Authenticator extends AbstractEntity {
 
     /**
-     * The Application to whom this authenticator belongs
+     * The Application to whom this authenticator belongs.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application", nullable = false, updatable = false)

@@ -30,8 +30,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
 /**
  * This entity represents an OAuth Token, provided to a user, for a specific
  * application, on a particular client's domain.

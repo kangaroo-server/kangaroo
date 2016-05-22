@@ -72,7 +72,7 @@
 
         <!-- Checks for Size Violations.                    -->
         <module name="LineLength">
-            <property name="ignorePattern" value="^ *\* \@see .*$"/>
+            <property name="ignorePattern" value="(^ *\* \@see .*$)|(^import .*$)"/>
         </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber"/>
