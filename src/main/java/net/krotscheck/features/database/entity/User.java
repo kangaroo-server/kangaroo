@@ -21,22 +21,10 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
-import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
-import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
-import org.apache.lucene.analysis.core.StopFilterFactory;
-import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilterFactory;
-import org.apache.lucene.analysis.miscellaneous.TrimFilterFactory;
-import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
-import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.search.annotations.AnalyzerDef;
-import org.hibernate.search.annotations.CharFilterDef;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.Parameter;
-import org.hibernate.search.annotations.TokenFilterDef;
-import org.hibernate.search.annotations.TokenizerDef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,22 +43,6 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "users")
 @Indexed(index = "users")
-@AnalyzerDef(name = "useranalyzer",
-        charFilters = {
-                @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
-        },
-        tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class),
-        filters = {
-                @TokenFilterDef(factory = TrimFilterFactory.class),
-                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = StopFilterFactory.class),
-                @TokenFilterDef(factory = SnowballPorterFilterFactory.class,
-                        params = {
-                                @Parameter(name = "language", value = "English")
-                        }),
-                @TokenFilterDef(
-                        factory = RemoveDuplicatesTokenFilterFactory.class)
-        })
 public final class User extends AbstractEntity {
 
     /**

@@ -22,7 +22,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.StopFilterFactory;
+import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilterFactory;
+import org.apache.lucene.analysis.miscellaneous.TrimFilterFactory;
+import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.CharFilterDef;
+import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 
 import java.util.Date;
 import java.util.UUID;
@@ -41,6 +53,22 @@ import javax.persistence.MappedSuperclass;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@AnalyzerDef(name = "entity_analyzer",
+        charFilters = {
+                @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
+        },
+        tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class),
+        filters = {
+                @TokenFilterDef(factory = TrimFilterFactory.class),
+                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+                @TokenFilterDef(factory = StopFilterFactory.class),
+                @TokenFilterDef(factory = SnowballPorterFilterFactory.class,
+                        params = {
+                                @Parameter(name = "language", value = "English")
+                        }),
+                @TokenFilterDef(
+                        factory = RemoveDuplicatesTokenFilterFactory.class)
+        })
 public abstract class AbstractEntity {
 
     /**
