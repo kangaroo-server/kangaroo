@@ -61,6 +61,13 @@ public final class Client extends AbstractEntity {
     private Application application;
 
     /**
+     * List of the application's authenticators.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
+    @JsonIgnore
+    private List<Authenticator> authenticators;
+
+    /**
      * OAuth tokens issued to this client.
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
@@ -204,6 +211,24 @@ public final class Client extends AbstractEntity {
      */
     public void setRedirects(final Set<URI> redirects) {
         this.redirects = redirects;
+    }
+
+    /**
+     * The list of authenticators active in this client.
+     *
+     * @return The list of authenticators.
+     */
+    public List<Authenticator> getAuthenticators() {
+        return authenticators;
+    }
+
+    /**
+     * Set the authenticators.
+     *
+     * @param authenticators New list of authenticators.
+     */
+    public void setAuthenticators(final List<Authenticator> authenticators) {
+        this.authenticators = new ArrayList<>(authenticators);
     }
 
     /**

@@ -48,13 +48,13 @@ public final class AuthenticatorTest {
      * Test getting/setting the application.
      */
     @Test
-    public void testGetSetApplication() {
+    public void testGetSetClient() {
         Authenticator auth = new Authenticator();
-        Application a = new Application();
+        Client client = new Client();
 
-        Assert.assertNull(auth.getApplication());
-        auth.setApplication(a);
-        Assert.assertEquals(a, auth.getApplication());
+        Assert.assertNull(auth.getClient());
+        auth.setClient(client);
+        Assert.assertEquals(client, auth.getClient());
     }
 
     /**
@@ -113,15 +113,16 @@ public final class AuthenticatorTest {
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't
      * carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
      */
     @Test
     public void testJacksonSerializable() throws Exception {
-        Application application = new Application();
-        application.setId(UUID.randomUUID());
+        Client client = new Client();
+        client.setId(UUID.randomUUID());
 
         List<UserIdentity> identities = new ArrayList<>();
         UserIdentity identity = new UserIdentity();
@@ -139,7 +140,7 @@ public final class AuthenticatorTest {
 
         Authenticator a = new Authenticator();
         a.setId(UUID.randomUUID());
-        a.setApplication(application);
+        a.setClient(client);
         a.setCreatedDate(new Date());
         a.setModifiedDate(new Date());
         a.setType("type");
@@ -165,8 +166,8 @@ public final class AuthenticatorTest {
                 node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
-                a.getApplication().getId().toString(),
-                node.get("application").asText());
+                a.getClient().getId().toString(),
+                node.get("client").asText());
         Assert.assertEquals(
                 a.getType(),
                 node.get("type").asText());

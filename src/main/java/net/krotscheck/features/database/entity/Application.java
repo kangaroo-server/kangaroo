@@ -78,13 +78,6 @@ public final class Application extends AbstractEntity {
     private List<Role> roles;
 
     /**
-     * List of the application's authenticators.
-     */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
-    @JsonIgnore
-    private List<Authenticator> authenticators;
-
-    /**
      * The owner of the application.
      */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -182,24 +175,6 @@ public final class Application extends AbstractEntity {
      */
     public void setRoles(final List<Role> roles) {
         this.roles = new ArrayList<>(roles);
-    }
-
-    /**
-     * The list of authenticators active in this application.
-     *
-     * @return The list of authenticators.
-     */
-    public List<Authenticator> getAuthenticators() {
-        return authenticators;
-    }
-
-    /**
-     * Set the authenticators.
-     *
-     * @param authenticators New list of authenticators.
-     */
-    public void setAuthenticators(final List<Authenticator> authenticators) {
-        this.authenticators = new ArrayList<>(authenticators);
     }
 
     /**
