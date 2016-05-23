@@ -25,5 +25,14 @@
 * Server redirects to Browser App
 
 ## Todo list
-
-* Everything
+* Collect default settings (such as token expiry) into one set of constants.
+* Add a Database configuration component to SystemConfiguration.
+* Add a configuration API that allows us to modify server configuration.
+* Add an initial first-time load context listener that sets up data for this 
+  application.
+* Add API endpoints for data management- user, identities, clients, 
+  authenticators, etc.
+* Implement generic secondary OpenID authenticator.
+* Implement Google Auth authenticator.
+* Implement Facebook authenticator.
+* Everything Else.
