@@ -38,6 +38,7 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -90,6 +91,11 @@ public final class DatabaseManager {
      */
     private static Logger logger =
             LoggerFactory.getLogger(DatabaseManager.class);
+
+    /**
+     * The list of environment builders used in the most recent test.
+     */
+    private List<EnvironmentBuilder> builders = new ArrayList<>();
 
     /**
      * Singleton instance of the database tester.
@@ -208,9 +214,9 @@ public final class DatabaseManager {
     private SessionFactory sessionFactory;
 
     /**
-     * List of sessions that have been created.
+     * The last created session.
      */
-    private List<Session> sessions = new ArrayList<>();
+    private Session session;
 
     /**
      * Build, or retrieve, a session factory.
@@ -238,10 +244,11 @@ public final class DatabaseManager {
      * @return The constructed session.
      */
     public Session getSession() {
-        SessionFactory factory = getSessionFactory();
-        Session s = factory.openSession();
-        sessions.add(s);
-        return s;
+        if (session == null) {
+            SessionFactory factory = getSessionFactory();
+            session = factory.openSession();
+        }
+        return session;
     }
 
     /**
@@ -295,14 +302,36 @@ public final class DatabaseManager {
      * Clean all sessions.
      */
     public void cleanSessions() {
-        for (Session s : sessions) {
-            s.close();
+        if (session != null && session.isOpen()) {
+            session.close();
         }
-        sessions.clear();
+        session = null;
 
-        if (sessionFactory != null) {
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
             sessionFactory.close();
-            sessionFactory = null;
         }
+        sessionFactory = null;
+    }
+
+    /**
+     * Set up the test's database environment.
+     *
+     * @return An environment builder.
+     */
+    public EnvironmentBuilder setupEnvironment() {
+        EnvironmentBuilder b = new EnvironmentBuilder(getSession(),
+                UUID.randomUUID().toString());
+        builders.add(b);
+        return b;
+    }
+
+    /**
+     * Clear any created environment entities after the tests have been run.
+     */
+    public void clearEnvironment() {
+        for (EnvironmentBuilder builder : builders) {
+            builder.reset();
+        }
+        builders.clear();
     }
 }
