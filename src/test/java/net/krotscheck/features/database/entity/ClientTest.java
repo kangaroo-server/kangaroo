@@ -22,16 +22,19 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.krotscheck.features.database.entity.Client.Deserializer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -71,6 +74,19 @@ public final class ClientTest {
     }
 
     /**
+     * Assert that we can get and set the secret.
+     */
+    @Test
+    public void testGetSetSecret() {
+        Client c = new Client();
+        String secret = "secret";
+
+        Assert.assertNull(c.getClientSecret());
+        c.setClientSecret(secret);
+        Assert.assertEquals(secret, c.getClientSecret());
+    }
+
+    /**
      * Assert that we can get and set the type.
      */
     @Test
@@ -83,76 +99,41 @@ public final class ClientTest {
     }
 
     /**
-     * Assert that we can get and set the client ID.
-     */
-    @Test
-    public void testGetSetClientId() {
-        Client c = new Client();
-        String clientId = "test";
-
-        Assert.assertNull(c.getClientId());
-        c.setClientId(clientId);
-        Assert.assertEquals(clientId, c.getClientId());
-    }
-
-    /**
-     * Assert that the referral URL may be get and set.
+     * Assert that the referral URI may be get and set.
      *
      * @throws Exception Should not be thrown.
      */
     @Test
-    public void testGetSetReferrer() throws Exception {
+    public void testGetSetReferrers() throws Exception {
         Client c = new Client();
-        String url = "https://example.com/oauth/foo?lol=cat#omg";
-        URL referrer = new URL(url);
 
-        Assert.assertNull(c.getReferrer());
-        c.setReferrer(referrer);
-        Assert.assertEquals(referrer, c.getReferrer());
-        Assert.assertEquals(url, c.getReferrer().toString());
+        Set<URI> referrers = new HashSet<>();
+        URI referrer = new URI("https://example.com/oauth/foo?lol=cat#omg");
+        referrers.add(referrer);
+
+        Assert.assertNull(c.getReferrers());
+        c.setReferrers(referrers);
+        Assert.assertEquals(referrers, c.getReferrers());
+        Assert.assertTrue(c.getReferrers().contains(referrer));
     }
 
     /**
-     * Assert that we can set and get the redirection URL.
+     * Assert that we can set and get the redirection URIs.
      *
      * @throws Exception Should not be thrown.
      */
     @Test
-    public void testGetSetRedirect() throws Exception {
+    public void testGetSetRedirects() throws Exception {
         Client c = new Client();
-        String url = "https://example.com/oauth/foo?lol=cat#omg";
-        URL redirect = new URL(url);
 
-        Assert.assertNull(c.getRedirect());
-        c.setRedirect(redirect);
-        Assert.assertEquals(redirect, c.getRedirect());
-        Assert.assertEquals(url, c.getRedirect().toString());
-    }
+        Set<URI> redirects = new HashSet<>();
+        URI redirect = new URI("https://example.com/oauth/foo?lol=cat#omg");
+        redirects.add(redirect);
 
-    /**
-     * Test that the authtoken expiration time may be set and get.
-     */
-    @Test
-    public void testGetSetAuthTokenExpire() {
-        Client c = new Client();
-        Integer expire = 1000;
-
-        Assert.assertEquals(3600, (int) c.getAuthTokenExpire()); // Default
-        c.setAuthTokenExpire(expire);
-        Assert.assertEquals(expire, c.getAuthTokenExpire());
-    }
-
-    /**
-     * Test that the refreshToken expiration time may be set and get.
-     */
-    @Test
-    public void testGetSetRefreshTokenExpire() {
-        Client c = new Client();
-        Integer expire = 1000;
-
-        Assert.assertEquals(604800, (int) c.getRefreshTokenExpire()); // Default
-        c.setRefreshTokenExpire(expire);
-        Assert.assertEquals(expire, c.getRefreshTokenExpire());
+        Assert.assertNull(c.getRedirects());
+        c.setRedirects(redirects);
+        Assert.assertEquals(redirects, c.getRedirects());
+        Assert.assertTrue(c.getRedirects().contains(redirect));
     }
 
     /**
@@ -206,8 +187,10 @@ public final class ClientTest {
         state.setId(UUID.randomUUID());
         states.add(state);
 
-        String path = "https://example.com/oauth/foo?lol=cat#omg";
-        URL url = new URL(path);
+        Set<URI> referrers = new HashSet<>();
+        referrers.add(new URI("https://example.com/oauth/foo?lol=cat#omg"));
+        Set<URI> redirects = new HashSet<>();
+        redirects.add(new URI("https://example.com/oauth/foo?lol=cat#omg"));
 
         Client c = new Client();
         c.setApplication(application);
@@ -215,10 +198,10 @@ public final class ClientTest {
         c.setCreatedDate(new Date());
         c.setModifiedDate(new Date());
         c.setName("name");
+        c.setClientSecret("clientSecret");
         c.setType(ClientType.Confidential);
-        c.setRedirect(url);
-        c.setReferrer(url);
-        c.setClientId("clientId");
+        c.setRedirects(redirects);
+        c.setReferrers(referrers);
 
         // These should not serialize.
         c.setTokens(tokens);
@@ -246,26 +229,23 @@ public final class ClientTest {
                 c.getName(),
                 node.get("name").asText());
         Assert.assertEquals(
+                c.getClientSecret(),
+                node.get("clientSecret").asText());
+        Assert.assertEquals(
                 c.getType().toString(),
                 node.get("type").asText());
-        Assert.assertEquals(
-                c.getRedirect().toString(),
-                node.get("redirect").asText());
-        Assert.assertEquals(
-                c.getReferrer().toString(),
-                node.get("referrer").asText());
-        Assert.assertEquals(
-                c.getClientId(),
-                node.get("clientId").asText());
-        Assert.assertEquals(
-                (long) c.getAuthTokenExpire(),
-                node.get("authTokenExpire").asLong());
-        Assert.assertEquals(
-                (long) c.getRefreshTokenExpire(),
-                node.get("refreshTokenExpire").asLong());
-
         Assert.assertFalse(node.has("tokens"));
         Assert.assertFalse(node.has("states"));
+
+        // Extract the referrers
+        ArrayNode referrerNode = (ArrayNode) node.get("referrers");
+        Assert.assertEquals("https://example.com/oauth/foo?lol=cat#omg",
+                referrerNode.get(0).asText());
+
+        // Extract the redirects
+        ArrayNode redirectNode = (ArrayNode) node.get("redirects");
+        Assert.assertEquals("https://example.com/oauth/foo?lol=cat#omg",
+                redirectNode.get(0).asText());
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -273,7 +253,7 @@ public final class ClientTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(11, names.size());
+        Assert.assertEquals(9, names.size());
     }
 
     /**
@@ -290,11 +270,15 @@ public final class ClientTest {
         node.put("modifiedDate", new Date().getTime());
         node.put("name", "name");
         node.put("type", "Confidential");
-        node.put("redirect", "https://example.com/oauth/foo?lol=cat#omg");
-        node.put("referrer", "https://example.com/oauth/foo?lol=cat#omg");
-        node.put("clientId", "clientId");
-        node.put("authTokenExpire", 100);
-        node.put("refreshTokenExpire", 100);
+        node.put("clientSecret", "clientSecret");
+
+        ArrayNode referrers = node.arrayNode();
+        referrers.add("https://example.com/oauth/foo?lol=cat#omg");
+        node.set("referrers", referrers);
+
+        ArrayNode redirects = node.arrayNode();
+        redirects.add("https://example.com/oauth/foo?lol=cat#omg");
+        node.set("redirects", redirects);
 
         String output = m.writeValueAsString(node);
         Client c = m.readValue(output, Client.class);
@@ -313,23 +297,19 @@ public final class ClientTest {
                 c.getName(),
                 node.get("name").asText());
         Assert.assertEquals(
+                c.getClientSecret(),
+                node.get("clientSecret").asText());
+        Assert.assertEquals(
                 c.getType().toString(),
                 node.get("type").asText());
-        Assert.assertEquals(
-                c.getRedirect().toString(),
-                node.get("redirect").asText());
-        Assert.assertEquals(
-                c.getReferrer().toString(),
-                node.get("referrer").asText());
-        Assert.assertEquals(
-                c.getClientId(),
-                node.get("clientId").asText());
-        Assert.assertEquals(
-                (long) c.getAuthTokenExpire(),
-                node.get("authTokenExpire").asLong());
-        Assert.assertEquals(
-                (long) c.getRefreshTokenExpire(),
-                node.get("refreshTokenExpire").asLong());
+        Assert.assertEquals(1, c.getRedirects().size());
+        Assert.assertEquals(1, c.getReferrers().size());
+        Assert.assertTrue(c.getRedirects()
+                .contains(new URI("https://example"
+                        + ".com/oauth/foo?lol=cat#omg")));
+        Assert.assertTrue(c.getReferrers()
+                .contains(new URI("https://example"
+                        + ".com/oauth/foo?lol=cat#omg")));
     }
 
     /**
