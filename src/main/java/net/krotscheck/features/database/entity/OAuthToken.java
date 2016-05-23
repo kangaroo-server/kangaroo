@@ -72,11 +72,11 @@ public final class OAuthToken extends AbstractEntity {
     private String accessToken;
 
     /**
-     * Expires in how many seconds?.
+     * Expires in how many seconds?
      */
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
-    private long expiresIn = 3600;
+    private long expiresIn = 600;
 
     /**
      * Get the user identity to which this token was issued.

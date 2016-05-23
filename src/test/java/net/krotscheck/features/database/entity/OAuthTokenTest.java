@@ -102,7 +102,7 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertEquals(3600, c.getExpiresIn());
+        Assert.assertEquals(600, c.getExpiresIn());
         c.setExpiresIn(100);
         Assert.assertEquals(100, c.getExpiresIn());
     }
