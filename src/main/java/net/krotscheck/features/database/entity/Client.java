@@ -88,7 +88,7 @@ public final class Client extends AbstractEntity {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private ClientType type = ClientType.Public;
+    private ClientType type = ClientType.AuthorizationGrant;
 
     /**
      * A client secret, indicating a password which must be provided to the
