@@ -37,11 +37,17 @@ public final class ClientTypeTest {
     public void testSerialization() throws Exception {
         ObjectMapper m = new ObjectMapper();
 
-        String authOutput = m.writeValueAsString(ClientType.Confidential);
-        Assert.assertEquals("\"Confidential\"", authOutput);
+        String auth = m.writeValueAsString(ClientType.AuthorizationGrant);
+        Assert.assertEquals("\"AuthorizationGrant\"", auth);
 
-        String bearerOutput = m.writeValueAsString(ClientType.Public);
-        Assert.assertEquals("\"Public\"", bearerOutput);
+        String implicit = m.writeValueAsString(ClientType.Implicit);
+        Assert.assertEquals("\"Implicit\"", implicit);
+
+        String owner = m.writeValueAsString(ClientType.OwnerCredentials);
+        Assert.assertEquals("\"OwnerCredentials\"", owner);
+
+        String client = m.writeValueAsString(ClientType.ClientCredentials);
+        Assert.assertEquals("\"ClientCredentials\"", client);
     }
 
     /**
@@ -52,11 +58,21 @@ public final class ClientTypeTest {
     @Test
     public void testDeserialization() throws Exception {
         ObjectMapper m = new ObjectMapper();
-        ClientType authOutput =
-                m.readValue("\"Confidential\"", ClientType.class);
-        Assert.assertSame(authOutput, ClientType.Confidential);
-        ClientType bearerOutput =
-                m.readValue("\"Public\"", ClientType.class);
-        Assert.assertSame(bearerOutput, ClientType.Public);
+
+        ClientType auth =
+                m.readValue("\"AuthorizationGrant\"", ClientType.class);
+        Assert.assertSame(auth, ClientType.AuthorizationGrant);
+
+        ClientType implicit =
+                m.readValue("\"Implicit\"", ClientType.class);
+        Assert.assertSame(implicit, ClientType.Implicit);
+
+        ClientType owner =
+                m.readValue("\"OwnerCredentials\"", ClientType.class);
+        Assert.assertSame(owner, ClientType.OwnerCredentials);
+
+        ClientType client =
+                m.readValue("\"ClientCredentials\"", ClientType.class);
+        Assert.assertSame(client, ClientType.ClientCredentials);
     }
 }
