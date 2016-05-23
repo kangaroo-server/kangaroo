@@ -19,6 +19,12 @@ package net.krotscheck.test;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.glassfish.jersey.test.JerseyTest;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.service.ServiceRegistry;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -169,5 +175,51 @@ public abstract class DatabaseTest extends JerseyTest {
 
         conn.close();
         conn = null;
+    }
+
+    /**
+     * Internal session factory, reconstructed for every test run.
+     */
+    private SessionFactory sessionFactory;
+
+    /**
+     * Build, or retrieve, a session factory.
+     *
+     * @return The session factory.
+     */
+    private SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+
+            ServiceRegistry serviceRegistry =
+                    new StandardServiceRegistryBuilder()
+                            .configure()
+                            .build();
+
+            sessionFactory = new MetadataSources(serviceRegistry)
+                    .buildMetadata()
+                    .buildSessionFactory();
+        }
+        return sessionFactory;
+    }
+
+    /**
+     * Create and return a hibernate session for the test database.
+     *
+     * @return The constructed session.
+     */
+    protected final Session getSession() {
+        SessionFactory factory = getSessionFactory();
+        return factory.openSession();
+    }
+
+    /**
+     * Cleanup the session factory after every run.
+     */
+    @After
+    public final void clearSession() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+            sessionFactory = null;
+        }
     }
 }
