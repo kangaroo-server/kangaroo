@@ -204,7 +204,7 @@ databaseChangeLog:
                   nullable: false
             - column:
                 name: type
-                type: varchar(12)
+                type: varchar(18)
                 constraints:
                   nullable: false
             - column:

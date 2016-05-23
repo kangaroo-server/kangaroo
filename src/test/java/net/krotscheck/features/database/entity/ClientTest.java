@@ -93,9 +93,9 @@ public final class ClientTest {
     public void testGetSetType() {
         Client c = new Client();
 
-        Assert.assertEquals(ClientType.Public, c.getType());
-        c.setType(ClientType.Confidential);
-        Assert.assertEquals(ClientType.Confidential, c.getType());
+        Assert.assertEquals(ClientType.AuthorizationGrant, c.getType());
+        c.setType(ClientType.Implicit);
+        Assert.assertEquals(ClientType.Implicit, c.getType());
     }
 
     /**
@@ -167,7 +167,8 @@ public final class ClientTest {
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't
      * carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
@@ -199,7 +200,7 @@ public final class ClientTest {
         c.setModifiedDate(new Date());
         c.setName("name");
         c.setClientSecret("clientSecret");
-        c.setType(ClientType.Confidential);
+        c.setType(ClientType.AuthorizationGrant);
         c.setRedirects(redirects);
         c.setReferrers(referrers);
 
@@ -269,7 +270,7 @@ public final class ClientTest {
         node.put("createdDate", new Date().getTime());
         node.put("modifiedDate", new Date().getTime());
         node.put("name", "name");
-        node.put("type", "Confidential");
+        node.put("type", "Implicit");
         node.put("clientSecret", "clientSecret");
 
         ArrayNode referrers = node.arrayNode();
