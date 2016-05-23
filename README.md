@@ -27,6 +27,10 @@
 ## Todo list
 * Collect default settings (such as token expiry) into one set of constants.
 * Add a Database configuration component to SystemConfiguration.
+* CORS filter which respects the 'referrer' field from the Client Configuration.
+* Implement EnvironmentBuilder.
+* Add 'public' field to the Client.
+* Collect default settings (such as token expiry) into one set of constants.
 * Add a configuration API that allows us to modify server configuration.
 * Add an initial first-time load context listener that sets up data for this 
   application.

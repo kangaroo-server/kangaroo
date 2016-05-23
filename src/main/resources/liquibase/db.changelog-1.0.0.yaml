@@ -11,7 +11,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -24,12 +24,59 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: owner
-                type: UUID
+                type: BINARY(16)
             - column:
                 name: name
                 type: varchar(255)
                 constraints:
                   nullable: false
+
+      # An application may have multiple configuration options that govern
+      # its behavior.
+      - createTable:
+          tableName: application_configs
+          columns:
+            - column:
+                name: application
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: key
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: true
+      - createIndex:
+          columns:
+          - column:
+              name: application
+              type: BINARY(16)
+          indexName: idx_application_configs_application
+          tableName: application_configs
+      - createIndex:
+          columns:
+          - column:
+              name: key
+              type: varchar(255)
+          indexName: idx_application_configs_name
+          tableName: application_configs
+      - addUniqueConstraint:
+          columnNames: application, key
+          constraintName: uq_application_configs_application_key
+          tableName: application_configs
+      - addForeignKeyConstraint:
+          baseColumnNames: application
+          baseTableName: application_configs
+          constraintName: fk_application_configs_application
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
 
       # Every application has certain user roles. We need to make sure that
       # every application has at least one "owner" role, and that this role
@@ -39,7 +86,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -52,7 +99,7 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -79,7 +126,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -92,12 +139,12 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: role
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
       - addForeignKeyConstraint:
@@ -134,7 +181,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -147,7 +194,7 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -203,7 +250,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -216,7 +263,7 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -241,7 +288,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: authenticator
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -291,7 +338,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -304,12 +351,12 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: client
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: authenticator
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -376,7 +423,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -389,12 +436,12 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: user
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: authenticator
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -437,7 +484,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: user_identity
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -484,7 +531,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -497,12 +544,12 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: identity
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: client
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -537,20 +584,6 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: clients
 
-      # The last thing we do is insert the root application, and the initial
-      # root application user.
-      - insert:
-          tableName: applications
-          columns:
-          - column:
-              name: id
-              type: UUID
-              value: '1078212b-af7b-463f-8717-c9cdee68bc5e'
-          - column:
-              name: name
-              type: varchar(255)
-              value: 'OAuthServer'
-
 
       rollback:
         - dropTable:
@@ -571,5 +604,7 @@ databaseChangeLog:
             tableName: users
         - dropTable:
             tableName: roles
+        - dropTable:
+            tableName: application_configs
         - dropTable:
             tableName: applications
