@@ -167,6 +167,21 @@ public final class ClientTest {
     }
 
     /**
+     * Test get/set authenticator list.
+     */
+    @Test
+    public void testGetSetAuthenticators() {
+        Client client = new Client();
+        List<Authenticator> authenticators = new ArrayList<>();
+        authenticators.add(new Authenticator());
+
+        Assert.assertNull(client.getAuthenticators());
+        client.setAuthenticators(authenticators);
+        Assert.assertEquals(authenticators, client.getAuthenticators());
+        Assert.assertNotSame(authenticators, client.getAuthenticators());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.

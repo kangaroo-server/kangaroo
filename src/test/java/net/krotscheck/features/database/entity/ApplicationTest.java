@@ -115,21 +115,6 @@ public final class ApplicationTest {
     }
 
     /**
-     * Test get/set authenticator list.
-     */
-    @Test
-    public void testGetSetAuthenticators() {
-        Application a = new Application();
-        List<Authenticator> authenticators = new ArrayList<>();
-        authenticators.add(new Authenticator());
-
-        Assert.assertNull(a.getAuthenticators());
-        a.setAuthenticators(authenticators);
-        Assert.assertEquals(authenticators, a.getAuthenticators());
-        Assert.assertNotSame(authenticators, a.getAuthenticators());
-    }
-
-    /**
      * Test getting/setting the configuration.
      */
     @Test
@@ -171,11 +156,6 @@ public final class ApplicationTest {
         role.setId(UUID.randomUUID());
         roles.add(role);
 
-        List<Authenticator> authenticators = new ArrayList<>();
-        Authenticator authenticator = new Authenticator();
-        authenticator.setId(UUID.randomUUID());
-        authenticators.add(authenticator);
-
         Map<String, String> configuration = new HashMap<>();
         configuration.put("one", "value");
         configuration.put("two", "value");
@@ -192,7 +172,6 @@ public final class ApplicationTest {
         a.setClients(clients);
         a.setRoles(roles);
         a.setUsers(users);
-        a.setAuthenticators(authenticators);
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapper();
@@ -216,7 +195,6 @@ public final class ApplicationTest {
                 node.get("name").asText());
         Assert.assertFalse(node.has("clients"));
         Assert.assertFalse(node.has("roles"));
-        Assert.assertFalse(node.has("authenticators"));
         Assert.assertFalse(node.has("users"));
 
         // Get the configuration node.

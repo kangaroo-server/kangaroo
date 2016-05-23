@@ -314,7 +314,7 @@ databaseChangeLog:
                 name: modifiedDate
                 type: datetime
             - column:
-                name: application
+                name: client
                 type: BINARY(16)
                 constraints:
                   nullable: false
@@ -324,13 +324,13 @@ databaseChangeLog:
                 constraints:
                   nullable: false
       - addForeignKeyConstraint:
-          baseColumnNames: application
+          baseColumnNames: client
           baseTableName: authenticators
-          constraintName: fk_authenticators_application
+          constraintName: fk_authenticators_client
           onDelete: CASCADE
           onUpdate: CASCADE
           referencedColumnNames: id
-          referencedTableName: applications
+          referencedTableName: clients
 
       # Each authenticator may require several custom configuration
       # parameters. Note that this table does not follow the
