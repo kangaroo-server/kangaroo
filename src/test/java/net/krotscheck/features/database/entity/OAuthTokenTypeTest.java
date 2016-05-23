@@ -42,6 +42,9 @@ public final class OAuthTokenTypeTest {
 
         String bearerOutput = m.writeValueAsString(OAuthTokenType.Bearer);
         Assert.assertEquals("\"Bearer\"", bearerOutput);
+
+        String refreshOutput = m.writeValueAsString(OAuthTokenType.Refresh);
+        Assert.assertEquals("\"Refresh\"", refreshOutput);
     }
 
     /**
@@ -58,5 +61,8 @@ public final class OAuthTokenTypeTest {
         OAuthTokenType bearerOutput =
                 m.readValue("\"Bearer\"", OAuthTokenType.class);
         Assert.assertSame(bearerOutput, OAuthTokenType.Bearer);
+        OAuthTokenType refreshOutput =
+                m.readValue("\"Refresh\"", OAuthTokenType.class);
+        Assert.assertSame(refreshOutput, OAuthTokenType.Refresh);
     }
 }

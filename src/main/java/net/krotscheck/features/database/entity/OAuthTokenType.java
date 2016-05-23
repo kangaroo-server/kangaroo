@@ -32,5 +32,10 @@ public enum OAuthTokenType {
     /**
      * An authorization token.
      */
-    Authorization
+    Authorization,
+
+    /**
+     * A refresh token.
+     */
+    Refresh
 }
