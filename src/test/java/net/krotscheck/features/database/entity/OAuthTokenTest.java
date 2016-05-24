@@ -82,19 +82,6 @@ public final class OAuthTokenTest {
     }
 
     /**
-     * Assert that we can get and set access token.
-     */
-    @Test
-    public void testGetSetAccessToken() {
-        OAuthToken c = new OAuthToken();
-
-        // Default
-        Assert.assertNull(c.getAccessToken());
-        c.setAccessToken("token");
-        Assert.assertEquals("token", c.getAccessToken());
-    }
-
-    /**
      * Assert that we can get and set the expiration date.
      */
     @Test
@@ -128,7 +115,6 @@ public final class OAuthTokenTest {
         token.setIdentity(identity);
         token.setClient(client);
         token.setTokenType(OAuthTokenType.Authorization);
-        token.setAccessToken("accessToken");
         token.setExpiresIn(100);
 
         // De/serialize to json.
@@ -152,9 +138,6 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 token.getExpiresIn(),
                 node.get("expiresIn").asLong());
-        Assert.assertEquals(
-                token.getAccessToken(),
-                node.get("accessToken").asText());
 
 
         Assert.assertFalse(node.has("client"));
@@ -166,7 +149,7 @@ public final class OAuthTokenTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(6, names.size());
+        Assert.assertEquals(5, names.size());
     }
 
     /**
@@ -198,9 +181,6 @@ public final class OAuthTokenTest {
                 c.getModifiedDate().getTime(),
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
-                c.getAccessToken(),
-                node.get("accessToken").asText());
         Assert.assertEquals(
                 c.getTokenType().toString(),
                 node.get("tokenType").asText());

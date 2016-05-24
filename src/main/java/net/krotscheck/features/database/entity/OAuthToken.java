@@ -64,14 +64,6 @@ public final class OAuthToken extends AbstractEntity {
     private OAuthTokenType tokenType = OAuthTokenType.Bearer;
 
     /**
-     * The access token.
-     */
-    @Basic(optional = false)
-    @Column(name = "accessToken", unique = false, nullable = false,
-            updatable = false)
-    private String accessToken;
-
-    /**
      * Expires in how many seconds?
      */
     @Basic(optional = false)
@@ -130,24 +122,6 @@ public final class OAuthToken extends AbstractEntity {
      */
     public void setTokenType(final OAuthTokenType tokenType) {
         this.tokenType = tokenType;
-    }
-
-    /**
-     * Get the access token.
-     *
-     * @return The access token itself.
-     */
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    /**
-     * Set the access token.
-     *
-     * @param accessToken The access token itself.
-     */
-    public void setAccessToken(final String accessToken) {
-        this.accessToken = accessToken;
     }
 
     /**
