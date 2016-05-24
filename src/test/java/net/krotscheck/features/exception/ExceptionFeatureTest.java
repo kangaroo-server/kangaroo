@@ -74,7 +74,6 @@ public final class ExceptionFeatureTest extends JerseyTest {
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
         Assert.assertEquals(404, r.getStatus());
-        Assert.assertEquals(404, response.getHttpStatus());
         Assert.assertEquals("not_found", response.getError());
         Assert.assertEquals("Not Found", response.getErrorDescription());
     }
@@ -89,7 +88,6 @@ public final class ExceptionFeatureTest extends JerseyTest {
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
         Assert.assertEquals(500, r.getStatus());
-        Assert.assertEquals(500, response.getHttpStatus());
         Assert.assertEquals("internal_server_error", response.getError());
         Assert.assertEquals("Internal Server Error",
                 response.getErrorDescription());
@@ -105,7 +103,6 @@ public final class ExceptionFeatureTest extends JerseyTest {
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
         Assert.assertEquals(400, r.getStatus());
-        Assert.assertEquals(400, response.getHttpStatus());
         Assert.assertEquals("bad_request", response.getError());
     }
 
@@ -119,7 +116,6 @@ public final class ExceptionFeatureTest extends JerseyTest {
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
         Assert.assertEquals(500, r.getStatus());
-        Assert.assertEquals(500, response.getHttpStatus());
         Assert.assertEquals("internal_server_error", response.getError());
         Assert.assertEquals("Internal Server Error",
                 response.getErrorDescription());

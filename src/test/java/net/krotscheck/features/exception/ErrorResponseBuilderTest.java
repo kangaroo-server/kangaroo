@@ -19,6 +19,8 @@ package net.krotscheck.features.exception;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.features.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;
@@ -26,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.Iterator;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -177,5 +180,35 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
+    }
+
+    /**
+     * Test serializing to json.
+     *
+     * @throws Exception Should not be thrown (hopefully).
+     */
+    @Test
+    public void testSerialization() throws Exception {
+        Exception e = new Exception();
+
+        Response r = ErrorResponseBuilder.from(e).build();
+        ErrorResponse er = (ErrorResponse) r.getEntity();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = mapper.writeValueAsString(er);
+        JsonNode node = mapper.readTree(jsonString);
+
+        // Count the field names, we're expecting two.
+        int fieldCount = 0;
+        Iterator<String> nameIterator = node.fieldNames();
+        while (nameIterator.hasNext()) {
+            nameIterator.next();
+            fieldCount++;
+        }
+        Assert.assertEquals(2, fieldCount);
+
+        Assert.assertEquals("Internal Server Error",
+                node.get("error_description").asText());
+        Assert.assertEquals("internal_server_error",
+                node.get("error").asText());
     }
 }
