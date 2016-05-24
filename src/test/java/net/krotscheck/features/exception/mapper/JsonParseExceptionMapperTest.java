@@ -49,6 +49,6 @@ public final class JsonParseExceptionMapperTest {
 
         Assert.assertEquals(400, r.getStatus());
         Assert.assertEquals(400, er.getHttpStatus());
-        Assert.assertEquals("", er.getRedirectUrl());
+        Assert.assertEquals(null, er.getRedirectUrl());
     }
 }

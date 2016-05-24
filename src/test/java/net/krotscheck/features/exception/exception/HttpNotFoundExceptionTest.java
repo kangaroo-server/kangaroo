@@ -20,6 +20,9 @@ package net.krotscheck.features.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
+import javax.ws.rs.core.UriBuilder;
+
 /**
  * Assert that HttpNotFoundException has the appropriate values.
  *
@@ -45,5 +48,21 @@ public final class HttpNotFoundExceptionTest {
 
         Assert.assertEquals(404, e.getHttpStatus());
         Assert.assertEquals("Not Found", e.getMessage());
+        Assert.assertEquals("not_found", e.getErrorCode());
+        Assert.assertEquals(null, e.getRedirect());
+    }
+
+    /**
+     * Test redirect values.
+     */
+    @Test
+    public void testRedirectExceptions() {
+        URI redirect = UriBuilder.fromPath("http://www.example.com").build();
+        HttpNotFoundException e = new HttpNotFoundException(redirect);
+
+        Assert.assertEquals(404, e.getHttpStatus());
+        Assert.assertEquals("Not Found", e.getMessage());
+        Assert.assertEquals("not_found", e.getErrorCode());
+        Assert.assertEquals(redirect, e.getRedirect());
     }
 }

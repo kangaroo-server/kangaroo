@@ -20,13 +20,11 @@ package net.krotscheck.features.exception.mapper;
 import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.features.exception.exception.HttpForbiddenException;
 import net.krotscheck.features.exception.exception.HttpNotFoundException;
-import net.krotscheck.features.exception.exception.HttpRedirectException;
 import net.krotscheck.features.exception.exception.HttpUnauthorizedException;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
@@ -50,7 +48,7 @@ public final class HttpStatusExceptionMapperTest {
 
         Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_FORBIDDEN, er.getHttpStatus());
-        Assert.assertEquals("Forbidden", er.getErrorMessage());
+        Assert.assertEquals("Forbidden", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("forbidden", er.getError());
     }
@@ -68,28 +66,9 @@ public final class HttpStatusExceptionMapperTest {
 
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
-        Assert.assertEquals("Not Found", er.getErrorMessage());
+        Assert.assertEquals("Not Found", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
-    }
-
-    /**
-     * Test Redirect code.
-     */
-    @Test
-    public void testRedirect() {
-        HttpStatusExceptionMapper mapper = new HttpStatusExceptionMapper();
-        HttpRedirectException e =
-                new HttpRedirectException("http://example.com/");
-
-        Response r = mapper.toResponse(e);
-
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
-        Assert.assertEquals("http://example.com/"
-                        + "?error=see_other"
-                        + "&http_status=303"
-                        + "&error_message=See+Other",
-                r.getHeaderString(HttpHeaders.LOCATION));
     }
 
     /**
@@ -105,7 +84,7 @@ public final class HttpStatusExceptionMapperTest {
 
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, er.getHttpStatus());
-        Assert.assertEquals("Unauthorized", er.getErrorMessage());
+        Assert.assertEquals("Unauthorized", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("unauthorized", er.getError());
     }

@@ -44,7 +44,7 @@ public final class HibernateExceptionMapperTest {
 
         Assert.assertEquals(500, r.getStatus());
         Assert.assertEquals(500, er.getHttpStatus());
-        Assert.assertEquals("Internal Server Error", er.getErrorMessage());
+        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }
 }
