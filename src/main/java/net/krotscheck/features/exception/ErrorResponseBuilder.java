@@ -236,6 +236,7 @@ public final class ErrorResponseBuilder {
         /**
          * The error code.
          */
+        @JsonIgnore
         private int httpStatus = HttpStatus.SC_BAD_REQUEST;
 
         /**
