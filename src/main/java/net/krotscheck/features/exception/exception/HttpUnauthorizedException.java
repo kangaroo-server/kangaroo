@@ -19,6 +19,8 @@ package net.krotscheck.features.exception.exception;
 
 import org.apache.http.HttpStatus;
 
+import java.net.URI;
+
 /**
  * Convenience exception for 401-unauthorized.
  *
@@ -31,5 +33,14 @@ public final class HttpUnauthorizedException extends HttpStatusException {
      */
     public HttpUnauthorizedException() {
         super(HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    /**
+     * Create a new redirecting HttpNotFoundException.
+     *
+     * @param redirect The URI to send the user agent to.
+     */
+    public HttpUnauthorizedException(final URI redirect) {
+        super(HttpStatus.SC_UNAUTHORIZED, redirect);
     }
 }

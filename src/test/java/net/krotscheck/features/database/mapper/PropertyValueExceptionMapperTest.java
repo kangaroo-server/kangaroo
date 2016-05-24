@@ -48,7 +48,7 @@ public final class PropertyValueExceptionMapperTest {
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("Property \"name\" is invalid.",
-                er.getErrorMessage());
+                er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }
 }

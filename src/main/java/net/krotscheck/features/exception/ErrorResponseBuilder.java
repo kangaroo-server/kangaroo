@@ -18,14 +18,14 @@
 package net.krotscheck.features.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
-import net.krotscheck.features.exception.exception.HttpRedirectException;
 import net.krotscheck.features.exception.exception.HttpStatusException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
+import java.net.URI;
 import java.util.Locale;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -107,30 +107,27 @@ public final class ErrorResponseBuilder {
     public static ErrorResponseBuilder from(final int httpStatus,
                                             final String message,
                                             final String error,
-                                            final String redirectUrl) {
+                                            final URI redirectUrl) {
         ErrorResponseBuilder builder = new ErrorResponseBuilder();
         builder.response.httpStatus = httpStatus;
         builder.response.error = error;
-        builder.response.errorMessage = message;
+        builder.response.errorDescription = message;
         builder.response.redirectUrl = redirectUrl;
 
         return builder;
     }
 
     /**
-     * Exception mapper for JSON parse exceptions - throw the json error back at
-     * the user.
+     * Exception mapper for JSON parse exceptions - throw the json error back
+     * at the user.
      *
      * @param e The exception to map.
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final JsonParseException e) {
-        ErrorResponseBuilder builder = new ErrorResponseBuilder();
-        builder.response.httpStatus = HttpStatus.SC_BAD_REQUEST;
-        builder.response.error = errorForCode(builder.response.httpStatus);
-        builder.response.errorMessage = e.getMessage();
-
-        return builder;
+        return from(HttpStatus.SC_BAD_REQUEST,
+                e.getMessage(),
+                errorForCode(HttpStatus.SC_BAD_REQUEST));
     }
 
     /**
@@ -140,16 +137,10 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final HttpStatusException e) {
-        String redirectUrl = null;
-        if (e instanceof HttpRedirectException) {
-            redirectUrl =
-                    ((HttpRedirectException) e).getRedirectUrl().toString();
-        }
-
         return from(e.getHttpStatus(),
                 e.getMessage(),
-                errorForCode(e.getHttpStatus()),
-                redirectUrl);
+                e.getErrorCode(),
+                e.getRedirect());
     }
 
     /**
@@ -203,19 +194,17 @@ public final class ErrorResponseBuilder {
      * @return HTTP Response object for this error.
      */
     public Response build() {
-        if (StringUtils.isEmpty(response.redirectUrl)) {
+        if (response.getRedirectUrl() != null) {
+            UriBuilder builder = UriBuilder.fromUri(response.getRedirectUrl());
+            builder.queryParam("error", response.error);
+            builder.queryParam("error_description", response.errorDescription);
+            return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
+                    .header(HttpHeaders.LOCATION, builder.build())
+                    .build();
+        } else {
             return Response.status(response.httpStatus)
                     .type(MediaType.APPLICATION_JSON)
                     .entity(response)
-                    .build();
-        } else {
-            UriBuilder builder = UriBuilder.fromPath(response.redirectUrl);
-            builder.queryParam("error", response.error);
-            builder.queryParam("http_status", response.httpStatus);
-            builder.queryParam("error_message", response.errorMessage);
-
-            return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
-                    .header(HttpHeaders.LOCATION, builder.build())
                     .build();
         }
     }
@@ -233,15 +222,16 @@ public final class ErrorResponseBuilder {
         /**
          * The error message.
          */
-        private String errorMessage = "";
+        @JsonProperty("error_description")
+        private String errorDescription = "";
 
         /**
          * If this error includes an HTTP redirect (as with OAuth errors),
-         * include it here. The error code and message will be appended. This is
-         * ignored by JSON.
+         * include it here. The error code and description will be appended.
+         * This is ignored by JSON.
          */
         @JsonIgnore
-        private String redirectUrl = "";
+        private URI redirectUrl;
 
         /**
          * The error code.
@@ -264,20 +254,20 @@ public final class ErrorResponseBuilder {
         }
 
         /**
-         * Get the error message.
+         * Get the error description.
          *
-         * @return The error message.
+         * @return The error description.
          */
-        public String getErrorMessage() {
-            return errorMessage;
+        public String getErrorDescription() {
+            return errorDescription;
         }
 
         /**
          * Get the redirect url.
          *
-         * @return A redirect URL, if configured, otherwise "".
+         * @return A redirect URL, if configured, otherwise null.
          */
-        public String getRedirectUrl() {
+        public URI getRedirectUrl() {
             return redirectUrl;
         }
 

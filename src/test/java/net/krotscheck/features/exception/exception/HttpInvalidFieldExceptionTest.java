@@ -20,6 +20,9 @@ package net.krotscheck.features.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
+import javax.ws.rs.core.UriBuilder;
+
 /**
  * Assert that HttpNotFoundException has the appropriate values.
  *
@@ -46,5 +49,23 @@ public final class HttpInvalidFieldExceptionTest {
         Assert.assertEquals(400, e.getHttpStatus());
         Assert.assertEquals("Invalid Field: foo", e.getMessage());
         Assert.assertEquals("foo", e.getInvalidField());
+        Assert.assertEquals("bad_request", e.getErrorCode());
+        Assert.assertEquals(null, e.getRedirect());
+    }
+
+    /**
+     * Test redirect values.
+     */
+    @Test
+    public void testRedirectExceptions() {
+        URI redirect = UriBuilder.fromPath("http://www.example.com").build();
+        HttpInvalidFieldException e =
+                new HttpInvalidFieldException("foo", redirect);
+
+        Assert.assertEquals(400, e.getHttpStatus());
+        Assert.assertEquals("Invalid Field: foo", e.getMessage());
+        Assert.assertEquals("foo", e.getInvalidField());
+        Assert.assertEquals("bad_request", e.getErrorCode());
+        Assert.assertEquals(redirect, e.getRedirect());
     }
 }
