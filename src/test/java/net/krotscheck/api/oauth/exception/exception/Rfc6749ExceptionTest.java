@@ -48,25 +48,25 @@ public final class Rfc6749ExceptionTest {
     @Test
     public void testExpectedExceptionError() {
         Assert.assertEquals(ErrorCode.INVALID_REQUEST,
-                new InvalidRequestException().getError());
+                new InvalidRequestException().getErrorCode());
         Assert.assertEquals(ErrorCode.UNAUTHORIZED_CLIENT,
-                new UnauthorizedClientException().getError());
+                new UnauthorizedClientException().getErrorCode());
         Assert.assertEquals(ErrorCode.ACCESS_DENIED,
-                new AccessDeniedException().getError());
+                new AccessDeniedException().getErrorCode());
         Assert.assertEquals(ErrorCode.UNSUPPORTED_RESPONSE_TYPE,
-                new UnsupportedResponseType().getError());
+                new UnsupportedResponseType().getErrorCode());
         Assert.assertEquals(ErrorCode.INVALID_SCOPE,
-                new InvalidScopeException().getError());
+                new InvalidScopeException().getErrorCode());
         Assert.assertEquals(ErrorCode.SERVER_ERROR,
-                new ServerErrorException().getError());
+                new ServerErrorException().getErrorCode());
         Assert.assertEquals(ErrorCode.TEMPORARILY_UNAVAILABLE,
-                new TemporarilyUnavailableException().getError());
+                new TemporarilyUnavailableException().getErrorCode());
         Assert.assertEquals(ErrorCode.UNSUPPORTED_GRANT_TYPE,
-                new UnsupportedGrantTypeException().getError());
+                new UnsupportedGrantTypeException().getErrorCode());
         Assert.assertEquals(ErrorCode.INVALID_GRANT,
-                new InvalidGrantException().getError());
+                new InvalidGrantException().getErrorCode());
         Assert.assertEquals(ErrorCode.INVALID_CLIENT,
-                new InvalidClientException().getError());
+                new InvalidClientException().getErrorCode());
     }
 
     /**
