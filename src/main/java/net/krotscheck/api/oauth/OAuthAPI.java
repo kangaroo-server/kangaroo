@@ -17,6 +17,8 @@
 
 package net.krotscheck.api.oauth;
 
+import net.krotscheck.api.oauth.resource.AuthorizationService;
+import net.krotscheck.api.oauth.resource.TokenService;
 import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
@@ -45,6 +47,9 @@ public class OAuthAPI extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(VersionFeature.class);          // Version response attachment.
+
+        // Resource services
+        register(TokenService.class);
+        register(AuthorizationService.class);
     }
 }
-
