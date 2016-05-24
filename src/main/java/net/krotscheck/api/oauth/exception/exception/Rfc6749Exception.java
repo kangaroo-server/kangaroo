@@ -17,6 +17,9 @@
 
 package net.krotscheck.api.oauth.exception.exception;
 
+import net.krotscheck.features.exception.exception.HttpStatusException;
+import org.apache.http.HttpStatus;
+
 /**
  * Exceptions defined in the OIC Authentication Error specification.
  *
@@ -33,7 +36,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class InvalidRequestException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -48,7 +51,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public InvalidRequestException(final String message) {
-            super(ErrorCode.INVALID_REQUEST, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.INVALID_REQUEST);
         }
     }
 
@@ -59,7 +64,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class UnauthorizedClientException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -74,7 +79,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public UnauthorizedClientException(final String message) {
-            super(ErrorCode.UNAUTHORIZED_CLIENT, message);
+            super(HttpStatus.SC_UNAUTHORIZED,
+                    message,
+                    ErrorCode.UNAUTHORIZED_CLIENT);
         }
     }
 
@@ -84,7 +91,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class AccessDeniedException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -99,7 +106,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public AccessDeniedException(final String message) {
-            super(ErrorCode.ACCESS_DENIED, message);
+            super(HttpStatus.SC_UNAUTHORIZED,
+                    message,
+                    ErrorCode.ACCESS_DENIED);
         }
     }
 
@@ -111,7 +120,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class UnsupportedResponseType
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -126,7 +135,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public UnsupportedResponseType(final String message) {
-            super(ErrorCode.UNSUPPORTED_RESPONSE_TYPE, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.UNSUPPORTED_RESPONSE_TYPE);
         }
     }
 
@@ -136,7 +147,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class InvalidScopeException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -151,7 +162,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public InvalidScopeException(final String message) {
-            super(ErrorCode.INVALID_SCOPE, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.INVALID_SCOPE);
         }
     }
 
@@ -161,7 +174,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">https://tools.ietf.org/html/rfc6749#section-5.2</a>
      */
     public static final class InvalidClientException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -176,7 +189,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public InvalidClientException(final String message) {
-            super(ErrorCode.INVALID_CLIENT, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.INVALID_CLIENT);
         }
     }
 
@@ -186,7 +201,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">https://tools.ietf.org/html/rfc6749#section-5.2</a>
      */
     public static final class InvalidGrantException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -201,7 +216,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public InvalidGrantException(final String message) {
-            super(ErrorCode.INVALID_GRANT, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.INVALID_GRANT);
         }
     }
 
@@ -211,7 +228,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">https://tools.ietf.org/html/rfc6749#section-5.2</a>
      */
     public static final class UnsupportedGrantTypeException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -226,7 +243,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public UnsupportedGrantTypeException(final String message) {
-            super(ErrorCode.UNSUPPORTED_GRANT_TYPE, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.UNSUPPORTED_GRANT_TYPE);
         }
     }
 
@@ -239,7 +258,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class ServerErrorException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -254,7 +273,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public ServerErrorException(final String message) {
-            super(ErrorCode.SERVER_ERROR, message);
+            super(HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    message,
+                    ErrorCode.SERVER_ERROR);
         }
     }
 
@@ -268,7 +289,7 @@ public final class Rfc6749Exception {
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">https://tools.ietf.org/html/rfc6749#section-4.1.2.1</a>
      */
     public static final class TemporarilyUnavailableException
-            extends AbstractOAuthException {
+            extends HttpStatusException {
 
         /**
          * Create a new exception with the default message.
@@ -283,7 +304,9 @@ public final class Rfc6749Exception {
          * @param message A user-friendly message.
          */
         public TemporarilyUnavailableException(final String message) {
-            super(ErrorCode.TEMPORARILY_UNAVAILABLE, message);
+            super(HttpStatus.SC_BAD_REQUEST,
+                    message,
+                    ErrorCode.TEMPORARILY_UNAVAILABLE);
         }
     }
 

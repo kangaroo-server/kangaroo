@@ -17,6 +17,7 @@
 
 package net.krotscheck.api.oauth;
 
+import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.DatabaseTest;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
@@ -50,6 +51,10 @@ public final class OAuthAPITest extends DatabaseTest {
         Response response = target("/")
                 .request()
                 .get();
+
+        ErrorResponse e = response.readEntity(ErrorResponse.class);
+        Assert.assertEquals("not_found", e.getError());
+        Assert.assertEquals("Not Found", e.getErrorDescription());
 
         // Root should be 404
         Assert.assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
