@@ -610,11 +610,6 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: accessToken
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
                 name: expiresIn
                 type: int
                 constraints:
