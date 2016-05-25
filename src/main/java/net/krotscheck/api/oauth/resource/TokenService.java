@@ -17,6 +17,8 @@
 
 package net.krotscheck.api.oauth.resource;
 
+import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
+
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,6 +33,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("/token")
 @PermitAll
+@OAuthFilterChain
 public final class TokenService {
 
     /**

@@ -15,35 +15,26 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.resource;
+package net.krotscheck.api.oauth.annotation;
 
-import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
-
-import javax.annotation.security.PermitAll;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.ws.rs.NameBinding;
 
 /**
- * The authorization service for our OAuth2 provider.
+ * This name binding annotation is used to annotate filters and service
+ * methods that make use of a particular filter chain.
+ *
+ * The OAuth filter chain is intended to include all pre-request filters that
+ * validate incoming requests.
  *
  * @author Michael Krotscheck
  */
-@Path("/authorize")
-@PermitAll
-@OAuthFilterChain
-public final class AuthorizationService {
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(value = RetentionPolicy.RUNTIME)
+@NameBinding
+public @interface OAuthFilterChain {
 
-    /**
-     * A stubbed resource.
-     *
-     * @return 200 OK
-     */
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response tokenRequest() {
-        return Response.ok().build();
-    }
 }
