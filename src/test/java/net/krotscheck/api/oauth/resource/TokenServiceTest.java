@@ -66,7 +66,7 @@ public final class TokenServiceTest extends DatabaseTest {
     public void testSmoke() {
         Response response = target("/token")
                 .request()
-                .get();
+                .post(null);
 
         Assert.assertNotEquals(404, response.getStatus());
     }
