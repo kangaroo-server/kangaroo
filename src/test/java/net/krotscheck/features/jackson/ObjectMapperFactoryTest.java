@@ -48,8 +48,7 @@ public final class ObjectMapperFactoryTest {
      * Assert that the generic interface works as expected.
      *
      * @throws Exception Should not be thrown.
-     * @see <a href="https://sourceforge.net/p/cobertura/bugs/92/">
-     * https://sourceforge.net/p/cobertura/bugs/92/</a>
+     * @see <a href="https://sourceforge.net/p/cobertura/bugs/92/">https://sourceforge.net/p/cobertura/bugs/92/</a>
      */
     @Test
     public void testGenericInterface() throws Exception {
