@@ -17,6 +17,8 @@
 
 package net.krotscheck.api.oauth;
 
+import net.krotscheck.api.oauth.factory.CredentialsFactory;
+import net.krotscheck.api.oauth.filter.ClientAuthorizationFilter;
 import net.krotscheck.api.oauth.resource.AuthorizationService;
 import net.krotscheck.api.oauth.resource.TokenService;
 import net.krotscheck.features.config.ConfigurationFeature;
@@ -47,6 +49,12 @@ public class OAuthAPI extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(VersionFeature.class);          // Version response attachment.
+
+        // Asset factories
+        register(new CredentialsFactory.Binder());
+
+        // Service filters
+        register(new ClientAuthorizationFilter.Binder());
 
         // Resource services
         register(TokenService.class);

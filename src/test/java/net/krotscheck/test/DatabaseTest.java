@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -183,6 +185,11 @@ public abstract class DatabaseTest extends JerseyTest {
     private SessionFactory sessionFactory;
 
     /**
+     * List of sessions that have been created.
+     */
+    private List<Session> sessions = new ArrayList<>();
+
+    /**
      * Build, or retrieve, a session factory.
      *
      * @return The session factory.
@@ -209,7 +216,9 @@ public abstract class DatabaseTest extends JerseyTest {
      */
     protected final Session getSession() {
         SessionFactory factory = getSessionFactory();
-        return factory.openSession();
+        Session s = factory.openSession();
+        sessions.add(s);
+        return s;
     }
 
     /**
@@ -217,6 +226,11 @@ public abstract class DatabaseTest extends JerseyTest {
      */
     @After
     public final void clearSession() {
+        for (Session s : sessions) {
+            s.close();
+        }
+        sessions.clear();
+
         if (sessionFactory != null) {
             sessionFactory.close();
             sessionFactory = null;
