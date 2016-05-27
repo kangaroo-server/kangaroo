@@ -16,6 +16,6 @@
  */
 
 /**
- * API Service Classes.
+ * Miscellaneous utilities.
  */
 package net.krotscheck.api.oauth.util;

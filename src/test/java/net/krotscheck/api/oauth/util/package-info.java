@@ -16,6 +16,6 @@
  */
 
 /**
- * Miscellaneous utilities.
+ * Unit tests for our utilities.
  */
 package net.krotscheck.api.oauth.util;
