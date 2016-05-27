@@ -85,8 +85,23 @@ public final class RoleTest {
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
-     * carry an unexpected payload.
+     * Test get/set scope list.
+     */
+    @Test
+    public void testGetSetScopes() {
+        Role role = new Role();
+        List<ApplicationScope> scopes = new ArrayList<>();
+        scopes.add(new ApplicationScope());
+
+        Assert.assertNull(role.getScopes());
+        role.setScopes(scopes);
+        Assert.assertEquals(scopes, role.getScopes());
+        Assert.assertNotSame(scopes, role.getScopes());
+    }
+
+    /**
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
      */

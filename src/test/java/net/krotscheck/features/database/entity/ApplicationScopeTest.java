@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.krotscheck.features.database.entity.OAuthToken.Deserializer;
+import net.krotscheck.features.database.entity.ApplicationScope.Deserializer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,77 +36,65 @@ import java.util.UUID;
 import static org.mockito.Mockito.mock;
 
 /**
- * Unit test for the OAuth Token Entity.
+ * Test the application scope entity.
  *
  * @author Michael Krotscheck
  */
-public final class OAuthTokenTest {
+public final class ApplicationScopeTest {
 
     /**
-     * Assert that we can get and set the token's user identity.
+     * Test getting/setting the owner.
      */
     @Test
-    public void testGetSetIdentity() {
-        OAuthToken token = new OAuthToken();
-        UserIdentity identity = new UserIdentity();
+    public void testGetSetApplication() {
+        ApplicationScope scope = new ApplicationScope();
+        Application application = new Application();
 
-        Assert.assertNull(token.getIdentity());
-        token.setIdentity(identity);
-        Assert.assertEquals(identity, token.getIdentity());
+        Assert.assertNull(scope.getApplication());
+        scope.setApplication(application);
+        Assert.assertEquals(application, scope.getApplication());
     }
 
     /**
-     * Assert that we can get and set the token's client.
+     * Test get/set name.
      */
     @Test
-    public void testGetSetClient() {
-        OAuthToken token = new OAuthToken();
-        Client client = new Client();
+    public void testGetSetName() {
+        ApplicationScope a = new ApplicationScope();
 
-        Assert.assertNull(token.getClient());
-        token.setClient(client);
-        Assert.assertEquals(client, token.getClient());
-    }
-
-    /**
-     * Assert that we can get and set the token type.
-     */
-    @Test
-    public void testGetSetTokenType() {
-        OAuthToken c = new OAuthToken();
-
-        // Default
-        Assert.assertEquals(OAuthTokenType.Bearer, c.getTokenType());
-        c.setTokenType(OAuthTokenType.Authorization);
-        Assert.assertEquals(OAuthTokenType.Authorization, c.getTokenType());
-    }
-
-    /**
-     * Assert that we can get and set the expiration date.
-     */
-    @Test
-    public void testGetSetExpiration() {
-        OAuthToken c = new OAuthToken();
-
-        // Default
-        Assert.assertEquals(600, c.getExpiresIn());
-        c.setExpiresIn(100);
-        Assert.assertEquals(100, c.getExpiresIn());
+        Assert.assertNull(a.getName());
+        a.setName("foo");
+        Assert.assertEquals("foo", a.getName());
     }
 
     /**
      * Test get/set scope list.
      */
     @Test
-    public void testGetSetScopes() {
-        OAuthToken token = new OAuthToken();
-        List<ApplicationScope> scopes = new ArrayList<>();
-        scopes.add(new ApplicationScope());
+    public void testGetSetRoles() {
+        ApplicationScope scope = new ApplicationScope();
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role());
 
-        Assert.assertNull(token.getScopes());
-        token.setScopes(scopes);
-        Assert.assertEquals(scopes, token.getScopes());
-        Assert.assertNotSame(scopes, token.getScopes());
+        Assert.assertNull(scope.getRoles());
+        scope.setRoles(roles);
+        Assert.assertEquals(roles, scope.getRoles());
+        Assert.assertNotSame(roles, scope.getRoles());
+    }
+
+    /**
+     * Test get/set scope list.
+     */
+    @Test
+    public void testGetSetTokens() {
+        ApplicationScope scope = new ApplicationScope();
+        List<OAuthToken> tokens = new ArrayList<>();
+        tokens.add(new OAuthToken());
+
+        Assert.assertNull(scope.getTokens());
+        scope.setTokens(tokens);
+        Assert.assertEquals(tokens, scope.getTokens());
+        Assert.assertNotSame(tokens, scope.getTokens());
     }
 
     /**
@@ -118,46 +106,37 @@ public final class OAuthTokenTest {
      */
     @Test
     public void testJacksonSerializable() throws Exception {
-        UserIdentity identity = new UserIdentity();
-        identity.setId(UUID.randomUUID());
 
-        Client client = new Client();
-        client.setId(UUID.randomUUID());
+        Application application = new Application();
+        application.setId(UUID.randomUUID());
 
-        OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
-        token.setCreatedDate(new Date());
-        token.setModifiedDate(new Date());
-        token.setIdentity(identity);
-        token.setClient(client);
-        token.setTokenType(OAuthTokenType.Authorization);
-        token.setExpiresIn(100);
+        ApplicationScope a = new ApplicationScope();
+        a.setId(UUID.randomUUID());
+        a.setCreatedDate(new Date());
+        a.setModifiedDate(new Date());
+        a.setApplication(application);
+        a.setName("name");
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapper();
-        String output = m.writeValueAsString(token);
+        String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                token.getId().toString(),
+                a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                token.getCreatedDate().getTime(),
+                a.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
         Assert.assertEquals(
-                token.getModifiedDate().getTime(),
+                a.getModifiedDate().getTime(),
                 node.get("modifiedDate").asLong());
-
         Assert.assertEquals(
-                token.getTokenType().toString(),
-                node.get("tokenType").asText());
+                a.getApplication().getId().toString(),
+                node.get("application").asText());
         Assert.assertEquals(
-                token.getExpiresIn(),
-                node.get("expiresIn").asLong());
-
-
-        Assert.assertFalse(node.has("client"));
-        Assert.assertFalse(node.has("identity"));
+                a.getName(),
+                node.get("name").asText());
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -180,33 +159,27 @@ public final class OAuthTokenTest {
         node.put("id", UUID.randomUUID().toString());
         node.put("createdDate", new Date().getTime());
         node.put("modifiedDate", new Date().getTime());
-        node.put("accessToken", "accessToken");
-        node.put("tokenType", "Authorization");
-        node.put("expiresIn", 300);
+        node.put("name", "name");
 
         String output = m.writeValueAsString(node);
-        OAuthToken c = m.readValue(output, OAuthToken.class);
+        ApplicationScope a = m.readValue(output, ApplicationScope.class);
 
         Assert.assertEquals(
-                c.getId().toString(),
+                a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                c.getCreatedDate().getTime(),
+                a.getCreatedDate().getTime(),
                 node.get("createdDate").asLong());
         Assert.assertEquals(
-                c.getModifiedDate().getTime(),
+                a.getModifiedDate().getTime(),
                 node.get("modifiedDate").asLong());
-
         Assert.assertEquals(
-                c.getTokenType().toString(),
-                node.get("tokenType").asText());
-        Assert.assertEquals(
-                c.getExpiresIn(),
-                node.get("expiresIn").asLong());
+                a.getName(),
+                node.get("name").asText());
     }
 
     /**
-     * Test the deserializer.
+     * Test the application deserializer.
      *
      * @throws Exception Should not be thrown.
      */
@@ -219,10 +192,9 @@ public final class OAuthTokenTest {
         preloadedParser.nextToken(); // Advance to the first value.
 
         Deserializer deserializer = new Deserializer();
-        OAuthToken c = deserializer.deserialize(preloadedParser,
+        ApplicationScope a = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, c.getId());
+        Assert.assertEquals(uuid, a.getId());
     }
-
 }

@@ -22,15 +22,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -58,10 +60,9 @@ public final class Role extends AbstractEntity {
      * List of the users that have this role.
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    @Cascade(CascadeType.ALL)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JsonIgnore
     private List<User> users;
-
 
     /**
      * The name of the role.
@@ -69,6 +70,21 @@ public final class Role extends AbstractEntity {
     @Basic(optional = false)
     @Column(name = "name", nullable = false)
     private String name;
+
+    /**
+     * List of the application's scopes.
+     */
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "role_scopes",
+            joinColumns = {
+                    @JoinColumn(name = "role",
+                            nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "scope",
+                            nullable = false, updatable = false)})
+    @JsonIgnore
+    private List<ApplicationScope> scopes;
+
     /**
      * Get the application.
      *
@@ -121,6 +137,24 @@ public final class Role extends AbstractEntity {
      */
     public void setUsers(final List<User> users) {
         this.users = new ArrayList<>(users);
+    }
+
+    /**
+     * Get this role's scopes.
+     *
+     * @return A list of scopes.
+     */
+    public List<ApplicationScope> getScopes() {
+        return scopes;
+    }
+
+    /**
+     * Set this role's scopes.
+     *
+     * @param scopes A new list of scopes.
+     */
+    public void setScopes(final List<ApplicationScope> scopes) {
+        this.scopes = new ArrayList<>(scopes);
     }
 
     /**
