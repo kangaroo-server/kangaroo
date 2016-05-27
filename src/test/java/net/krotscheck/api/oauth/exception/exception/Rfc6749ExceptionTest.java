@@ -25,6 +25,8 @@ import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.net.URI;
+import javax.ws.rs.core.UriBuilder;
 
 import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.AccessDeniedException;
 import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
@@ -67,6 +69,34 @@ public final class Rfc6749ExceptionTest {
                 new InvalidGrantException().getErrorCode());
         Assert.assertEquals(ErrorCode.INVALID_CLIENT,
                 new InvalidClientException().getErrorCode());
+    }
+
+    /**
+     * Assert that we can set redirection URI's.
+     */
+    @Test
+    public void testExpectedRedirectError() {
+        URI redirect = UriBuilder.fromPath("http://example.com").build();
+        Assert.assertEquals(redirect,
+                new InvalidRequestException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new UnauthorizedClientException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new AccessDeniedException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new UnsupportedResponseType(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new InvalidScopeException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new ServerErrorException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new TemporarilyUnavailableException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new UnsupportedGrantTypeException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new InvalidGrantException(redirect).getRedirect());
+        Assert.assertEquals(redirect,
+                new InvalidClientException(redirect).getRedirect());
     }
 
     /**

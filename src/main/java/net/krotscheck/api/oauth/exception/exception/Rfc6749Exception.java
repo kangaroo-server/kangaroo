@@ -20,6 +20,8 @@ package net.krotscheck.api.oauth.exception.exception;
 import net.krotscheck.features.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;
 
+import java.net.URI;
+
 /**
  * Exceptions defined in the OIC Authentication Error specification.
  *
@@ -42,18 +44,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public InvalidRequestException() {
-            this("This request is invalid.");
+            this("This request is invalid.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public InvalidRequestException(final URI redirect) {
+            this("This request is invalid.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public InvalidRequestException(final String message) {
+        public InvalidRequestException(final String message,
+                                       final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.INVALID_REQUEST);
+                    ErrorCode.INVALID_REQUEST,
+                    redirect);
         }
     }
 
@@ -70,18 +84,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public UnauthorizedClientException() {
-            this("This client is not authorized.");
+            this("This client is not authorized.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public UnauthorizedClientException(final URI redirect) {
+            this("This client is not authorized.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public UnauthorizedClientException(final String message) {
+        public UnauthorizedClientException(final String message,
+                                           final URI redirect) {
             super(HttpStatus.SC_UNAUTHORIZED,
                     message,
-                    ErrorCode.UNAUTHORIZED_CLIENT);
+                    ErrorCode.UNAUTHORIZED_CLIENT,
+                    redirect);
         }
     }
 
@@ -97,18 +123,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public AccessDeniedException() {
-            this("Access denied.");
+            this("Access denied.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public AccessDeniedException(final URI redirect) {
+            this("Access denied.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public AccessDeniedException(final String message) {
+        public AccessDeniedException(final String message,
+                                     final URI redirect) {
             super(HttpStatus.SC_UNAUTHORIZED,
                     message,
-                    ErrorCode.ACCESS_DENIED);
+                    ErrorCode.ACCESS_DENIED,
+                    redirect);
         }
     }
 
@@ -126,18 +164,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public UnsupportedResponseType() {
-            this("The requested response type is not supported.");
+            this("The requested response type is not supported.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public UnsupportedResponseType(final URI redirect) {
+            this("The requested response type is not supported.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public UnsupportedResponseType(final String message) {
+        public UnsupportedResponseType(final String message,
+                                       final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.UNSUPPORTED_RESPONSE_TYPE);
+                    ErrorCode.UNSUPPORTED_RESPONSE_TYPE,
+                    redirect);
         }
     }
 
@@ -153,18 +203,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public InvalidScopeException() {
-            this("The requested scope is not valid.");
+            this("The requested scope is not valid.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public InvalidScopeException(final URI redirect) {
+            this("The requested scope is not valid.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public InvalidScopeException(final String message) {
+        public InvalidScopeException(final String message,
+                                     final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.INVALID_SCOPE);
+                    ErrorCode.INVALID_SCOPE,
+                    redirect);
         }
     }
 
@@ -180,18 +242,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public InvalidClientException() {
-            this("The requested client is not valid.");
+            this("The requested client is not valid.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public InvalidClientException(final URI redirect) {
+            this("The requested client is not valid.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public InvalidClientException(final String message) {
+        public InvalidClientException(final String message,
+                                      final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.INVALID_CLIENT);
+                    ErrorCode.INVALID_CLIENT,
+                    redirect);
         }
     }
 
@@ -207,18 +281,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public InvalidGrantException() {
-            this("The requested grant is not valid.");
+            this("The requested grant is not valid.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public InvalidGrantException(final URI redirect) {
+            this("The requested grant is not valid.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public InvalidGrantException(final String message) {
+        public InvalidGrantException(final String message,
+                                     final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.INVALID_GRANT);
+                    ErrorCode.INVALID_GRANT,
+                    redirect);
         }
     }
 
@@ -234,18 +320,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public UnsupportedGrantTypeException() {
-            this("The requested grant type is not supported.");
+            this("The requested grant type is not supported.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public UnsupportedGrantTypeException(final URI redirect) {
+            this("The requested grant type is not supported.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public UnsupportedGrantTypeException(final String message) {
+        public UnsupportedGrantTypeException(final String message,
+                                             final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.UNSUPPORTED_GRANT_TYPE);
+                    ErrorCode.UNSUPPORTED_GRANT_TYPE,
+                    redirect);
         }
     }
 
@@ -264,18 +362,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public ServerErrorException() {
-            this("Internal Server Error.");
+            this("Internal Server Error.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public ServerErrorException(final URI redirect) {
+            this("Internal Server Error.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public ServerErrorException(final String message) {
+        public ServerErrorException(final String message,
+                                    final URI redirect) {
             super(HttpStatus.SC_INTERNAL_SERVER_ERROR,
                     message,
-                    ErrorCode.SERVER_ERROR);
+                    ErrorCode.SERVER_ERROR,
+                    redirect);
         }
     }
 
@@ -295,18 +405,30 @@ public final class Rfc6749Exception {
          * Create a new exception with the default message.
          */
         public TemporarilyUnavailableException() {
-            this("The service is temporarily unavailable.");
+            this("The service is temporarily unavailable.", null);
+        }
+
+        /**
+         * Create a redirecting exception with the default message.
+         *
+         * @param redirect The URI to redirect the user to.
+         */
+        public TemporarilyUnavailableException(final URI redirect) {
+            this("The service is temporarily unavailable.", redirect);
         }
 
         /**
          * Create a new exception with a custom message.
          *
          * @param message A user-friendly message.
+         * @param redirect The URI to redirect the user to.
          */
-        public TemporarilyUnavailableException(final String message) {
+        public TemporarilyUnavailableException(final String message,
+                                               final URI redirect) {
             super(HttpStatus.SC_BAD_REQUEST,
                     message,
-                    ErrorCode.TEMPORARILY_UNAVAILABLE);
+                    ErrorCode.TEMPORARILY_UNAVAILABLE,
+                    redirect);
         }
     }
 
