@@ -157,6 +157,8 @@ public final class CredentialsFactory implements Factory<Credentials> {
             final ContainerRequest request) {
         String method = request.getMethod();
         if (method.equals(HttpMethod.POST)) {
+            // Buffer the entity.
+            request.bufferEntity();
             return new Credentials(request.readEntity(Form.class));
         } else if (method.equals(HttpMethod.GET)) {
             // ... or from the GET query string.
