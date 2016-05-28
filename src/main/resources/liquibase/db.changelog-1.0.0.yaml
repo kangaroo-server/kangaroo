@@ -701,7 +701,7 @@ databaseChangeLog:
                 name: identity
                 type: BINARY(16)
                 constraints:
-                  nullable: false
+                  nullable: true
             - column:
                 name: client
                 type: BINARY(16)

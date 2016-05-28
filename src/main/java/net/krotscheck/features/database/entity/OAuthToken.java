@@ -49,7 +49,7 @@ public final class OAuthToken extends AbstractEntity {
      * The authenticated user identity.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "identity", nullable = false, updatable = false)
+    @JoinColumn(name = "identity", nullable = true, updatable = false)
     @JsonIgnore
     private UserIdentity identity;
 
