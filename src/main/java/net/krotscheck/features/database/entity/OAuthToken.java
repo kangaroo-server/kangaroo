@@ -20,13 +20,18 @@ package net.krotscheck.features.database.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -69,6 +74,20 @@ public final class OAuthToken extends AbstractEntity {
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
     private long expiresIn = 600;
+
+    /**
+     * List of the application's scopes.
+     */
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "oauth_token_scopes",
+            joinColumns = {
+                    @JoinColumn(name = "token",
+                            nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "scope",
+                            nullable = false, updatable = false)})
+    @JsonIgnore
+    private List<ApplicationScope> scopes;
 
     /**
      * Get the user identity to which this token was issued.
@@ -140,6 +159,24 @@ public final class OAuthToken extends AbstractEntity {
      */
     public void setExpiresIn(final long expiresIn) {
         this.expiresIn = expiresIn;
+    }
+
+    /**
+     * Get this token's scopes.
+     *
+     * @return A list of scopes.
+     */
+    public List<ApplicationScope> getScopes() {
+        return scopes;
+    }
+
+    /**
+     * Set this token's scopes.
+     *
+     * @param scopes A new list of scopes.
+     */
+    public void setScopes(final List<ApplicationScope> scopes) {
+        this.scopes = new ArrayList<>(scopes);
     }
 
     /**

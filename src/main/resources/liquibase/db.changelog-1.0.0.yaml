@@ -78,6 +78,60 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: applications
 
+      # An application may have multiple user-defined scopes.
+      - createTable:
+          tableName: application_scopes
+          columns:
+            - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_application_scopes_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: application
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: application
+              type: BINARY(16)
+          indexName: idx_application_scopes_application
+          tableName: application_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: name
+              type: varchar(255)
+          indexName: idx_application_scopes_name
+          tableName: application_scopes
+      - addUniqueConstraint:
+          columnNames: application, name
+          constraintName: uq_application_scopes_application_name
+          tableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: application
+          baseTableName: application_scopes
+          constraintName: fk_application_scopes_application
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
+
       # Every application has certain user roles. We need to make sure that
       # every application has at least one "owner" role, and that this role
       # cannot be deleted.
@@ -119,6 +173,55 @@ databaseChangeLog:
           columnNames: application, name
           constraintName: uq_role_application_name
           tableName: roles
+
+      # Roles may be authorized to access specific lists of scopes.
+      - createTable:
+          tableName: role_scopes
+          columns:
+            - column:
+                name: role
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: scope
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: role
+              type: BINARY(16)
+          indexName: idx_role_scopes_role
+          tableName: role_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: scope
+              type: BINARY(16)
+          indexName: idx_role_scopes_scope
+          tableName: role_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: scope
+          baseTableName: role_scopes
+          constraintName: fk_role_scopes_scope
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: role
+          baseTableName: role_scopes
+          constraintName: fk_role_scopes_role
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: roles
+      - addUniqueConstraint:
+          columnNames: role, scope
+          constraintName: uq_role_scopes_role_scopes
+          tableName: role_scopes
 
       # Every application has users, and every user has a role.
       - createTable:
@@ -631,8 +734,59 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: clients
 
+      # OAuth Tokens have a limited list of scopes.
+      - createTable:
+          tableName: oauth_token_scopes
+          columns:
+            - column:
+                name: token
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: scope
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: token
+              type: BINARY(16)
+          indexName: idx_oauth_token_scopes_token
+          tableName: oauth_token_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: scope
+              type: BINARY(16)
+          indexName: idx_oauth_token_scopes_scope
+          tableName: oauth_token_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: scope
+          baseTableName: oauth_token_scopes
+          constraintName: fk_oauth_token_scopes_scope
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: token
+          baseTableName: oauth_token_scopes
+          constraintName: fk_oauth_token_scopes_token
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: oauth_tokens
+      - addUniqueConstraint:
+          columnNames: token, scope
+          constraintName: uq_oauth_token_scopes_oauth_token_scopes
+          tableName: oauth_token_scopes
+
 
       rollback:
+        - dropTable:
+            tableName: oauth_token_scopes
         - dropTable:
             tableName: oauth_tokens
         - dropTable:
@@ -654,8 +808,12 @@ databaseChangeLog:
         - dropTable:
             tableName: users
         - dropTable:
+            tableName: role_scopes
+        - dropTable:
             tableName: roles
         - dropTable:
             tableName: application_configs
+        - dropTable:
+            tableName: application_scopes
         - dropTable:
             tableName: applications

@@ -115,6 +115,21 @@ public final class ApplicationTest {
     }
 
     /**
+     * Test get/set scope list.
+     */
+    @Test
+    public void testGetSetScopes() {
+        Application a = new Application();
+        List<ApplicationScope> scopes = new ArrayList<>();
+        scopes.add(new ApplicationScope());
+
+        Assert.assertNull(a.getScopes());
+        a.setScopes(scopes);
+        Assert.assertEquals(scopes, a.getScopes());
+        Assert.assertNotSame(scopes, a.getScopes());
+    }
+
+    /**
      * Test getting/setting the configuration.
      */
     @Test

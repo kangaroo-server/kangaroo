@@ -78,6 +78,13 @@ public final class Application extends AbstractEntity {
     private List<Role> roles;
 
     /**
+     * List of the application's scopes.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
+    @JsonIgnore
+    private List<ApplicationScope> scopes;
+
+    /**
      * The owner of the application.
      */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -175,6 +182,24 @@ public final class Application extends AbstractEntity {
      */
     public void setRoles(final List<Role> roles) {
         this.roles = new ArrayList<>(roles);
+    }
+
+    /**
+     * Get this application's scopes.
+     *
+     * @return A list of scopes.
+     */
+    public List<ApplicationScope> getScopes() {
+        return scopes;
+    }
+
+    /**
+     * Set this application's scopes.
+     *
+     * @param scopes A new list of scopes.
+     */
+    public void setScopes(final List<ApplicationScope> scopes) {
+        this.scopes = new ArrayList<>(scopes);
     }
 
     /**
