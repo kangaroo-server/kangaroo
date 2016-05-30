@@ -254,6 +254,39 @@ public final class ClientTest {
     }
 
     /**
+     * Assert that we can get the default values for the refresh token.
+     */
+    @Test
+    public void getGetAuthorizationCodeExpiresIn() {
+        Client client = new Client();
+        Map<String, String> configuration = new HashMap<>();
+        Integer expectedDefault = 60 * 10; // Ten minutes.
+
+        // Assert no config.
+        Assert.assertEquals(expectedDefault,
+                client.getAuthorizationCodeExpiresIn());
+
+        // Assert empty config.
+        client.setConfiguration(configuration);
+        Assert.assertEquals(expectedDefault,
+                client.getAuthorizationCodeExpiresIn());
+
+        // Assert unparseable config
+        configuration
+                .put(ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME,
+                        "not_an_int");
+        client.setConfiguration(configuration);
+        Assert.assertEquals(expectedDefault,
+                client.getAuthorizationCodeExpiresIn());
+
+        // Assert parseable config
+        configuration.put(ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME, "50");
+        client.setConfiguration(configuration);
+        Assert.assertEquals((Integer) 50,
+                client.getAuthorizationCodeExpiresIn());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.

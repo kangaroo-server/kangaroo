@@ -318,6 +318,25 @@ public final class Client extends AbstractEntity {
     }
 
     /**
+     * Extract the authorization code expiration time (in seconds) for this
+     * client. This value is derived from the default configuration values, or
+     * from a default, if such exists.
+     *
+     * @return The expiration horizon of an access token, in seconds.
+     */
+    @JsonIgnore
+    public Integer getAuthorizationCodeExpiresIn() {
+        try {
+            Map<String, String> config = getConfiguration();
+            String value =
+                    config.get(ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return ClientConfig.AUTHORIZATION_CODE_EXPIRES_DEFAULT;
+        }
+    }
+
+    /**
      * Extract the access token expiration time (in seconds) for this client.
      * This value is derived from the default configuration values, or from a
      * default, if such exists.

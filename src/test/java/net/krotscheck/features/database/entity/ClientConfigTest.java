@@ -46,6 +46,18 @@ public final class ClientConfigTest {
     }
 
     /**
+     * Test the config values for the authorization code.
+     */
+    @Test
+    public void testAuthorizationCodeDefaults() {
+        Integer expectedDefault = 60 * 10; // 10 minutes.
+        Assert.assertEquals(expectedDefault,
+                ClientConfig.AUTHORIZATION_CODE_EXPIRES_DEFAULT);
+        Assert.assertEquals("authorization_code_expires_in",
+                ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME);
+    }
+
+    /**
      * Test the config values for the access token.
      */
     @Test
