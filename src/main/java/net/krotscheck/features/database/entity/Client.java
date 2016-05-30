@@ -318,6 +318,42 @@ public final class Client extends AbstractEntity {
     }
 
     /**
+     * Extract the access token expiration time (in seconds) for this client.
+     * This value is derived from the default configuration values, or from a
+     * default, if such exists.
+     *
+     * @return The expiration horizon of an access token, in seconds.
+     */
+    @JsonIgnore
+    public Integer getAccessTokenExpireIn() {
+        try {
+            Map<String, String> config = getConfiguration();
+            String value = config.get(ClientConfig.ACCESS_TOKEN_EXPIRES_NAME);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT;
+        }
+    }
+
+    /**
+     * Extract the refresh token expiration time (in seconds) for this client.
+     * This value is derived from the default configuration values, or from a
+     * default, if such exists.
+     *
+     * @return The expiration horizon of an access token, in seconds.
+     */
+    @JsonIgnore
+    public Integer getRefreshTokenExpireIn() {
+        try {
+            Map<String, String> config = getConfiguration();
+            String value = config.get(ClientConfig.REFRESH_TOKEN_EXPIRES_NAME);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT;
+        }
+    }
+
+    /**
      * Deserialize a reference to an User.
      *
      * @author Michael Krotschecks
