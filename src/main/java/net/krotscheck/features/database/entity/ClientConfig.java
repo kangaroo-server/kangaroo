@@ -37,6 +37,18 @@ public final class ClientConfig {
     /**
      * The configuration name for OAuth Token Expiration.
      */
+    public static final String AUTHORIZATION_CODE_EXPIRES_NAME
+            = "authorization_code_expires_in";
+
+    /**
+     * The default value for OAuth Token Expiration (10 minutes).
+     */
+    public static final Integer AUTHORIZATION_CODE_EXPIRES_DEFAULT =
+            60 * 10;
+
+    /**
+     * The configuration name for OAuth Token Expiration.
+     */
     public static final String ACCESS_TOKEN_EXPIRES_NAME
             = "access_token_expires_in";
 
