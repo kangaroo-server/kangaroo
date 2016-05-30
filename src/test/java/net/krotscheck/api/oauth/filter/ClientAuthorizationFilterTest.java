@@ -26,7 +26,7 @@ import net.krotscheck.features.database.entity.Application;
 import net.krotscheck.features.database.entity.Client;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.jersey2.hibernate.HibernateFeature;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public final class ClientAuthorizationFilterTest extends DatabaseTest {
+public final class ClientAuthorizationFilterTest extends ContainerTest {
 
     /**
      * Test cpplication.

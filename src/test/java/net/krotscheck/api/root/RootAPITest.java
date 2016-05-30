@@ -18,7 +18,7 @@
 package net.krotscheck.api.root;
 
 import net.krotscheck.api.root.status.StatusResponse;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Application;
 /**
  * Simple smoke test for the API.
  */
-public final class RootAPITest extends DatabaseTest {
+public final class RootAPITest extends ContainerTest {
 
     /**
      * Create a test instance of the application to test against.

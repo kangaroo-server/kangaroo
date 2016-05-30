@@ -46,16 +46,17 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.FileSystemResourceAccessor;
 
 /**
- * A test suite that sets up a database for the services to run against.
+ * A test suite sets up an entire application container to run our tests
+ * against.
  *
  * @author Michael Krotscheck
  */
-public abstract class DatabaseTest extends JerseyTest {
+public abstract class ContainerTest extends JerseyTest {
 
     /**
      * Logger instance.
      */
-    private static Logger logger = LoggerFactory.getLogger(DatabaseTest.class);
+    private static Logger logger = LoggerFactory.getLogger(ContainerTest.class);
 
     /**
      * JDBC Connection string.

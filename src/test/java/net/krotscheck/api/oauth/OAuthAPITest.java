@@ -18,7 +18,7 @@
 package net.krotscheck.api.oauth;
 
 import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class OAuthAPITest extends DatabaseTest {
+public final class OAuthAPITest extends ContainerTest {
 
     /**
      * Create a test instance of the application to test against.

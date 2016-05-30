@@ -23,7 +23,7 @@ import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
 import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import net.krotscheck.test.DatabaseUtil;
 import net.krotscheck.util.ResourceUtil;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public final class UserServiceCRUDTest extends DatabaseTest {
+public final class UserServiceCRUDTest extends ContainerTest {
 
     /**
      * The tests's backing data.
