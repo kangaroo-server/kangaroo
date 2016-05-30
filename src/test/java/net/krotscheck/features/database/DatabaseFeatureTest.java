@@ -18,7 +18,7 @@
 package net.krotscheck.features.database;
 
 import net.krotscheck.features.database.listener.CreatedUpdatedListener;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -41,7 +41,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class DatabaseFeatureTest extends DatabaseTest {
+public final class DatabaseFeatureTest extends ContainerTest {
 
     /**
      * Setup an application.

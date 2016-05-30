@@ -17,7 +17,7 @@
 
 package net.krotscheck.api.admin.v1;
 
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 /**
  * Test for the admin API.
  */
-public final class AdminV1APITest extends DatabaseTest {
+public final class AdminV1APITest extends ContainerTest {
 
     /**
      * Create a test instance of the application to test against.

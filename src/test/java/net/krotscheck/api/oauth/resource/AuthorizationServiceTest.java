@@ -21,7 +21,7 @@ import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.test.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class AuthorizationServiceTest extends DatabaseTest {
+public final class AuthorizationServiceTest extends ContainerTest {
 
     /**
      * Build and configure the application.
