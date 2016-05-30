@@ -22,23 +22,17 @@ import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
-import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
 import net.krotscheck.test.ContainerTest;
-import net.krotscheck.test.DatabaseUtil;
 import net.krotscheck.util.ResourceUtil;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import javax.servlet.ServletContextEvent;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for the UserService CRUD actions.
@@ -78,19 +72,7 @@ public final class UserServiceCRUDTest extends ContainerTest {
      */
     @BeforeClass
     public static void setupTestData() {
-        // Load data
-        DatabaseUtil.loadTestData(TEST_DATA);
-        // Rebuild the search index.
-        new SearchIndexContextListener()
-                .contextInitialized(mock(ServletContextEvent.class));
-    }
-
-    /**
-     * Clean test data.
-     */
-    @AfterClass
-    public static void cleanTestData() {
-        DatabaseUtil.clearTestData(TEST_DATA);
+        loadTestData(TEST_DATA);
     }
 
     /**

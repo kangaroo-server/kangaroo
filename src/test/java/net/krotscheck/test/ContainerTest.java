@@ -17,33 +17,13 @@
 
 package net.krotscheck.test;
 
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.glassfish.jersey.test.JerseyTest;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.service.ServiceRegistry;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.List;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import liquibase.Contexts;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.FileSystemResourceAccessor;
+import java.io.File;
 
 /**
  * A test suite sets up an entire application container to run our tests
@@ -54,45 +34,9 @@ import liquibase.resource.FileSystemResourceAccessor;
 public abstract class ContainerTest extends JerseyTest {
 
     /**
-     * Logger instance.
+     * The database management instance.
      */
-    private static Logger logger = LoggerFactory.getLogger(ContainerTest.class);
-
-    /**
-     * JDBC Connection string.
-     */
-    private static final String JDBC =
-            "jdbc:h2:mem:target/test/db/h2/hibernate";
-
-    /**
-     * JDBC Connection string.
-     */
-    private static final String DRIVER = "org.h2.Driver";
-
-    /**
-     * JDBC Connection string.
-     */
-    private static final String USER = "oid";
-
-    /**
-     * JDBC Connection string.
-     */
-    private static final String PASSWORD = "oid";
-
-    /**
-     * The JNDI Identity.
-     */
-    private static final String JNDI = "java:/comp/env/jdbc/OIDServerDB";
-
-    /**
-     * The JNDI connection for the test.
-     */
-    private static Connection conn;
-
-    /**
-     * The liquibase instance that handles our migration.
-     */
-    private static Liquibase liquibase;
+    private static DatabaseManager manager = new DatabaseManager();
 
     /**
      * Setup a database for our application.
@@ -101,8 +45,8 @@ public abstract class ContainerTest extends JerseyTest {
      */
     @BeforeClass
     public static void setupDatabaseSchema() throws Exception {
-        setupJNDI();
-        migrateDatabaseSchema();
+        manager.setupJNDI();
+        manager.setupDatabase();
     }
 
     /**
@@ -112,102 +56,16 @@ public abstract class ContainerTest extends JerseyTest {
      */
     @AfterClass
     public static void removeDatabaseSchema() throws Exception {
-        cleanDatabaseSchema();
+        manager.clearTestData();
+        manager.cleanDatabase();
     }
 
     /**
-     * Setup the JNDI resource for our database tests.
+     * Cleanup the session factory after every run.
      */
-    private static void setupJNDI() {
-        logger.info("Setting up JNDI.");
-        // Create initial context
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                "org.eclipse.jetty.jndi.InitialContextFactory");
-        System.setProperty(Context.URL_PKG_PREFIXES,
-                "org.eclipse.jetty.jndi");
-
-        try {
-            InitialContext ic = new InitialContext();
-
-            ic.createSubcontext("java:/comp/env");
-            ic.createSubcontext("java:/comp/env/jdbc");
-
-            BasicDataSource bds = new BasicDataSource();
-            bds.setDriverClassName(
-                    System.getProperty("test.db.driver", DRIVER));
-            bds.setUrl(System.getProperty("test.db.jdbc", JDBC));
-            bds.setUsername(System.getProperty("test.db.user", USER));
-            bds.setPassword(System.getProperty("test.db.password", PASSWORD));
-            ic.bind(JNDI, bds);
-        } catch (NamingException ne) {
-            ne.getMessage();
-        }
-    }
-
-    /**
-     * Migrate the database to update the schema.
-     *
-     * @throws Exception Liquibase migration exception.
-     */
-    private static void migrateDatabaseSchema() throws Exception {
-        logger.info("Migrating Database Schema.");
-
-        Class.forName(System.getProperty("test.db.driver", DRIVER));
-        conn = DriverManager.getConnection(
-                System.getProperty("test.db.jdbc", JDBC),
-                System.getProperty("test.db.user", USER),
-                System.getProperty("test.db.password", PASSWORD));
-
-        Database database = DatabaseFactory.getInstance()
-                .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-
-        liquibase = new Liquibase("liquibase/db.changelog-master.yaml",
-                new FileSystemResourceAccessor("src/main/resources"), database);
-        liquibase.update(new Contexts());
-    }
-
-    /**
-     * Clean the database.
-     *
-     * @throws Exception Liquibase migration exception.
-     */
-    private static void cleanDatabaseSchema() throws Exception {
-        logger.info("Cleaning Database.");
-        liquibase.rollback(1000, null);
-        liquibase = null;
-
-        conn.close();
-        conn = null;
-    }
-
-    /**
-     * Internal session factory, reconstructed for every test run.
-     */
-    private SessionFactory sessionFactory;
-
-    /**
-     * List of sessions that have been created.
-     */
-    private List<Session> sessions = new ArrayList<>();
-
-    /**
-     * Build, or retrieve, a session factory.
-     *
-     * @return The session factory.
-     */
-    private SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-
-            ServiceRegistry serviceRegistry =
-                    new StandardServiceRegistryBuilder()
-                            .configure()
-                            .build();
-
-            sessionFactory = new MetadataSources(serviceRegistry)
-                    .buildMetadata()
-                    .buildSessionFactory();
-        }
-        return sessionFactory;
+    @After
+    public final void clearSession() {
+        manager.cleanSessions();
     }
 
     /**
@@ -216,25 +74,15 @@ public abstract class ContainerTest extends JerseyTest {
      * @return The constructed session.
      */
     protected final Session getSession() {
-        SessionFactory factory = getSessionFactory();
-        Session s = factory.openSession();
-        sessions.add(s);
-        return s;
+        return manager.getSession();
     }
 
     /**
-     * Cleanup the session factory after every run.
+     * Load some test data into our database.
+     *
+     * @param testData The test data xml file to map.
      */
-    @After
-    public final void clearSession() {
-        for (Session s : sessions) {
-            s.close();
-        }
-        sessions.clear();
-
-        if (sessionFactory != null) {
-            sessionFactory.close();
-            sessionFactory = null;
-        }
+    public static void loadTestData(final File testData) {
+        manager.loadTestData(testData);
     }
 }
