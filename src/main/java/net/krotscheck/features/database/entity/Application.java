@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -30,18 +28,13 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -100,17 +93,6 @@ public final class Application extends AbstractEntity {
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @Column(name = "name", nullable = false)
     private String name;
-
-    /**
-     * The configuration settings for this application.
-     */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "application_configs",
-            joinColumns = @JoinColumn(name = "application"))
-    @MapKeyColumn(name = "key")
-    @Column(name = "value")
-    @Cascade(CascadeType.ALL)
-    private Map<String, String> configuration;
 
     /**
      * Get the name for this application.
@@ -218,24 +200,6 @@ public final class Application extends AbstractEntity {
      */
     public void setOwner(final User owner) {
         this.owner = owner;
-    }
-
-    /**
-     * Retrieve configuration for this application.
-     *
-     * @return A set of configuration elements, such as token expiry.
-     */
-    public Map<String, String> getConfiguration() {
-        return configuration;
-    }
-
-    /**
-     * Set the configuration for this application.
-     *
-     * @param configuration The new configuration.
-     */
-    public void setConfiguration(final Map<String, String> configuration) {
-        this.configuration = new HashMap<>(configuration);
     }
 
     /**

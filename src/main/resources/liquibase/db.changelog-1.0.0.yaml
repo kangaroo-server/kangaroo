@@ -31,53 +31,6 @@ databaseChangeLog:
                 constraints:
                   nullable: false
 
-      # An application may have multiple configuration options that govern
-      # its behavior.
-      - createTable:
-          tableName: application_configs
-          columns:
-            - column:
-                name: application
-                type: BINARY(16)
-                constraints:
-                  nullable: false
-            - column:
-                name: key
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: value
-                type: varchar(255)
-                constraints:
-                  nullable: true
-      - createIndex:
-          columns:
-          - column:
-              name: application
-              type: BINARY(16)
-          indexName: idx_application_configs_application
-          tableName: application_configs
-      - createIndex:
-          columns:
-          - column:
-              name: key
-              type: varchar(255)
-          indexName: idx_application_configs_name
-          tableName: application_configs
-      - addUniqueConstraint:
-          columnNames: application, key
-          constraintName: uq_application_configs_application_key
-          tableName: application_configs
-      - addForeignKeyConstraint:
-          baseColumnNames: application
-          baseTableName: application_configs
-          constraintName: fk_application_configs_application
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: applications
-
       # An application may have multiple user-defined scopes.
       - createTable:
           tableName: application_scopes
@@ -391,6 +344,53 @@ databaseChangeLog:
           baseColumnNames: client
           baseTableName: client_redirects
           constraintName: fk_client_redirects_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
+
+      # An client may have multiple configuration options that govern
+      # its behavior.
+      - createTable:
+          tableName: client_configs
+          columns:
+            - column:
+                name: client
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: key
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: true
+      - createIndex:
+          columns:
+          - column:
+              name: client
+              type: BINARY(16)
+          indexName: idx_client_configs_client
+          tableName: client_configs
+      - createIndex:
+          columns:
+          - column:
+              name: key
+              type: varchar(255)
+          indexName: idx_client_configs_name
+          tableName: client_configs
+      - addUniqueConstraint:
+          columnNames: client, key
+          constraintName: uq_client_configs_client_key
+          tableName: client_configs
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: client_configs
+          constraintName: fk_client_configs_client
           onDelete: CASCADE
           onUpdate: CASCADE
           referencedColumnNames: id
@@ -800,6 +800,8 @@ databaseChangeLog:
         - dropTable:
             tableName: authenticators
         - dropTable:
+            tableName: client_configs
+        - dropTable:
             tableName: client_redirects
         - dropTable:
             tableName: client_referrers
@@ -811,8 +813,6 @@ databaseChangeLog:
             tableName: role_scopes
         - dropTable:
             tableName: roles
-        - dropTable:
-            tableName: application_configs
         - dropTable:
             tableName: application_scopes
         - dropTable:

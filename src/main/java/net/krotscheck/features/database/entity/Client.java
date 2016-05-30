@@ -25,7 +25,9 @@ import org.hibernate.annotations.CascadeType;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
@@ -37,6 +39,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -122,6 +125,17 @@ public final class Client extends AbstractEntity {
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "redirect")
     private Set<URI> redirects;
+
+    /**
+     * The configuration settings for this application.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "client_configs",
+            joinColumns = @JoinColumn(name = "client"))
+    @MapKeyColumn(name = "key")
+    @Column(name = "value")
+    @Cascade(CascadeType.ALL)
+    private Map<String, String> configuration;
 
     /**
      * Get the application this client belongs to.
@@ -283,6 +297,24 @@ public final class Client extends AbstractEntity {
      */
     public void setType(final ClientType type) {
         this.type = type;
+    }
+
+    /**
+     * Retrieve configuration for this client.
+     *
+     * @return A set of configuration elements, such as token expiry.
+     */
+    public Map<String, String> getConfiguration() {
+        return configuration;
+    }
+
+    /**
+     * Set the configuration for this client.
+     *
+     * @param configuration The new configuration.
+     */
+    public void setConfiguration(final Map<String, String> configuration) {
+        this.configuration = new HashMap<>(configuration);
     }
 
     /**

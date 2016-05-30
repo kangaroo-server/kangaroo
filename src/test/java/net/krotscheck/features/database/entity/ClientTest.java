@@ -31,9 +31,11 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -182,6 +184,20 @@ public final class ClientTest {
     }
 
     /**
+     * Test getting/setting the configuration.
+     */
+    @Test
+    public void testGetSetConfiguration() {
+        Client client = new Client();
+        Map<String, String> configuration = new HashMap<>();
+
+        Assert.assertNull(client.getConfiguration());
+        client.setConfiguration(configuration);
+        Assert.assertEquals(configuration, client.getConfiguration());
+        Assert.assertNotSame(configuration, client.getConfiguration());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.
@@ -208,6 +224,10 @@ public final class ClientTest {
         Set<URI> redirects = new HashSet<>();
         redirects.add(new URI("https://example.com/oauth/foo?lol=cat#omg"));
 
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("one", "value");
+        configuration.put("two", "value");
+
         Client c = new Client();
         c.setApplication(application);
         c.setId(UUID.randomUUID());
@@ -218,6 +238,7 @@ public final class ClientTest {
         c.setType(ClientType.AuthorizationGrant);
         c.setRedirects(redirects);
         c.setReferrers(referrers);
+        c.setConfiguration(configuration);
 
         // These should not serialize.
         c.setTokens(tokens);
@@ -263,13 +284,22 @@ public final class ClientTest {
         Assert.assertEquals("https://example.com/oauth/foo?lol=cat#omg",
                 redirectNode.get(0).asText());
 
+        // Get the configuration node.
+        JsonNode configurationNode = node.get("configuration");
+        Assert.assertEquals(
+                "value",
+                configurationNode.get("one").asText());
+        Assert.assertEquals(
+                "value",
+                configurationNode.get("two").asText());
+
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
         Iterator<String> nameIterator = node.fieldNames();
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(9, names.size());
+        Assert.assertEquals(10, names.size());
     }
 
     /**
@@ -287,6 +317,11 @@ public final class ClientTest {
         node.put("name", "name");
         node.put("type", "Implicit");
         node.put("clientSecret", "clientSecret");
+
+        ObjectNode configurationNode = m.createObjectNode();
+        configurationNode.put("one", "value");
+        configurationNode.put("two", "value");
+        node.set("configuration", configurationNode);
 
         ArrayNode referrers = node.arrayNode();
         referrers.add("https://example.com/oauth/foo?lol=cat#omg");
@@ -326,6 +361,15 @@ public final class ClientTest {
         Assert.assertTrue(c.getReferrers()
                 .contains(new URI("https://example"
                         + ".com/oauth/foo?lol=cat#omg")));
+
+        Map<String, String> configuration = c.getConfiguration();
+
+        Assert.assertEquals(
+                configuration.get("one"),
+                configurationNode.get("one").asText());
+        Assert.assertEquals(
+                configuration.get("two"),
+                configurationNode.get("two").asText());
     }
 
     /**

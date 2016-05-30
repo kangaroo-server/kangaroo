@@ -130,20 +130,6 @@ public final class ApplicationTest {
     }
 
     /**
-     * Test getting/setting the configuration.
-     */
-    @Test
-    public void testGetSetConfiguration() {
-        Application application = new Application();
-        Map<String, String> configuration = new HashMap<>();
-
-        Assert.assertNull(application.getConfiguration());
-        application.setConfiguration(configuration);
-        Assert.assertEquals(configuration, application.getConfiguration());
-        Assert.assertNotSame(configuration, application.getConfiguration());
-    }
-
-    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.
@@ -171,17 +157,12 @@ public final class ApplicationTest {
         role.setId(UUID.randomUUID());
         roles.add(role);
 
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("one", "value");
-        configuration.put("two", "value");
-
         Application a = new Application();
         a.setId(UUID.randomUUID());
         a.setCreatedDate(new Date());
         a.setModifiedDate(new Date());
         a.setOwner(owner);
         a.setName("name");
-        a.setConfiguration(configuration);
 
         // These four should not show up in the deserialized version.
         a.setClients(clients);
@@ -212,22 +193,13 @@ public final class ApplicationTest {
         Assert.assertFalse(node.has("roles"));
         Assert.assertFalse(node.has("users"));
 
-        // Get the configuration node.
-        JsonNode configurationNode = node.get("configuration");
-        Assert.assertEquals(
-                "value",
-                configurationNode.get("one").asText());
-        Assert.assertEquals(
-                "value",
-                configurationNode.get("two").asText());
-
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
         Iterator<String> nameIterator = node.fieldNames();
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(6, names.size());
+        Assert.assertEquals(5, names.size());
     }
 
     /**
@@ -244,11 +216,6 @@ public final class ApplicationTest {
         node.put("modifiedDate", new Date().getTime());
         node.put("name", "name");
 
-        ObjectNode configurationNode = m.createObjectNode();
-        configurationNode.put("one", "value");
-        configurationNode.put("two", "value");
-        node.set("configuration", configurationNode);
-
         String output = m.writeValueAsString(node);
         Application a = m.readValue(output, Application.class);
 
@@ -264,15 +231,6 @@ public final class ApplicationTest {
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
-
-        Map<String, String> configuration = a.getConfiguration();
-
-        Assert.assertEquals(
-                configuration.get("one"),
-                configurationNode.get("one").asText());
-        Assert.assertEquals(
-                configuration.get("two"),
-                configurationNode.get("two").asText());
     }
 
     /**
