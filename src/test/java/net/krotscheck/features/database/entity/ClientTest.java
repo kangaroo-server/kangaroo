@@ -198,6 +198,62 @@ public final class ClientTest {
     }
 
     /**
+     * Assert that we can get the default values for the access expires in
+     * token.
+     */
+    @Test
+    public void testGetAccessExpiresIn() {
+        Client client = new Client();
+        Map<String, String> configuration = new HashMap<>();
+        Integer expectedDefault = 10 * 60; // Ten minutes
+
+        // Assert no config.
+        Assert.assertEquals(expectedDefault, client.getAccessTokenExpireIn());
+
+        // Assert empty config.
+        client.setConfiguration(configuration);
+        Assert.assertEquals(expectedDefault, client.getAccessTokenExpireIn());
+
+        // Assert unparseable config
+        configuration.put(ClientConfig.ACCESS_TOKEN_EXPIRES_NAME, "not_an_int");
+        client.setConfiguration(configuration);
+        Assert.assertEquals(expectedDefault, client.getAccessTokenExpireIn());
+
+        // Assert parseable config
+        configuration.put(ClientConfig.ACCESS_TOKEN_EXPIRES_NAME, "50");
+        client.setConfiguration(configuration);
+        Assert.assertEquals((Integer) 50, client.getAccessTokenExpireIn());
+    }
+
+    /**
+     * Assert that we can get the default values for the refresh token.
+     */
+    @Test
+    public void testGetRefreshExpiresIn() {
+        Client client = new Client();
+        Map<String, String> configuration = new HashMap<>();
+        Integer expectedDefault = 60 * 60 * 24 * 30; // One month.
+
+        // Assert no config.
+        Assert.assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
+
+        // Assert empty config.
+        client.setConfiguration(configuration);
+        Assert.assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
+
+        // Assert unparseable config
+        configuration
+                .put(ClientConfig.REFRESH_TOKEN_EXPIRES_NAME, "not_an_int");
+        client.setConfiguration(configuration);
+        Assert.assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
+
+        // Assert parseable config
+        configuration.put(ClientConfig.REFRESH_TOKEN_EXPIRES_NAME, "50");
+        client.setConfiguration(configuration);
+        Assert.assertEquals((Integer) 50, client.getRefreshTokenExpireIn());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.
