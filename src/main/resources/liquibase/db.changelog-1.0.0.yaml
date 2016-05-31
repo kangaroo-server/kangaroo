@@ -569,6 +569,55 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: clients
 
+      # An authenticator state should list some scopes which it is applying for.
+      - createTable:
+          tableName: authenticator_state_scopes
+          columns:
+            - column:
+                name: state
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: scope
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: state
+              type: BINARY(16)
+          indexName: idx_authenticator_state_scopes_state
+          tableName: authenticator_state_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: scope
+              type: BINARY(16)
+          indexName: idx_authenticator_state_scopes_scope
+          tableName: authenticator_state_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: scope
+          baseTableName: authenticator_state_scopes
+          constraintName: fk_authenticator_state_scopes_scope
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: state
+          baseTableName: authenticator_state_scopes
+          constraintName: fk_authenticator_state_scopes_state
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: authenticator_states
+      - addUniqueConstraint:
+          columnNames: state, scope
+          constraintName: uq_authenticator_state_scopes_authenticator_state_scopes
+          tableName: authenticator_state_scopes
+
       # Every user in an application will have a series of 'identities',
       # which are equivalent to a user claim provided by an authenticator.
       # This effectively serves to store the remote-id of a particular claim
@@ -703,6 +752,11 @@ databaseChangeLog:
                 constraints:
                   nullable: true
             - column:
+                name: authToken
+                type: BINARY(16)
+                constraints:
+                  nullable: true
+            - column:
                 name: client
                 type: BINARY(16)
                 constraints:
@@ -733,6 +787,14 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: clients
+      - addForeignKeyConstraint:
+          baseColumnNames: authToken
+          baseTableName: oauth_tokens
+          constraintName: fk_oauth_tokens_oauth_tokens_authToken
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: oauth_tokens
 
       # OAuth Tokens have a limited list of scopes.
       - createTable:
@@ -793,6 +855,8 @@ databaseChangeLog:
             tableName: user_identity_claims
         - dropTable:
             tableName: user_identities
+        - dropTable:
+            tableName: authenticator_state_scopes
         - dropTable:
             tableName: authenticator_states
         - dropTable:

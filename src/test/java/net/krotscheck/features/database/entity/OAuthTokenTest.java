@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -100,8 +102,8 @@ public final class OAuthTokenTest {
     @Test
     public void testGetSetScopes() {
         OAuthToken token = new OAuthToken();
-        List<ApplicationScope> scopes = new ArrayList<>();
-        scopes.add(new ApplicationScope());
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        scopes.put("test", new ApplicationScope());
 
         Assert.assertNull(token.getScopes());
         token.setScopes(scopes);

@@ -18,21 +18,28 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.SortNatural;
 
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.Table;
 
 /**
  * This entity describes state data stored while an authorization request has
- * been passed to the authentication authenticator. It is retrieved based on the
- * authenticatorState and the authenticatorNonce.
+ * been passed to the authentication authenticator. It is retrieved based on
+ * the authenticatorState and the authenticatorNonce.
  *
  * @author Michael Krotscheck
  */
@@ -80,11 +87,20 @@ public final class AuthenticatorState extends AbstractEntity {
     private String clientState;
 
     /**
-     * The scope requested from the client.
+     * List of the application's scopes.
      */
-    @Basic(optional = false)
-    @Column(name = "clientScope", unique = false)
-    private String clientScope;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "authenticator_state_scopes",
+            joinColumns = {
+                    @JoinColumn(name = "token",
+                            nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "scope",
+                            nullable = false, updatable = false)})
+    @JsonIgnore
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> clientScope;
 
     /**
      * The nonce attached to the client's request.
@@ -184,22 +200,22 @@ public final class AuthenticatorState extends AbstractEntity {
     }
 
     /**
-     * Retrieve the client scope. Note that this is the raw value, and may
-     * require some additional processing to determine the true value.
+     * Get the list of scopes which this request would like to have.
      *
-     * @return The requested client scope.
+     * @return A map of scopes.
      */
-    public String getClientScope() {
+    public SortedMap<String, ApplicationScope> getClientScope() {
         return clientScope;
     }
 
     /**
-     * Set a raw client scope.
+     * Set the scopes for this authentication request.
      *
-     * @param clientScope The scope requested by the client.
+     * @param scopes A new map of scopes.
      */
-    public void setClientScope(final String clientScope) {
-        this.clientScope = clientScope;
+    public void setClientScope(
+            final SortedMap<String, ApplicationScope> scopes) {
+        this.clientScope = new TreeMap<>(scopes);
     }
 
     /**

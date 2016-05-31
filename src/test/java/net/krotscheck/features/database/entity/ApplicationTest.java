@@ -29,10 +29,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -120,8 +120,8 @@ public final class ApplicationTest {
     @Test
     public void testGetSetScopes() {
         Application a = new Application();
-        List<ApplicationScope> scopes = new ArrayList<>();
-        scopes.add(new ApplicationScope());
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        scopes.put("foo", new ApplicationScope());
 
         Assert.assertNull(a.getScopes());
         a.setScopes(scopes);

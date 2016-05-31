@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.SortNatural;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -29,12 +30,15 @@ import org.hibernate.search.annotations.Store;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -75,7 +79,9 @@ public final class Application extends AbstractEntity {
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
     @JsonIgnore
-    private List<ApplicationScope> scopes;
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> scopes;
 
     /**
      * The owner of the application.
@@ -171,7 +177,7 @@ public final class Application extends AbstractEntity {
      *
      * @return A list of scopes.
      */
-    public List<ApplicationScope> getScopes() {
+    public SortedMap<String, ApplicationScope> getScopes() {
         return scopes;
     }
 
@@ -180,8 +186,8 @@ public final class Application extends AbstractEntity {
      *
      * @param scopes A new list of scopes.
      */
-    public void setScopes(final List<ApplicationScope> scopes) {
-        this.scopes = new ArrayList<>(scopes);
+    public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
+        this.scopes = new TreeMap<>(scopes);
     }
 
     /**
