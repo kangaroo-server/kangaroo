@@ -23,11 +23,17 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.Application.Deserializer;
+import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.test.JacksonUtil;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -159,8 +165,8 @@ public final class ApplicationTest {
 
         Application a = new Application();
         a.setId(UUID.randomUUID());
-        a.setCreatedDate(new Date());
-        a.setModifiedDate(new Date());
+        a.setCreatedDate(Calendar.getInstance());
+        a.setModifiedDate(Calendar.getInstance());
         a.setOwner(owner);
         a.setName("name");
 
@@ -170,7 +176,8 @@ public final class ApplicationTest {
         a.setUsers(users);
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
@@ -178,11 +185,11 @@ public final class ApplicationTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
         Assert.assertEquals(
                 a.getOwner().getId().toString(),
                 node.get("owner").asText());
@@ -209,11 +216,14 @@ public final class ApplicationTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
 
         String output = m.writeValueAsString(node);
@@ -223,11 +233,11 @@ public final class ApplicationTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());

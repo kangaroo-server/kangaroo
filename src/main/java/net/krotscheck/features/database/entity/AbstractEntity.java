@@ -37,7 +37,7 @@ import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -86,13 +86,13 @@ public abstract class AbstractEntity {
      * The date this record was created.
      */
     @Column(name = "createdDate")
-    private Date createdDate;
+    private Calendar createdDate;
 
     /**
      * The date this record was last modified.
      */
     @Column(name = "modifiedDate")
-    private Date modifiedDate;
+    private Calendar modifiedDate;
 
     /**
      * Return the DB record's ID.
@@ -117,11 +117,11 @@ public abstract class AbstractEntity {
      *
      * @return The created date.
      */
-    public final Date getCreatedDate() {
+    public final Calendar getCreatedDate() {
         if (createdDate == null) {
             return null;
         } else {
-            return new Date(createdDate.getTime());
+            return (Calendar) createdDate.clone();
         }
     }
 
@@ -130,8 +130,8 @@ public abstract class AbstractEntity {
      *
      * @param date The creation date for this entity.
      */
-    public final void setCreatedDate(final Date date) {
-        this.createdDate = new Date(date.getTime());
+    public final void setCreatedDate(final Calendar date) {
+        this.createdDate = (Calendar) date.clone();
     }
 
     /**
@@ -139,11 +139,11 @@ public abstract class AbstractEntity {
      *
      * @return The last time this record was modified, or null.
      */
-    public final Date getModifiedDate() {
+    public final Calendar getModifiedDate() {
         if (modifiedDate == null) {
             return null;
         } else {
-            return new Date(modifiedDate.getTime());
+            return (Calendar) modifiedDate.clone();
         }
     }
 
@@ -152,8 +152,8 @@ public abstract class AbstractEntity {
      *
      * @param date The modified date for this entity.
      */
-    public final void setModifiedDate(final Date date) {
-        this.modifiedDate = new Date(date.getTime());
+    public final void setModifiedDate(final Calendar date) {
+        this.modifiedDate = (Calendar) date.clone();
     }
 
     /**

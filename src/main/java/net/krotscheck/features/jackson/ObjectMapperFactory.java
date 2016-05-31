@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -89,6 +90,9 @@ public final class ObjectMapperFactory implements Factory<ObjectMapper> {
                 SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
         mapper.configure(
                 SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+
+        // Make sure date format is ISO Compliant.
+        mapper.setDateFormat(new ISO8601DateFormat());
 
         // Add our annotation introspectors.
         AnnotationIntrospector jaxbIntrospector =
