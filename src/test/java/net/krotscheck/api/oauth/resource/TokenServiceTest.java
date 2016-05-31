@@ -17,17 +17,23 @@
 
 package net.krotscheck.api.oauth.resource;
 
-import net.krotscheck.features.config.ConfigurationFeature;
-import net.krotscheck.features.database.DatabaseFeature;
-import net.krotscheck.features.exception.ExceptionFeature;
-import net.krotscheck.features.jackson.JacksonFeature;
+import net.krotscheck.api.oauth.OAuthAPI;
+import net.krotscheck.features.database.entity.ClientConfig;
+import net.krotscheck.features.database.entity.ClientType;
+import net.krotscheck.features.database.entity.OAuthTokenType;
+import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.ContainerTest;
-import org.glassfish.jersey.server.ResourceConfig;
+import net.krotscheck.test.EnvironmentBuilder;
+import org.apache.http.HttpStatus;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -40,6 +46,11 @@ import javax.ws.rs.core.Response;
 public final class TokenServiceTest extends ContainerTest {
 
     /**
+     * Simple testing context.
+     */
+    private EnvironmentBuilder context;
+
+    /**
      * Build and configure the application.
      *
      * @return A configured application.
@@ -49,25 +60,63 @@ public final class TokenServiceTest extends ContainerTest {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
 
-        ResourceConfig a = new ResourceConfig();
-        a.register(ConfigurationFeature.class);
-        a.register(ExceptionFeature.class);
-        a.register(JacksonFeature.class);
-        a.register(DatabaseFeature.class);
-        a.register(TokenService.class);
-
-        return a;
+        return new OAuthAPI();
     }
 
     /**
-     * Smoke test. Does this endpoint exist?
+     * Set up the test harness data.
+     */
+    @Before
+    public void createTestData() {
+        context = setupEnvironment()
+                .client(ClientType.ClientCredentials, true);
+    }
+
+    /**
+     * Assert that an invalid grant type is rejected.
      */
     @Test
-    public void testSmoke() {
+    public void testInvalidGrantType() {
+        Form testData = new Form();
+        testData.param("grant_type", "invalid");
+        testData.param("client_id", context.getClient().getId().toString());
+        testData.param("client_secret", context.getClient().getClientSecret());
+        Entity testEntity = Entity.entity(testData,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+
         Response response = target("/token")
                 .request()
-                .post(null);
+                .post(testEntity);
 
-        Assert.assertNotEquals(404, response.getStatus());
+        ErrorResponse error = response.readEntity(ErrorResponse.class);
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
+        Assert.assertEquals("invalid_grant", error.getError());
+        Assert.assertNotNull(error.getErrorDescription());
+    }
+
+    /**
+     * Assert that an valid grant type is accepted.
+     */
+    @Test
+    public void testValidGrantType() {
+        // Using the client credentials type here, since it was the first one
+        // created.
+        Form testData = new Form();
+        testData.param("grant_type", "client_credentials");
+        testData.param("client_id", context.getClient().getId().toString());
+        testData.param("client_secret", context.getClient().getClientSecret());
+        Entity testEntity = Entity.entity(testData,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+
+        TokenResponseEntity token = target("/token")
+                .request()
+                .post(testEntity, TokenResponseEntity.class);
+
+        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+                (long) token.getExpiresIn());
+        Assert.assertNull(token.getRefreshToken());
+        Assert.assertNull(token.getScope());
+        Assert.assertNotNull(token.getAccessToken());
     }
 }
