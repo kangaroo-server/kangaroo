@@ -23,11 +23,17 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.OAuthToken.Deserializer;
+import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.test.JacksonUtil;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -126,15 +132,16 @@ public final class OAuthTokenTest {
 
         OAuthToken token = new OAuthToken();
         token.setId(UUID.randomUUID());
-        token.setCreatedDate(new Date());
-        token.setModifiedDate(new Date());
+        token.setCreatedDate(Calendar.getInstance());
+        token.setModifiedDate(Calendar.getInstance());
         token.setIdentity(identity);
         token.setClient(client);
         token.setTokenType(OAuthTokenType.Authorization);
         token.setExpiresIn(100);
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(token);
         JsonNode node = m.readTree(output);
 
@@ -142,11 +149,11 @@ public final class OAuthTokenTest {
                 token.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                token.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(token.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                token.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(token.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 token.getTokenType().toString(),
@@ -175,11 +182,14 @@ public final class OAuthTokenTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("accessToken", "accessToken");
         node.put("tokenType", "Authorization");
         node.put("expiresIn", 300);
@@ -191,11 +201,11 @@ public final class OAuthTokenTest {
                 c.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                c.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(c.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                c.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(c.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 c.getTokenType().toString(),

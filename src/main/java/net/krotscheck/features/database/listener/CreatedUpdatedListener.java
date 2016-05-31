@@ -24,7 +24,8 @@ import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEvent;
 import org.hibernate.event.spi.PreUpdateEventListener;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 import javax.inject.Singleton;
 
 /**
@@ -35,6 +36,11 @@ import javax.inject.Singleton;
  */
 public final class CreatedUpdatedListener
         implements PreInsertEventListener, PreUpdateEventListener {
+
+    /**
+     * The timezone. Everything we're doing is UTC.
+     */
+    private final TimeZone timeZone = TimeZone.getTimeZone("UTC");
 
     /**
      * Before insert, update the createdDate and modifiedDate.
@@ -48,8 +54,8 @@ public final class CreatedUpdatedListener
         if (entity instanceof AbstractEntity) {
 
             AbstractEntity persistingEntity = (AbstractEntity) entity;
-            persistingEntity.setCreatedDate(new Date());
-            persistingEntity.setModifiedDate(new Date());
+            persistingEntity.setCreatedDate(Calendar.getInstance(timeZone));
+            persistingEntity.setModifiedDate(Calendar.getInstance(timeZone));
         }
 
         return false;
@@ -67,7 +73,7 @@ public final class CreatedUpdatedListener
         if (entity instanceof AbstractEntity) {
 
             AbstractEntity persistingEntity = (AbstractEntity) entity;
-            persistingEntity.setModifiedDate(new Date());
+            persistingEntity.setModifiedDate(Calendar.getInstance(timeZone));
         }
 
         return false;

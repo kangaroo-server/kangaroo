@@ -18,8 +18,13 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.test.JacksonUtil;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for the client type.
@@ -35,7 +40,7 @@ public final class ClientTypeTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
 
         String auth = m.writeValueAsString(ClientType.AuthorizationGrant);
         Assert.assertEquals("\"AuthorizationGrant\"", auth);
@@ -57,7 +62,7 @@ public final class ClientTypeTest {
      */
     @Test
     public void testDeserialization() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
 
         ClientType auth =
                 m.readValue("\"AuthorizationGrant\"", ClientType.class);

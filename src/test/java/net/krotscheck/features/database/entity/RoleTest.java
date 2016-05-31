@@ -23,11 +23,17 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.Role.Deserializer;
+import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.test.JacksonUtil;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -118,13 +124,14 @@ public final class RoleTest {
         Role role = new Role();
         role.setApplication(a);
         role.setId(UUID.randomUUID());
-        role.setCreatedDate(new Date());
-        role.setModifiedDate(new Date());
+        role.setCreatedDate(Calendar.getInstance());
+        role.setModifiedDate(Calendar.getInstance());
         role.setName("name");
         role.setUsers(users);
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(role);
         JsonNode node = m.readTree(output);
 
@@ -132,11 +139,11 @@ public final class RoleTest {
                 role.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                role.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(role.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                role.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(role.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 role.getApplication().getId().toString(),
@@ -164,11 +171,14 @@ public final class RoleTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
 
         String output = m.writeValueAsString(node);
@@ -178,11 +188,11 @@ public final class RoleTest {
                 c.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                c.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(c.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                c.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(c.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 c.getName(),

@@ -23,11 +23,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.AuthenticatorState.Deserializer;
+import net.krotscheck.test.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -149,8 +153,8 @@ public final class AuthenticatorStateTest {
 
         AuthenticatorState state = new AuthenticatorState();
         state.setId(UUID.randomUUID());
-        state.setCreatedDate(new Date());
-        state.setModifiedDate(new Date());
+        state.setCreatedDate(Calendar.getInstance());
+        state.setModifiedDate(Calendar.getInstance());
         state.setAuthenticator(authenticator);
         state.setClient(client);
         state.setAuthenticatorState("authenticatorState");
@@ -160,7 +164,8 @@ public final class AuthenticatorStateTest {
         state.setClientScope("clientScope");
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(state);
         JsonNode node = m.readTree(output);
 
@@ -168,11 +173,11 @@ public final class AuthenticatorStateTest {
                 state.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                state.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(state.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                state.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(state.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 state.getAuthenticator().getId().toString(),
@@ -212,11 +217,14 @@ public final class AuthenticatorStateTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("authenticatorState", "authenticatorState");
         node.put("authenticatorNonce", "authenticatorNonce");
         node.put("clientState", "clientState");
@@ -230,11 +238,11 @@ public final class AuthenticatorStateTest {
                 c.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                c.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(c.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                c.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(c.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 c.getAuthenticatorState(),
