@@ -200,22 +200,22 @@ public final class AuthenticatorState extends AbstractEntity {
     }
 
     /**
-     * Get the list of scopes which this request would like to have.
+     * Retreive the scope received from the client.
      *
-     * @return A map of scopes.
+     * @return The client's scope.
      */
     public SortedMap<String, ApplicationScope> getClientScope() {
         return clientScope;
     }
 
     /**
-     * Set the scopes for this authentication request.
+     * Store the scope received from the client.
      *
-     * @param scopes A new map of scopes.
+     * @param clientScope A new client scope.
      */
     public void setClientScope(
-            final SortedMap<String, ApplicationScope> scopes) {
-        this.clientScope = new TreeMap<>(scopes);
+            final SortedMap<String, ApplicationScope> clientScope) {
+        this.clientScope = new TreeMap<>(clientScope);
     }
 
     /**
