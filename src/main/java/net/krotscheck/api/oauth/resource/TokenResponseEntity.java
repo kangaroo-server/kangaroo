@@ -130,7 +130,7 @@ public final class TokenResponseEntity {
         t.expiresIn = token.getExpiresIn();
 
         List<String> scopes = new ArrayList<>();
-        token.getScopes().forEach(p -> scopes.add(p.getName()));
+        token.getScopes().forEach((n, s) -> scopes.add(n));
         t.scope = String.join(" ", scopes);
         return t;
     }

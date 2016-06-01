@@ -19,11 +19,11 @@ package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.SortNatural;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -33,6 +33,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.Table;
 
 /**
@@ -78,7 +79,7 @@ public final class OAuthToken extends AbstractEntity {
     /**
      * List of the application's scopes.
      */
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "oauth_token_scopes",
             joinColumns = {
                     @JoinColumn(name = "token",
@@ -87,7 +88,9 @@ public final class OAuthToken extends AbstractEntity {
                     @JoinColumn(name = "scope",
                             nullable = false, updatable = false)})
     @JsonIgnore
-    private List<ApplicationScope> scopes;
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> scopes;
 
     /**
      * Get the user identity to which this token was issued.
@@ -164,19 +167,19 @@ public final class OAuthToken extends AbstractEntity {
     /**
      * Get this token's scopes.
      *
-     * @return A list of scopes.
+     * @return A map of scopes.
      */
-    public List<ApplicationScope> getScopes() {
+    public SortedMap<String, ApplicationScope> getScopes() {
         return scopes;
     }
 
     /**
      * Set this token's scopes.
      *
-     * @param scopes A new list of scopes.
+     * @param scopes A new map of scopes.
      */
-    public void setScopes(final List<ApplicationScope> scopes) {
-        this.scopes = new ArrayList<>(scopes);
+    public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
+        this.scopes = new TreeMap<>(scopes);
     }
 
     /**

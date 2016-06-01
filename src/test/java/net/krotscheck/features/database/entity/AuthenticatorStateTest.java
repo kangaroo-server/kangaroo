@@ -35,6 +35,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -130,15 +132,19 @@ public final class AuthenticatorStateTest {
     @Test
     public void testGetSetClientScope() {
         AuthenticatorState state = new AuthenticatorState();
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        scopes.put("test", new ApplicationScope());
 
         // Default
         Assert.assertNull(state.getClientScope());
-        state.setClientScope("scope");
-        Assert.assertEquals("scope", state.getClientScope());
+        state.setClientScope(scopes);
+        Assert.assertEquals(scopes, state.getClientScope());
+        Assert.assertNotSame(scopes, state.getClientScope());
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't
      * carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
@@ -161,7 +167,6 @@ public final class AuthenticatorStateTest {
         state.setAuthenticatorNonce("authenticatorNonce");
         state.setClientState("clientState");
         state.setClientNonce("clientNonce");
-        state.setClientScope("clientScope");
 
         // De/serialize to json.
         ObjectMapper m = JacksonUtil.buildMapper();
@@ -197,9 +202,6 @@ public final class AuthenticatorStateTest {
         Assert.assertEquals(
                 state.getClientNonce(),
                 node.get("clientNonce").asText());
-        Assert.assertEquals(
-                state.getClientScope(),
-                node.get("clientScope").asText());
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -207,7 +209,7 @@ public final class AuthenticatorStateTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(10, names.size());
+        Assert.assertEquals(9, names.size());
     }
 
     /**
@@ -256,9 +258,6 @@ public final class AuthenticatorStateTest {
         Assert.assertEquals(
                 c.getClientNonce(),
                 node.get("clientNonce").asText());
-        Assert.assertEquals(
-                c.getClientScope(),
-                node.get("clientScope").asText());
     }
 
     /**

@@ -23,8 +23,8 @@ import net.krotscheck.features.database.entity.OAuthTokenType;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 /**
@@ -42,13 +42,13 @@ public final class TokenResponseEntityTest {
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(100);
 
-        List<ApplicationScope> scopes = new ArrayList<>();
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         ApplicationScope debug = new ApplicationScope();
         debug.setName("debug");
         ApplicationScope test = new ApplicationScope();
         test.setName("test");
-        scopes.add(debug);
-        scopes.add(test);
+        scopes.put("debug", debug);
+        scopes.put("test", test);
         token.setScopes(scopes);
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token);
@@ -70,13 +70,13 @@ public final class TokenResponseEntityTest {
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(100);
 
-        List<ApplicationScope> scopes = new ArrayList<>();
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         ApplicationScope debug = new ApplicationScope();
         debug.setName("debug");
         ApplicationScope test = new ApplicationScope();
         test.setName("test");
-        scopes.add(debug);
-        scopes.add(test);
+        scopes.put("debug", debug);
+        scopes.put("test", test);
         token.setScopes(scopes);
 
         OAuthToken refresh = new OAuthToken();
@@ -91,6 +91,5 @@ public final class TokenResponseEntityTest {
         Assert.assertEquals("Bearer", entity.getTokenType().toString());
         Assert.assertEquals("debug test", entity.getScope());
         Assert.assertEquals(refresh.getId(), entity.getRefreshToken());
-
     }
 }
