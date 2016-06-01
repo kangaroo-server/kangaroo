@@ -32,7 +32,6 @@ import org.junit.Test;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -127,15 +126,14 @@ public final class AuthenticatorStateTest {
     }
 
     /**
-     * Assert that we can get and set client nonce.
+     * Test get/set scope list.
      */
     @Test
-    public void testGetSetClientScope() {
+    public void testGetSetScopes() {
         AuthenticatorState state = new AuthenticatorState();
         SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         scopes.put("test", new ApplicationScope());
 
-        // Default
         Assert.assertNull(state.getClientScope());
         state.setClientScope(scopes);
         Assert.assertEquals(scopes, state.getClientScope());
