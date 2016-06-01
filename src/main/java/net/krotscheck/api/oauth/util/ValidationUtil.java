@@ -17,10 +17,14 @@
 
 package net.krotscheck.api.oauth.util;
 
+import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.features.database.entity.ApplicationScope;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.ws.rs.core.UriBuilder;
 
 /**
@@ -78,5 +82,55 @@ public final class ValidationUtil {
             }
         }
         return null;
+    }
+
+
+    /**
+     * Creates a collection of scopes from a list of valid scopes. If the
+     * requested scopes are not in that valid list, it will throw an exception.
+     *
+     * @param requestedScopes An array of requested scopes.
+     * @param validScopes     A list of valid scopes.
+     * @return A list of the requested scopes, as database instances.
+     */
+    public static SortedMap<String, ApplicationScope> validateScope(
+            final String[] requestedScopes,
+            final SortedMap<String, ApplicationScope> validScopes) {
+
+        if (requestedScopes == null || requestedScopes.length == 0) {
+            return new TreeMap<>();
+        }
+
+        if (validScopes == null) {
+            throw new InvalidScopeException();
+        }
+
+        // Make sure all requested scopes are in the map.
+        SortedMap<String, ApplicationScope> results = new TreeMap<>();
+        for (String scope : requestedScopes) {
+            if (!validScopes.containsKey(scope)) {
+                throw new InvalidScopeException();
+            }
+            results.put(scope, validScopes.get(scope));
+        }
+        return results;
+    }
+
+
+    /**
+     * Creates a collection of scopes from a list of valid scopes. If the
+     * requested scopes are not in that valid list, it will throw an exception.
+     *
+     * @param requestedScopes An array of requested scopes.
+     * @param validScopes     A string of valid scopes.
+     * @return A list of the requested scopes, as database instances.
+     */
+    public static SortedMap<String, ApplicationScope> validateScope(
+            final String requestedScopes,
+            final SortedMap<String, ApplicationScope> validScopes) {
+        if (StringUtils.isEmpty(requestedScopes)) {
+            return new TreeMap<>();
+        }
+        return validateScope(requestedScopes.split(" "), validScopes);
     }
 }
