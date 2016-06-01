@@ -791,7 +791,7 @@ databaseChangeLog:
           baseColumnNames: authToken
           baseTableName: oauth_tokens
           constraintName: fk_oauth_tokens_oauth_tokens_authToken
-          onDelete: CASCADE
+          onDelete: SET NULL
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: oauth_tokens

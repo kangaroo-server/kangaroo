@@ -63,6 +63,14 @@ public final class OAuthToken extends AbstractEntity {
     private Client client;
 
     /**
+     * The parent auth token (used for refresh tokens only).
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authToken", nullable = true, updatable = false)
+    @JsonIgnore
+    private OAuthToken authToken;
+
+    /**
      * The token type.
      */
     @Enumerated(EnumType.STRING)
@@ -126,6 +134,24 @@ public final class OAuthToken extends AbstractEntity {
      */
     public void setClient(final Client client) {
         this.client = client;
+    }
+
+    /**
+     * Retrieve the oauth token for this refresh token.
+     *
+     * @return The auth token.
+     */
+    public OAuthToken getAuthToken() {
+        return authToken;
+    }
+
+    /**
+     * Set the new parent auth token (for refresh tokens only).
+     *
+     * @param authToken The new auth token.
+     */
+    public void setAuthToken(final OAuthToken authToken) {
+        this.authToken = authToken;
     }
 
     /**

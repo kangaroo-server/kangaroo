@@ -103,6 +103,20 @@ public final class OAuthTokenTest {
     }
 
     /**
+     * Test setting a related token (such as an access token for a refresh
+     * token).
+     */
+    @Test
+    public void testGetSetToken() {
+        OAuthToken token = new OAuthToken();
+        OAuthToken otherToken = new OAuthToken();
+
+        Assert.assertNull(token.getAuthToken());
+        token.setAuthToken(otherToken);
+        Assert.assertEquals(otherToken, token.getAuthToken());
+    }
+
+    /**
      * Test get/set scope list.
      */
     @Test
