@@ -84,7 +84,6 @@ public final class ValidationUtil {
         return null;
     }
 
-
     /**
      * Creates a collection of scopes from a list of valid scopes. If the
      * requested scopes are not in that valid list, it will throw an exception.
@@ -116,7 +115,6 @@ public final class ValidationUtil {
         return results;
     }
 
-
     /**
      * Creates a collection of scopes from a list of valid scopes. If the
      * requested scopes are not in that valid list, it will throw an exception.
@@ -132,5 +130,66 @@ public final class ValidationUtil {
             return new TreeMap<>();
         }
         return validateScope(requestedScopes.split(" "), validScopes);
+    }
+
+    /**
+     * Revalidates a list of provided scopes against the originally granted
+     * scopes, as well as the current list of valid scopes. If the list of
+     * valid scopes has changed since the original grant list, any missing
+     * scopes will be quietly dropped.
+     *
+     * @param requestedScopes An array of requested scopes.
+     * @param originalScopes  The original set of scopes.
+     * @param validScopes     The current list of valid scopes.
+     * @return A list of the requested scopes, as database instances.
+     */
+    public static SortedMap<String, ApplicationScope> revalidateScope(
+            final String[] requestedScopes,
+            final SortedMap<String, ApplicationScope> originalScopes,
+            final SortedMap<String, ApplicationScope> validScopes) {
+
+        if (validScopes == null || originalScopes == null) {
+            throw new InvalidScopeException();
+        }
+
+        if (requestedScopes == null || requestedScopes.length == 0) {
+            return new TreeMap<>();
+        }
+
+        // Reduce the valid scope list down by the original scopes.
+        SortedMap<String, ApplicationScope> results = new TreeMap<>();
+        for (String scope : requestedScopes) {
+            if (validScopes.containsKey(scope)) {
+                if (!originalScopes.containsKey(scope)) {
+                    throw new InvalidScopeException();
+                }
+                results.put(scope, validScopes.get(scope));
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Revalidates a list of provided scopes against the originally granted
+     * scopes, as well as the current list of valid scopes. If the list of
+     * valid scopes has changed since the original grant list, any missing
+     * scopes will be quietly dropped.
+     *
+     * @param requestedScopes An array of requested scopes.
+     * @param originalScopes  The original set of scopes.
+     * @param validScopes     The current list of valid scopes.
+     * @return A list of the requested scopes, as database instances.
+     */
+    public static SortedMap<String, ApplicationScope> revalidateScope(
+            final String requestedScopes,
+            final SortedMap<String, ApplicationScope> originalScopes,
+            final SortedMap<String, ApplicationScope> validScopes) {
+        if (StringUtils.isEmpty(requestedScopes)) {
+            return new TreeMap<>();
+        }
+        return revalidateScope(requestedScopes.split(" "),
+                originalScopes,
+                validScopes);
     }
 }

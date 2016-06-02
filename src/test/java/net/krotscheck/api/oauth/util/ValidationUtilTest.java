@@ -38,8 +38,19 @@ import java.util.TreeMap;
  */
 public final class ValidationUtilTest {
 
+    /**
+     * List of valid scopes to test against.
+     */
     private SortedMap<String, ApplicationScope> validScopes;
 
+    /**
+     * List of valid scopes to test against.
+     */
+    private SortedMap<String, ApplicationScope> emptyScope = new TreeMap<>();
+
+    /**
+     * Bootstrap this test.
+     */
     @Before
     public void setupTest() {
         validScopes = new TreeMap<>();
@@ -258,5 +269,159 @@ public final class ValidationUtilTest {
                 ValidationUtil.validateScope(new String[]{"debug1"},
                         new TreeMap<>());
         Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a basic test passes using a request array.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateRequestArray() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(
+                        new String[]{"debug1"}, validScopes, validScopes);
+        Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that a basic test passes using a request string.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateRequestString() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(
+                        "debug1", validScopes, validScopes);
+        Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that an empty request string works.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateEmptyRequestString() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(
+                        "", validScopes, validScopes);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a null request string passes.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateNullRequestString() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope((String) null, validScopes,
+                        validScopes);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that an empty request array works.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateEmptyRequestArray() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(new String[]{}, validScopes,
+                        validScopes);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a null request array fails.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateNullRequestArray() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope((String[]) null, validScopes,
+                        validScopes);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that an empty original scope works.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateEmptyOriginalScope() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(new String[]{}, emptyScope,
+                        validScopes);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a null original scope fails.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testRevalidateNullOriginalScope() throws Exception {
+        ValidationUtil.revalidateScope(new String[]{}, null, validScopes);
+    }
+
+    /**
+     * Assert that an empty valid scope list works.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateEmptyValidScope() throws Exception {
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(new String[]{}, validScopes,
+                        emptyScope);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a null valid scope list fails.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testRevalidateNullValidScope() throws Exception {
+        ValidationUtil.revalidateScope(new String[]{"debug"}, validScopes,
+                null);
+    }
+
+    /**
+     * Assert that we cannot escalate scope.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testRevalidateCannotEscalateRequestScope() throws Exception {
+        SortedMap<String, ApplicationScope> granted = new TreeMap<>();
+        granted.put("debug1", new ApplicationScope());
+        ValidationUtil.revalidateScope(
+                new String[]{"debug", "debug1"}, granted, validScopes);
+    }
+
+    /**
+     * Assert that shrinking valid scopes pass.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateValidScopesShrank() throws Exception {
+        SortedMap<String, ApplicationScope> shrunkScopes = new TreeMap<>();
+        shrunkScopes.put("debug1", new ApplicationScope());
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(
+                        new String[]{"debug", "debug1"}, validScopes,
+                        shrunkScopes);
+        Assert.assertEquals(1, scopes.size());
     }
 }
