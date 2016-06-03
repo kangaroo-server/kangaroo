@@ -37,6 +37,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -251,6 +252,10 @@ public final class DatabaseManager {
      */
     public void setupDatabase() throws Exception {
         logger.info("Migrating Database Schema.");
+
+        // Force the database to use UTC.
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         Class.forName(System.getProperty("test.db.driver", DRIVER));
         conn = DriverManager.getConnection(
