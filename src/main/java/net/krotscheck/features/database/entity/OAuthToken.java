@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.SortNatural;
 
+import java.util.Calendar;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.persistence.Basic;
@@ -206,6 +207,24 @@ public final class OAuthToken extends AbstractEntity {
      */
     public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
         this.scopes = new TreeMap<>(scopes);
+    }
+
+    /**
+     * This method returns true if the created time, plus the expiration
+     * seconds, is less than the current time.
+     *
+     * @return True of this token is expired, otherwise false.
+     */
+    @JsonIgnore
+    public boolean isExpired() {
+        if (getCreatedDate() == null) {
+            return true;
+        }
+
+        Calendar now = Calendar.getInstance();
+        Calendar expireDate = (Calendar) getCreatedDate().clone();
+        expireDate.add(Calendar.SECOND, (int) getExpiresIn());
+        return now.after(expireDate);
     }
 
     /**

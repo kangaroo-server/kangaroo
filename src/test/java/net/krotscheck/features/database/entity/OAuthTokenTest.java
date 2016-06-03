@@ -25,19 +25,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.OAuthToken.Deserializer;
-import net.krotscheck.features.jackson.ObjectMapperFactory;
 import net.krotscheck.test.JacksonUtil;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -129,6 +127,43 @@ public final class OAuthTokenTest {
         token.setScopes(scopes);
         Assert.assertEquals(scopes, token.getScopes());
         Assert.assertNotSame(scopes, token.getScopes());
+    }
+
+    /**
+     * Test isExpired().
+     */
+    @Test
+    public void testIsExpired() {
+        OAuthToken token = new OAuthToken();
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+        TimeZone pdt = TimeZone.getTimeZone("PDT");
+
+        Calendar recentUTC = Calendar.getInstance(utc);
+        recentUTC.add(Calendar.SECOND, -100);
+
+        Calendar recentPDT = Calendar.getInstance(pdt);
+        recentPDT.add(Calendar.SECOND, -100);
+
+        // Test null createdDate.
+        Assert.assertTrue(token.isExpired());
+
+        // Test UTC Non-Expired Token.
+        token.setCreatedDate(recentUTC);
+        token.setExpiresIn(103);
+        Assert.assertFalse(token.isExpired());
+
+        // Expire the token.
+        token.setExpiresIn(99);
+        Assert.assertTrue(token.isExpired());
+
+        // Test Non-UTC Non-Expired Token.
+        token.setCreatedDate(recentPDT);
+        token.setExpiresIn(103);
+        Assert.assertFalse(token.isExpired());
+
+        // Expire the token.
+        token.setExpiresIn(99);
+        Assert.assertTrue(token.isExpired());
     }
 
     /**
