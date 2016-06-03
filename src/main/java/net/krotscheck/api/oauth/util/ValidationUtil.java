@@ -159,10 +159,9 @@ public final class ValidationUtil {
         // Reduce the valid scope list down by the original scopes.
         SortedMap<String, ApplicationScope> results = new TreeMap<>();
         for (String scope : requestedScopes) {
-            if (validScopes.containsKey(scope)) {
-                if (!originalScopes.containsKey(scope)) {
-                    throw new InvalidScopeException();
-                }
+            if (!originalScopes.containsKey(scope)) {
+                throw new InvalidScopeException();
+            } else if (validScopes.containsKey(scope)) {
                 results.put(scope, validScopes.get(scope));
             }
         }
