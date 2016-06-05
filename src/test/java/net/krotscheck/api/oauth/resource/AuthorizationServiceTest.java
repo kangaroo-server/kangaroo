@@ -17,16 +17,23 @@
 
 package net.krotscheck.api.oauth.resource;
 
-import net.krotscheck.features.config.ConfigurationFeature;
-import net.krotscheck.features.database.DatabaseFeature;
-import net.krotscheck.features.exception.ExceptionFeature;
-import net.krotscheck.features.jackson.JacksonFeature;
+import net.krotscheck.api.oauth.OAuthTestApp;
+import net.krotscheck.features.database.entity.AuthenticatorState;
+import net.krotscheck.features.database.entity.ClientType;
+import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.ContainerTest;
-import org.glassfish.jersey.server.ResourceConfig;
+import net.krotscheck.test.EnvironmentBuilder;
+import org.apache.http.HttpStatus;
 import org.glassfish.jersey.test.TestProperties;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+import java.util.Map;
+import java.util.UUID;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -40,6 +47,11 @@ import javax.ws.rs.core.Response;
 public final class AuthorizationServiceTest extends ContainerTest {
 
     /**
+     * Simple testing context.
+     */
+    private EnvironmentBuilder context;
+
+    /**
      * Build and configure the application.
      *
      * @return A configured application.
@@ -49,25 +61,158 @@ public final class AuthorizationServiceTest extends ContainerTest {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
 
-        ResourceConfig a = new ResourceConfig();
-        a.register(ConfigurationFeature.class);
-        a.register(ExceptionFeature.class);
-        a.register(JacksonFeature.class);
-        a.register(DatabaseFeature.class);
-        a.register(AuthorizationService.class);
-
-        return a;
+        return new OAuthTestApp();
     }
 
     /**
-     * Smoke test. Does this endpoint exist?
+     * Set up the test harness data.
+     */
+    @Before
+    public void createTestData() {
+        context = setupEnvironment()
+                .client(ClientType.Implicit)
+                .authenticator("foo")
+                .redirect("http://valid.example.com/redirect");
+    }
+
+    /**
+     * Assert that an invalid grant type is rejected.
      */
     @Test
-    public void testSmoke() {
-        Response response = target("/authorize")
+    public void testInvalidResponseType() {
+        Response r = target("/authorize")
+                .queryParam("response_type", "invalid")
+                .queryParam("client_id", context.getClient().getId())
                 .request()
                 .get();
 
-        Assert.assertNotEquals(404, response.getStatus());
+        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+
+        URI location = r.getLocation();
+        Map<String, String> params = parseQueryParams(location.getFragment());
+        Assert.assertEquals("valid.example.com", location.getHost());
+        Assert.assertEquals("/redirect", location.getPath());
+        Assert.assertEquals("unsupported_response_type", params.get("error"));
+        Assert.assertNotNull(params.get("error_description"));
+    }
+
+    /**
+     * Assert that an valid grant type is accepted.
+     */
+    @Test
+    public void testValidResponseType() {
+        Response r = target("/authorize")
+                .queryParam("response_type", "test")
+                .queryParam("client_id", context.getClient().getId())
+                .request()
+                .get();
+
+        URI location = r.getLocation();
+        Map<String, String> params = parseQueryParams(location.getFragment());
+        Assert.assertEquals("valid.example.com", location.getHost());
+        Assert.assertEquals("/redirect", location.getPath());
+        Assert.assertEquals("unsupported_response_type", params.get("error"));
+        Assert.assertNotNull(params.get("error_description"));
+    }
+
+    /**
+     * Assert that an valid grant type is accepted.
+     */
+    @Test
+    public void testCallbackMalformedStateId() {
+        Response r = target("/authorize/callback")
+                .queryParam("state", "not_a_parseable_uuid")
+                .request()
+                .get();
+
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        ErrorResponse e = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", e.getError());
+        Assert.assertNotNull(e.getErrorDescription());
+    }
+
+    /**
+     * Assert that an valid grant type is accepted.
+     */
+    @Test
+    public void testCallbackInvalidStateId() {
+        Response r = target("/authorize/callback")
+                .queryParam("state", UUID.randomUUID().toString())
+                .request()
+                .get();
+
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        ErrorResponse e = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", e.getError());
+        Assert.assertNotNull(e.getErrorDescription());
+    }
+
+    /**
+     * Test against an unimplemented authenticator. This test should
+     * technically never be triggered, but we're checking it anyway.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testCallbackUnimplementedAuthenticator() throws Exception {
+        AuthenticatorState state = new AuthenticatorState();
+        state.setClient(context.getClient());
+        state.setAuthenticator(context.getAuthenticator());
+        state.setClientRedirect(new URI("http://valid.example.com/redirect"));
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(state);
+        t.commit();
+
+        Response r = target("/authorize/callback")
+                .queryParam("state", state.getId().toString())
+                .request()
+                .get();
+
+        URI location = r.getLocation();
+        Map<String, String> params = parseQueryParams(location.getFragment());
+        Assert.assertEquals("valid.example.com", location.getHost());
+        Assert.assertEquals("/redirect", location.getPath());
+        Assert.assertEquals("invalid_request", params.get("error"));
+        Assert.assertNotNull(params.get("error_description"));
+    }
+
+    /**
+     * If, for some inexplicable reason, an AuthenticatorState was created
+     * linked to a non-implicit or authorization-grant client, we should make
+     * sure that the request errors.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testCallbackStateWithInvalidClientType() throws Exception {
+
+        EnvironmentBuilder ownerContext = setupEnvironment()
+                .client(ClientType.OwnerCredentials)
+                .authenticator("test")
+                .redirect("http://valid.example.com/redirect");
+
+        AuthenticatorState state = new AuthenticatorState();
+        state.setClient(ownerContext.getClient());
+        state.setAuthenticator(ownerContext.getAuthenticator());
+        state.setClientRedirect(new URI("http://valid.example.com/redirect"));
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(state);
+        t.commit();
+
+        Response r = target("/authorize/callback")
+                .queryParam("state", state.getId().toString())
+                .request()
+                .get();
+
+        URI location = r.getLocation();
+        Map<String, String> params = parseQueryParams(location.getQuery());
+        Assert.assertEquals("valid.example.com", location.getHost());
+        Assert.assertEquals("/redirect", location.getPath());
+        Assert.assertEquals("invalid_request", params.get("error"));
+        Assert.assertNotNull(params.get("error_description"));
     }
 }
