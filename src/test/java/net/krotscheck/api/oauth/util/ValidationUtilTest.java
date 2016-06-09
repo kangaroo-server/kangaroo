@@ -20,6 +20,7 @@ package net.krotscheck.api.oauth.util;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.features.database.entity.ApplicationScope;
+import net.krotscheck.features.database.entity.Authenticator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,9 @@ import org.junit.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -415,5 +418,94 @@ public final class ValidationUtilTest {
                         new String[]{"debug", "debug1"}, validScopes,
                         shrunkScopes);
         Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Check simple valid authenticator.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateAuthenticator() throws Exception {
+        List<Authenticator> testList = new ArrayList<>();
+
+        Authenticator one = new Authenticator();
+        one.setType("one");
+        Authenticator two = new Authenticator();
+        two.setType("two");
+        testList.add(one);
+        testList.add(two);
+
+        Authenticator result = ValidationUtil.validateAuthenticator("two",
+                testList);
+        Assert.assertEquals(result, two);
+    }
+
+    /**
+     * Check simple valid authenticator.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testInvalidAuthenticator() throws Exception {
+        List<Authenticator> testList = new ArrayList<>();
+
+        Authenticator one = new Authenticator();
+        one.setType("one");
+        Authenticator two = new Authenticator();
+        two.setType("two");
+        testList.add(one);
+        testList.add(two);
+
+        ValidationUtil.validateAuthenticator("three", testList);
+    }
+
+    /**
+     * Test fallback to default.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateAuthenticatorDefault() throws Exception {
+        List<Authenticator> testList = new ArrayList<>();
+
+        Authenticator one = new Authenticator();
+        one.setType("one");
+        testList.add(one);
+
+        Authenticator result = ValidationUtil.validateAuthenticator(null,
+                testList);
+        Assert.assertEquals(result, one);
+    }
+
+    /**
+     * Test fallback to default if there's too many.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testValidateAuthenticatorDefaultTooMany() throws Exception {
+        List<Authenticator> testList = new ArrayList<>();
+
+        Authenticator one = new Authenticator();
+        one.setType("one");
+        Authenticator two = new Authenticator();
+        two.setType("two");
+        testList.add(one);
+        testList.add(two);
+
+        ValidationUtil.validateAuthenticator(null, testList);
+    }
+
+    /**
+     * Test authenticator check with none in the input set.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testValidateAuthenticatorNoOptions() throws Exception {
+        List<Authenticator> testList = new ArrayList<>();
+
+        ValidationUtil.validateAuthenticator(null, testList);
     }
 }

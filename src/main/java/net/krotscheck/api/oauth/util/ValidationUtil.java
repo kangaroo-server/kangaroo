@@ -20,9 +20,11 @@ package net.krotscheck.api.oauth.util;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.features.database.entity.ApplicationScope;
+import net.krotscheck.features.database.entity.Authenticator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -191,5 +193,41 @@ public final class ValidationUtil {
         return revalidateScope(requestedScopes.split(" "),
                 originalScopes,
                 validScopes);
+    }
+
+    /**
+     * Ensure that an authenticator, requested by name, is valid within a
+     * specific list of authenticators. If no string is provided, and yet the
+     * list of authenticators only contains one, this will default to that
+     * authenticator.
+     *
+     * @param authenticator  The requested authenticator string.
+     * @param authenticators The list of authenticators to test against.
+     * @return The valid authenticator.
+     */
+    public static Authenticator validateAuthenticator(
+            final String authenticator,
+            final List<Authenticator> authenticators) {
+        // Quick exit
+        if (authenticators.size() == 0) {
+            throw new InvalidRequestException();
+        }
+
+        // Can we default?
+        if (StringUtils.isEmpty(authenticator)) {
+            if (authenticators.size() == 1) {
+                return authenticators.get(0);
+            } else {
+                throw new InvalidRequestException();
+            }
+        }
+
+        // Iterate through the set, comparing as we go.
+        for (Authenticator test : authenticators) {
+            if (test.getType().equals(authenticator)) {
+                return test;
+            }
+        }
+        throw new InvalidRequestException();
     }
 }
