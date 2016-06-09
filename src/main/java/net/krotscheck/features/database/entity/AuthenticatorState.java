@@ -17,16 +17,16 @@
 
 package net.krotscheck.features.database.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.SortNatural;
 
+import java.net.URI;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.persistence.Basic;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -34,6 +34,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 /**
@@ -52,8 +53,6 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client", nullable = false, updatable = false)
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonDeserialize(using = Client.Deserializer.class)
     private Client client;
 
     /**
@@ -61,23 +60,7 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authenticator", nullable = false, updatable = false)
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonDeserialize(using = Authenticator.Deserializer.class)
     private Authenticator authenticator;
-
-    /**
-     * The stored request state for the authenticator.
-     */
-    @Basic(optional = false)
-    @Column(name = "authenticatorState", unique = false)
-    private String authenticatorState;
-
-    /**
-     * The stored request nonce for the authenticator.
-     */
-    @Basic(optional = false)
-    @Column(name = "authenticatorNonce", unique = false)
-    private String authenticatorNonce;
 
     /**
      * The client's state.
@@ -87,27 +70,36 @@ public final class AuthenticatorState extends AbstractEntity {
     private String clientState;
 
     /**
-     * List of the application's scopes.
+     * The client's state.
+     */
+    @Basic(optional = false)
+    @Column(name = "clientRedirect", unique = false)
+    private URI clientRedirect;
+
+    /**
+     * List of the requested client scopes.
      */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "authenticator_state_scopes",
             joinColumns = {
-                    @JoinColumn(name = "token",
+                    @JoinColumn(name = "authenticator_state",
                             nullable = false, updatable = false)},
             inverseJoinColumns = {
                     @JoinColumn(name = "scope",
                             nullable = false, updatable = false)})
-    @JsonIgnore
     @MapKey(name = "name")
     @SortNatural
-    private SortedMap<String, ApplicationScope> clientScope;
+    private SortedMap<String, ApplicationScope> clientScopes;
 
     /**
-     * The nonce attached to the client's request.
+     * Intermediate storage cache for data needed when the request comes back.
      */
-    @Basic(optional = false)
-    @Column(name = "clientNonce", unique = false)
-    private String clientNonce;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "authenticator_state_params",
+            joinColumns = @JoinColumn(name = "authenticator_state"))
+    @MapKeyColumn(name = "name")
+    @Column(name = "value")
+    private Map<String, String> authenticatorStateParams;
 
     /**
      * Retrieve the client.
@@ -146,39 +138,59 @@ public final class AuthenticatorState extends AbstractEntity {
     }
 
     /**
-     * Retrieve the state passed to the authenticator.
+     * Get the validated client redirection URI.
      *
-     * @return The state which the authenticator received.
+     * @return The URI which the client requested a result response to.
      */
-    public String getAuthenticatorState() {
-        return authenticatorState;
+    public URI getClientRedirect() {
+        return clientRedirect;
     }
 
     /**
-     * Set a new authenticator state.
+     * Set a new redirection URI.
      *
-     * @param authenticatorState A new auth state.
+     * @param clientRedirect The redirection URI.
      */
-    public void setAuthenticatorState(final String authenticatorState) {
-        this.authenticatorState = authenticatorState;
+    public void setClientRedirect(final URI clientRedirect) {
+        this.clientRedirect = clientRedirect;
     }
 
     /**
-     * Get the cryptographic nonce for the authentication request.
+     * The list of requested application scopes.
      *
-     * @return The nonce.
+     * @return The list of scopes.
      */
-    public String getAuthenticatorNonce() {
-        return authenticatorNonce;
+    public SortedMap<String, ApplicationScope> getClientScopes() {
+        return clientScopes;
     }
 
     /**
-     * Set an authentication nonce.
+     * Set the list of client scopes.
      *
-     * @param authenticatorNonce A cryptographic nonce.
+     * @param clientScopes A new list of scopes.
      */
-    public void setAuthenticatorNonce(final String authenticatorNonce) {
-        this.authenticatorNonce = authenticatorNonce;
+    public void setClientScopes(
+            final SortedMap<String, ApplicationScope> clientScopes) {
+        this.clientScopes = new TreeMap<>(clientScopes);
+    }
+
+    /**
+     * Get the list of parameters persisted by the authenticator.
+     *
+     * @return The list of parameters.
+     */
+    public Map<String, String> getAuthenticatorStateParams() {
+        return authenticatorStateParams;
+    }
+
+    /**
+     * Persist a list of state parameters for this authenticator.
+     *
+     * @param authenticatorStateParams A new list of parameters.
+     */
+    public void setAuthenticatorStateParams(
+            final Map<String, String> authenticatorStateParams) {
+        this.authenticatorStateParams = new TreeMap<>(authenticatorStateParams);
     }
 
     /**
@@ -197,58 +209,5 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     public void setClientState(final String clientState) {
         this.clientState = clientState;
-    }
-
-    /**
-     * Retreive the scope received from the client.
-     *
-     * @return The client's scope.
-     */
-    public SortedMap<String, ApplicationScope> getClientScope() {
-        return clientScope;
-    }
-
-    /**
-     * Store the scope received from the client.
-     *
-     * @param clientScope A new client scope.
-     */
-    public void setClientScope(
-            final SortedMap<String, ApplicationScope> clientScope) {
-        this.clientScope = new TreeMap<>(clientScope);
-    }
-
-    /**
-     * Retrieve the client nonce.
-     *
-     * @return The client's nonce.
-     */
-    public String getClientNonce() {
-        return clientNonce;
-    }
-
-    /**
-     * Set the client's nonce.
-     *
-     * @param clientNonce The client's nonce.
-     */
-    public void setClientNonce(final String clientNonce) {
-        this.clientNonce = clientNonce;
-    }
-
-    /**
-     * Deserialize a reference to an Authenticator.
-     *
-     * @author Michael Krotschecks
-     */
-    public static final class Deserializer
-            extends AbstractEntityReferenceDeserializer<AuthenticatorState> {
-
-        /**
-         * Constructor.
-         */
-        public Deserializer() {
-            super(AuthenticatorState.class);
-        }
     }
 }

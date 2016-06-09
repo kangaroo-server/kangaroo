@@ -515,25 +515,13 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: authenticatorState
-                type: varchar(255)
-                constraints:
-                  nullable: false
-                  unique: true
-            - column:
-                name: authenticatorNonce
-                type: varchar(255)
-                constraints:
-                  nullable: false
-                  unique: true
-            - column:
                 name: clientState
                 type: varchar(255)
                 constraints:
                   nullable: false
                   unique: true
             - column:
-                name: clientNonce
+                name: clientRedirect
                 type: varchar(255)
                 constraints:
                   nullable: false
@@ -544,13 +532,6 @@ databaseChangeLog:
               name: clientState
               type: varchar(255)
           indexName: idx_authenticator_states_client_state
-          tableName: authenticator_states
-      - createIndex:
-          columns:
-          - column:
-              name: authenticatorState
-              type: varchar(255)
-          indexName: idx_authenticator_states_authenticator_state
           tableName: authenticator_states
       - addForeignKeyConstraint:
           baseColumnNames: authenticator
@@ -569,12 +550,61 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: clients
 
-      # An authenticator state should list some scopes which it is applying for.
+      # An authenticator may cache between-request information in this table.
+      # This could include things like nonces, timestamps, encryption keys,
+      # or more.
+      - createTable:
+          tableName: authenticator_state_params
+          columns:
+            - column:
+                name: authenticator_state
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: true
+      - createIndex:
+          columns:
+          - column:
+              name: authenticator_state
+              type: varchar(255)
+          indexName: idx_authenticator_state_params_authenticator_state
+          tableName: authenticator_state_params
+      - createIndex:
+          columns:
+          - column:
+              name: name
+              type: varchar(255)
+          indexName: idx_authenticator_state_params_name
+          tableName: authenticator_state_params
+      - addUniqueConstraint:
+          columnNames: authenticator_state, name
+          constraintName: uq_authenticator_state_params_authenticator_state_name
+          tableName: authenticator_state_params
+      - addForeignKeyConstraint:
+          baseColumnNames: authenticator_state
+          baseTableName: authenticator_state_params
+          constraintName: fk_authenticator_state_params_authenticators
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: authenticator_states
+
+      # An intermediate authenticator state must keep track of the requested
+      # scopes.
       - createTable:
           tableName: authenticator_state_scopes
           columns:
             - column:
-                name: state
+                name: authenticator_state
                 type: BINARY(16)
                 constraints:
                   nullable: false
@@ -586,9 +616,9 @@ databaseChangeLog:
       - createIndex:
           columns:
           - column:
-              name: state
+              name: authenticator_state
               type: BINARY(16)
-          indexName: idx_authenticator_state_scopes_state
+          indexName: idx_authenticator_state_scopes_authenticator_state
           tableName: authenticator_state_scopes
       - createIndex:
           columns:
@@ -606,15 +636,15 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: application_scopes
       - addForeignKeyConstraint:
-          baseColumnNames: state
+          baseColumnNames: authenticator_state
           baseTableName: authenticator_state_scopes
-          constraintName: fk_authenticator_state_scopes_state
+          constraintName: fk_authenticator_state_scopes_authenticator_state
           onDelete: CASCADE
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: authenticator_states
       - addUniqueConstraint:
-          columnNames: state, scope
+          columnNames: authenticator_state, scope
           constraintName: uq_authenticator_state_scopes_authenticator_state_scopes
           tableName: authenticator_state_scopes
 
@@ -857,6 +887,8 @@ databaseChangeLog:
             tableName: user_identities
         - dropTable:
             tableName: authenticator_state_scopes
+        - dropTable:
+            tableName: authenticator_state_params
         - dropTable:
             tableName: authenticator_states
         - dropTable:
