@@ -23,9 +23,14 @@ import com.fasterxml.jackson.core.JsonParseException;
 import net.krotscheck.features.exception.exception.HttpStatusException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -194,19 +199,44 @@ public final class ErrorResponseBuilder {
      * @return HTTP Response object for this error.
      */
     public Response build() {
-        if (response.getRedirectUrl() != null) {
-            UriBuilder builder = UriBuilder.fromUri(response.getRedirectUrl());
-            builder.queryParam("error", response.error);
-            builder.queryParam("error_description", response.errorDescription);
-            return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
-                    .header(HttpHeaders.LOCATION, builder.build())
-                    .build();
-        } else {
+        return build(false);
+    }
+
+    /**
+     * Build a response, with the option of adding a the response error
+     * parameters to the redirect gragment, rather than the query string.
+     *
+     * @param fragment Whether the error codes should be in the fragment or
+     *                 the query string.
+     * @return A constructed response.
+     */
+    public Response build(final boolean fragment) {
+        if (response.getRedirectUrl() == null) {
             return Response.status(response.httpStatus)
                     .type(MediaType.APPLICATION_JSON)
                     .entity(response)
                     .build();
         }
+
+        UriBuilder builder = UriBuilder.fromUri(response.getRedirectUrl());
+
+        // Where do we put the response parameters?
+        if (!fragment) {
+            builder.queryParam("error", response.error);
+            builder.queryParam("error_description",
+                    response.errorDescription);
+        } else {
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("error",
+                    response.error));
+            params.add(new BasicNameValuePair("error_description",
+                    response.errorDescription));
+
+            builder.fragment(URLEncodedUtils.format(params, "UTF-8"));
+        }
+        return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
+                .header(HttpHeaders.LOCATION, builder.build())
+                .build();
     }
 
     /**
