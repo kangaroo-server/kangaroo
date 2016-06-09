@@ -17,6 +17,7 @@
 
 package net.krotscheck.api.oauth.util;
 
+import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.features.database.entity.ApplicationScope;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,7 @@ public final class ValidationUtil {
                                        final Set<URI> redirects) {
         // Quick exit
         if (redirects.size() == 0) {
-            return null;
+            throw new InvalidRequestException();
         }
 
         // Can we default?
@@ -63,7 +64,7 @@ public final class ValidationUtil {
                         redirects.toArray(new URI[redirects.size()]);
                 return redirectArray[0];
             } else {
-                return null;
+                throw new InvalidRequestException();
             }
         }
 
@@ -72,7 +73,7 @@ public final class ValidationUtil {
         try {
             redirectUri = UriBuilder.fromUri(redirect).build();
         } catch (Exception e) {
-            return null;
+            throw new InvalidRequestException();
         }
 
         // Iterate through the set, comparing as we go.
@@ -81,7 +82,7 @@ public final class ValidationUtil {
                 return redirectUri;
             }
         }
-        return null;
+        throw new InvalidRequestException();
     }
 
     /**

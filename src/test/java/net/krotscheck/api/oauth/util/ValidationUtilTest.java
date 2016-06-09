@@ -17,6 +17,7 @@
 
 package net.krotscheck.api.oauth.util;
 
+import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.features.database.entity.ApplicationScope;
 import org.junit.Assert;
@@ -61,7 +62,7 @@ public final class ValidationUtilTest {
     /**
      * Assert that the header is private.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
     @Test
     public void testPrivateConstructor() throws Exception {
@@ -76,7 +77,7 @@ public final class ValidationUtilTest {
     /**
      * Check simple valid redirect.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
     @Test
     public void testValidateRedirect() throws Exception {
@@ -92,75 +93,66 @@ public final class ValidationUtilTest {
     /**
      * Check simple valid redirect.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
-    @Test
+    @Test(expected = InvalidRequestException.class)
     public void testInvalidRedirect() throws Exception {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://one.example.com"));
         testSet.add(new URI("http://two.example.com"));
 
-        URI result = ValidationUtil.validateRedirect("http://three.example.com",
-                testSet);
-        Assert.assertNull(result);
+        ValidationUtil.validateRedirect("http://three.example.com", testSet);
     }
 
     /**
      * Test fallback to default.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
     @Test
     public void testValidateRedirectDefault() throws Exception {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://two.example.com"));
 
-        URI result = ValidationUtil.validateRedirect("",
-                testSet);
+        URI result = ValidationUtil.validateRedirect("", testSet);
         Assert.assertEquals("http://two.example.com", result.toString());
     }
 
     /**
      * Test fallback to default if there's too many.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
-    @Test
+    @Test(expected = InvalidRequestException.class)
     public void testValidateRedirectDefaultTooMany() throws Exception {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://one.example.com"));
         testSet.add(new URI("http://two.example.com"));
 
-        URI result = ValidationUtil.validateRedirect("",
-                testSet);
-        Assert.assertNull(result);
+        ValidationUtil.validateRedirect("", testSet);
     }
 
     /**
      * Test redirect check with none in the input set.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
-    @Test
+    @Test(expected = InvalidRequestException.class)
     public void testValidateRedirectNoOptions() throws Exception {
-        URI result = ValidationUtil.validateRedirect("http://two.example.com",
+        ValidationUtil.validateRedirect("http://two.example.com",
                 new HashSet<>());
-        Assert.assertNull(result);
     }
 
     /**
      * Test that a malformed input URI results in a null response.
      *
-     * @throws Exception Should not be thrown.
+     * @throws Exception Thrown if validation fails.
      */
-    @Test
+    @Test(expected = InvalidRequestException.class)
     public void testValidateRedirectMalformed() throws Exception {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://two.example.com"));
-
-        URI result = ValidationUtil.validateRedirect("http:\\",
-                testSet);
-        Assert.assertNull(result);
+        ValidationUtil.validateRedirect("http:\\", testSet);
     }
 
     /**
