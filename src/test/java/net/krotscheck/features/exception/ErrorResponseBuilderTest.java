@@ -132,7 +132,7 @@ public final class ErrorResponseBuilderTest {
      * Test building with a redirect.
      */
     @Test
-    public void testFromHttpStatusRedirectException() {
+    public void testRedirectException() {
         URI uri = UriBuilder.fromPath("http://example.com").build();
         HttpStatusException e =
                 new HttpStatusException(HttpStatus.SC_NOT_FOUND, "foo", uri);
@@ -143,6 +143,24 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
         Assert.assertEquals("http://example.com/"
                 + "?error=not_found"
+                + "&error_description=foo", location.toString());
+    }
+
+    /**
+     * Test building with a redirect that requests fragment encoding.
+     */
+    @Test
+    public void testRedirectFragmentException() {
+        URI uri = UriBuilder.fromPath("http://example.com").build();
+        HttpStatusException e =
+                new HttpStatusException(HttpStatus.SC_NOT_FOUND, "foo", uri);
+
+        Response r = ErrorResponseBuilder.from(e).build(true);
+
+        URI location = r.getLocation();
+        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals("http://example.com/"
+                + "#error=not_found"
                 + "&error_description=foo", location.toString());
     }
 
