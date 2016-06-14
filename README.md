@@ -43,3 +43,6 @@
 * Implement Google Auth authenticator.
 * Implement Facebook authenticator.
 * Everything Else.
+* Callback states should be cleaned if abandoned.
+* Tokens should be cleaned once expired.
+* Additional parameters in redirect responses should be honored.
