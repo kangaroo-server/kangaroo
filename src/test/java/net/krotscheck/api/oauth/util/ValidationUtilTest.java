@@ -17,10 +17,14 @@
 
 package net.krotscheck.api.oauth.util;
 
+import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidGrantException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnsupportedResponseType;
 import net.krotscheck.features.database.entity.ApplicationScope;
 import net.krotscheck.features.database.entity.Authenticator;
+import net.krotscheck.features.database.entity.Client;
+import net.krotscheck.features.database.entity.ClientType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -507,5 +511,85 @@ public final class ValidationUtilTest {
         List<Authenticator> testList = new ArrayList<>();
 
         ValidationUtil.validateAuthenticator(null, testList);
+    }
+
+    /**
+     * Assert that an implicit client can ask for the 'token' response type.
+     */
+    @Test
+    public void testResponseTypeValidImplicitResponseType() {
+        Client c = new Client();
+        c.setType(ClientType.Implicit);
+
+        ValidationUtil.validateResponseType(c, "token");
+        Assert.assertTrue(true);
+    }
+
+    /**
+     * Assert that an authorization grant client can ask for the 'code'
+     * response type.
+     */
+    @Test
+    public void testResponseTypeValidGrantResponseType() {
+        Client c = new Client();
+        c.setType(ClientType.AuthorizationGrant);
+
+        ValidationUtil.validateResponseType(c, "code");
+        Assert.assertTrue(true);
+    }
+
+    /**
+     * Assert that client/code mismatch on implicit fails.
+     */
+    @Test(expected = UnsupportedResponseType.class)
+    public void testResponseTypeMismatchedImplicitType() {
+        Client c = new Client();
+        c.setType(ClientType.Implicit);
+
+        ValidationUtil.validateResponseType(c, "code");
+    }
+
+    /**
+     * Assert that client/code mismatch on authorization grant fails.
+     */
+    @Test(expected = UnsupportedResponseType.class)
+    public void testResponseTypeMismatchedGrantType() {
+        Client c = new Client();
+        c.setType(ClientType.AuthorizationGrant);
+
+        ValidationUtil.validateResponseType(c, "token");
+    }
+
+    /**
+     * Assert that some other grant combination fails..
+     */
+    @Test(expected = UnsupportedResponseType.class)
+    public void testResponseTypeBogusType() {
+        Client c = new Client();
+        c.setType(ClientType.OwnerCredentials);
+
+        ValidationUtil.validateResponseType(c, "code");
+    }
+
+    /**
+     * Assert that null passed values cause issues as expected.
+     */
+    @Test(expected = UnsupportedResponseType.class)
+    public void testResponseTypeNullResponseType() {
+        Client c = new Client();
+        c.setType(ClientType.OwnerCredentials);
+
+        ValidationUtil.validateResponseType(c, null);
+    }
+
+    /**
+     * Assert that null passed values cause issues as expected.
+     */
+    @Test(expected = UnsupportedResponseType.class)
+    public void testResponseTypeNullClient() {
+        Client c = new Client();
+        c.setType(ClientType.OwnerCredentials);
+
+        ValidationUtil.validateResponseType(null, "code");
     }
 }
