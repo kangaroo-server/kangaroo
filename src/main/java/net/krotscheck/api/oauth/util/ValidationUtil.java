@@ -19,8 +19,11 @@ package net.krotscheck.api.oauth.util;
 
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnsupportedResponseType;
 import net.krotscheck.features.database.entity.ApplicationScope;
 import net.krotscheck.features.database.entity.Authenticator;
+import net.krotscheck.features.database.entity.Client;
+import net.krotscheck.features.database.entity.ClientType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
@@ -42,6 +45,26 @@ public final class ValidationUtil {
      */
     private ValidationUtil() {
 
+    }
+
+    /**
+     * Validate that a response type is appropriate for a given client.
+     *
+     * @param client       The client to check.
+     * @param responseType The requested response type.
+     */
+    public static void validateResponseType(final Client client,
+                                            final String responseType) {
+        if (client != null) {
+            if (ClientType.Implicit.equals(client.getType())
+                    && "token".equals(responseType)) {
+                return;
+            } else if (ClientType.AuthorizationGrant.equals(client.getType())
+                    && "code".equals(responseType)) {
+                return;
+            }
+        }
+        throw new UnsupportedResponseType();
     }
 
     /**
