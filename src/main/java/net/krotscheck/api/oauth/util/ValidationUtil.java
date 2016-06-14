@@ -25,12 +25,18 @@ import net.krotscheck.features.database.entity.Authenticator;
 import net.krotscheck.features.database.entity.Client;
 import net.krotscheck.features.database.entity.ClientType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 /**
@@ -101,13 +107,59 @@ public final class ValidationUtil {
             throw new InvalidRequestException();
         }
 
-        // Iterate through the set, comparing as we go.
+        // Convert the query parameters into a multivaluedMap
+        MultivaluedMap<String, String> params = extractParams(redirectUri);
+        Set<String> keySet = new HashSet<>(params.keySet());
+        params.keySet().retainAll(keySet);
+
+        uriloop:
         for (URI test : redirects) {
-            if (test.equals(redirectUri)) {
-                return redirectUri;
+            // Test the scheme
+            if (!test.getScheme().equals(redirectUri.getScheme())) {
+                continue;
             }
+            // Test the host
+            if (!test.getHost().equals(redirectUri.getHost())) {
+                continue;
+            }
+            // Test the port
+            if (test.getPort() != redirectUri.getPort()) {
+                continue;
+            }
+            // Test the path
+            if (!test.getPath().equals(redirectUri.getPath())) {
+                continue;
+            }
+
+            MultivaluedMap<String, String> testParams = extractParams(test);
+            keySet.addAll(testParams.keySet()); // This modifies 'params'.
+
+            // All variables in testParams must exist in params to pass.
+            for (Entry<String, List<String>> entry : testParams.entrySet()) {
+                if (!params.get(entry.getKey()).containsAll(entry.getValue())) {
+                    continue uriloop;
+                }
+            }
+
+            return redirectUri; // NOPMD
         }
         throw new InvalidRequestException();
+    }
+
+    /**
+     * Convert a URI and its query parameters into a MultivaluedMap, for
+     * later comparison.
+     *
+     * @param redirectUri The URI to parse.
+     * @return A map of all results.
+     */
+    private static MultivaluedMap<String, String> extractParams(
+            final URI redirectUri) {
+        MultivaluedMap<String, String> results = new MultivaluedHashMap<>();
+        for (NameValuePair pair : URLEncodedUtils.parse(redirectUri, "UTF-8")) {
+            results.add(pair.getName(), pair.getValue());
+        }
+        return results;
     }
 
     /**

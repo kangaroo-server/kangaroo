@@ -17,7 +17,6 @@
 
 package net.krotscheck.api.oauth.util;
 
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidGrantException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnsupportedResponseType;
@@ -103,12 +102,52 @@ public final class ValidationUtilTest {
      * @throws Exception Thrown if validation fails.
      */
     @Test(expected = InvalidRequestException.class)
-    public void testInvalidRedirect() throws Exception {
+    public void testInvalidRedirectHost() throws Exception {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://one.example.com"));
         testSet.add(new URI("http://two.example.com"));
 
         ValidationUtil.validateRedirect("http://three.example.com", testSet);
+    }
+
+    /**
+     * Check simple valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testInvalidRedirectPort() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com:800"));
+        testSet.add(new URI("http://two.example.com:800"));
+
+        ValidationUtil.validateRedirect("http://one.example.com:900", testSet);
+    }
+
+    /**
+     * Check simple valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testInvalidRedirectScheme() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("https://one.example.com"));
+
+        ValidationUtil.validateRedirect("http://one.example.com", testSet);
+    }
+
+    /**
+     * Check simple valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testInvalidRedirectPath() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/foo"));
+
+        ValidationUtil.validateRedirect("http://one.example.com/bar", testSet);
     }
 
     /**
@@ -160,6 +199,106 @@ public final class ValidationUtilTest {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://two.example.com"));
         ValidationUtil.validateRedirect("http:\\", testSet);
+    }
+
+    /**
+     * Test that query parameters are considered valid.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateRedirectCustomQueryParams() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/"));
+        testSet.add(new URI("http://two.example.com/"));
+
+        URI test = new URI("http://two.example.com/?foo=bar");
+
+        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        Assert.assertEquals(test, result);
+    }
+
+    /**
+     * Test that additional query parameters are considered valid.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateRedirectAdditionalQueryParams() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/?foo=bar"));
+
+        URI test = new URI("http://one.example.com/?foo=bar&lol=cat");
+
+        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        Assert.assertEquals(test, result);
+    }
+
+    /**
+     * Test that additional query parameters are considered valid if there's
+     * multiple of the same query param in the list.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateRedirectMultipleQueryParams() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/?foo=bar&foo=cat"));
+
+        URI test = new URI("http://one.example.com/?foo=bar&foo=cat&lol=cat");
+
+        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        Assert.assertEquals(test, result);
+    }
+
+    /**
+     * Test that additional query parameters are considered valid if there's
+     * multiple of the same query param in the list.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateRedirectMultipleQueryParamsOverlap()
+            throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/?foo=bar"));
+
+        URI test = new URI("http://one.example.com/?foo=bar&foo=dice&lol=cat");
+
+        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        Assert.assertEquals(test, result);
+    }
+
+    /**
+     * Test that conflicting query parameters are considered invalid.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testValidateRedirectConflictingQueryParams() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/?foo=bar"));
+
+        URI test = new URI("http://one.example.com/?foo=cat");
+
+        ValidationUtil.validateRedirect(test.toString(), testSet);
+    }
+
+    /**
+     * Test that additional query parameters are checked against all options.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateRedirectConflictingMultiParams() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com/?foo=cat"));
+        testSet.add(new URI("http://one.example.com/?foo=bar"));
+
+        URI test = new URI("http://one.example.com/?foo=bar");
+
+        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        Assert.assertEquals(test, result);
     }
 
     /**
