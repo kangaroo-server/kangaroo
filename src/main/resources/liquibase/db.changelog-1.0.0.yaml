@@ -202,7 +202,7 @@ databaseChangeLog:
                 name: role
                 type: BINARY(16)
                 constraints:
-                  nullable: false
+                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: application
           baseTableName: users
