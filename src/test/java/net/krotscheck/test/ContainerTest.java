@@ -17,6 +17,8 @@
 
 package net.krotscheck.test;
 
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.test.JerseyTest;
 import org.hibernate.Session;
 import org.junit.After;
@@ -37,6 +39,16 @@ public abstract class ContainerTest extends JerseyTest {
      * The database management instance.
      */
     private static DatabaseManager manager = new DatabaseManager();
+
+    /**
+     * Configure all jersey2 clients.
+     *
+     * @param config The configuration instance to modify.
+     */
+    @Override
+    protected final void configureClient(final ClientConfig config) {
+        config.property(ClientProperties.FOLLOW_REDIRECTS, false);
+    }
 
     /**
      * Setup a database for our application.
