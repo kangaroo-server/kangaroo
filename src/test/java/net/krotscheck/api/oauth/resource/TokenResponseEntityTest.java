@@ -51,13 +51,16 @@ public final class TokenResponseEntityTest {
         scopes.put("test", test);
         token.setScopes(scopes);
 
-        TokenResponseEntity entity = TokenResponseEntity.factory(token);
+        String state = UUID.randomUUID().toString();
+
+        TokenResponseEntity entity = TokenResponseEntity.factory(token, state);
         Assert.assertEquals(token.getId(), entity.getAccessToken());
         Assert.assertEquals(token.getExpiresIn(),
                 (long) entity.getExpiresIn());
         Assert.assertEquals("Bearer", entity.getTokenType().toString());
         Assert.assertEquals("debug test", entity.getScope());
         Assert.assertNull(entity.getRefreshToken());
+        Assert.assertEquals(state, entity.getState());
     }
 
     /**
@@ -83,13 +86,16 @@ public final class TokenResponseEntityTest {
         refresh.setId(UUID.randomUUID());
         refresh.setTokenType(OAuthTokenType.Refresh);
 
+        String state = UUID.randomUUID().toString();
+
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
-                refresh);
+                refresh, state);
         Assert.assertEquals(token.getId(), entity.getAccessToken());
         Assert.assertEquals(token.getExpiresIn(),
                 (long) entity.getExpiresIn());
         Assert.assertEquals("Bearer", entity.getTokenType().toString());
         Assert.assertEquals("debug test", entity.getScope());
         Assert.assertEquals(refresh.getId(), entity.getRefreshToken());
+        Assert.assertEquals(state, entity.getState());
     }
 }

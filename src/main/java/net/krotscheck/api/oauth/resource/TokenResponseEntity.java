@@ -66,7 +66,13 @@ public final class TokenResponseEntity {
     private String scope;
 
     /**
-     * Private constructor, use factory instead.
+     * The token response may contain a state, provided by the client.
+     */
+    @JsonProperty("state")
+    private String state;
+
+    /**
+     * Private constructor, use factory istead.
      */
     private TokenResponseEntity() {
 
@@ -118,16 +124,29 @@ public final class TokenResponseEntity {
     }
 
     /**
+     * Retrieve the state for the token response.
+     *
+     * @return A provided state, or null.
+     */
+    public String getState() {
+        return state;
+    }
+
+    /**
      * Create this entity from an OAuthToken.
      *
      * @param token The token from which we're constructing this response.
+     * @param state A request provided state string, passed back to the
+     *              client verbatim.
      * @return A new token.
      */
-    public static TokenResponseEntity factory(final OAuthToken token) {
+    public static TokenResponseEntity factory(final OAuthToken token,
+                                              final String state) {
         TokenResponseEntity t = new TokenResponseEntity();
         t.accessToken = token.getId();
         t.tokenType = token.getTokenType();
         t.expiresIn = token.getExpiresIn();
+        t.state = state;
 
         List<String> scopes = new ArrayList<>();
         token.getScopes().forEach((n, s) -> scopes.add(n));
@@ -140,11 +159,14 @@ public final class TokenResponseEntity {
      *
      * @param token   The token from which we're constructing this response.
      * @param refresh The refresh token for this response.
+     * @param state   A request provided state string, passed back to the
+     *                client verbatim.
      * @return A new token.
      */
     public static TokenResponseEntity factory(final OAuthToken token,
-                                              final OAuthToken refresh) {
-        TokenResponseEntity t = factory(token);
+                                              final OAuthToken refresh,
+                                              final String state) {
+        TokenResponseEntity t = factory(token, state);
         t.refreshToken = refresh.getId();
         return t;
     }
