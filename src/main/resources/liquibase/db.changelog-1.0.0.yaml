@@ -518,14 +518,12 @@ databaseChangeLog:
                 name: clientState
                 type: varchar(255)
                 constraints:
-                  nullable: false
-                  unique: true
+                  nullable: true
             - column:
                 name: clientRedirect
                 type: varchar(255)
                 constraints:
                   nullable: false
-                  unique: true
       - createIndex:
           columns:
           - column:

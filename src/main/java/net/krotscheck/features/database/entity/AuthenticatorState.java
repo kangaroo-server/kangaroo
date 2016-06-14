@@ -65,12 +65,12 @@ public final class AuthenticatorState extends AbstractEntity {
     /**
      * The client's state.
      */
-    @Basic(optional = false)
+    @Basic
     @Column(name = "clientState", unique = false)
     private String clientState;
 
     /**
-     * The client's state.
+     * The client's redirect.
      */
     @Basic(optional = false)
     @Column(name = "clientRedirect", unique = false)
