@@ -150,7 +150,9 @@ public final class TokenResponseEntity {
 
         List<String> scopes = new ArrayList<>();
         token.getScopes().forEach((n, s) -> scopes.add(n));
-        t.scope = String.join(" ", scopes);
+        if (scopes.size() > 0) {
+            t.scope = String.join(" ", scopes);
+        }
         return t;
     }
 

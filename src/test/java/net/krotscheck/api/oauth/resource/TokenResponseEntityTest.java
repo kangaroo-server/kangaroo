@@ -98,4 +98,34 @@ public final class TokenResponseEntityTest {
         Assert.assertEquals(refresh.getId(), entity.getRefreshToken());
         Assert.assertEquals(state, entity.getState());
     }
+
+    /**
+     * Assert that a token with no scope sets the scope string to null.
+     */
+    @Test
+    public void testFactoryNoScope() {
+        OAuthToken token = new OAuthToken();
+        token.setId(UUID.randomUUID());
+        token.setTokenType(OAuthTokenType.Bearer);
+        token.setExpiresIn(100);
+
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        token.setScopes(scopes);
+
+        OAuthToken refresh = new OAuthToken();
+        refresh.setId(UUID.randomUUID());
+        refresh.setTokenType(OAuthTokenType.Refresh);
+
+        String state = UUID.randomUUID().toString();
+
+        TokenResponseEntity entity = TokenResponseEntity.factory(token,
+                refresh, state);
+        Assert.assertEquals(token.getId(), entity.getAccessToken());
+        Assert.assertEquals(token.getExpiresIn(),
+                (long) entity.getExpiresIn());
+        Assert.assertEquals("Bearer", entity.getTokenType().toString());
+        Assert.assertNull(entity.getScope());
+        Assert.assertEquals(refresh.getId(), entity.getRefreshToken());
+        Assert.assertEquals(state, entity.getState());
+    }
 }
