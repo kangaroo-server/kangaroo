@@ -20,13 +20,10 @@ package net.krotscheck.features.database.entity;
 import org.hibernate.annotations.SortNatural;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -34,7 +31,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 /**
@@ -90,16 +86,6 @@ public final class AuthenticatorState extends AbstractEntity {
     @MapKey(name = "name")
     @SortNatural
     private SortedMap<String, ApplicationScope> clientScopes;
-
-    /**
-     * Intermediate storage cache for data needed when the request comes back.
-     */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "authenticator_state_params",
-            joinColumns = @JoinColumn(name = "authenticator_state"))
-    @MapKeyColumn(name = "name")
-    @Column(name = "value")
-    private Map<String, String> authenticatorStateParams;
 
     /**
      * Retrieve the client.
@@ -172,25 +158,6 @@ public final class AuthenticatorState extends AbstractEntity {
     public void setClientScopes(
             final SortedMap<String, ApplicationScope> clientScopes) {
         this.clientScopes = new TreeMap<>(clientScopes);
-    }
-
-    /**
-     * Get the list of parameters persisted by the authenticator.
-     *
-     * @return The list of parameters.
-     */
-    public Map<String, String> getAuthenticatorStateParams() {
-        return authenticatorStateParams;
-    }
-
-    /**
-     * Persist a list of state parameters for this authenticator.
-     *
-     * @param authenticatorStateParams A new list of parameters.
-     */
-    public void setAuthenticatorStateParams(
-            final Map<String, String> authenticatorStateParams) {
-        this.authenticatorStateParams = new TreeMap<>(authenticatorStateParams);
     }
 
     /**

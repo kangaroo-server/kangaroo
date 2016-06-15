@@ -548,54 +548,6 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: clients
 
-      # An authenticator may cache between-request information in this table.
-      # This could include things like nonces, timestamps, encryption keys,
-      # or more.
-      - createTable:
-          tableName: authenticator_state_params
-          columns:
-            - column:
-                name: authenticator_state
-                type: BINARY(16)
-                constraints:
-                  nullable: false
-            - column:
-                name: name
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: value
-                type: varchar(255)
-                constraints:
-                  nullable: true
-      - createIndex:
-          columns:
-          - column:
-              name: authenticator_state
-              type: varchar(255)
-          indexName: idx_authenticator_state_params_authenticator_state
-          tableName: authenticator_state_params
-      - createIndex:
-          columns:
-          - column:
-              name: name
-              type: varchar(255)
-          indexName: idx_authenticator_state_params_name
-          tableName: authenticator_state_params
-      - addUniqueConstraint:
-          columnNames: authenticator_state, name
-          constraintName: uq_authenticator_state_params_authenticator_state_name
-          tableName: authenticator_state_params
-      - addForeignKeyConstraint:
-          baseColumnNames: authenticator_state
-          baseTableName: authenticator_state_params
-          constraintName: fk_authenticator_state_params_authenticators
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: authenticator_states
-
       # An intermediate authenticator state must keep track of the requested
       # scopes.
       - createTable:
@@ -890,8 +842,6 @@ databaseChangeLog:
             tableName: user_identities
         - dropTable:
             tableName: authenticator_state_scopes
-        - dropTable:
-            tableName: authenticator_state_params
         - dropTable:
             tableName: authenticator_states
         - dropTable:
