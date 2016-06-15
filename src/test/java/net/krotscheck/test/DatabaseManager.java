@@ -217,7 +217,7 @@ public final class DatabaseManager {
      *
      * @return The session factory.
      */
-    private SessionFactory getSessionFactory() {
+    public SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
 
             ServiceRegistry serviceRegistry =

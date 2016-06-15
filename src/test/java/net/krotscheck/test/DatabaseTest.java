@@ -18,6 +18,7 @@
 package net.krotscheck.test;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -74,6 +75,15 @@ public abstract class DatabaseTest {
      */
     protected final Session getSession() {
         return manager.getSession();
+    }
+
+    /**
+     * Create and return a hibernate session factory the test database.
+     *
+     * @return The session factory
+     */
+    protected final SessionFactory getSessionFactory() {
+        return manager.getSessionFactory();
     }
 
     /**
