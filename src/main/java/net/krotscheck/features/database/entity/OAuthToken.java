@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.SortNatural;
 
+import java.net.URI;
 import java.util.Calendar;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -84,6 +85,14 @@ public final class OAuthToken extends AbstractEntity {
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
     private long expiresIn = 600;
+
+    /**
+     * Authorization Codes must keep track of the redirect they were issued
+     * for.
+     */
+    @Basic
+    @Column(name = "redirect", nullable = true)
+    private URI redirect;
 
     /**
      * List of the application's scopes.
@@ -225,6 +234,24 @@ public final class OAuthToken extends AbstractEntity {
         Calendar expireDate = (Calendar) getCreatedDate().clone();
         expireDate.add(Calendar.SECOND, (int) getExpiresIn());
         return now.after(expireDate);
+    }
+
+    /**
+     * Get the redirect attached to this token.
+     *
+     * @return The redirect.
+     */
+    public URI getRedirect() {
+        return redirect;
+    }
+
+    /**
+     * Set the redirect for this particular token.
+     *
+     * @param redirect The new redirect.
+     */
+    public void setRedirect(final URI redirect) {
+        this.redirect = redirect;
     }
 
     /**
