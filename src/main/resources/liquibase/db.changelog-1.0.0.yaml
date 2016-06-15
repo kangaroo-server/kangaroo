@@ -803,7 +803,7 @@ databaseChangeLog:
                 name: redirect
                 type: varchar(255)
                 constraints:
-                  nullable: false
+                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: identity
           baseTableName: oauth_tokens
