@@ -29,6 +29,7 @@ import net.krotscheck.test.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,6 +116,22 @@ public final class OAuthTokenTest {
     }
 
     /**
+     * Test setting the redirection URL.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testGetSetRedirect() throws Exception {
+        OAuthToken token = new OAuthToken();
+
+        URI test = new URI("http://example.com/");
+
+        Assert.assertNull(token.getRedirect());
+        token.setRedirect(test);
+        Assert.assertEquals(test, token.getRedirect());
+    }
+
+    /**
      * Test get/set scope list.
      */
     @Test
@@ -187,6 +204,7 @@ public final class OAuthTokenTest {
         token.setModifiedDate(Calendar.getInstance());
         token.setIdentity(identity);
         token.setClient(client);
+        token.setRedirect(new URI("http://example.com/"));
         token.setTokenType(OAuthTokenType.Authorization);
         token.setExpiresIn(100);
 
@@ -212,7 +230,9 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 token.getExpiresIn(),
                 node.get("expiresIn").asLong());
-
+        Assert.assertEquals(
+                token.getRedirect().toString(),
+                node.get("redirect").asText());
 
         Assert.assertFalse(node.has("client"));
         Assert.assertFalse(node.has("identity"));
@@ -223,7 +243,7 @@ public final class OAuthTokenTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(5, names.size());
+        Assert.assertEquals(6, names.size());
     }
 
     /**
@@ -244,6 +264,7 @@ public final class OAuthTokenTest {
         node.put("accessToken", "accessToken");
         node.put("tokenType", "Authorization");
         node.put("expiresIn", 300);
+        node.put("redirect", "http://example.com");
 
         String output = m.writeValueAsString(node);
         OAuthToken c = m.readValue(output, OAuthToken.class);
@@ -264,6 +285,9 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 c.getExpiresIn(),
                 node.get("expiresIn").asLong());
+        Assert.assertEquals(
+                c.getRedirect().toString(),
+                node.get("redirect").asText());
     }
 
     /**
@@ -285,5 +309,4 @@ public final class OAuthTokenTest {
 
         Assert.assertEquals(uuid, c.getId());
     }
-
 }

@@ -799,6 +799,11 @@ databaseChangeLog:
                 type: int
                 constraints:
                   nullable: false
+            - column:
+                name: redirect
+                type: varchar(255)
+                constraints:
+                  nullable: false
       - addForeignKeyConstraint:
           baseColumnNames: identity
           baseTableName: oauth_tokens
