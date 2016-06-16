@@ -99,22 +99,4 @@ public final class AuthenticatorStateTest {
         Assert.assertEquals(scopes, state.getClientScopes());
         Assert.assertNotSame(scopes, state.getClientScopes());
     }
-
-    /**
-     * Assert that we can get and set client redirect.
-     */
-    @Test
-    public void testGetSetParams() {
-        AuthenticatorState state = new AuthenticatorState();
-
-        SortedMap<String, String> params = new TreeMap<>();
-        params.put("one", "two");
-        params.put("three", "four");
-
-        // Default
-        Assert.assertNull(state.getAuthenticatorStateParams());
-        state.setAuthenticatorStateParams(params);
-        Assert.assertEquals(params, state.getAuthenticatorStateParams());
-        Assert.assertNotSame(params, state.getAuthenticatorStateParams());
-    }
 }
