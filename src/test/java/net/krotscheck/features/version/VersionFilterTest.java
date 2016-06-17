@@ -17,12 +17,10 @@
 
 package net.krotscheck.features.version;
 
-import net.krotscheck.features.config.SystemConfiguration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
@@ -33,7 +31,6 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-@PrepareForTest(SystemConfiguration.class)
 public final class VersionFilterTest extends JerseyTest {
 
     /**
