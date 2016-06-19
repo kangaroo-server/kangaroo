@@ -31,8 +31,8 @@ import org.hibernate.criterion.Restrictions;
 import java.net.URI;
 import java.util.List;
 import javax.inject.Inject;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * The dev authenticator provides a simple authenticator implementation which
@@ -42,7 +42,9 @@ import javax.ws.rs.core.UriInfo;
  *
  * @author Michael Krotscheck
  */
-public final class TestAuthenticator implements IAuthenticator {
+public final class TestAuthenticator
+        extends AbstractAuthenticator
+        implements IAuthenticator {
 
     /**
      * Unique foreign ID string for the debug user.
@@ -74,8 +76,8 @@ public final class TestAuthenticator implements IAuthenticator {
      * @return An HTTP response, redirecting the client to the next step.
      */
     @Override
-    public Response authenticate(final Authenticator configuration,
-                                 final URI callback) {
+    public Response delegate(final Authenticator configuration,
+                             final URI callback) {
         return Response
                 .status(HttpStatus.SC_MOVED_TEMPORARILY)
                 .location(callback)
@@ -86,18 +88,22 @@ public final class TestAuthenticator implements IAuthenticator {
      * Resolve and/or create a user identity, given an intermediate state and
      * request parameters.
      *
-     * @param authenticator    The authenticator configuration.
-     * @param callbackResponse The URI received via the callback mechanism.
+     * @param authenticator The authenticator configuration.
+     * @param parameters    Parameters for the authenticator, retrieved from
+     *                      an appropriate source.
      */
     @Override
-    public UserIdentity callback(final Authenticator authenticator,
-                                 final UriInfo callbackResponse) {
+    public UserIdentity authenticate(final Authenticator authenticator,
+                                     final MultivaluedMap<String, String>
+                                             parameters) {
 
         Criteria searchCriteria = session.createCriteria(UserIdentity.class);
+
         searchCriteria.add(Restrictions.eq("authenticator", authenticator));
         searchCriteria.add(Restrictions.eq("remoteId", REMOTE_ID));
         searchCriteria.setFirstResult(0);
         searchCriteria.setMaxResults(1);
+
         List<UserIdentity> results = searchCriteria.list();
 
         // Do we need to create a new user?

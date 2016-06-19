@@ -21,8 +21,8 @@ import net.krotscheck.features.database.entity.Authenticator;
 import net.krotscheck.features.database.entity.UserIdentity;
 
 import java.net.URI;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * This interface describes the methods used during user authentication,
@@ -34,24 +34,26 @@ import javax.ws.rs.core.UriInfo;
 public interface IAuthenticator {
 
     /**
-     * Execute an authentication process for a specific request.
+     * Delegate an authentication request to a third party authentication
+     * provider, such as Google, Facebook, etc.
      *
      * @param configuration The authenticator configuration.
      * @param callback      The redirect, on this server, where the response
      *                      should go.
      * @return An HTTP response, redirecting the client to the next step.
      */
-    Response authenticate(Authenticator configuration,
-                          URI callback);
+    Response delegate(Authenticator configuration,
+                      URI callback);
 
     /**
-     * Resolve and/or create a user identity for a specific client, given the
-     * returned URI.
+     * Authenticate and/or create a user identity for a specific client, given
+     * the URI from an authentication delegate.
      *
-     * @param configuration    The authenticator configuration.
-     * @param callbackResponse The URI received via the callback mechanism.
+     * @param configuration The authenticator configuration.
+     * @param parameters    Parameters for the authenticator, retrieved from
+     *                      an appropriate source.
      * @return A user identity.
      */
-    UserIdentity callback(Authenticator configuration,
-                          UriInfo callbackResponse);
+    UserIdentity authenticate(Authenticator configuration,
+                              MultivaluedMap<String, String> parameters);
 }
