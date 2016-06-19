@@ -28,8 +28,6 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -73,29 +71,6 @@ public final class User extends AbstractEntity {
     @JsonIgnore
     @IndexedEmbedded(includePaths = {"claims"})
     private List<UserIdentity> identities;
-
-    /**
-     * The user's password salt.
-     */
-    @JsonIgnore
-    @Basic
-    @Column(name = "salt", nullable = true, updatable = true)
-    private byte[] salt;
-
-    /**
-     * The user's hashed password.
-     */
-    @JsonIgnore
-    @Basic
-    @Column(name = "password", nullable = true, updatable = true)
-    private byte[] password;
-
-    /**
-     * The user's email/login.
-     */
-    @Basic
-    @Column(name = "email", nullable = true, updatable = true, unique = false)
-    private String email;
 
     /**
      * Get the application this user belongs to.
@@ -149,60 +124,6 @@ public final class User extends AbstractEntity {
      */
     public void setIdentities(final List<UserIdentity> identities) {
         this.identities = new ArrayList<>(identities);
-    }
-
-    /**
-     * Get the salt.
-     *
-     * @return The current salt.
-     */
-    public byte[] getSalt() {
-        return salt;
-    }
-
-    /**
-     * Set a new salt.
-     *
-     * @param salt A new salt, should be 32 characters long.
-     */
-    public void setSalt(final byte[] salt) {
-        this.salt = salt;
-    }
-
-    /**
-     * Get the password.
-     *
-     * @return An encrypted password.
-     */
-    public byte[] getPassword() {
-        return password;
-    }
-
-    /**
-     * Set a new password. Make sure this is encrypted first.
-     *
-     * @param password The new password.
-     */
-    public void setPassword(final byte[] password) {
-        this.password = password;
-    }
-
-    /**
-     * Get an email/login for the user.
-     *
-     * @return The new email.
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Set the email/login for the user. Must be unique per application.
-     *
-     * @param email A new login.
-     */
-    public void setEmail(final String email) {
-        this.email = email;
     }
 
     /**

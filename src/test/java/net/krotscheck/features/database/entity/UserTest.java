@@ -89,46 +89,6 @@ public final class UserTest {
     }
 
     /**
-     * Test the salt
-     */
-    @Test
-    public void testGetSetSalt() {
-        User user = new User();
-        byte[] testBytes = new byte[32];
-        new SecureRandom().nextBytes(testBytes);
-
-        Assert.assertNull(user.getSalt());
-        user.setSalt(testBytes);
-        Assert.assertEquals(testBytes, user.getSalt());
-    }
-
-    /**
-     * Test the Email
-     */
-    @Test
-    public void testGetSetEmail() {
-        User user = new User();
-
-        Assert.assertNull(user.getEmail());
-        user.setEmail("foo");
-        Assert.assertEquals("foo", user.getEmail());
-    }
-
-    /**
-     * Test the Password
-     */
-    @Test
-    public void testGetSetPassword() {
-        User user = new User();
-        byte[] testBytes = new byte[32];
-        new SecureRandom().nextBytes(testBytes);
-
-        Assert.assertNull(user.getPassword());
-        user.setPassword(testBytes);
-        Assert.assertEquals(testBytes, user.getPassword());
-    }
-
-    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.
