@@ -110,7 +110,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
     @JsonIgnore
     @Basic
     @Column(name = "salt", nullable = true, updatable = true)
-    private byte[] salt;
+    private String salt;
 
     /**
      * The user's hashed password.
@@ -118,7 +118,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
     @JsonIgnore
     @Basic
     @Column(name = "password", nullable = true, updatable = true)
-    private byte[] password;
+    private String password;
 
     /**
      * Get the user record for this identity.
@@ -226,7 +226,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
      *
      * @return The current salt.
      */
-    public byte[] getSalt() {
+    public String getSalt() {
         return salt;
     }
 
@@ -235,7 +235,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
      *
      * @param salt A new salt, should be 32 characters long.
      */
-    public void setSalt(final byte[] salt) {
+    public void setSalt(final String salt) {
         this.salt = salt;
     }
 
@@ -244,7 +244,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
      *
      * @return An encrypted password.
      */
-    public byte[] getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -253,7 +253,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
      *
      * @param password The new password.
      */
-    public void setPassword(final byte[] password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 

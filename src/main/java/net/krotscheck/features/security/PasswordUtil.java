@@ -17,10 +17,12 @@
 
 package net.krotscheck.features.security;
 
+
+import org.apache.commons.codec.binary.Base64;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
@@ -43,11 +45,11 @@ public final class PasswordUtil {
      *
      * @return A 32-byte-sized salt.
      */
-    public static byte[] createSalt() {
+    public static String createSalt() {
         SecureRandom srand = new SecureRandom();
         byte[] salt = new byte[32];
         srand.nextBytes(salt);
-        return salt;
+        return Base64.encodeBase64String(salt);
     }
 
     /**
@@ -61,16 +63,18 @@ public final class PasswordUtil {
      * @throws InvalidKeySpecException  Thrown if the key spec is not
      *                                  available.
      */
-    public static byte[] hash(final String password,
-                              final byte[] salt)
+    public static String hash(final String password,
+                              final String salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         char[] chars = password.toCharArray();
+        byte[] saltBytes = Base64.decodeBase64(salt);
         int iterations = 1000;
-        PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
+        PBEKeySpec spec = new PBEKeySpec(chars, saltBytes, iterations, 64 * 8);
 
         SecretKeyFactory skf =
                 SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        return skf.generateSecret(spec).getEncoded();
+        byte[] encodedPassword = skf.generateSecret(spec).getEncoded();
+        return Base64.encodeBase64String(encodedPassword);
     }
 
     /**
@@ -82,10 +86,10 @@ public final class PasswordUtil {
      * @return True if they match, otherwise false.
      */
     public static Boolean isValid(final String password,
-                                  final byte[] salt,
-                                  final byte[] hashed) {
+                                  final String salt,
+                                  final String hashed) {
         try {
-            return Arrays.equals(hash(password, salt), hashed);
+            return hash(password, salt).equals(hashed);
         } catch (Exception e) {
             return false;
         }

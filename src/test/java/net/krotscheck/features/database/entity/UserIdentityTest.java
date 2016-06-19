@@ -29,7 +29,6 @@ import net.krotscheck.test.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -133,12 +132,11 @@ public final class UserIdentityTest {
     @Test
     public void testGetSetSalt() {
         UserIdentity identity = new UserIdentity();
-        byte[] testBytes = new byte[32];
-        new SecureRandom().nextBytes(testBytes);
+        String testString = "zomg";
 
         Assert.assertNull(identity.getSalt());
-        identity.setSalt(testBytes);
-        Assert.assertEquals(testBytes, identity.getSalt());
+        identity.setSalt(testString);
+        Assert.assertEquals(testString, identity.getSalt());
     }
 
     /**
@@ -147,12 +145,11 @@ public final class UserIdentityTest {
     @Test
     public void testGetSetPassword() {
         UserIdentity identity = new UserIdentity();
-        byte[] testBytes = new byte[32];
-        new SecureRandom().nextBytes(testBytes);
+        String testString = "zomg";
 
         Assert.assertNull(identity.getPassword());
-        identity.setPassword(testBytes);
-        Assert.assertEquals(testBytes, identity.getPassword());
+        identity.setPassword(testString);
+        Assert.assertEquals(testString, identity.getPassword());
     }
 
     /**
@@ -186,8 +183,8 @@ public final class UserIdentityTest {
         identity.setUser(user);
         identity.setTokens(tokens);
         identity.setClaims(claims);
-        identity.setPassword(new byte[20]);
-        identity.setSalt(new byte[20]);
+        identity.setPassword("newpass");
+        identity.setSalt("newsalt");
         identity.setRemoteId("remoteId");
 
         // De/serialize to json.
