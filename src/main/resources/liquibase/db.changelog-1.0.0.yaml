@@ -203,22 +203,6 @@ databaseChangeLog:
                 type: BINARY(16)
                 constraints:
                   nullable: true
-            - column:
-                name: email
-                type: varchar(255)
-                constraints:
-                  nullable: true
-                  unique: true
-            - column:
-                name: salt
-                type: BINARY(32)
-                constraints:
-                  nullable: true
-            - column:
-                name: password
-                type: BINARY(64)
-                constraints:
-                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: application
           baseTableName: users
@@ -235,17 +219,6 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: roles
-      - createIndex:
-          columns:
-          - column:
-              name: email
-              type: varchar(255)
-          indexName: idx_users_email
-          tableName: users
-      - addUniqueConstraint:
-          columnNames: application, email
-          constraintName: uq_users_application_email
-          tableName: users
 
       # This key constraint locks down owners of applications.
       - addForeignKeyConstraint:
@@ -660,6 +633,16 @@ databaseChangeLog:
                 type: varchar(255)
                 constraints:
                   nullable: false
+            - column:
+                name: password
+                type: BINARY(64)
+                constraints:
+                  nullable: true
+            - column:
+                name: salt
+                type: BINARY(32)
+                constraints:
+                  nullable: true
       - createIndex:
           columns:
           - column:

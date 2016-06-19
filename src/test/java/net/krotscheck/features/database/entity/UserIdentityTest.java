@@ -25,16 +25,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.UserIdentity.Deserializer;
-import net.krotscheck.features.jackson.ObjectMapperFactory;
 import net.krotscheck.test.JacksonUtil;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -130,8 +128,36 @@ public final class UserIdentityTest {
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
-     * carry an unexpected payload.
+     * Test the salt.
+     */
+    @Test
+    public void testGetSetSalt() {
+        UserIdentity identity = new UserIdentity();
+        byte[] testBytes = new byte[32];
+        new SecureRandom().nextBytes(testBytes);
+
+        Assert.assertNull(identity.getSalt());
+        identity.setSalt(testBytes);
+        Assert.assertEquals(testBytes, identity.getSalt());
+    }
+
+    /**
+     * Test the Password.
+     */
+    @Test
+    public void testGetSetPassword() {
+        UserIdentity identity = new UserIdentity();
+        byte[] testBytes = new byte[32];
+        new SecureRandom().nextBytes(testBytes);
+
+        Assert.assertNull(identity.getPassword());
+        identity.setPassword(testBytes);
+        Assert.assertEquals(testBytes, identity.getPassword());
+    }
+
+    /**
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
      */
@@ -160,6 +186,8 @@ public final class UserIdentityTest {
         identity.setUser(user);
         identity.setTokens(tokens);
         identity.setClaims(claims);
+        identity.setPassword(new byte[20]);
+        identity.setSalt(new byte[20]);
         identity.setRemoteId("remoteId");
 
         // De/serialize to json.
@@ -198,6 +226,8 @@ public final class UserIdentityTest {
                 claimsNode.get("two").asText());
 
         Assert.assertFalse(node.has("tokens"));
+        Assert.assertFalse(node.has("password"));
+        Assert.assertFalse(node.has("salt"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -276,5 +306,4 @@ public final class UserIdentityTest {
 
         Assert.assertEquals(uuid, u.getId());
     }
-
 }

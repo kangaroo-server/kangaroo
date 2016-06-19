@@ -105,6 +105,22 @@ public final class UserIdentity extends AbstractEntity implements Principal {
     private Map<String, String> claims;
 
     /**
+     * The user's password salt.
+     */
+    @JsonIgnore
+    @Basic
+    @Column(name = "salt", nullable = true, updatable = true)
+    private byte[] salt;
+
+    /**
+     * The user's hashed password.
+     */
+    @JsonIgnore
+    @Basic
+    @Column(name = "password", nullable = true, updatable = true)
+    private byte[] password;
+
+    /**
      * Get the user record for this identity.
      *
      * @return The user record.
@@ -203,6 +219,42 @@ public final class UserIdentity extends AbstractEntity implements Principal {
      */
     public void setTokens(final List<OAuthToken> tokens) {
         this.tokens = new ArrayList<>(tokens);
+    }
+
+    /**
+     * Get the salt.
+     *
+     * @return The current salt.
+     */
+    public byte[] getSalt() {
+        return salt;
+    }
+
+    /**
+     * Set a new salt.
+     *
+     * @param salt A new salt, should be 32 characters long.
+     */
+    public void setSalt(final byte[] salt) {
+        this.salt = salt;
+    }
+
+    /**
+     * Get the password.
+     *
+     * @return An encrypted password.
+     */
+    public byte[] getPassword() {
+        return password;
+    }
+
+    /**
+     * Set a new password. Make sure this is encrypted first.
+     *
+     * @param password The new password.
+     */
+    public void setPassword(final byte[] password) {
+        this.password = password;
     }
 
     /**
