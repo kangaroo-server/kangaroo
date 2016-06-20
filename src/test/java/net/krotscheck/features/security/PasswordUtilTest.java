@@ -30,7 +30,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import static org.mockito.Mockito.when;
 
@@ -63,11 +62,11 @@ public final class PasswordUtilTest {
      */
     @Test
     public void testCreateSalt() {
-        byte[] salt = PasswordUtil.createSalt();
-        Assert.assertEquals(32, salt.length);
+        String salt = PasswordUtil.createSalt();
+        Assert.assertEquals(44, salt.length());
 
-        byte[] salt2 = PasswordUtil.createSalt();
-        Assert.assertFalse(Arrays.equals(salt, salt2));
+        String salt2 = PasswordUtil.createSalt();
+        Assert.assertNotEquals(salt, salt2);
     }
 
     /**
@@ -78,9 +77,9 @@ public final class PasswordUtilTest {
     @Test
     public void testHashAndValidate() throws Exception {
         String password = RandomStringUtils.random(40);
-        byte[] salt1 = PasswordUtil.createSalt();
-        byte[] salt2 = PasswordUtil.createSalt();
-        byte[] hash1 = PasswordUtil.hash(password, salt1);
+        String salt1 = PasswordUtil.createSalt();
+        String salt2 = PasswordUtil.createSalt();
+        String hash1 = PasswordUtil.hash(password, salt1);
 
         Assert.assertTrue(PasswordUtil.isValid(password, salt1, hash1));
         Assert.assertFalse(PasswordUtil.isValid(password, salt2, hash1));
@@ -95,17 +94,17 @@ public final class PasswordUtilTest {
     @PrepareForTest(PasswordUtil.class)
     public void testCannotValidateNoAlgorithm() throws Exception {
         String password = RandomStringUtils.random(40);
-        byte[] salt1 = PasswordUtil.createSalt();
-        byte[] hash1 = PasswordUtil.hash(password, salt1);
+        String salt1 = PasswordUtil.createSalt();
+        String hash1 = PasswordUtil.hash(password, salt1);
 
         PowerMockito.mockStatic(PasswordUtil.class);
         when(PasswordUtil.isValid(
                 Matchers.anyString(),
-                Matchers.any(byte[].class),
-                Matchers.any(byte[].class)))
+                Matchers.any(String.class),
+                Matchers.any(String.class)))
                 .thenCallRealMethod();
         when(PasswordUtil.hash(Matchers.anyString(),
-                Matchers.any(byte[].class)))
+                Matchers.any(String.class)))
                 .thenThrow(NoSuchAlgorithmException.class);
 
         Assert.assertFalse(PasswordUtil.isValid(password, salt1, hash1));
