@@ -22,6 +22,7 @@ import net.krotscheck.api.oauth.filter.ClientAuthorizationFilter;
 import net.krotscheck.api.oauth.resource.AuthorizationService;
 import net.krotscheck.api.oauth.resource.TokenService;
 import net.krotscheck.api.oauth.resource.grant.ClientCredentialsGrantHandler;
+import net.krotscheck.api.oauth.resource.grant.RefreshTokenGrantHandler;
 import net.krotscheck.features.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.exception.ExceptionFeature;
@@ -59,6 +60,7 @@ public class OAuthAPI extends ResourceConfig {
 
         // ResponseType and GrantType handlers
         register(new ClientCredentialsGrantHandler.Binder());
+        register(new RefreshTokenGrantHandler.Binder());
 
         // Resource services
         register(TokenService.class);
