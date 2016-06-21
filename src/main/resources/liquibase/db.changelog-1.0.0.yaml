@@ -483,7 +483,6 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: authenticators
 
-
       # Every authenticator will have a per-request 'state', which contains
       # original user request parameters, as well as parameters sent to the
       # authenticator itself. It's intended to act as a storage cache for data

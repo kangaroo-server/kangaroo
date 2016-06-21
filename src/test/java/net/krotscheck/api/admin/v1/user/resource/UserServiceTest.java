@@ -22,7 +22,6 @@ import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.exception.ExceptionFeature;
 import net.krotscheck.features.jackson.JacksonFeature;
-import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
 import net.krotscheck.test.ContainerTest;
 import net.krotscheck.util.ResourceUtil;
 import org.apache.http.HttpStatus;
@@ -34,12 +33,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
-import javax.servlet.ServletContextEvent;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for the UserService API.

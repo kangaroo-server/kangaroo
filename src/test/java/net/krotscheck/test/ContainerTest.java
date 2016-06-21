@@ -98,10 +98,20 @@ public abstract class ContainerTest extends JerseyTest {
     }
 
     /**
+     * Set up an environment for a specific test run.
+     *
+     * @return A builder, bound to the current test context.
+     */
+    protected final EnvironmentBuilder setupEnvironment() {
+        return manager.setupEnvironment();
+    }
+
+    /**
      * Cleanup the session factory after every run.
      */
     @After
     public final void clearSession() {
+        manager.clearEnvironment();
         manager.cleanSessions();
     }
 
