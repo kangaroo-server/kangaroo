@@ -45,4 +45,5 @@
 * Everything Else.
 * Callback states should be cleaned if abandoned.
 * Tokens should be cleaned once expired.
+* Requested scopes should be restricted by granted roles.
 * Additional parameters in redirect responses should be honored.
