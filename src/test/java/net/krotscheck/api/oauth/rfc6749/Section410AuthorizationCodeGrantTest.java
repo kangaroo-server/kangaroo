@@ -17,10 +17,14 @@
 
 package net.krotscheck.api.oauth.rfc6749;
 
+import net.krotscheck.api.oauth.resource.TokenResponseEntity;
 import net.krotscheck.features.database.entity.Client;
+import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
+import net.krotscheck.features.database.entity.OAuthTokenType;
 import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.EnvironmentBuilder;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +33,8 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -733,5 +739,937 @@ public final class Section410AuthorizationCodeGrantTest
         ErrorResponse error = r.readEntity(ErrorResponse.class);
         Assert.assertEquals("invalid_request", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
+    }
+
+    /**
+     * Assert that a simple token request works.
+     */
+    @Test
+    public void testTokenSimpleRequest() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+    }
+
+    /**
+     * Assert that missing a client id errors.
+     */
+    @Test
+    public void testTokenNoClientId() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_client", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that missing an auth code errors.
+     */
+    @Test
+    public void testTokenNoCode() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that missing an auth code errors.
+     */
+    @Test
+    public void testTokenMultiCode() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("code",
+                authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that missing a grant type errors.
+     */
+    @Test
+    public void testTokenNoGrant() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that missing an redirect errors.
+     */
+    @Test
+    public void testTokenNoRedirect() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Test that, if the client provides a token password, that
+     * authentication using that password via the Authorization header works.
+     */
+    @Test
+    public void testTokenAuthHeaderValid() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                authContext.getClient().getId().toString());
+        f.param("code",
+                authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token")
+                .request()
+                .header("Authorization", authHeader)
+                .post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertNull(entity.getScope());
+    }
+
+    /**
+     * Test that a user that provides a mismatched client_id in the request
+     * body and the Authorization header fails.
+     */
+    @Test
+    public void testTokenAuthHeaderMismatchClientId() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", "other_client_id");
+        f.param("code", authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token")
+                .request()
+                .header("Authorization", authHeader)
+                .post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_client", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Test that a user may not identify themselves solely via the
+     * Authorization header.
+     */
+    @Test
+    public void testTokenAuthHeaderValidNoExplicitClientId() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token")
+                .request()
+                .header("Authorization", authHeader)
+                .post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_client", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Test that authorization via the header with a bad password fails.
+     */
+    @Test
+    public void testTokenAuthHeaderInvalid() {
+        String badHeader = buildAuthorizationHeader(
+                authContext.getClient().getId(),
+                "invalid_secret");
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                authContext.getClient().getId().toString());
+        f.param("code",
+                authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, badHeader)
+                .post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("access_denied", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Test that a client may also authenticate by putting the client_secret
+     * in the post body.
+     */
+    @Test
+    public void testTokenAuthSecretInBody() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                authContext.getClient().getId().toString());
+        f.param("client_secret",
+                authContext.getClient().getClientSecret());
+        f.param("code",
+                authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertNull(entity.getScope());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+    }
+
+    /**
+     * Assert that only one authentication method may be used.
+     */
+    @Test
+    public void testTokenAuthBothMethods() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                authContext.getClient().getId().toString());
+        f.param("client_secret",
+                authContext.getClient().getClientSecret());
+        f.param("code",
+                authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token")
+                .request()
+                .header("Authorization", authHeader)
+                .post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_client", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an invalid grant type errors.
+     */
+    @Test
+    public void testTokenInvalidGrantTypePassword() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", context.getToken().getId().toString());
+        f.param("grant_type", "password");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an invalid grant type errors.
+     */
+    @Test
+    public void testTokenInvalidGrantTypeRefreshToken() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", context.getToken().getId().toString());
+        f.param("grant_type", "refresh_token");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an invalid grant type errors.
+     */
+    @Test
+    public void testTokenInvalidGrantTypeClientCredentials() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", context.getToken().getId().toString());
+        f.param("grant_type", "client_credentials");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an unknown grant type errors.
+     */
+    @Test
+    public void testTokenUnknownGrantType() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", context.getToken().getId().toString());
+        f.param("grant_type", "unknown_grant_type");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request from an invalid client fails.
+     */
+    @Test
+    public void testTokenInvalidClient() {
+        EnvironmentBuilder ctx = setupEnvironment()
+                .client(ClientType.Implicit)
+                .authenticator("foo")
+                .redirect("http://valid.example.com/redirect")
+                .scope("debug")
+                .authToken();
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", ctx.getClient().getId().toString());
+        f.param("code", ctx.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an invalid authorization code errors.
+     */
+    @Test
+    public void testTokenInvalidCode() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", UUID.randomUUID().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an invalid authorization code errors.
+     */
+    @Test
+    public void testTokenMalformedCode() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", "not_a_uuid");
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an expired authorization code errors.
+     */
+    @Test
+    public void testTokenExpiredCode() {
+        // Add an expired token.
+        context.token(OAuthTokenType.Authorization, true, null, null, null);
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an valid code, that mismatches the client id, fails.
+     */
+    @Test
+    public void testTokenCodeClientMismatch() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                authContext.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an valid code, that mismatches the client's redirect, fails.
+     */
+    @Test
+    public void testTokenCodeRedirectMismatch() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://other.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that an valid code, that mismatches the token's redirect, even
+     * if it is a valid redirect location for the client, fails.
+     */
+    @Test
+    public void testTokenMultiCodeRedirectMismatch() {
+        context.token(OAuthTokenType.Authorization,
+                false, null, "http://valid.example.com/redirect", null);
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://other.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request with a redirect works.
+     */
+    @Test
+    public void testTokenRedirectSimple() {
+        context.token(OAuthTokenType.Authorization,
+                false, null, "http://valid.example.com/redirect", null);
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertNull(entity.getScope());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+    }
+
+    /**
+     * Assert that a request with a different, registered redirect works.
+     */
+    @Test
+    public void testTokenRedirectMulti() {
+        context.redirect("http://other.example.com/redirect");
+        context.token(OAuthTokenType.Authorization,
+                false, null, "http://other.example.com/redirect", null);
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://other.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertNull(entity.getScope());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+    }
+
+    /**
+     * Assert that a request to an application, which has more than one
+     * registered redirect, with no redirect_uri parameter, fails.
+     */
+    @Test
+    public void testTokenRedirectMultiNoneProvided() {
+        context.redirect("http://other.example.com/redirect");
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request to an application, which has only one registered
+     * redirect, will fail if no redirect has been provided.
+     */
+    @Test
+    public void testTokenRedirectDefault() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_request", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request with a redirect_uri that includes an additional
+     * query string is honored, as long as the base uri is registered, and
+     * the previous authorization request received the same redirect.
+     */
+    @Test
+    public void testTokenRedirectPartial() {
+        context.token(OAuthTokenType.Authorization,
+                false,
+                null,
+                "http://valid.example.com/redirect?foo=bar", null);
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect?foo=bar");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertNull(entity.getScope());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+    }
+
+    /**
+     * Assert that a request with a redirect_uri that includes an additional
+     * query string, but whose additional query string does not match the
+     * query string of the original authorization request, fails.
+     */
+    @Test
+    public void testTokenRedirectPartialMismatch() {
+        context.token(OAuthTokenType.Authorization,
+                false,
+                null,
+                "http://valid.example.com/redirect?foo=bar", null);
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id",
+                context.getClient().getId().toString());
+        f.param("code",
+                context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect?lol=cat");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request with an invalid redirect fails.
+     */
+    @Test
+    public void testTokenRedirectInvalid() {
+        // Build the entity.
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", context.getToken().getId().toString());
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://other.example.com/redirect");
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        ErrorResponse entity = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertNotNull(entity.getErrorDescription());
+    }
+
+    /**
+     * Test the full authorization flow.
+     */
+    @Test
+    public void testFullAuthorizationFlow() {
+        String state1 = UUID.randomUUID().toString();
+        Response r = target("/authorize")
+                .queryParam("response_type", "code")
+                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("scope", "debug")
+                .queryParam("state", state1)
+                .request()
+                .get();
+
+        // Follow the redirect
+        Response second = followRedirect(r);
+
+        // Validate the redirect location
+        URI location = second.getLocation();
+        Assert.assertEquals("http", location.getScheme());
+        Assert.assertEquals("valid.example.com", location.getHost());
+        Assert.assertEquals("/redirect", location.getPath());
+        Assert.assertNull(location.getFragment());
+
+        // Validate the query parameters received.
+        Map<String, String> params = parseQueryParams(location);
+        Assert.assertTrue(params.containsKey("code"));
+        Assert.assertEquals(state1, params.get("state"));
+
+        // Extract the authorization code and issue a token request
+        String state2 = UUID.randomUUID().toString();
+        Form f = new Form();
+        f.param("client_id", context.getClient().getId().toString());
+        f.param("code", params.get("code"));
+        f.param("grant_type", "authorization_code");
+        f.param("redirect_uri", "http://valid.example.com/redirect");
+        f.param("state", state2);
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response tr = target("/token").request().post(postEntity);
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(HttpStatus.SC_OK, tr.getStatus());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, tr.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = tr.readEntity(TokenResponseEntity.class);
+        Assert.assertNotNull(entity.getAccessToken());
+        Assert.assertNotNull(entity.getRefreshToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                entity.getExpiresIn());
+        Assert.assertEquals("debug", entity.getScope());
+        Assert.assertEquals(state2, entity.getState());
+        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 }
