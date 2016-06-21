@@ -23,14 +23,21 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.OAuthToken.Deserializer;
+import net.krotscheck.test.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
+import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -82,19 +89,6 @@ public final class OAuthTokenTest {
     }
 
     /**
-     * Assert that we can get and set access token.
-     */
-    @Test
-    public void testGetSetAccessToken() {
-        OAuthToken c = new OAuthToken();
-
-        // Default
-        Assert.assertNull(c.getAccessToken());
-        c.setAccessToken("token");
-        Assert.assertEquals("token", c.getAccessToken());
-    }
-
-    /**
      * Assert that we can get and set the expiration date.
      */
     @Test
@@ -102,13 +96,96 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertEquals(3600, c.getExpiresIn());
+        Assert.assertEquals(600, c.getExpiresIn());
         c.setExpiresIn(100);
         Assert.assertEquals(100, c.getExpiresIn());
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
+     * Test setting a related token (such as an access token for a refresh
+     * token).
+     */
+    @Test
+    public void testGetSetToken() {
+        OAuthToken token = new OAuthToken();
+        OAuthToken otherToken = new OAuthToken();
+
+        Assert.assertNull(token.getAuthToken());
+        token.setAuthToken(otherToken);
+        Assert.assertEquals(otherToken, token.getAuthToken());
+    }
+
+    /**
+     * Test setting the redirection URL.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testGetSetRedirect() throws Exception {
+        OAuthToken token = new OAuthToken();
+
+        URI test = new URI("http://example.com/");
+
+        Assert.assertNull(token.getRedirect());
+        token.setRedirect(test);
+        Assert.assertEquals(test, token.getRedirect());
+    }
+
+    /**
+     * Test get/set scope list.
+     */
+    @Test
+    public void testGetSetScopes() {
+        OAuthToken token = new OAuthToken();
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        scopes.put("test", new ApplicationScope());
+
+        Assert.assertNull(token.getScopes());
+        token.setScopes(scopes);
+        Assert.assertEquals(scopes, token.getScopes());
+        Assert.assertNotSame(scopes, token.getScopes());
+    }
+
+    /**
+     * Test isExpired().
+     */
+    @Test
+    public void testIsExpired() {
+        OAuthToken token = new OAuthToken();
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+        TimeZone pdt = TimeZone.getTimeZone("PDT");
+
+        Calendar recentUTC = Calendar.getInstance(utc);
+        recentUTC.add(Calendar.SECOND, -100);
+
+        Calendar recentPDT = Calendar.getInstance(pdt);
+        recentPDT.add(Calendar.SECOND, -100);
+
+        // Test null createdDate.
+        Assert.assertTrue(token.isExpired());
+
+        // Test UTC Non-Expired Token.
+        token.setCreatedDate(recentUTC);
+        token.setExpiresIn(103);
+        Assert.assertFalse(token.isExpired());
+
+        // Expire the token.
+        token.setExpiresIn(99);
+        Assert.assertTrue(token.isExpired());
+
+        // Test Non-UTC Non-Expired Token.
+        token.setCreatedDate(recentPDT);
+        token.setExpiresIn(103);
+        Assert.assertFalse(token.isExpired());
+
+        // Expire the token.
+        token.setExpiresIn(99);
+        Assert.assertTrue(token.isExpired());
+    }
+
+    /**
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't
      * carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
@@ -123,16 +200,17 @@ public final class OAuthTokenTest {
 
         OAuthToken token = new OAuthToken();
         token.setId(UUID.randomUUID());
-        token.setCreatedDate(new Date());
-        token.setModifiedDate(new Date());
+        token.setCreatedDate(Calendar.getInstance());
+        token.setModifiedDate(Calendar.getInstance());
         token.setIdentity(identity);
         token.setClient(client);
+        token.setRedirect(new URI("http://example.com/"));
         token.setTokenType(OAuthTokenType.Authorization);
-        token.setAccessToken("accessToken");
         token.setExpiresIn(100);
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(token);
         JsonNode node = m.readTree(output);
 
@@ -140,11 +218,11 @@ public final class OAuthTokenTest {
                 token.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                token.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(token.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                token.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(token.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 token.getTokenType().toString(),
@@ -153,9 +231,8 @@ public final class OAuthTokenTest {
                 token.getExpiresIn(),
                 node.get("expiresIn").asLong());
         Assert.assertEquals(
-                token.getAccessToken(),
-                node.get("accessToken").asText());
-
+                token.getRedirect().toString(),
+                node.get("redirect").asText());
 
         Assert.assertFalse(node.has("client"));
         Assert.assertFalse(node.has("identity"));
@@ -176,14 +253,18 @@ public final class OAuthTokenTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("accessToken", "accessToken");
         node.put("tokenType", "Authorization");
         node.put("expiresIn", 300);
+        node.put("redirect", "http://example.com");
 
         String output = m.writeValueAsString(node);
         OAuthToken c = m.readValue(output, OAuthToken.class);
@@ -192,21 +273,21 @@ public final class OAuthTokenTest {
                 c.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                c.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(c.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                c.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(c.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
 
-        Assert.assertEquals(
-                c.getAccessToken(),
-                node.get("accessToken").asText());
         Assert.assertEquals(
                 c.getTokenType().toString(),
                 node.get("tokenType").asText());
         Assert.assertEquals(
                 c.getExpiresIn(),
                 node.get("expiresIn").asLong());
+        Assert.assertEquals(
+                c.getRedirect().toString(),
+                node.get("redirect").asText());
     }
 
     /**
@@ -228,5 +309,4 @@ public final class OAuthTokenTest {
 
         Assert.assertEquals(uuid, c.getId());
     }
-
 }

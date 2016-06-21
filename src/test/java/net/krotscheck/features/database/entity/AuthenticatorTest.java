@@ -23,11 +23,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.Authenticator.Deserializer;
+import net.krotscheck.test.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,13 +52,13 @@ public final class AuthenticatorTest {
      * Test getting/setting the application.
      */
     @Test
-    public void testGetSetApplication() {
+    public void testGetSetClient() {
         Authenticator auth = new Authenticator();
-        Application a = new Application();
+        Client client = new Client();
 
-        Assert.assertNull(auth.getApplication());
-        auth.setApplication(a);
-        Assert.assertEquals(a, auth.getApplication());
+        Assert.assertNull(auth.getClient());
+        auth.setClient(client);
+        Assert.assertEquals(client, auth.getClient());
     }
 
     /**
@@ -113,15 +117,16 @@ public final class AuthenticatorTest {
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't
      * carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
      */
     @Test
     public void testJacksonSerializable() throws Exception {
-        Application application = new Application();
-        application.setId(UUID.randomUUID());
+        Client client = new Client();
+        client.setId(UUID.randomUUID());
 
         List<UserIdentity> identities = new ArrayList<>();
         UserIdentity identity = new UserIdentity();
@@ -139,9 +144,9 @@ public final class AuthenticatorTest {
 
         Authenticator a = new Authenticator();
         a.setId(UUID.randomUUID());
-        a.setApplication(application);
-        a.setCreatedDate(new Date());
-        a.setModifiedDate(new Date());
+        a.setClient(client);
+        a.setCreatedDate(Calendar.getInstance());
+        a.setModifiedDate(Calendar.getInstance());
         a.setType("type");
         a.setConfiguration(config);
 
@@ -150,7 +155,8 @@ public final class AuthenticatorTest {
         a.setStates(states);
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
@@ -158,15 +164,15 @@ public final class AuthenticatorTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
-                a.getApplication().getId().toString(),
-                node.get("application").asText());
+                a.getClient().getId().toString(),
+                node.get("client").asText());
         Assert.assertEquals(
                 a.getType(),
                 node.get("type").asText());
@@ -199,11 +205,14 @@ public final class AuthenticatorTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("type", "type");
 
         ObjectNode configNode = m.createObjectNode();
@@ -218,11 +227,11 @@ public final class AuthenticatorTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 a.getType(),

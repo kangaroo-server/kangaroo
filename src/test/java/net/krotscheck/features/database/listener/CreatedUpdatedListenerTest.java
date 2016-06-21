@@ -17,13 +17,22 @@
 
 package net.krotscheck.features.database.listener;
 
-import net.krotscheck.features.database.entity.AbstractEntity;
+import net.krotscheck.features.database.entity.Application;
+import net.krotscheck.test.DatabaseTest;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PreInsertEvent;
-import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEvent;
-import org.hibernate.event.spi.PreUpdateEventListener;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.service.ServiceRegistry;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Calendar;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -36,7 +45,27 @@ import static org.mockito.Mockito.when;
  *
  * @author Michael Krotscheck
  */
-public final class CreatedUpdatedListenerTest {
+public final class CreatedUpdatedListenerTest extends DatabaseTest {
+
+    /**
+     * Attach the event listener to our session factory.
+     */
+    @Before
+    public void setup() {
+        SessionFactory factory = getSessionFactory();
+
+        // Register our event listeners.
+        ServiceRegistry registry =
+                ((SessionFactoryImpl) factory).getServiceRegistry();
+
+        EventListenerRegistry eventRegistry = registry
+                .getService(EventListenerRegistry.class);
+
+        eventRegistry.appendListeners(EventType.PRE_INSERT,
+                new CreatedUpdatedListener());
+        eventRegistry.appendListeners(EventType.PRE_UPDATE,
+                new CreatedUpdatedListener());
+    }
 
     /**
      * Assert that a record has its created and modified date updated during an
@@ -44,17 +73,26 @@ public final class CreatedUpdatedListenerTest {
      */
     @Test
     public void testOnPreInsert() {
-        PreInsertEventListener listener = new CreatedUpdatedListener();
-        PreInsertEvent event = mock(PreInsertEvent.class);
-        AbstractEntity entity = new TestEntity();
+        Application a = new Application();
+        a.setName("foo");
+        Assert.assertNull(a.getCreatedDate());
+        Assert.assertNull(a.getModifiedDate());
 
-        when(event.getEntity()).thenReturn(entity);
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.saveOrUpdate(a);
+        t.commit();
 
-        Assert.assertNull(entity.getCreatedDate());
-        Assert.assertNull(entity.getModifiedDate());
-        Assert.assertFalse(listener.onPreInsert(event));
-        Assert.assertNotNull(entity.getCreatedDate());
-        Assert.assertNotNull(entity.getModifiedDate());
+        Assert.assertNotNull(a.getCreatedDate());
+        Assert.assertNotNull(a.getModifiedDate());
+
+        s.evict(a);
+
+        Application readApplication =
+                s.get(Application.class, a.getId());
+
+        Assert.assertNotNull(readApplication.getCreatedDate());
+        Assert.assertNotNull(readApplication.getModifiedDate());
     }
 
     /**
@@ -62,21 +100,39 @@ public final class CreatedUpdatedListenerTest {
      */
     @Test
     public void testOnPreUpdate() {
-        PreUpdateEventListener listener = new CreatedUpdatedListener();
-        PreUpdateEvent event = mock(PreUpdateEvent.class);
-        AbstractEntity entity = new TestEntity();
+        Application a = new Application();
+        a.setName("foo");
 
-        when(event.getEntity()).thenReturn(entity);
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.saveOrUpdate(a);
+        t.commit();
 
-        Assert.assertNull(entity.getCreatedDate());
-        Assert.assertNull(entity.getModifiedDate());
-        Assert.assertFalse(listener.onPreUpdate(event));
-        Assert.assertNull(entity.getCreatedDate());
-        Assert.assertNotNull(entity.getModifiedDate());
+        Calendar created = a.getCreatedDate();
+        Calendar modified = a.getModifiedDate();
+
+        Assert.assertEquals(created, a.getCreatedDate());
+        Assert.assertEquals(modified, a.getModifiedDate());
+
+        a.setName("bar");
+        Transaction t2 = s.beginTransaction();
+        s.saveOrUpdate(a);
+        t.commit();
+
+        Assert.assertEquals(created, a.getCreatedDate());
+        Assert.assertNotEquals(modified, a.getModifiedDate());
+
+        s.evict(a);
+
+        Application readApplication =
+                s.get(Application.class, a.getId());
+
+        Assert.assertEquals(created, readApplication.getCreatedDate());
+        Assert.assertNotEquals(modified, readApplication.getModifiedDate());
     }
 
     /**
-     * Assert that a record has its modified date updated during an update.
+     * Assert that non-AbstractEntities aren't touched.
      */
     @Test
     public void testNotAbstractEntity() {
@@ -93,12 +149,5 @@ public final class CreatedUpdatedListenerTest {
 
         listener.onPreUpdate(updateEvent);
         verifyZeroInteractions(entity);
-    }
-
-    /**
-     * Test entity, used for testing!
-     */
-    private static class TestEntity extends AbstractEntity {
-
     }
 }

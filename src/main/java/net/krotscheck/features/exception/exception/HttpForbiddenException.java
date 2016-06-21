@@ -19,6 +19,8 @@ package net.krotscheck.features.exception.exception;
 
 import org.apache.http.HttpStatus;
 
+import java.net.URI;
+
 /**
  * Convenience exception for 403-forbidden.
  *
@@ -31,5 +33,14 @@ public final class HttpForbiddenException extends HttpStatusException {
      */
     public HttpForbiddenException() {
         super(HttpStatus.SC_FORBIDDEN);
+    }
+
+    /**
+     * Create a new redirecting HttpForbiddenException.
+     *
+     * @param redirect The URI to send the user agent to.
+     */
+    public HttpForbiddenException(final URI redirect) {
+        super(HttpStatus.SC_FORBIDDEN, redirect);
     }
 }

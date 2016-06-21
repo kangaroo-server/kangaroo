@@ -18,13 +18,15 @@
 package net.krotscheck.features.database.listener;
 
 import net.krotscheck.features.database.entity.AbstractEntity;
+import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.event.spi.PreInsertEvent;
 import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEvent;
 import org.hibernate.event.spi.PreUpdateEventListener;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 import javax.inject.Singleton;
 
 /**
@@ -37,6 +39,11 @@ public final class CreatedUpdatedListener
         implements PreInsertEventListener, PreUpdateEventListener {
 
     /**
+     * The timezone. Everything we're doing is UTC.
+     */
+    private final TimeZone timeZone = TimeZone.getTimeZone("UTC");
+
+    /**
      * Before insert, update the createdDate and modifiedDate.
      *
      * @param event The event.
@@ -46,10 +53,18 @@ public final class CreatedUpdatedListener
     public boolean onPreInsert(final PreInsertEvent event) {
         Object entity = event.getEntity();
         if (entity instanceof AbstractEntity) {
+            String[] propertyNames = event.getPersister().getEntityMetamodel()
+                    .getPropertyNames();
+            Object[] state = event.getState();
 
             AbstractEntity persistingEntity = (AbstractEntity) entity;
-            persistingEntity.setCreatedDate(new Date());
-            persistingEntity.setModifiedDate(new Date());
+            persistingEntity.setCreatedDate(Calendar.getInstance(timeZone));
+            persistingEntity.setModifiedDate(Calendar.getInstance(timeZone));
+
+            setValue(state, propertyNames, "createdDate",
+                    persistingEntity.getCreatedDate());
+            setValue(state, propertyNames, "modifiedDate",
+                    persistingEntity.getModifiedDate());
         }
 
         return false;
@@ -65,12 +80,34 @@ public final class CreatedUpdatedListener
     public boolean onPreUpdate(final PreUpdateEvent event) {
         Object entity = event.getEntity();
         if (entity instanceof AbstractEntity) {
+            String[] propertyNames = event.getPersister().getEntityMetamodel()
+                    .getPropertyNames();
+            Object[] state = event.getState();
 
             AbstractEntity persistingEntity = (AbstractEntity) entity;
-            persistingEntity.setModifiedDate(new Date());
+            persistingEntity.setModifiedDate(Calendar.getInstance(timeZone));
+
+            setValue(state, propertyNames, "modifiedDate",
+                    persistingEntity.getModifiedDate());
         }
 
         return false;
+    }
+
+    /**
+     * Set a specific value in the hibernate persistence array.
+     *
+     * @param currentState  The current persistence state.
+     * @param propertyNames The list of property names.
+     * @param propertyToSet The name of the property to set.
+     * @param value         The value to set.
+     */
+    private void setValue(final Object[] currentState,
+                          final String[] propertyNames,
+                          final String propertyToSet,
+                          final Object value) {
+        int index = ArrayUtils.indexOf(propertyNames, propertyToSet);
+        currentState[index] = value;
     }
 
     /**

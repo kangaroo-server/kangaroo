@@ -23,12 +23,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.UserIdentity.Deserializer;
+import net.krotscheck.test.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -124,8 +127,34 @@ public final class UserIdentityTest {
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
-     * carry an unexpected payload.
+     * Test the salt.
+     */
+    @Test
+    public void testGetSetSalt() {
+        UserIdentity identity = new UserIdentity();
+        String testString = "zomg";
+
+        Assert.assertNull(identity.getSalt());
+        identity.setSalt(testString);
+        Assert.assertEquals(testString, identity.getSalt());
+    }
+
+    /**
+     * Test the Password.
+     */
+    @Test
+    public void testGetSetPassword() {
+        UserIdentity identity = new UserIdentity();
+        String testString = "zomg";
+
+        Assert.assertNull(identity.getPassword());
+        identity.setPassword(testString);
+        Assert.assertEquals(testString, identity.getPassword());
+    }
+
+    /**
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
      */
@@ -148,16 +177,19 @@ public final class UserIdentityTest {
 
         UserIdentity identity = new UserIdentity();
         identity.setId(UUID.randomUUID());
-        identity.setCreatedDate(new Date());
-        identity.setModifiedDate(new Date());
+        identity.setCreatedDate(Calendar.getInstance());
+        identity.setModifiedDate(Calendar.getInstance());
         identity.setAuthenticator(authenticator);
         identity.setUser(user);
         identity.setTokens(tokens);
         identity.setClaims(claims);
+        identity.setPassword("newpass");
+        identity.setSalt("newsalt");
         identity.setRemoteId("remoteId");
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(identity);
         JsonNode node = m.readTree(output);
 
@@ -165,11 +197,11 @@ public final class UserIdentityTest {
                 identity.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                identity.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(identity.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                identity.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(identity.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 identity.getAuthenticator().getId().toString(),
@@ -191,6 +223,8 @@ public final class UserIdentityTest {
                 claimsNode.get("two").asText());
 
         Assert.assertFalse(node.has("tokens"));
+        Assert.assertFalse(node.has("password"));
+        Assert.assertFalse(node.has("salt"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -208,11 +242,14 @@ public final class UserIdentityTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("remoteId", "remoteId");
 
         ObjectNode claimNode = m.createObjectNode();
@@ -227,11 +264,11 @@ public final class UserIdentityTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
 
         Assert.assertEquals(
                 a.getRemoteId(),
@@ -266,5 +303,4 @@ public final class UserIdentityTest {
 
         Assert.assertEquals(uuid, u.getId());
     }
-
 }

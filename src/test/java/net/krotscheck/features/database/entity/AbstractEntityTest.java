@@ -20,7 +20,7 @@ package net.krotscheck.features.database.entity;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.UUID;
 
 /**
@@ -46,7 +46,7 @@ public final class AbstractEntityTest {
     @Test
     public void testGetSetCreatedDate() {
         AbstractEntity a = new TestEntity();
-        Date d = new Date();
+        Calendar d = Calendar.getInstance();
 
         Assert.assertNull(a.getCreatedDate());
         a.setCreatedDate(d);
@@ -60,7 +60,7 @@ public final class AbstractEntityTest {
     @Test
     public void testGetSetModifiedDate() {
         AbstractEntity a = new TestEntity();
-        Date d = new Date();
+        Calendar d = Calendar.getInstance();
 
         Assert.assertNull(a.getModifiedDate());
         a.setModifiedDate(d);

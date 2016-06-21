@@ -50,13 +50,13 @@ import javax.persistence.Table;
 public final class Authenticator extends AbstractEntity {
 
     /**
-     * The Application to whom this authenticator belongs.
+     * The Client to whom this authenticator belongs.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application", nullable = false, updatable = false)
+    @JoinColumn(name = "client", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
-    @JsonDeserialize(using = Application.Deserializer.class)
-    private Application application;
+    @JsonDeserialize(using = Client.Deserializer.class)
+    private Client client;
 
     /**
      * List of all identities assigned to this authenticator.
@@ -92,21 +92,21 @@ public final class Authenticator extends AbstractEntity {
     private Map<String, String> configuration;
 
     /**
-     * Get the application for this authenticator.
+     * Get the client for this authenticator.
      *
-     * @return The authenticator's application.
+     * @return The authenticator's client.
      */
-    public Application getApplication() {
-        return application;
+    public Client getClient() {
+        return client;
     }
 
     /**
-     * Set a new application for this authenticator.
+     * Set a new client for this authenticator.
      *
-     * @param application The new application.
+     * @param client The new client.
      */
-    public void setApplication(final Application application) {
-        this.application = application;
+    public void setClient(final Client client) {
+        this.client = client;
     }
 
     /**

@@ -11,7 +11,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -24,12 +24,66 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: owner
-                type: UUID
+                type: BINARY(16)
             - column:
                 name: name
                 type: varchar(255)
                 constraints:
                   nullable: false
+
+      # An application may have multiple user-defined scopes.
+      - createTable:
+          tableName: application_scopes
+          columns:
+            - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_application_scopes_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: application
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: application
+              type: BINARY(16)
+          indexName: idx_application_scopes_application
+          tableName: application_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: name
+              type: varchar(255)
+          indexName: idx_application_scopes_name
+          tableName: application_scopes
+      - addUniqueConstraint:
+          columnNames: application, name
+          constraintName: uq_application_scopes_application_name
+          tableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: application
+          baseTableName: application_scopes
+          constraintName: fk_application_scopes_application
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: applications
 
       # Every application has certain user roles. We need to make sure that
       # every application has at least one "owner" role, and that this role
@@ -39,7 +93,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -52,7 +106,7 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -73,13 +127,62 @@ databaseChangeLog:
           constraintName: uq_role_application_name
           tableName: roles
 
+      # Roles may be authorized to access specific lists of scopes.
+      - createTable:
+          tableName: role_scopes
+          columns:
+            - column:
+                name: role
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: scope
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: role
+              type: BINARY(16)
+          indexName: idx_role_scopes_role
+          tableName: role_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: scope
+              type: BINARY(16)
+          indexName: idx_role_scopes_scope
+          tableName: role_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: scope
+          baseTableName: role_scopes
+          constraintName: fk_role_scopes_scope
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: role
+          baseTableName: role_scopes
+          constraintName: fk_role_scopes_role
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: roles
+      - addUniqueConstraint:
+          columnNames: role, scope
+          constraintName: uq_role_scopes_role_scopes
+          tableName: role_scopes
+
       # Every application has users, and every user has a role.
       - createTable:
           tableName: users
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -92,14 +195,14 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: role
-                type: UUID
+                type: BINARY(16)
                 constraints:
-                  nullable: false
+                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: application
           baseTableName: users
@@ -134,7 +237,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -147,7 +250,7 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: application
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -157,34 +260,14 @@ databaseChangeLog:
                   nullable: false
             - column:
                 name: type
-                type: varchar(12)
+                type: varchar(18)
                 constraints:
                   nullable: false
             - column:
-                name: clientId
+                name: clientSecret
                 type: varchar(255)
                 constraints:
-                  nullable: false
-            - column:
-                name: referrer
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: redirect
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
-                name: authTokenExpire
-                type: int
-                constraints:
-                  nullable: false
-            - column:
-                name: refreshTokenExpire
-                type: int
-                constraints:
-                  nullable: false
+                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: application
           baseTableName: clients
@@ -193,6 +276,125 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: applications
+
+      # Some clients may have a list of application-unique referrers. These
+      # should be fully qualified Host URL's with a host, protocol, and port.
+      # Other parameters (such as fragments, paths, and query strings) are
+      # not used.
+      - createTable:
+          tableName: client_referrers
+          columns:
+            - column:
+                name: client
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: referrer
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: client
+              type: BINARY(16)
+          indexName: idx_client_referrers_client
+          tableName: client_referrers
+      - addUniqueConstraint:
+          columnNames: client, referrer
+          constraintName: uq_client_referrers_client_referrer
+          tableName: client_referrers
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: client_referrers
+          constraintName: fk_client_referrers_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
+
+      # Some clients may have a list of application-unique redirection url's,
+      # used for authorization paths that require a redirect.
+      - createTable:
+          tableName: client_redirects
+          columns:
+            - column:
+                name: client
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: redirect
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: client
+              type: BINARY(16)
+          indexName: idx_client_redirects_client
+          tableName: client_redirects
+      - addUniqueConstraint:
+          columnNames: client, redirect
+          constraintName: uq_client_redirects_client_redirect
+          tableName: client_redirects
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: client_redirects
+          constraintName: fk_client_redirects_clients
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
+
+      # An client may have multiple configuration options that govern
+      # its behavior.
+      - createTable:
+          tableName: client_configs
+          columns:
+            - column:
+                name: client
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: key
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: true
+      - createIndex:
+          columns:
+          - column:
+              name: client
+              type: BINARY(16)
+          indexName: idx_client_configs_client
+          tableName: client_configs
+      - createIndex:
+          columns:
+          - column:
+              name: key
+              type: varchar(255)
+          indexName: idx_client_configs_name
+          tableName: client_configs
+      - addUniqueConstraint:
+          columnNames: client, key
+          constraintName: uq_client_configs_client_key
+          tableName: client_configs
+      - addForeignKeyConstraint:
+          baseColumnNames: client
+          baseTableName: client_configs
+          constraintName: fk_client_configs_client
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: clients
 
       # Every application can have multiple 'authenticators' which describe a
       # remote authentication/identity provider that may be used as an
@@ -203,7 +405,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -215,8 +417,8 @@ databaseChangeLog:
                 name: modifiedDate
                 type: datetime
             - column:
-                name: application
-                type: UUID
+                name: client
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -225,13 +427,13 @@ databaseChangeLog:
                 constraints:
                   nullable: false
       - addForeignKeyConstraint:
-          baseColumnNames: application
+          baseColumnNames: client
           baseTableName: authenticators
-          constraintName: fk_authenticators_application
+          constraintName: fk_authenticators_client
           onDelete: CASCADE
           onUpdate: CASCADE
           referencedColumnNames: id
-          referencedTableName: applications
+          referencedTableName: clients
 
       # Each authenticator may require several custom configuration
       # parameters. Note that this table does not follow the
@@ -241,7 +443,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: authenticator
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -281,7 +483,6 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: authenticators
 
-
       # Every authenticator will have a per-request 'state', which contains
       # original user request parameters, as well as parameters sent to the
       # authenticator itself. It's intended to act as a storage cache for data
@@ -291,7 +492,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -304,51 +505,30 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: client
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: authenticator
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
-            - column:
-                name: authenticatorState
-                type: varchar(255)
-                constraints:
-                  nullable: false
-                  unique: true
-            - column:
-                name: authenticatorNonce
-                type: varchar(255)
-                constraints:
-                  nullable: false
-                  unique: true
             - column:
                 name: clientState
                 type: varchar(255)
                 constraints:
-                  nullable: false
-                  unique: true
+                  nullable: true
             - column:
-                name: clientNonce
+                name: clientRedirect
                 type: varchar(255)
                 constraints:
                   nullable: false
-                  unique: true
       - createIndex:
           columns:
           - column:
               name: clientState
               type: varchar(255)
           indexName: idx_authenticator_states_client_state
-          tableName: authenticator_states
-      - createIndex:
-          columns:
-          - column:
-              name: authenticatorState
-              type: varchar(255)
-          indexName: idx_authenticator_states_authenticator_state
           tableName: authenticator_states
       - addForeignKeyConstraint:
           baseColumnNames: authenticator
@@ -367,6 +547,56 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: clients
 
+      # An intermediate authenticator state must keep track of the requested
+      # scopes.
+      - createTable:
+          tableName: authenticator_state_scopes
+          columns:
+            - column:
+                name: authenticator_state
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: scope
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: authenticator_state
+              type: BINARY(16)
+          indexName: idx_authenticator_state_scopes_authenticator_state
+          tableName: authenticator_state_scopes
+      - createIndex:
+          columns:
+          - column:
+              name: scope
+              type: BINARY(16)
+          indexName: idx_authenticator_state_scopes_scope
+          tableName: authenticator_state_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: scope
+          baseTableName: authenticator_state_scopes
+          constraintName: fk_authenticator_state_scopes_scope
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: authenticator_state
+          baseTableName: authenticator_state_scopes
+          constraintName: fk_authenticator_state_scopes_authenticator_state
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: authenticator_states
+      - addUniqueConstraint:
+          columnNames: authenticator_state, scope
+          constraintName: uq_authenticator_state_scopes_authenticator_state_scopes
+          tableName: authenticator_state_scopes
+
       # Every user in an application will have a series of 'identities',
       # which are equivalent to a user claim provided by an authenticator.
       # This effectively serves to store the remote-id of a particular claim
@@ -376,7 +606,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -389,12 +619,12 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: user
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
                 name: authenticator
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -402,6 +632,16 @@ databaseChangeLog:
                 type: varchar(255)
                 constraints:
                   nullable: false
+            - column:
+                name: password
+                type: varchar(255)
+                constraints:
+                  nullable: true
+            - column:
+                name: salt
+                type: varchar(255)
+                constraints:
+                  nullable: true
       - createIndex:
           columns:
           - column:
@@ -437,7 +677,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: user_identity
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -484,7 +724,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false
@@ -497,12 +737,17 @@ databaseChangeLog:
                 type: datetime
             - column:
                 name: identity
-                type: UUID
+                type: BINARY(16)
                 constraints:
-                  nullable: false
+                  nullable: true
+            - column:
+                name: authToken
+                type: BINARY(16)
+                constraints:
+                  nullable: true
             - column:
                 name: client
-                type: UUID
+                type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
@@ -511,15 +756,15 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: accessToken
-                type: varchar(255)
-                constraints:
-                  nullable: false
-            - column:
                 name: expiresIn
                 type: int
                 constraints:
                   nullable: false
+            - column:
+                name: redirect
+                type: varchar(255)
+                constraints:
+                  nullable: true
       - addForeignKeyConstraint:
           baseColumnNames: identity
           baseTableName: oauth_tokens
@@ -536,23 +781,68 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: clients
+      - addForeignKeyConstraint:
+          baseColumnNames: authToken
+          baseTableName: oauth_tokens
+          constraintName: fk_oauth_tokens_oauth_tokens_authToken
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: oauth_tokens
 
-      # The last thing we do is insert the root application, and the initial
-      # root application user.
-      - insert:
-          tableName: applications
+      # OAuth Tokens have a limited list of scopes.
+      - createTable:
+          tableName: oauth_token_scopes
+          columns:
+            - column:
+                name: token
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+            - column:
+                name: scope
+                type: BINARY(16)
+                constraints:
+                  nullable: false
+      - createIndex:
           columns:
           - column:
-              name: id
-              type: UUID
-              value: '1078212b-af7b-463f-8717-c9cdee68bc5e'
+              name: token
+              type: BINARY(16)
+          indexName: idx_oauth_token_scopes_token
+          tableName: oauth_token_scopes
+      - createIndex:
+          columns:
           - column:
-              name: name
-              type: varchar(255)
-              value: 'OAuthServer'
+              name: scope
+              type: BINARY(16)
+          indexName: idx_oauth_token_scopes_scope
+          tableName: oauth_token_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: scope
+          baseTableName: oauth_token_scopes
+          constraintName: fk_oauth_token_scopes_scope
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: application_scopes
+      - addForeignKeyConstraint:
+          baseColumnNames: token
+          baseTableName: oauth_token_scopes
+          constraintName: fk_oauth_token_scopes_token
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: oauth_tokens
+      - addUniqueConstraint:
+          columnNames: token, scope
+          constraintName: uq_oauth_token_scopes_oauth_token_scopes
+          tableName: oauth_token_scopes
 
 
       rollback:
+        - dropTable:
+            tableName: oauth_token_scopes
         - dropTable:
             tableName: oauth_tokens
         - dropTable:
@@ -560,16 +850,28 @@ databaseChangeLog:
         - dropTable:
             tableName: user_identities
         - dropTable:
+            tableName: authenticator_state_scopes
+        - dropTable:
             tableName: authenticator_states
         - dropTable:
             tableName: authenticator_params
         - dropTable:
             tableName: authenticators
         - dropTable:
+            tableName: client_configs
+        - dropTable:
+            tableName: client_redirects
+        - dropTable:
+            tableName: client_referrers
+        - dropTable:
             tableName: clients
         - dropTable:
             tableName: users
         - dropTable:
+            tableName: role_scopes
+        - dropTable:
             tableName: roles
+        - dropTable:
+            tableName: application_scopes
         - dropTable:
             tableName: applications

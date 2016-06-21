@@ -19,6 +19,7 @@ package net.krotscheck.features.exception.exception;
 
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
+import java.net.URI;
 import java.util.Locale;
 import javax.xml.ws.WebServiceException;
 
@@ -33,17 +34,43 @@ public class HttpStatusException extends WebServiceException {
     /**
      * The HTTP httpStatus code for this requestMapping.
      */
-    private int httpStatus;
+    private final int httpStatus;
 
     /**
-     * Constructs a new requestMapping with the specified detail message and
-     * httpStatus.
+     * An optional redirection URI.
+     */
+    private final URI redirect;
+
+    /**
+     * A short form error code.
+     */
+    private final String errorCode;
+
+    /**
+     * Constructs a new requestMapping with the specified httpStatus. The
+     * message is inferred from the same.
      *
      * @param httpResponseStatus The HTTP Status code thrown by this error.
      */
     public HttpStatusException(final int httpResponseStatus) {
         this(httpResponseStatus, EnglishReasonPhraseCatalog.INSTANCE
                 .getReason(httpResponseStatus, Locale.getDefault()));
+    }
+
+    /**
+     * Constructs a new requestMapping with the specified httpStatus and
+     * redirect.
+     *
+     * @param httpResponseStatus The HTTP Status code thrown by this error.
+     * @param redirect           The redirection URI to which we're supposed
+     *                           to send the user.
+     */
+    public HttpStatusException(final int httpResponseStatus,
+                               final URI redirect) {
+        this(httpResponseStatus,
+                EnglishReasonPhraseCatalog.INSTANCE
+                        .getReason(httpResponseStatus, Locale.getDefault()),
+                redirect);
     }
 
     /**
@@ -56,8 +83,70 @@ public class HttpStatusException extends WebServiceException {
      */
     public HttpStatusException(final int httpResponseStatus,
                                final String message) {
+        this(httpResponseStatus,
+                message,
+                EnglishReasonPhraseCatalog.INSTANCE
+                        .getReason(httpResponseStatus, Locale.getDefault())
+                        .toLowerCase().replace(" ", "_"),
+                null);
+    }
+
+    /**
+     * Constructs a new requestMapping with the specified detail message,
+     * httpStatus, and redirect.
+     *
+     * @param httpResponseStatus The HTTP Status code thrown by this error.
+     * @param message            The detail message which is later retrieved
+     *                           using the getMessage method
+     * @param redirect           The redirection URI to which we're supposed
+     *                           to send the user.
+     */
+    public HttpStatusException(final int httpResponseStatus,
+                               final String message,
+                               final URI redirect) {
+        this(httpResponseStatus,
+                message,
+                EnglishReasonPhraseCatalog.INSTANCE
+                        .getReason(httpResponseStatus, Locale.getDefault())
+                        .toLowerCase().replace(" ", "_"),
+                redirect);
+    }
+
+    /**
+     * Constructs a new requestMapping with the specified detail message,
+     * status, and error code.
+     *
+     * @param httpResponseStatus The HTTP Status code thrown by this error.
+     * @param message            The detail message which is later retrieved
+     *                           using the getMessage method
+     * @param errorCode          A short-form error code.
+     */
+    public HttpStatusException(final int httpResponseStatus,
+                               final String message,
+                               final String errorCode) {
+        this(httpResponseStatus, message, errorCode, null);
+    }
+
+    /**
+     * Constructs a new requestMapping with the specified detail message,
+     * status, error code, and redirection url. The mapper will redirect the
+     * user to the provided URL with the error body in the query string
+     *
+     * @param httpResponseStatus The HTTP Status code thrown by this error.
+     * @param message            The detail message which is later retrieved
+     *                           using the getMessage method
+     * @param errorCode          A short-form error code.
+     * @param redirect           The redirection URI to which we're supposed
+     *                           to send the user.
+     */
+    public HttpStatusException(final int httpResponseStatus,
+                               final String message,
+                               final String errorCode,
+                               final URI redirect) {
         super(message);
         this.httpStatus = httpResponseStatus;
+        this.errorCode = errorCode;
+        this.redirect = redirect;
     }
 
     /**
@@ -69,5 +158,21 @@ public class HttpStatusException extends WebServiceException {
         return httpStatus;
     }
 
+    /**
+     * Retrieve the redirection URI.
+     *
+     * @return The redirect URI.
+     */
+    public final URI getRedirect() {
+        return redirect;
+    }
 
+    /**
+     * Return the short-form error code for this exception.
+     *
+     * @return A short-form error code.
+     */
+    public final String getErrorCode() {
+        return errorCode;
+    }
 }

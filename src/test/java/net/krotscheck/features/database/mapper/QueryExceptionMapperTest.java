@@ -42,7 +42,7 @@ public final class QueryExceptionMapperTest {
 
         Assert.assertEquals(400, r.getStatus());
         Assert.assertEquals(400, er.getHttpStatus());
-        Assert.assertEquals("Bad Request", er.getErrorMessage());
+        Assert.assertEquals("Bad Request", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }
 

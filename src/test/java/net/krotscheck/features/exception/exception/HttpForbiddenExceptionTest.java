@@ -20,6 +20,9 @@ package net.krotscheck.features.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
+import javax.ws.rs.core.UriBuilder;
+
 /**
  * Assert that HttpForbiddenException has the appropriate values.
  *
@@ -45,5 +48,21 @@ public final class HttpForbiddenExceptionTest {
 
         Assert.assertEquals(403, e.getHttpStatus());
         Assert.assertEquals("Forbidden", e.getMessage());
+        Assert.assertEquals("forbidden", e.getErrorCode());
+        Assert.assertEquals(null, e.getRedirect());
+    }
+
+    /**
+     * Test redirect values.
+     */
+    @Test
+    public void testRedirectExceptions() {
+        URI redirect = UriBuilder.fromPath("http://www.example.com").build();
+        HttpForbiddenException e = new HttpForbiddenException(redirect);
+
+        Assert.assertEquals(403, e.getHttpStatus());
+        Assert.assertEquals("Forbidden", e.getMessage());
+        Assert.assertEquals("forbidden", e.getErrorCode());
+        Assert.assertEquals(redirect, e.getRedirect());
     }
 }

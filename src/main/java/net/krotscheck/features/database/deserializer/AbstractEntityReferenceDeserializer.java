@@ -56,6 +56,7 @@ public abstract class AbstractEntityReferenceDeserializer
      * @throws IOException Thrown when parsing fails.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public final T deserialize(final JsonParser parser,
                                final DeserializationContext context)
             throws IOException {

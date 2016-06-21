@@ -18,8 +18,13 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.test.JacksonUtil;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for the token type.
@@ -35,13 +40,16 @@ public final class OAuthTokenTypeTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
 
         String authOutput = m.writeValueAsString(OAuthTokenType.Authorization);
         Assert.assertEquals("\"Authorization\"", authOutput);
 
         String bearerOutput = m.writeValueAsString(OAuthTokenType.Bearer);
         Assert.assertEquals("\"Bearer\"", bearerOutput);
+
+        String refreshOutput = m.writeValueAsString(OAuthTokenType.Refresh);
+        Assert.assertEquals("\"Refresh\"", refreshOutput);
     }
 
     /**
@@ -51,12 +59,15 @@ public final class OAuthTokenTypeTest {
      */
     @Test
     public void testDeserialization() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
         OAuthTokenType authOutput =
                 m.readValue("\"Authorization\"", OAuthTokenType.class);
         Assert.assertSame(authOutput, OAuthTokenType.Authorization);
         OAuthTokenType bearerOutput =
                 m.readValue("\"Bearer\"", OAuthTokenType.class);
         Assert.assertSame(bearerOutput, OAuthTokenType.Bearer);
+        OAuthTokenType refreshOutput =
+                m.readValue("\"Refresh\"", OAuthTokenType.class);
+        Assert.assertSame(refreshOutput, OAuthTokenType.Refresh);
     }
 }

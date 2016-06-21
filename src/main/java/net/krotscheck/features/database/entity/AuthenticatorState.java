@@ -17,22 +17,26 @@
 
 package net.krotscheck.features.database.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.SortNatural;
 
+import java.net.URI;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.Table;
 
 /**
  * This entity describes state data stored while an authorization request has
- * been passed to the authentication authenticator. It is retrieved based on the
- * authenticatorState and the authenticatorNonce.
+ * been passed to the authentication authenticator. It is retrieved based on
+ * the authenticatorState and the authenticatorNonce.
  *
  * @author Michael Krotscheck
  */
@@ -45,8 +49,6 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client", nullable = false, updatable = false)
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonDeserialize(using = Client.Deserializer.class)
     private Client client;
 
     /**
@@ -54,44 +56,36 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authenticator", nullable = false, updatable = false)
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonDeserialize(using = Authenticator.Deserializer.class)
     private Authenticator authenticator;
-
-    /**
-     * The stored request state for the authenticator.
-     */
-    @Basic(optional = false)
-    @Column(name = "authenticatorState", unique = false)
-    private String authenticatorState;
-
-    /**
-     * The stored request nonce for the authenticator.
-     */
-    @Basic(optional = false)
-    @Column(name = "authenticatorNonce", unique = false)
-    private String authenticatorNonce;
 
     /**
      * The client's state.
      */
-    @Basic(optional = false)
+    @Basic
     @Column(name = "clientState", unique = false)
     private String clientState;
 
     /**
-     * The scope requested from the client.
+     * The client's redirect.
      */
     @Basic(optional = false)
-    @Column(name = "clientScope", unique = false)
-    private String clientScope;
+    @Column(name = "clientRedirect", unique = false)
+    private URI clientRedirect;
 
     /**
-     * The nonce attached to the client's request.
+     * List of the requested client scopes.
      */
-    @Basic(optional = false)
-    @Column(name = "clientNonce", unique = false)
-    private String clientNonce;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "authenticator_state_scopes",
+            joinColumns = {
+                    @JoinColumn(name = "authenticator_state",
+                            nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "scope",
+                            nullable = false, updatable = false)})
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> clientScopes;
 
     /**
      * Retrieve the client.
@@ -130,39 +124,40 @@ public final class AuthenticatorState extends AbstractEntity {
     }
 
     /**
-     * Retrieve the state passed to the authenticator.
+     * Get the validated client redirection URI.
      *
-     * @return The state which the authenticator received.
+     * @return The URI which the client requested a result response to.
      */
-    public String getAuthenticatorState() {
-        return authenticatorState;
+    public URI getClientRedirect() {
+        return clientRedirect;
     }
 
     /**
-     * Set a new authenticator state.
+     * Set a new redirection URI.
      *
-     * @param authenticatorState A new auth state.
+     * @param clientRedirect The redirection URI.
      */
-    public void setAuthenticatorState(final String authenticatorState) {
-        this.authenticatorState = authenticatorState;
+    public void setClientRedirect(final URI clientRedirect) {
+        this.clientRedirect = clientRedirect;
     }
 
     /**
-     * Get the cryptographic nonce for the authentication request.
+     * The list of requested application scopes.
      *
-     * @return The nonce.
+     * @return The list of scopes.
      */
-    public String getAuthenticatorNonce() {
-        return authenticatorNonce;
+    public SortedMap<String, ApplicationScope> getClientScopes() {
+        return clientScopes;
     }
 
     /**
-     * Set an authentication nonce.
+     * Set the list of client scopes.
      *
-     * @param authenticatorNonce A cryptographic nonce.
+     * @param clientScopes A new list of scopes.
      */
-    public void setAuthenticatorNonce(final String authenticatorNonce) {
-        this.authenticatorNonce = authenticatorNonce;
+    public void setClientScopes(
+            final SortedMap<String, ApplicationScope> clientScopes) {
+        this.clientScopes = new TreeMap<>(clientScopes);
     }
 
     /**
@@ -181,58 +176,5 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     public void setClientState(final String clientState) {
         this.clientState = clientState;
-    }
-
-    /**
-     * Retrieve the client scope. Note that this is the raw value, and may
-     * require some additional processing to determine the true value.
-     *
-     * @return The requested client scope.
-     */
-    public String getClientScope() {
-        return clientScope;
-    }
-
-    /**
-     * Set a raw client scope.
-     *
-     * @param clientScope The scope requested by the client.
-     */
-    public void setClientScope(final String clientScope) {
-        this.clientScope = clientScope;
-    }
-
-    /**
-     * Retrieve the client nonce.
-     *
-     * @return The client's nonce.
-     */
-    public String getClientNonce() {
-        return clientNonce;
-    }
-
-    /**
-     * Set the client's nonce.
-     *
-     * @param clientNonce The client's nonce.
-     */
-    public void setClientNonce(final String clientNonce) {
-        this.clientNonce = clientNonce;
-    }
-
-    /**
-     * Deserialize a reference to an Authenticator.
-     *
-     * @author Michael Krotschecks
-     */
-    public static final class Deserializer
-            extends AbstractEntityReferenceDeserializer<AuthenticatorState> {
-
-        /**
-         * Constructor.
-         */
-        public Deserializer() {
-            super(AuthenticatorState.class);
-        }
     }
 }

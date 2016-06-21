@@ -58,7 +58,7 @@ public final class User extends AbstractEntity {
      * The user's role in this application.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role", nullable = false, updatable = true)
+    @JoinColumn(name = "role", nullable = true, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = Role.Deserializer.class)
     private Role role;

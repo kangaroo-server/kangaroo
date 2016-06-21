@@ -19,7 +19,12 @@ package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.SortNatural;
 
+import java.net.URI;
+import java.util.Calendar;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,7 +32,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.Table;
 
 /**
@@ -44,7 +52,7 @@ public final class OAuthToken extends AbstractEntity {
      * The authenticated user identity.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "identity", nullable = false, updatable = false)
+    @JoinColumn(name = "identity", nullable = true, updatable = false)
     @JsonIgnore
     private UserIdentity identity;
 
@@ -57,6 +65,14 @@ public final class OAuthToken extends AbstractEntity {
     private Client client;
 
     /**
+     * The parent auth token (used for refresh tokens only).
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authToken", nullable = true, updatable = false)
+    @JsonIgnore
+    private OAuthToken authToken;
+
+    /**
      * The token type.
      */
     @Enumerated(EnumType.STRING)
@@ -64,19 +80,35 @@ public final class OAuthToken extends AbstractEntity {
     private OAuthTokenType tokenType = OAuthTokenType.Bearer;
 
     /**
-     * The access token.
-     */
-    @Basic(optional = false)
-    @Column(name = "accessToken", unique = false, nullable = false,
-            updatable = false)
-    private String accessToken;
-
-    /**
-     * Expires in how many seconds?.
+     * Expires in how many seconds?
      */
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
-    private long expiresIn = 3600;
+    private long expiresIn = 600;
+
+    /**
+     * Authorization Codes must keep track of the redirect they were issued
+     * for.
+     */
+    @Basic
+    @Column(name = "redirect", nullable = true)
+    private URI redirect;
+
+    /**
+     * List of the application's scopes.
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "oauth_token_scopes",
+            joinColumns = {
+                    @JoinColumn(name = "token",
+                            nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "scope",
+                            nullable = false, updatable = false)})
+    @JsonIgnore
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> scopes;
 
     /**
      * Get the user identity to which this token was issued.
@@ -115,6 +147,24 @@ public final class OAuthToken extends AbstractEntity {
     }
 
     /**
+     * Retrieve the oauth token for this refresh token.
+     *
+     * @return The auth token.
+     */
+    public OAuthToken getAuthToken() {
+        return authToken;
+    }
+
+    /**
+     * Set the new parent auth token (for refresh tokens only).
+     *
+     * @param authToken The new auth token.
+     */
+    public void setAuthToken(final OAuthToken authToken) {
+        this.authToken = authToken;
+    }
+
+    /**
      * Get the token type.
      *
      * @return Bearer or Authorization, as an enum.
@@ -133,24 +183,6 @@ public final class OAuthToken extends AbstractEntity {
     }
 
     /**
-     * Get the access token.
-     *
-     * @return The access token itself.
-     */
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    /**
-     * Set the access token.
-     *
-     * @param accessToken The access token itself.
-     */
-    public void setAccessToken(final String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    /**
      * Get the token lifetime, in seconds.
      *
      * @return The lifetime of the token, in seconds.
@@ -166,6 +198,60 @@ public final class OAuthToken extends AbstractEntity {
      */
     public void setExpiresIn(final long expiresIn) {
         this.expiresIn = expiresIn;
+    }
+
+    /**
+     * Get this token's scopes.
+     *
+     * @return A map of scopes.
+     */
+    public SortedMap<String, ApplicationScope> getScopes() {
+        return scopes;
+    }
+
+    /**
+     * Set this token's scopes.
+     *
+     * @param scopes A new map of scopes.
+     */
+    public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
+        this.scopes = new TreeMap<>(scopes);
+    }
+
+    /**
+     * This method returns true if the created time, plus the expiration
+     * seconds, is less than the current time.
+     *
+     * @return True of this token is expired, otherwise false.
+     */
+    @JsonIgnore
+    public boolean isExpired() {
+        if (getCreatedDate() == null) {
+            return true;
+        }
+
+        Calendar now = Calendar.getInstance();
+        Calendar expireDate = (Calendar) getCreatedDate().clone();
+        expireDate.add(Calendar.SECOND, (int) getExpiresIn());
+        return now.after(expireDate);
+    }
+
+    /**
+     * Get the redirect attached to this token.
+     *
+     * @return The redirect.
+     */
+    public URI getRedirect() {
+        return redirect;
+    }
+
+    /**
+     * Set the redirect for this particular token.
+     *
+     * @param redirect The new redirect.
+     */
+    public void setRedirect(final URI redirect) {
+        this.redirect = redirect;
     }
 
     /**

@@ -24,9 +24,14 @@
          application="uuid'00000000-0000-0000-0000-000000000001'"
          name="owner"/>
 
+  <clients id="uuid'00000000-0000-0000-0000-000000000001'"
+           application="uuid'00000000-0000-0000-0000-000000000001'"
+           type="Implicit"
+           name="Test Client"/>
+
   <authenticators
       id="uuid'00000000-0000-0000-0000-000000000001'"
-      application="uuid'00000000-0000-0000-0000-000000000001'"
+      client="uuid'00000000-0000-0000-0000-000000000001'"
       type="test_authenticator"
   />
 

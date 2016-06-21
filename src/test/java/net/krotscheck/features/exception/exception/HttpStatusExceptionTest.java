@@ -21,6 +21,9 @@ import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
+import javax.ws.rs.core.UriBuilder;
+
 /**
  * Assert that HttpStatusException is a good basic constructor.
  *
@@ -47,6 +50,8 @@ public final class HttpStatusExceptionTest {
 
         Assert.assertEquals(200, e.getHttpStatus());
         Assert.assertEquals("OK", e.getMessage());
+        Assert.assertEquals("ok", e.getErrorCode());
+        Assert.assertEquals(null, e.getRedirect());
     }
 
     /**
@@ -59,5 +64,36 @@ public final class HttpStatusExceptionTest {
 
         Assert.assertEquals(200, e.getHttpStatus());
         Assert.assertEquals("Message", e.getMessage());
+        Assert.assertEquals("ok", e.getErrorCode());
+        Assert.assertEquals(null, e.getRedirect());
+    }
+
+    /**
+     * Test redirect values.
+     */
+    @Test
+    public void testRedirectConstruction() {
+        URI redirect = UriBuilder.fromPath("http://www.example.com").build();
+        HttpStatusException e = new HttpStatusException(HttpStatus.SC_OK,
+                redirect);
+
+        Assert.assertEquals(200, e.getHttpStatus());
+        Assert.assertEquals("OK", e.getMessage());
+        Assert.assertEquals("ok", e.getErrorCode());
+        Assert.assertEquals(redirect, e.getRedirect());
+    }
+
+    /**
+     * Test code constructino values.
+     */
+    @Test
+    public void testCodeConstruction() {
+        HttpStatusException e = new HttpStatusException(HttpStatus.SC_OK,
+                "message", "error_code");
+
+        Assert.assertEquals(200, e.getHttpStatus());
+        Assert.assertEquals("message", e.getMessage());
+        Assert.assertEquals("error_code", e.getErrorCode());
+        Assert.assertEquals(null, e.getRedirect());
     }
 }

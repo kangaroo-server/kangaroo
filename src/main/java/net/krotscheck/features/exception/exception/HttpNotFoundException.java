@@ -19,6 +19,8 @@ package net.krotscheck.features.exception.exception;
 
 import org.apache.http.HttpStatus;
 
+import java.net.URI;
+
 /**
  * Convenience exception for 404-not-found.
  *
@@ -31,5 +33,14 @@ public final class HttpNotFoundException extends HttpStatusException {
      */
     public HttpNotFoundException() {
         super(HttpStatus.SC_NOT_FOUND);
+    }
+
+    /**
+     * Create a new redirecting HttpNotFoundException.
+     *
+     * @param redirect The URI to send the user agent to.
+     */
+    public HttpNotFoundException(final URI redirect) {
+        super(HttpStatus.SC_NOT_FOUND, redirect);
     }
 }

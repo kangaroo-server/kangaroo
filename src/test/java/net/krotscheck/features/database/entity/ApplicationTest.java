@@ -23,14 +23,22 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.Application.Deserializer;
+import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.test.JacksonUtil;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -113,22 +121,23 @@ public final class ApplicationTest {
     }
 
     /**
-     * Test get/set authenticator list.
+     * Test get/set scope list.
      */
     @Test
-    public void testGetSetAuthenticators() {
+    public void testGetSetScopes() {
         Application a = new Application();
-        List<Authenticator> authenticators = new ArrayList<>();
-        authenticators.add(new Authenticator());
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        scopes.put("foo", new ApplicationScope());
 
-        Assert.assertNull(a.getAuthenticators());
-        a.setAuthenticators(authenticators);
-        Assert.assertEquals(authenticators, a.getAuthenticators());
-        Assert.assertNotSame(authenticators, a.getAuthenticators());
+        Assert.assertNull(a.getScopes());
+        a.setScopes(scopes);
+        Assert.assertEquals(scopes, a.getScopes());
+        Assert.assertNotSame(scopes, a.getScopes());
     }
 
     /**
-     * Assert that this entity can be serialized into a JSON object, and doesn't
+     * Assert that this entity can be serialized into a JSON object, and
+     * doesn't
      * carry an unexpected payload.
      *
      * @throws Exception Should not be thrown.
@@ -154,15 +163,10 @@ public final class ApplicationTest {
         role.setId(UUID.randomUUID());
         roles.add(role);
 
-        List<Authenticator> authenticators = new ArrayList<>();
-        Authenticator authenticator = new Authenticator();
-        authenticator.setId(UUID.randomUUID());
-        authenticators.add(authenticator);
-
         Application a = new Application();
         a.setId(UUID.randomUUID());
-        a.setCreatedDate(new Date());
-        a.setModifiedDate(new Date());
+        a.setCreatedDate(Calendar.getInstance());
+        a.setModifiedDate(Calendar.getInstance());
         a.setOwner(owner);
         a.setName("name");
 
@@ -170,10 +174,10 @@ public final class ApplicationTest {
         a.setClients(clients);
         a.setRoles(roles);
         a.setUsers(users);
-        a.setAuthenticators(authenticators);
 
         // De/serialize to json.
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
@@ -181,11 +185,11 @@ public final class ApplicationTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("modifiedDate").asText());
         Assert.assertEquals(
                 a.getOwner().getId().toString(),
                 node.get("owner").asText());
@@ -194,7 +198,6 @@ public final class ApplicationTest {
                 node.get("name").asText());
         Assert.assertFalse(node.has("clients"));
         Assert.assertFalse(node.has("roles"));
-        Assert.assertFalse(node.has("authenticators"));
         Assert.assertFalse(node.has("users"));
 
         // Enforce a given number of items.
@@ -213,11 +216,14 @@ public final class ApplicationTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = JacksonUtil.buildMapper();
+        DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
-        node.put("createdDate", new Date().getTime());
-        node.put("modifiedDate", new Date().getTime());
+        node.put("createdDate",
+                format.format(Calendar.getInstance().getTime()));
+        node.put("modifiedDate",
+                format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
 
         String output = m.writeValueAsString(node);
@@ -227,11 +233,11 @@ public final class ApplicationTest {
                 a.getId().toString(),
                 node.get("id").asText());
         Assert.assertEquals(
-                a.getCreatedDate().getTime(),
-                node.get("createdDate").asLong());
+                format.format(a.getCreatedDate().getTime()),
+                node.get("createdDate").asText());
         Assert.assertEquals(
-                a.getModifiedDate().getTime(),
-                node.get("modifiedDate").asLong());
+                format.format(a.getModifiedDate().getTime()),
+                node.get("modifiedDate").asText());
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());

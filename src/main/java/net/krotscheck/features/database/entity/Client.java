@@ -23,17 +23,23 @@ import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDese
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -56,6 +62,13 @@ public final class Client extends AbstractEntity {
     @JoinColumn(name = "application", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     private Application application;
+
+    /**
+     * List of the application's authenticators.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
+    @JsonIgnore
+    private List<Authenticator> authenticators;
 
     /**
      * OAuth tokens issued to this client.
@@ -85,43 +98,44 @@ public final class Client extends AbstractEntity {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private ClientType type = ClientType.Public;
+    private ClientType type = ClientType.AuthorizationGrant;
 
     /**
-     * The unique client ID by which the API client identifies itself. This is
-     * matched against the permitted URL's.
+     * A client secret, indicating a password which must be provided to the
+     * client.
      */
-    @Basic(optional = false)
-    @Column(name = "clientId", unique = true, updatable = false)
-    private String clientId;
+    @Basic
+    @Column(name = "clientSecret", updatable = true, nullable = true)
+    private String clientSecret;
 
     /**
-     * The base URL from which all authorization referrals must originate.
+     * A collection of referral URL's, used for CORS matching.
      */
-    @Basic(optional = false)
-    @Column(name = "referrer", nullable = false)
-    private URL referrer;
+    @ElementCollection
+    @CollectionTable(name = "client_referrers",
+            joinColumns = @JoinColumn(name = "client"))
+    @Column(name = "referrer")
+    private Set<URI> referrers;
 
     /**
-     * The target redirection URL for all return requests.
+     * A list of redirect URL's, used for redirection-based flows.
      */
-    @Basic(optional = false)
-    @Column(name = "redirect", nullable = false)
-    private URL redirect;
+    @ElementCollection
+    @CollectionTable(name = "client_redirects",
+            joinColumns = @JoinColumn(name = "client"))
+    @Column(name = "redirect")
+    private Set<URI> redirects;
 
     /**
-     * Expiration time for auth tokens, in seconds. Default one hour.
+     * The configuration settings for this application.
      */
-    @Basic(optional = false)
-    @Column(name = "authTokenExpire", nullable = false)
-    private Integer authTokenExpire = 3600;
-
-    /**
-     * Expiration time for refresh tokens, in seconds. Default one week.
-     */
-    @Basic(optional = false)
-    @Column(name = "refreshTokenExpire", nullable = false)
-    private Integer refreshTokenExpire = 604800;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "client_configs",
+            joinColumns = @JoinColumn(name = "client"))
+    @MapKeyColumn(name = "key")
+    @Column(name = "value")
+    @Cascade(CascadeType.ALL)
+    private Map<String, String> configuration;
 
     /**
      * Get the application this client belongs to.
@@ -160,95 +174,75 @@ public final class Client extends AbstractEntity {
     }
 
     /**
-     * Get the client ID.
+     * Retrieve the client secret.
      *
-     * @return The client ID.
+     * @return The client secret.
      */
-    public String getClientId() {
-        return clientId;
+    public String getClientSecret() {
+        return clientSecret;
     }
 
     /**
-     * Set the client ID.
+     * Set the client secret.
      *
-     * @param clientId The new client ID.
+     * @param clientSecret A new client secret.
      */
-    public void setClientId(final String clientId) {
-        this.clientId = clientId;
+    public void setClientSecret(final String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 
     /**
-     * Get the valid referrer for this client.
+     * Get the list of valid referrers.
      *
-     * @return The referrer URI.
+     * @return This client's list of valid referrers.
      */
-    public URL getReferrer() {
-        return referrer;
+    public Set<URI> getReferrers() {
+        return referrers;
     }
 
     /**
-     * Set the referrer URL.
+     * Update the set of valid referrers.
      *
-     * @param referrer A new referrer URL.
+     * @param referrers A new set of referrers.
      */
-    public void setReferrer(final URL referrer) {
-        this.referrer = referrer;
+    public void setReferrers(final Set<URI> referrers) {
+        this.referrers = referrers;
     }
 
     /**
-     * The eventual redirect location for the client. Must match what the
-     * client
-     * provides.
+     * Get the valid redirect URI's.
      *
-     * @return The new redirect URI.
+     * @return The valid redirect url's.
      */
-    public URL getRedirect() {
-        return redirect;
+    public Set<URI> getRedirects() {
+        return redirects;
     }
 
     /**
-     * Set a new redirect URI.
+     * Set the list of redirects.
      *
-     * @param redirect The new URI.
+     * @param redirects The redirects.
      */
-    public void setRedirect(final URL redirect) {
-        this.redirect = redirect;
+    public void setRedirects(final Set<URI> redirects) {
+        this.redirects = redirects;
     }
 
     /**
-     * Get the Auth token expiration time, in seconds.
+     * The list of authenticators active in this client.
      *
-     * @return The time in seconds.
+     * @return The list of authenticators.
      */
-    public Integer getAuthTokenExpire() {
-        return authTokenExpire;
+    public List<Authenticator> getAuthenticators() {
+        return authenticators;
     }
 
     /**
-     * Set the new timeout for the auth token.
+     * Set the authenticators.
      *
-     * @param authTokenExpire New timeout, in seconds.
+     * @param authenticators New list of authenticators.
      */
-    public void setAuthTokenExpire(final Integer authTokenExpire) {
-        this.authTokenExpire = authTokenExpire;
-    }
-
-    /**
-     * Get the expiration time of the refresh token.
-     *
-     * @return Expiration time, in seconds.
-     */
-    public Integer getRefreshTokenExpire() {
-        return refreshTokenExpire;
-    }
-
-    /**
-     * Set a new expiration time for the refresh token.
-     *
-     * @param refreshTokenExpire New expiration, in seconds.
-     */
-    public void setRefreshTokenExpire(final Integer refreshTokenExpire) {
-        this.refreshTokenExpire = refreshTokenExpire;
+    public void setAuthenticators(final List<Authenticator> authenticators) {
+        this.authenticators = new ArrayList<>(authenticators);
     }
 
     /**
@@ -303,6 +297,79 @@ public final class Client extends AbstractEntity {
      */
     public void setType(final ClientType type) {
         this.type = type;
+    }
+
+    /**
+     * Retrieve configuration for this client.
+     *
+     * @return A set of configuration elements, such as token expiry.
+     */
+    public Map<String, String> getConfiguration() {
+        return configuration;
+    }
+
+    /**
+     * Set the configuration for this client.
+     *
+     * @param configuration The new configuration.
+     */
+    public void setConfiguration(final Map<String, String> configuration) {
+        this.configuration = new HashMap<>(configuration);
+    }
+
+    /**
+     * Extract the authorization code expiration time (in seconds) for this
+     * client. This value is derived from the default configuration values, or
+     * from a default, if such exists.
+     *
+     * @return The expiration horizon of an access token, in seconds.
+     */
+    @JsonIgnore
+    public Integer getAuthorizationCodeExpiresIn() {
+        try {
+            Map<String, String> config = getConfiguration();
+            String value =
+                    config.get(ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return ClientConfig.AUTHORIZATION_CODE_EXPIRES_DEFAULT;
+        }
+    }
+
+    /**
+     * Extract the access token expiration time (in seconds) for this client.
+     * This value is derived from the default configuration values, or from a
+     * default, if such exists.
+     *
+     * @return The expiration horizon of an access token, in seconds.
+     */
+    @JsonIgnore
+    public Integer getAccessTokenExpireIn() {
+        try {
+            Map<String, String> config = getConfiguration();
+            String value = config.get(ClientConfig.ACCESS_TOKEN_EXPIRES_NAME);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT;
+        }
+    }
+
+    /**
+     * Extract the refresh token expiration time (in seconds) for this client.
+     * This value is derived from the default configuration values, or from a
+     * default, if such exists.
+     *
+     * @return The expiration horizon of an access token, in seconds.
+     */
+    @JsonIgnore
+    public Integer getRefreshTokenExpireIn() {
+        try {
+            Map<String, String> config = getConfiguration();
+            String value = config.get(ClientConfig.REFRESH_TOKEN_EXPIRES_NAME);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT;
+        }
     }
 
     /**

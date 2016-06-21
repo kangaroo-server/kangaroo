@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.features.database.deserializer.AbstractEntityReferenceDeserializer;
+import org.hibernate.annotations.SortNatural;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -29,12 +30,15 @@ import org.hibernate.search.annotations.Store;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -71,11 +75,13 @@ public final class Application extends AbstractEntity {
     private List<Role> roles;
 
     /**
-     * List of the application's authenticators.
+     * List of the application's scopes.
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
     @JsonIgnore
-    private List<Authenticator> authenticators;
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> scopes;
 
     /**
      * The owner of the application.
@@ -167,21 +173,21 @@ public final class Application extends AbstractEntity {
     }
 
     /**
-     * The list of authenticators active in this application.
+     * Get this application's scopes.
      *
-     * @return The list of authenticators.
+     * @return A list of scopes.
      */
-    public List<Authenticator> getAuthenticators() {
-        return authenticators;
+    public SortedMap<String, ApplicationScope> getScopes() {
+        return scopes;
     }
 
     /**
-     * Set the authenticators.
+     * Set this application's scopes.
      *
-     * @param authenticators New list of authenticators.
+     * @param scopes A new list of scopes.
      */
-    public void setAuthenticators(final List<Authenticator> authenticators) {
-        this.authenticators = new ArrayList<>(authenticators);
+    public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
+        this.scopes = new TreeMap<>(scopes);
     }
 
     /**

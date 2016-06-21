@@ -1,4 +1,7 @@
 # oauth2-server
+[![Build Status](https://travis-ci.org/krotscheck/oauth2-server.svg)](https://travis-ci.org/krotscheck/oauth2-server)
+[![Coverage Status](https://coveralls.io/repos/krotscheck/oauth2-server/badge.svg)](https://coveralls.io/r/krotscheck/oauth2-server)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/oauth2-server/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/oauth2-server)
 
 ## Why?
 * Because nobody can agree on what OAuth2 is.
@@ -25,5 +28,22 @@
 * Server redirects to Browser App
 
 ## Todo list
-
-* Everything
+* Collect default settings (such as token expiry) into one set of constants.
+* Add a Database configuration component to SystemConfiguration.
+* CORS filter which respects the 'referrer' field from the Client Configuration.
+* Implement EnvironmentBuilder.
+* Add 'public' field to the Client.
+* Collect default settings (such as token expiry) into one set of constants.
+* Add a configuration API that allows us to modify server configuration.
+* Add an initial first-time load context listener that sets up data for this 
+  application.
+* Add API endpoints for data management- user, identities, clients, 
+  authenticators, etc.
+* Implement generic secondary OpenID authenticator.
+* Implement Google Auth authenticator.
+* Implement Facebook authenticator.
+* Everything Else.
+* Callback states should be cleaned if abandoned.
+* Tokens should be cleaned once expired.
+* Requested scopes should be restricted by granted roles.
+* Additional parameters in redirect responses should be honored.

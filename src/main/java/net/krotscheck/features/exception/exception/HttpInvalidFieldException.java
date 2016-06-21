@@ -19,6 +19,8 @@ package net.krotscheck.features.exception.exception;
 
 import org.apache.http.HttpStatus;
 
+import java.net.URI;
+
 /**
  * Commonly used requestMapping for when a particular property is missing or
  * incorrect. Can be used to easily inform the user that their input parameters
@@ -40,8 +42,21 @@ public final class HttpInvalidFieldException extends HttpStatusException {
      * @param invalidFieldName The name of the invalid field.
      */
     public HttpInvalidFieldException(final String invalidFieldName) {
-        super(HttpStatus.SC_BAD_REQUEST, "Invalid Field: " + invalidFieldName);
-        this.invalidField = invalidFieldName;
+        this(invalidFieldName, null);
+    }
+
+    /**
+     * Create a new redirecting HttpInvalidFieldException.
+     *
+     * @param invalidFieldName The name of the invalid field.
+     * @param redirect         The URI to send the user agent to.
+     */
+    public HttpInvalidFieldException(final String invalidFieldName,
+                                     final URI redirect) {
+        super(HttpStatus.SC_BAD_REQUEST,
+                "Invalid Field: " + invalidFieldName,
+                redirect);
+        this.invalidField = "foo";
     }
 
     /**
