@@ -1,7 +1,7 @@
-# oauth2-server
-[![Build Status](https://travis-ci.org/krotscheck/oauth2-server.svg)](https://travis-ci.org/krotscheck/oauth2-server)
-[![Coverage Status](https://coveralls.io/repos/krotscheck/oauth2-server/badge.svg)](https://coveralls.io/r/krotscheck/oauth2-server)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/oauth2-server/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/oauth2-server)
+# Kangaroo: An OAuth2 Server
+[![Build Status](https://travis-ci.org/kangaroo-server/kangaroo.svg)](https://travis-ci.org/kangaroo-server/kangaroo)
+[![Coverage Status](https://coveralls.io/repos/kangaroo-server/kangaroo/badge.svg)](https://coveralls.io/r/kangaroo-server/kangaroo)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/kangaroo/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/kangaroo)
 
 ## Why?
 * Because nobody can agree on what OAuth2 is.

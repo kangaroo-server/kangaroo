@@ -4,16 +4,16 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.krotscheck</groupId>
-  <artifactId>openid-server</artifactId>
+  <artifactId>kangaroo</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>war</packaging>
-  <name>openid-server</name>
+  <name>kangaroo</name>
   <description>
     A standalone OpenID Connect SSO Server, which delegates authentication via a
     pluggable framework.
   </description>
-  <url>https://github.com/krotscheck/openid-server</url>
+  <url>https://github.com/kangaroo-server/kangaroo</url>
 
   <profiles>
     <profile>
@@ -105,12 +105,12 @@
 
   <ciManagement>
     <system>travis</system>
-    <url>https://travis-ci.org/krotscheck/openid-server</url>
+    <url>https://travis-ci.org/kangaroo-server/kangaroo</url>
   </ciManagement>
 
   <issueManagement>
     <system>github</system>
-    <url>https://github.com/krotscheck/openid-server/issues</url>
+    <url>https://github.com/kangaroo-server/kangaroo/issues</url>
   </issueManagement>
 
   <developers>
@@ -135,13 +135,13 @@
 
   <scm>
     <developerConnection>
-      scm:git:git@github.com:krotscheck/openid-server.git
+      scm:git:git@github.com:kangaroo-server/kangaroo.git
     </developerConnection>
     <connection>
-      scm:git:git@github.com:krotscheck/openid-server.git
+      scm:git:git@github.com:kangaroo-server/kangaroo.git
     </connection>
     <url>
-      https://github.com/krotscheck/openid-server
+      https://github.com/kangaroo-server/kangaroo
     </url>
     <tag>HEAD</tag>
   </scm>
@@ -482,10 +482,10 @@
           <dependencyLocationsEnabled>false
           </dependencyLocationsEnabled>
           <anonymousConnection>
-            scm:git:git@github.com:krotscheck/openid-server.git
+            scm:git:git@github.com:kangaroo-server/kangaroo.git
           </anonymousConnection>
           <developerConnection>
-            scm:git:git@github.com:krotscheck/openid-server.git
+            scm:git:git@github.com:kangaroo-server/kangaroo.git
           </developerConnection>
         </configuration>
         <reportSets>
