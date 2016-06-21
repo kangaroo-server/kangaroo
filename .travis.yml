@@ -10,12 +10,8 @@ branches:
   - /^release\/.*$/
 
 before_script:
-  - mvn clean
-  - mvn checkstyle:check
-  - mvn cobertura:check
-  - mvn pmd:check
-  - mvn pmd:cpd-check
+  - mvn checkstyle:check cobertura:check pmd:check pmd:cpd-check
 script:
   - mvn install
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn cobertura:cobertura coveralls:report
