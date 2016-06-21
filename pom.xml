@@ -76,6 +76,7 @@
     <hibernate.version>5.0.6.Final</hibernate.version>
     <hibernate-search.version>5.5.1.Final</hibernate-search.version>
     <jersey2-toolkit.version>2.1.1</jersey2-toolkit.version>
+    <slf4j.version>1.7.13</slf4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -302,6 +303,8 @@
             </dependency>
           </dependencies>
           <configuration>
+            <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+
             <systemProperties>
               <property>
                 <name>test.db.jdbc</name>
@@ -536,7 +539,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.13</version>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -656,7 +664,7 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-search</artifactId>
+      <artifactId>hibernate-search-orm</artifactId>
       <version>${hibernate-search.version}</version>
     </dependency>
     <dependency>
