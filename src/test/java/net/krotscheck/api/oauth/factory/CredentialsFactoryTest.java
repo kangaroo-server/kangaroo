@@ -112,6 +112,7 @@ public final class CredentialsFactoryTest {
      * @see <a href="https://sourceforge.net/p/cobertura/bugs/92/">https://sourceforge.net/p/cobertura/bugs/92/</a>
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testGenericInterface() throws Exception {
         UUID clientId = UUID.randomUUID();
         Provider<ContainerRequest> provider =
