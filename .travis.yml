@@ -8,7 +8,9 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
-
+cache:
+  directories:
+  - $HOME/.m2
 before_script:
   - mvn clean
   - mvn checkstyle:check
