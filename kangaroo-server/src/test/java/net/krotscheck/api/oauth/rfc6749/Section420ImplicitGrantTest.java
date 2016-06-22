@@ -19,7 +19,7 @@ package net.krotscheck.api.oauth.rfc6749;
 
 import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
-import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;

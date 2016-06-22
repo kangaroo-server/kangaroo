@@ -19,10 +19,10 @@ package net.krotscheck.api.admin.v1.user.resource;
 
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.database.util.SortUtil;
-import net.krotscheck.features.exception.exception.HttpNotFoundException;
-import net.krotscheck.features.response.ApiParam;
-import net.krotscheck.features.response.ListResponseBuilder;
-import net.krotscheck.features.response.SortOrder;
+import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
+import net.krotscheck.kangaroo.common.response.ApiParam;
+import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
+import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;

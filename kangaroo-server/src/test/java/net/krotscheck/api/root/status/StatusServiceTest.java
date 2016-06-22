@@ -17,7 +17,7 @@
 
 package net.krotscheck.api.root.status;
 
-import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;

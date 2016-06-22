@@ -28,7 +28,7 @@ import net.krotscheck.features.database.entity.OAuthTokenType;
 import net.krotscheck.features.database.entity.Role;
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.database.entity.UserIdentity;
-import net.krotscheck.features.security.PasswordUtil;
+import net.krotscheck.kangaroo.common.security.PasswordUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;

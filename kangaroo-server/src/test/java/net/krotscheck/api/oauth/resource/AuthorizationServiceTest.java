@@ -20,7 +20,7 @@ package net.krotscheck.api.oauth.resource;
 import net.krotscheck.api.oauth.OAuthTestApp;
 import net.krotscheck.features.database.entity.AuthenticatorState;
 import net.krotscheck.features.database.entity.ClientType;
-import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.ContainerTest;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;

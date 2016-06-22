@@ -29,7 +29,7 @@ import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthToken;
 import net.krotscheck.features.database.entity.OAuthTokenType;
 import net.krotscheck.features.database.entity.UserIdentity;
-import net.krotscheck.features.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;

@@ -19,10 +19,10 @@ package net.krotscheck.api.admin.v1;
 
 
 import net.krotscheck.api.admin.v1.user.UserFeature;
-import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
-import net.krotscheck.features.exception.ExceptionFeature;
-import net.krotscheck.features.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
+import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.features.version.VersionFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;

@@ -17,7 +17,7 @@
 
 package net.krotscheck.features.database.mapper;
 
-import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import org.hibernate.HibernateException;
 import org.junit.Assert;
 import org.junit.Test;

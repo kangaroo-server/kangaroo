@@ -17,11 +17,11 @@
 
 package net.krotscheck.api.admin.v1.user.resource;
 
-import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.database.entity.User;
-import net.krotscheck.features.exception.ExceptionFeature;
-import net.krotscheck.features.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
+import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.test.ContainerTest;
 import net.krotscheck.util.ResourceUtil;
 import org.apache.http.HttpStatus;

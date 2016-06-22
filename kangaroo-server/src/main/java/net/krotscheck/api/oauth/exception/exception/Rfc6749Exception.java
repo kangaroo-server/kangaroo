@@ -17,7 +17,7 @@
 
 package net.krotscheck.api.oauth.exception.exception;
 
-import net.krotscheck.features.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;
 
 import java.net.URI;

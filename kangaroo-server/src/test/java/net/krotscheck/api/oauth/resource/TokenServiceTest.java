@@ -21,7 +21,7 @@ import net.krotscheck.api.oauth.OAuthAPI;
 import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthTokenType;
-import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.ContainerTest;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
