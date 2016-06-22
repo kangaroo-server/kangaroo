@@ -359,7 +359,7 @@ public final class UserServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that you can browse users and set ordering invalid->asc.
+     * Assert that an invalid order maps to "ASC".
      */
     @Test
     public void testBrowseUsersSortOrderInvalid() {
