@@ -17,7 +17,7 @@
 
 package net.krotscheck.features.database.mapper;
 
-import net.krotscheck.features.exception.ErrorResponseBuilder;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.HibernateException;
 

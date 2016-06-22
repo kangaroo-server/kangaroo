@@ -17,7 +17,7 @@
 
 package net.krotscheck.features.database.util;
 
-import net.krotscheck.features.response.SortOrder;
+import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.hibernate.criterion.Order;
 
 /**

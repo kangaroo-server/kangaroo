@@ -17,7 +17,7 @@
 
 package net.krotscheck.api.oauth;
 
-import net.krotscheck.features.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.test.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;

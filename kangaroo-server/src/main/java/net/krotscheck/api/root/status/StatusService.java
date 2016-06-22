@@ -18,7 +18,7 @@
 package net.krotscheck.api.root.status;
 
 
-import net.krotscheck.features.config.SystemConfiguration;
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import org.apache.http.HttpStatus;
 
 import javax.annotation.security.PermitAll;

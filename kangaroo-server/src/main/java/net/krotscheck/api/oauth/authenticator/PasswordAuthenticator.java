@@ -20,7 +20,7 @@ package net.krotscheck.api.oauth.authenticator;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.features.database.entity.Authenticator;
 import net.krotscheck.features.database.entity.UserIdentity;
-import net.krotscheck.features.security.PasswordUtil;
+import net.krotscheck.kangaroo.common.security.PasswordUtil;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Criteria;

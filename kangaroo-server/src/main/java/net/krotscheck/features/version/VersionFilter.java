@@ -17,7 +17,7 @@
 
 package net.krotscheck.features.version;
 
-import net.krotscheck.features.config.SystemConfiguration;
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import java.io.IOException;

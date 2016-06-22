@@ -18,7 +18,7 @@
 package net.krotscheck.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.glassfish.hk2.api.ServiceLocator;
 
 import static org.mockito.Mockito.mock;

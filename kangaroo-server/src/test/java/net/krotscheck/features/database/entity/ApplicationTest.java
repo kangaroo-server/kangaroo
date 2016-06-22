@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.features.database.entity.Application.Deserializer;
-import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import net.krotscheck.test.JacksonUtil;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;

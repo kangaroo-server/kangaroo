@@ -18,7 +18,7 @@
 package net.krotscheck.features.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.features.jackson.ObjectMapperFactory;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import net.krotscheck.test.JacksonUtil;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.junit.Assert;

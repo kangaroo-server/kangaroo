@@ -17,7 +17,7 @@
 
 package net.krotscheck.features.version;
 
-import net.krotscheck.features.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
