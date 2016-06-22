@@ -18,7 +18,8 @@
 package net.krotscheck.features.database.listener;
 
 import net.krotscheck.features.database.entity.Application;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -32,7 +33,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -65,6 +68,26 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
                 new CreatedUpdatedListener());
         eventRegistry.appendListeners(EventType.PRE_UPDATE,
                 new CreatedUpdatedListener());
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**

@@ -23,19 +23,23 @@ import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URI;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 /**
@@ -73,27 +77,34 @@ public final class Section410AuthorizationCodeGrantTest
     private EnvironmentBuilder misconfiguredAuthContext;
 
     /**
+     * An invalid client context.
+     */
+    private EnvironmentBuilder invalidClientContext;
+
+    /**
      * The auth header string for each test.
      */
     private String authHeader;
 
     /**
-     * Bootstrap the application.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void bootstrap() {
-        context = setupEnvironment()
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("test")
                 .redirect("http://valid.example.com/redirect")
                 .scope("debug")
                 .authToken();
-        bareContext = setupEnvironment()
+        bareContext = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("test");
-        authContext = setupEnvironment()
+        authContext = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.AuthorizationGrant, true)
                 .authenticator("test")
@@ -101,20 +112,45 @@ public final class Section410AuthorizationCodeGrantTest
                 .user()
                 .identity("remote_identity")
                 .authToken();
-        noauthContext = setupEnvironment()
+        noauthContext = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.AuthorizationGrant)
                 .redirect("http://valid.example.com/redirect")
                 .scope("debug");
-        misconfiguredAuthContext = setupEnvironment()
+        misconfiguredAuthContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("foo")
                 .redirect("http://valid.example.com/redirect")
                 .scope("debug");
+        invalidClientContext = new EnvironmentBuilder(getSession())
+                .client(ClientType.Implicit)
+                .authenticator("foo")
+                .redirect("http://valid.example.com/redirect")
+                .scope("debug")
+                .authToken();
 
-        authHeader = buildAuthorizationHeader(
+        authHeader = HttpUtil.authHeaderBasic(
                 authContext.getClient().getId(),
                 authContext.getClient().getClientSecret());
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        fixtures.add(bareContext);
+        fixtures.add(authContext);
+        fixtures.add(noauthContext);
+        fixtures.add(misconfiguredAuthContext);
+        fixtures.add(invalidClientContext);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
@@ -147,7 +183,8 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
     }
@@ -177,7 +214,8 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
     }
@@ -302,10 +340,11 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("error"));
         Assert.assertEquals("unsupported_response_type",
-                params.get("error"));
+                params.getFirst("error"));
         Assert.assertTrue(params.containsKey("error_description"));
     }
 
@@ -355,7 +394,8 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
     }
@@ -384,9 +424,10 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("invalid_request", params.get("error"));
+        Assert.assertEquals("invalid_request", params.getFirst("error"));
         Assert.assertTrue(params.containsKey("error_description"));
     }
 
@@ -414,9 +455,10 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("invalid_request", params.get("error"));
+        Assert.assertEquals("invalid_request", params.getFirst("error"));
         Assert.assertTrue(params.containsKey("error_description"));
     }
 
@@ -444,9 +486,10 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("invalid_scope", params.get("error"));
+        Assert.assertEquals("invalid_scope", params.getFirst("error"));
         Assert.assertTrue(params.containsKey("error_description"));
     }
 
@@ -476,9 +519,10 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
-        Assert.assertEquals(state, params.get("state"));
+        Assert.assertEquals(state, params.getFirst("state"));
     }
 
     /**
@@ -505,7 +549,8 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
     }
@@ -536,9 +581,10 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
-        Assert.assertEquals(state.toString(), params.get("state"));
+        Assert.assertEquals(state.toString(), params.getFirst("state"));
     }
 
     /**
@@ -569,7 +615,8 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the body parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
     }
@@ -675,7 +722,8 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
     }
@@ -707,11 +755,12 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
         Assert.assertFalse(params.containsKey("state"));
         Assert.assertTrue(params.containsKey("foo"));
-        Assert.assertEquals("bar", params.get("foo"));
+        Assert.assertEquals("bar", params.getFirst("foo"));
     }
 
     /**
@@ -1000,7 +1049,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenAuthHeaderInvalid() {
-        String badHeader = buildAuthorizationHeader(
+        String badHeader = HttpUtil.authHeaderBasic(
                 authContext.getClient().getId(),
                 "invalid_secret");
 
@@ -1201,17 +1250,11 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenInvalidClient() {
-        EnvironmentBuilder ctx = setupEnvironment()
-                .client(ClientType.Implicit)
-                .authenticator("foo")
-                .redirect("http://valid.example.com/redirect")
-                .scope("debug")
-                .authToken();
-
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", ctx.getClient().getId().toString());
-        f.param("code", ctx.getToken().getId().toString());
+        f.param("client_id",
+                invalidClientContext.getClient().getId().toString());
+        f.param("code", invalidClientContext.getToken().getId().toString());
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1641,15 +1684,16 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertNull(location.getFragment());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location);
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location);
         Assert.assertTrue(params.containsKey("code"));
-        Assert.assertEquals(state1, params.get("state"));
+        Assert.assertEquals(state1, params.getFirst("state"));
 
         // Extract the authorization code and issue a token request
         String state2 = UUID.randomUUID().toString();
         Form f = new Form();
         f.param("client_id", context.getClient().getId().toString());
-        f.param("code", params.get("code"));
+        f.param("code", params.getFirst("code"));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         f.param("state", state2);

@@ -17,10 +17,13 @@
 
 package net.krotscheck.api.admin.v1;
 
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.List;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -37,6 +40,26 @@ public final class AdminV1APITest extends ContainerTest {
     @Override
     protected Application configure() {
         return new AdminV1API();
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**

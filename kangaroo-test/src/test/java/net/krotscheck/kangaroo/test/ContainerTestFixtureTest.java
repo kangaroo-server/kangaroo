@@ -15,23 +15,35 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.rfc6749;
+package net.krotscheck.kangaroo.test;
 
-import net.krotscheck.kangaroo.test.IFixture;
-import org.apache.http.HttpStatus;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Application;
 
 /**
- * These tests assert that the expected endpoints defined in Section 3 exist.
+ * Test the container test, by implementing the container test.
  *
- * @see <a href="https://tools.ietf.org/html/rfc6749#section-3">https://tools.ietf.org/html/rfc6749#section-3</a>
+ * @author Michael Krotscheck
  */
-public final class Section300EndpointsTest extends AbstractRFC6749Test {
+public final class ContainerTestFixtureTest extends ContainerTest {
+
+    /**
+     * A blank dummy app.
+     *
+     * @return A dummy app!
+     */
+    @Override
+    protected Application configure() {
+        return new ResourceConfig();
+    }
 
     /**
      * Load data fixtures for each test.
@@ -40,7 +52,7 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
      */
     @Override
     public List<IFixture> fixtures() {
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -54,20 +66,14 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
     }
 
     /**
-     * Assert that the /authorize endpoint exists.
+     * Test that convenience methods are accessible.
      */
     @Test
-    public void testAuthorizationEndpoint() {
-        Response response = target("/authorize").request().get();
-        Assert.assertNotEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
-    }
+    public void testTest() {
+        Session s = getSession();
+        SessionFactory f = getSessionFactory();
 
-    /**
-     * Assert that the /token endpoint exists.
-     */
-    @Test
-    public void testTokenEndpoint() {
-        Response response = target("/token").request().get();
-        Assert.assertNotEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
+        Assert.assertTrue(s.isOpen());
+        Assert.assertFalse(f.isClosed());
     }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.test;
+package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -38,7 +38,6 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -49,7 +48,7 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.FileSystemResourceAccessor;
+import liquibase.resource.ClassLoaderResourceAccessor;
 
 import static org.mockito.Mockito.mock;
 
@@ -93,11 +92,6 @@ public final class DatabaseManager {
             LoggerFactory.getLogger(DatabaseManager.class);
 
     /**
-     * The list of environment builders used in the most recent test.
-     */
-    private List<EnvironmentBuilder> builders = new ArrayList<>();
-
-    /**
      * Singleton instance of the database tester.
      */
     private IDatabaseTester tester;
@@ -119,6 +113,8 @@ public final class DatabaseManager {
 
     /**
      * Set up a JDNI connection for your tests.
+     *
+     * @throws NamingException Thrown if the JNDI name cannot be created.
      */
     public void setupJNDI() {
         logger.info("Setting up JNDI.");
@@ -141,8 +137,10 @@ public final class DatabaseManager {
             bds.setUsername(System.getProperty("test.db.user", USER));
             bds.setPassword(System.getProperty("test.db.password", PASSWORD));
             ic.bind(JNDI, bds);
-        } catch (NamingException ne) {
-            ne.getMessage();
+        } catch (NamingException e) {
+            // Do nothing, this is only thrown if the context already exists,
+            // which will happen in a second test run.
+            e.getMessage();
         }
     }
 
@@ -150,21 +148,23 @@ public final class DatabaseManager {
      * Load some test data into our database.
      *
      * @param dataFile The test data xml file to map.
+     * @throws Exception one of several exceptions encountered while loading.
      */
-    public void loadTestData(final File dataFile) {
-        try {
-            logger.info("Loading test data...");
-            IDatabaseTester databaseTester = getDatabaseTester();
-            FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
-            IDataSet dataSet = builder.build(dataFile);
-
-            databaseTester.setDataSet(dataSet);
-            databaseTester.onSetup();
-
-            testData.add(dataSet);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public void loadTestData(final File dataFile)
+            throws Exception {
+        if (dataFile == null) {
+            return;
         }
+
+        logger.info("Loading test data...");
+        IDatabaseTester databaseTester = getDatabaseTester();
+        FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
+        IDataSet dataSet = builder.build(dataFile);
+
+        databaseTester.setDataSet(dataSet);
+        databaseTester.onSetup();
+
+        testData.add(dataSet);
 
         // Rebuild the search index.
         new SearchIndexContextListener()
@@ -173,31 +173,28 @@ public final class DatabaseManager {
 
     /**
      * Clears the test data.
+     *
+     * @throws Exception one of several exceptions encountered while cleaning.
      */
-    public void clearTestData() {
-        try {
-            logger.info("Clearing test data...");
+    public void clearTestData() throws Exception {
+        logger.info("Clearing test data...");
 
-            IDatabaseTester databaseTester = getDatabaseTester();
-            for (IDataSet dataSet : testData) {
-                // initialize your dataset here
-                databaseTester.setDataSet(dataSet);
-                databaseTester.onTearDown();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            testData.clear();
+        IDatabaseTester databaseTester = getDatabaseTester();
+        for (IDataSet dataSet : testData) {
+            // initialize your dataset here
+            databaseTester.setDataSet(dataSet);
+            databaseTester.onTearDown();
         }
+
+        testData.clear();
     }
 
     /**
      * Get an instance of the database tester.
      *
      * @return The database tester.
-     * @throws Exception Misc migration exceptions.
      */
-    private IDatabaseTester getDatabaseTester() throws Exception {
+    private IDatabaseTester getDatabaseTester() {
         if (tester == null) {
             tester = new JndiDatabaseTester("java:/comp/env/jdbc/OIDServerDB");
             tester.setSetUpOperation(DatabaseOperation.DELETE_ALL);
@@ -274,7 +271,7 @@ public final class DatabaseManager {
                 .findCorrectDatabaseImplementation(new JdbcConnection(conn));
 
         liquibase = new Liquibase("liquibase/db.changelog-master.yaml",
-                new FileSystemResourceAccessor("src/main/resources"), database);
+                new ClassLoaderResourceAccessor(), database);
         liquibase.update(new Contexts());
     }
 
@@ -291,47 +288,25 @@ public final class DatabaseManager {
             liquibase = null;
         }
 
-        if (conn != null && !conn.isClosed()) {
+        if (conn != null) {
             logger.info("Closing connection.");
             conn.close();
+            conn = null;
         }
-        conn = null;
     }
 
     /**
      * Clean all sessions.
      */
     public void cleanSessions() {
-        if (session != null && session.isOpen()) {
+        if (session != null) {
             session.close();
+            session = null;
         }
-        session = null;
 
-        if (sessionFactory != null && !sessionFactory.isClosed()) {
+        if (sessionFactory != null) {
             sessionFactory.close();
+            sessionFactory = null;
         }
-        sessionFactory = null;
-    }
-
-    /**
-     * Set up the test's database environment.
-     *
-     * @return An environment builder.
-     */
-    public EnvironmentBuilder setupEnvironment() {
-        EnvironmentBuilder b = new EnvironmentBuilder(getSession(),
-                UUID.randomUUID().toString());
-        builders.add(b);
-        return b;
-    }
-
-    /**
-     * Clear any created environment entities after the tests have been run.
-     */
-    public void clearEnvironment() {
-        for (EnvironmentBuilder builder : builders) {
-            builder.reset();
-        }
-        builders.clear();
     }
 }

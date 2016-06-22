@@ -24,11 +24,15 @@ import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthToken;
 import net.krotscheck.features.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
@@ -77,11 +81,13 @@ public final class Section600RefreshTokenTest
     private String authHeader;
 
     /**
-     * Bootstrap the application.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void bootstrap() {
-        context = setupEnvironment()
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("debug")
@@ -109,7 +115,7 @@ public final class Section600RefreshTokenTest
                 context.getToken());
         expiredToken = context.getToken();
 
-        authContext = setupEnvironment()
+        authContext = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.OwnerCredentials, true)
                 .authenticator("debug")
@@ -119,9 +125,24 @@ public final class Section600RefreshTokenTest
                 .identity("test_identity_2")
                 .bearerToken()
                 .refreshToken();
-        authHeader = buildAuthorizationHeader(
+        authHeader = HttpUtil.authHeaderBasic(
                 authContext.getClient().getId(),
                 authContext.getClient().getClientSecret());
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        fixtures.add(authContext);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
@@ -256,7 +277,7 @@ public final class Section600RefreshTokenTest
     @Test
     public void testWrongAuthViaHeaderRequest() {
         Client c = authContext.getClient();
-        String badHeader = buildAuthorizationHeader(c.getId(), "badsecret");
+        String badHeader = HttpUtil.authHeaderBasic(c.getId(), "badsecret");
 
         // Build the entity.
         Form f = new Form();

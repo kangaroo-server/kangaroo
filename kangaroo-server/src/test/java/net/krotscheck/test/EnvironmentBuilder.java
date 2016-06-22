@@ -29,6 +29,7 @@ import net.krotscheck.features.database.entity.Role;
 import net.krotscheck.features.database.entity.User;
 import net.krotscheck.features.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.common.security.PasswordUtil;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -57,7 +58,7 @@ import javax.ws.rs.core.UriBuilder;
  *
  * @author Michael Krotscheck
  */
-public final class EnvironmentBuilder {
+public final class EnvironmentBuilder implements IFixture {
 
     /**
      * Static timezone.
@@ -190,6 +191,16 @@ public final class EnvironmentBuilder {
         application.setName(name);
 
         persist(application);
+    }
+
+
+    /**
+     * Create a new builder.
+     *
+     * @param session A Hibernate session to use.
+     */
+    public EnvironmentBuilder(final Session session) {
+        this(session, UUID.randomUUID().toString());
     }
 
     /**
@@ -352,7 +363,8 @@ public final class EnvironmentBuilder {
     /**
      * Clear all created entities from the database.
      */
-    public void reset() {
+    @Override
+    public void clear() {
         Transaction t = session.beginTransaction();
         for (int i = trackedEntities.size() - 1; i >= 0; i--) {
             AbstractEntity e = trackedEntities.get(i);

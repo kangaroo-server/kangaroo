@@ -21,20 +21,24 @@ import net.krotscheck.api.oauth.OAuthTestApp;
 import net.krotscheck.features.database.entity.AuthenticatorState;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URI;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 /**
@@ -52,6 +56,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
     private EnvironmentBuilder context;
 
     /**
+     * An owner context.
+     */
+    private EnvironmentBuilder ownerContext;
+
+    /**
      * Build and configure the application.
      *
      * @return A configured application.
@@ -65,14 +74,37 @@ public final class AuthorizationServiceTest extends ContainerTest {
     }
 
     /**
-     * Set up the test harness data.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void createTestData() {
-        context = setupEnvironment()
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
                 .authenticator("foo")
                 .redirect("http://valid.example.com/redirect");
+
+
+        ownerContext = new EnvironmentBuilder(getSession())
+                .client(ClientType.OwnerCredentials)
+                .authenticator("test")
+                .redirect("http://valid.example.com/redirect");
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        fixtures.add(ownerContext);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
@@ -89,10 +121,12 @@ public final class AuthorizationServiceTest extends ContainerTest {
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
 
         URI location = r.getLocation();
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("unsupported_response_type", params.get("error"));
+        Assert.assertEquals("unsupported_response_type",
+                params.getFirst("error"));
         Assert.assertNotNull(params.get("error_description"));
     }
 
@@ -108,10 +142,12 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .get();
 
         URI location = r.getLocation();
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("unsupported_response_type", params.get("error"));
+        Assert.assertEquals("unsupported_response_type",
+                params.getFirst("error"));
         Assert.assertNotNull(params.get("error_description"));
     }
 
@@ -171,10 +207,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .get();
 
         URI location = r.getLocation();
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("invalid_request", params.get("error"));
+        Assert.assertEquals("invalid_request", params.getFirst("error"));
         Assert.assertNotNull(params.get("error_description"));
     }
 
@@ -187,11 +224,6 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testCallbackStateWithInvalidClientType() throws Exception {
-
-        EnvironmentBuilder ownerContext = setupEnvironment()
-                .client(ClientType.OwnerCredentials)
-                .authenticator("test")
-                .redirect("http://valid.example.com/redirect");
 
         AuthenticatorState state = new AuthenticatorState();
         state.setClient(ownerContext.getClient());
@@ -209,10 +241,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .get();
 
         URI location = r.getLocation();
-        Map<String, String> params = parseQueryParams(location.getQuery());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getQuery());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("invalid_request", params.get("error"));
+        Assert.assertEquals("invalid_request", params.getFirst("error"));
         Assert.assertNotNull(params.get("error_description"));
     }
 }

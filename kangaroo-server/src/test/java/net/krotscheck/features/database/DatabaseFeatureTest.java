@@ -18,7 +18,8 @@
 package net.krotscheck.features.database;
 
 import net.krotscheck.features.database.listener.CreatedUpdatedListener;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -27,6 +28,7 @@ import org.hibernate.event.spi.PreUpdateEventListener;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -54,6 +56,26 @@ public final class DatabaseFeatureTest extends ContainerTest {
         a.register(DatabaseFeature.class);
         a.register(MockService.class);
         return a;
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
@@ -104,12 +126,10 @@ public final class DatabaseFeatureTest extends ContainerTest {
 
             Assert.assertEquals(1, insertListeners.size());
             Assert.assertEquals(1, updateListeners.size());
-            Assert.assertTrue(
-                    CreatedUpdatedListener.class
-                            .isInstance(insertListeners.get(0)));
-            Assert.assertTrue(
-                    CreatedUpdatedListener.class
-                            .isInstance(updateListeners.get(0)));
+            Assert.assertTrue(CreatedUpdatedListener.class
+                    .isInstance(insertListeners.get(0)));
+            Assert.assertTrue(CreatedUpdatedListener.class
+                    .isInstance(updateListeners.get(0)));
 
             return Response
                     .status(HttpStatus.SC_OK)

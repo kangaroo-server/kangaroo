@@ -18,10 +18,13 @@
 package net.krotscheck.api.root;
 
 import net.krotscheck.api.root.status.StatusResponse;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.List;
 import javax.ws.rs.core.Application;
 
 /**
@@ -39,7 +42,6 @@ public final class RootAPITest extends ContainerTest {
         return new RootAPI();
     }
 
-
     /**
      * The application smoketest.
      */
@@ -49,5 +51,25 @@ public final class RootAPITest extends ContainerTest {
                 .request()
                 .get(StatusResponse.class);
         Assert.assertEquals("dev", statusResponse.getVersion());
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 }

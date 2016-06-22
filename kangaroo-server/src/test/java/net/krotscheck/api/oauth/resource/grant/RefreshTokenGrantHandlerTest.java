@@ -25,13 +25,17 @@ import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthToken;
 import net.krotscheck.features.database.entity.OAuthTokenType;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -43,7 +47,8 @@ import javax.ws.rs.core.MultivaluedMap;
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-6">https://tools.ietf.org/html/rfc6749#section-6</a>
  */
-public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
+public final class RefreshTokenGrantHandlerTest
+        extends DatabaseTest {
 
     /**
      * The harness under test.
@@ -95,13 +100,15 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     }
 
     /**
-     * Set up the test harness data.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void createTestData() {
+    @Override
+    public List<IFixture> fixtures() {
         OAuthToken authToken;
 
-        authGrantContext = setupEnvironment()
+        authGrantContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.AuthorizationGrant, true)
                 .scope("debug")
                 .scope("debug1")
@@ -111,7 +118,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
 
 
-        ownerCredsContext = setupEnvironment()
+        ownerCredsContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
                 .scope("debug")
                 .scope("debug1")
@@ -121,7 +128,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
 
 
-        noScopeContext = setupEnvironment()
+        noScopeContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
                 .bearerToken();
         authToken = noScopeContext.getToken();
@@ -129,7 +136,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .token(OAuthTokenType.Refresh, false, null, null, authToken);
 
 
-        expiredContext = setupEnvironment()
+        expiredContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
                 .scope("debug")
                 .bearerToken();
@@ -138,13 +145,13 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .token(OAuthTokenType.Refresh, true, "debug", null, authToken);
 
 
-        zombieRefreshContext = setupEnvironment()
+        zombieRefreshContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
                 .scope("debug")
                 .refreshToken();
 
 
-        implicitContext = setupEnvironment()
+        implicitContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit, true)
                 .scope("debug")
                 .bearerToken();
@@ -158,6 +165,25 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
         session.refresh(authGrantContext.getClient());
         session.refresh(noScopeContext.getClient());
         session.refresh(implicitContext.getClient());
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(authGrantContext);
+        fixtures.add(ownerCredsContext);
+        fixtures.add(noScopeContext);
+        fixtures.add(expiredContext);
+        fixtures.add(zombieRefreshContext);
+        fixtures.add(implicitContext);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
