@@ -18,7 +18,7 @@
 package net.krotscheck.api.oauth.factory;
 
 import net.krotscheck.api.oauth.factory.CredentialsFactory.Credentials;
-import net.krotscheck.test.HttpUtil;
+import net.krotscheck.kangaroo.test.HttpUtil;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.junit.Assert;

@@ -21,13 +21,16 @@ import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequ
 import net.krotscheck.features.database.entity.Authenticator;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.UserIdentity;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -46,15 +49,31 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
     private EnvironmentBuilder context;
 
     /**
-     * Setup our testing data.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void setup() {
-        context = setupEnvironment()
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .user()
                 .login("login", "password");
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**

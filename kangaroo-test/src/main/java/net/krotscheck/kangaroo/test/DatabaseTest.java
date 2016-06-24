@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package net.krotscheck.test;
+package net.krotscheck.kangaroo.test;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This test suite sets up a database, without a service container, to test
@@ -31,12 +33,17 @@ import java.io.File;
  *
  * @author Michael Krotscheck
  */
-public abstract class DatabaseTest {
+public abstract class DatabaseTest implements IDatabaseTest {
 
     /**
      * The database management instance.
      */
     private static DatabaseManager manager = new DatabaseManager();
+
+    /**
+     * The list of loaded fixtures.
+     */
+    private List<IFixture> fixtures = new ArrayList<>();
 
     /**
      * Setup a database for our application.
@@ -56,25 +63,39 @@ public abstract class DatabaseTest {
      */
     @AfterClass
     public static void removeDatabaseSchema() throws Exception {
-        manager.clearTestData();
         manager.cleanDatabase();
     }
 
     /**
-     * Set up an environment for a specific test run.
-     *
-     * @return A builder, bound to the current test context.
+     * Set up the fixtures and any environment that's necessary.
      */
-    protected final EnvironmentBuilder setupEnvironment() {
-        return manager.setupEnvironment();
+    @Before
+    @Override
+    public final void setupData() throws Exception {
+        // Load any test data available.
+        manager.loadTestData(testData());
+
+        List<IFixture> newFixtures = fixtures();
+        if (newFixtures != null) {
+            fixtures.addAll(newFixtures);
+        }
     }
 
     /**
      * Cleanup the session factory after every run.
+     *
+     * @throws Exception An exception that indicates a failed data clear.
      */
     @After
-    public final void clearSession() {
-        manager.clearEnvironment();
+    @Override
+    public final void clearData() throws Exception {
+        fixtures.forEach(IFixture::clear);
+        fixtures.clear();
+
+        // Clear the test data.
+        manager.clearTestData();
+
+        // Clean any outstanding sessions.
         manager.cleanSessions();
     }
 
@@ -83,7 +104,8 @@ public abstract class DatabaseTest {
      *
      * @return The constructed session.
      */
-    protected final Session getSession() {
+    @Override
+    public final Session getSession() {
         return manager.getSession();
     }
 
@@ -92,16 +114,8 @@ public abstract class DatabaseTest {
      *
      * @return The session factory
      */
-    protected final SessionFactory getSessionFactory() {
+    @Override
+    public final SessionFactory getSessionFactory() {
         return manager.getSessionFactory();
-    }
-
-    /**
-     * Load some test data into our database.
-     *
-     * @param testData The test data xml file to map.
-     */
-    public static void loadTestData(final File testData) {
-        manager.loadTestData(testData);
     }
 }

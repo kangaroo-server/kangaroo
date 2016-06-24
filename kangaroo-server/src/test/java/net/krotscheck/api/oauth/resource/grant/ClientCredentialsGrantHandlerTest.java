@@ -25,12 +25,16 @@ import net.krotscheck.features.database.entity.Client;
 import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthTokenType;
-import net.krotscheck.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -80,20 +84,46 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      */
     @Before
     public void createTestData() {
-        context = setupEnvironment()
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .client(ClientType.ClientCredentials, true)
                 .scope("debug");
-        noScopeContext = setupEnvironment()
+        noScopeContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.ClientCredentials, true);
-        implicitContext = setupEnvironment()
+        implicitContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit, true)
                 .scope("debug");
-        noSecretContext = setupEnvironment()
+        noSecretContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.ClientCredentials)
                 .scope("debug");
 
         // The environment builder detaches its data, this reconnects it.
         getSession().refresh(context.getClient());
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        fixtures.add(noScopeContext);
+        fixtures.add(implicitContext);
+        fixtures.add(noSecretContext);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**

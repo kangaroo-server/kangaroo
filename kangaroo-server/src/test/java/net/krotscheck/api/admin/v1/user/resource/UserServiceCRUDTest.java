@@ -17,20 +17,21 @@
 
 package net.krotscheck.api.admin.v1.user.resource;
 
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.features.database.DatabaseFeature;
 import net.krotscheck.features.database.entity.User;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.util.ResourceUtil;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -68,11 +69,23 @@ public final class UserServiceCRUDTest extends ContainerTest {
     }
 
     /**
-     * Setup Test Data.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @BeforeClass
-    public static void setupTestData() {
-        loadTestData(TEST_DATA);
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return TEST_DATA;
     }
 
     /**

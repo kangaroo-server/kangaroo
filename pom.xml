@@ -13,6 +13,7 @@
   <url>https://github.com/kangaroo-server/kangaroo</url>
 
   <modules>
+    <module>kangaroo-test</module>
     <module>kangaroo-common</module>
     <module>kangaroo-server</module>
   </modules>
@@ -473,74 +474,6 @@
       <version>${slf4j.version}</version>
     </dependency>
 
-    <!-- JUnit -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>1.6.5</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>1.6.5</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Jetty test environment -->
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-jndi</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-servlet</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-      <artifactId>jersey-test-framework-provider-jetty</artifactId>
-      <version>${jersey.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- DbUnit -->
-    <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <version>2.5.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
-      <version>2.1.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Lucene test harness -->
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-test-framework</artifactId>
-      <version>5.3.1</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <dependencyManagement>
@@ -583,6 +516,11 @@
         <artifactId>httpcore</artifactId>
         <version>4.3.2</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.3.5</version>
+      </dependency>
 
       <!-- Apache Commons -->
       <dependency>
@@ -594,6 +532,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.3.2</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.4</version>
       </dependency>
 
       <!-- Jersey2 Toolkit -->
@@ -667,6 +610,57 @@
         <version>2.0.0</version>
       </dependency>
 
+      <!-- JUnit -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>1.10.19</version>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>1.6.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-mockito</artifactId>
+        <version>1.6.5</version>
+      </dependency>
+
+      <!-- Jetty test environment -->
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-jndi</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.test-framework</groupId>
+        <artifactId>jersey-test-framework-core</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+        <artifactId>jersey-test-framework-provider-jetty</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+      <!-- Lucene test harness -->
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-test-framework</artifactId>
+        <version>5.3.1</version>
+      </dependency>
+
       <!-- H2 database, used for testing. -->
       <dependency>
         <groupId>com.h2database</groupId>
@@ -679,13 +673,6 @@
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.31</version>
         <scope>runtime</scope>
-      </dependency>
-
-      <!-- HTTPData -->
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>4.3.5</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

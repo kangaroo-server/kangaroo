@@ -18,11 +18,14 @@
 package net.krotscheck.api.oauth;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.List;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -41,6 +44,26 @@ public final class OAuthAPITest extends ContainerTest {
     @Override
     protected Application configure() {
         return new OAuthAPI();
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**

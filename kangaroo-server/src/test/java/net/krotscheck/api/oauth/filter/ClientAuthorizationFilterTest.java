@@ -21,12 +21,13 @@ import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.AccessDeniedException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidClientException;
 import net.krotscheck.api.oauth.factory.CredentialsFactory.Credentials;
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.features.database.entity.Application;
 import net.krotscheck.features.database.entity.Client;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.jersey2.hibernate.HibernateFeature;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -35,6 +36,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.container.ContainerRequestContext;
 
@@ -74,6 +77,26 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
         config.register(HibernateFeature.class);
 
         return config;
+    }
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     */
+    @Override
+    public List<IFixture> fixtures() {
+        return null;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**

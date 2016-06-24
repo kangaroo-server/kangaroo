@@ -20,16 +20,20 @@ package net.krotscheck.api.oauth.rfc6749;
 import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URI;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
@@ -62,22 +66,40 @@ public final class Section420ImplicitGrantTest
     private EnvironmentBuilder noauthContext;
 
     /**
-     * Bootstrap the application.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void bootstrap() {
-        context = setupEnvironment()
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .scope("debug")
                 .redirect("http://valid.example.com/redirect");
-        bareContext = setupEnvironment()
+        bareContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
                 .authenticator("test");
-        noauthContext = setupEnvironment()
+        noauthContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
                 .scope("debug")
                 .redirect("http://valid.example.com/redirect");
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        fixtures.add(bareContext);
+        fixtures.add(noauthContext);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
@@ -102,11 +124,13 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Extract the query parameters in the fragment
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location
+                        .getFragment());
         assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.get("token_type"));
+        assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.get("expires_in")));
+                Integer.valueOf(params.getFirst("expires_in")));
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -132,9 +156,10 @@ public final class Section420ImplicitGrantTest
         Assert.assertEquals("/redirect", location.getPath());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("error"));
-        assertEquals("unsupported_response_type", params.get("error"));
+        assertEquals("unsupported_response_type", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
     }
 
@@ -182,12 +207,13 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Extract the query parameters in the fragment
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.get("token_type"));
+        assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.get("expires_in")));
-        assertEquals("debug", params.get("scope"));
+                Integer.valueOf(params.getFirst("expires_in")));
+        assertEquals("debug", params.getFirst("scope"));
         assertFalse(params.containsKey("state"));
     }
 
@@ -213,9 +239,10 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("error"));
-        assertEquals("invalid_request", params.get("error"));
+        assertEquals("invalid_request", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
     }
 
@@ -241,9 +268,10 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Validate the query parameters received.
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("error"));
-        assertEquals("invalid_scope", params.get("error"));
+        assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
     }
 
@@ -271,13 +299,14 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Extract the query parameters in the fragment
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.get("token_type"));
+        assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.get("expires_in")));
-        assertEquals("debug", params.get("scope"));
-        assertEquals(state, params.get("state"));
+                Integer.valueOf(params.getFirst("expires_in")));
+        assertEquals("debug", params.getFirst("scope"));
+        assertEquals(state, params.getFirst("state"));
     }
 
     /**
@@ -303,12 +332,13 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Extract the query parameters in the fragment
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.get("token_type"));
+        assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.get("expires_in")));
-        assertEquals("debug", params.get("scope"));
+                Integer.valueOf(params.getFirst("expires_in")));
+        assertEquals("debug", params.getFirst("scope"));
         assertFalse(params.containsKey("state"));
     }
 
@@ -338,11 +368,12 @@ public final class Section420ImplicitGrantTest
         assertEquals("/redirect", location.getPath());
 
         // Extract the query parameters in the fragment
-        Map<String, String> params = parseQueryParams(location.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.get("token_type"));
+        assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.get("expires_in")));
+                Integer.valueOf(params.getFirst("expires_in")));
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -451,12 +482,12 @@ public final class Section420ImplicitGrantTest
         URI secondLocation = second.getLocation();
 
         // Extract the query parameters in the fragment
-        Map<String, String> params =
-                parseQueryParams(secondLocation.getFragment());
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(secondLocation.getFragment());
         assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.get("token_type"));
+        assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.get("expires_in")));
+                Integer.valueOf(params.getFirst("expires_in")));
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }

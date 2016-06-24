@@ -61,6 +61,13 @@
   </build>
 
   <dependencies>
+    <!-- Internal Tooling -->
+    <dependency>
+      <groupId>net.krotscheck</groupId>
+      <artifactId>kangaroo-test</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
 
     <!-- The servlet API -->
     <dependency>

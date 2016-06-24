@@ -22,14 +22,17 @@ import net.krotscheck.features.database.entity.ClientConfig;
 import net.krotscheck.features.database.entity.ClientType;
 import net.krotscheck.features.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.test.ContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Form;
@@ -64,12 +67,28 @@ public final class TokenServiceTest extends ContainerTest {
     }
 
     /**
-     * Set up the test harness data.
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
      */
-    @Before
-    public void createTestData() {
-        context = setupEnvironment()
+    @Override
+    public List<IFixture> fixtures() {
+        context = new EnvironmentBuilder(getSession())
                 .client(ClientType.ClientCredentials, true);
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        return fixtures;
+    }
+
+    /**
+     * Load the test data.
+     *
+     * @return The test data.
+     */
+    @Override
+    public File testData() {
+        return null;
     }
 
     /**
