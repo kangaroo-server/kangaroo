@@ -15,19 +15,27 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.authenticator;
+package net.krotscheck.kangaroo.util;
 
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
+import net.krotscheck.kangaroo.common.exception.exception.HttpInvalidFieldException;
 
 import java.util.List;
 import javax.ws.rs.core.MultivaluedMap;
 
 /**
- * An abstract authenticator, mostly containing utility methods.
+ * A utility to assist in the manipulation, creation, and retrieval of query
+ * parameters.
  *
  * @author Michael Krotscheck
  */
-public abstract class AbstractAuthenticator implements IAuthenticator {
+public final class ParamUtil {
+
+    /**
+     * Utility class, private constructor.
+     */
+    private ParamUtil() {
+
+    }
 
     /**
      * This helper method assumes at least, but no more than, one single
@@ -37,20 +45,21 @@ public abstract class AbstractAuthenticator implements IAuthenticator {
      * @param values The map of values.
      * @param key    The key to get.
      * @return The value retrieved, but only if only one exists for this key.
-     * @throws InvalidRequestException Thrown if the value is
-     *                                 not found, or if more than one instance
-     *                                 of the value is
-     *                                 found.
+     * @throws HttpInvalidFieldException Thrown if the value is
+     *                                   not found, or if more than one
+     *                                   instance
+     *                                   of the value is
+     *                                   found.
      */
-    protected final String getOne(final MultivaluedMap<String, String> values,
-                                  final String key)
-            throws InvalidRequestException {
+    public static String getOne(final MultivaluedMap<String, String> values,
+                                final String key)
+            throws HttpInvalidFieldException {
         List<String> listValues = values.get(key);
         if (listValues == null) {
-            throw new InvalidRequestException();
+            throw new HttpInvalidFieldException(key);
         }
         if (listValues.size() != 1) {
-            throw new InvalidRequestException();
+            throw new HttpInvalidFieldException(key);
         }
         return listValues.get(0);
     }

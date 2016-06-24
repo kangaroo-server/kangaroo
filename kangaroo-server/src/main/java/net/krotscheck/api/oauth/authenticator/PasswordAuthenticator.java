@@ -20,7 +20,8 @@ package net.krotscheck.api.oauth.authenticator;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.common.security.PasswordUtil;
+import net.krotscheck.kangaroo.util.ParamUtil;
+import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Criteria;
@@ -42,7 +43,6 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 public final class PasswordAuthenticator
-        extends AbstractAuthenticator
         implements IAuthenticator {
 
     /**
@@ -93,8 +93,8 @@ public final class PasswordAuthenticator
         }
 
         // Extract the login and password.
-        String login = getOne(parameters, "username");
-        String password = getOne(parameters, "password");
+        String login = ParamUtil.getOne(parameters, "username");
+        String password = ParamUtil.getOne(parameters, "password");
 
         // Try to find this user.
         Criteria c = session.createCriteria(UserIdentity.class);
