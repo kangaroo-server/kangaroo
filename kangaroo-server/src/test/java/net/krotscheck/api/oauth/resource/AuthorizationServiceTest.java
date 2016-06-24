@@ -18,8 +18,8 @@
 package net.krotscheck.api.oauth.resource;
 
 import net.krotscheck.api.oauth.OAuthTestApp;
-import net.krotscheck.features.database.entity.AuthenticatorState;
-import net.krotscheck.features.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
+import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;

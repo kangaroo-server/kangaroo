@@ -21,11 +21,11 @@ import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidGran
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnauthorizedClientException;
 import net.krotscheck.api.oauth.resource.TokenResponseEntity;
 import net.krotscheck.api.oauth.util.ValidationUtil;
-import net.krotscheck.features.database.entity.ApplicationScope;
-import net.krotscheck.features.database.entity.Client;
-import net.krotscheck.features.database.entity.ClientType;
-import net.krotscheck.features.database.entity.OAuthToken;
-import net.krotscheck.features.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.database.entity.ApplicationScope;
+import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;

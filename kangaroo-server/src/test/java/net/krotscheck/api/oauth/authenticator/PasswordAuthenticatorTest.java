@@ -18,9 +18,9 @@
 package net.krotscheck.api.oauth.authenticator;
 
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
-import net.krotscheck.features.database.entity.Authenticator;
-import net.krotscheck.features.database.entity.ClientType;
-import net.krotscheck.features.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;

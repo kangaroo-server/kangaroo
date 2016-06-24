@@ -17,7 +17,7 @@
 
 package net.krotscheck.test.entity;
 
-import net.krotscheck.features.database.entity.AbstractEntity;
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 
 /**
  * A child entity with a private constructor.

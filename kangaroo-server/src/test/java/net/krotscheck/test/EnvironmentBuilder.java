@@ -17,17 +17,17 @@
 
 package net.krotscheck.test;
 
-import net.krotscheck.features.database.entity.AbstractEntity;
-import net.krotscheck.features.database.entity.Application;
-import net.krotscheck.features.database.entity.ApplicationScope;
-import net.krotscheck.features.database.entity.Authenticator;
-import net.krotscheck.features.database.entity.Client;
-import net.krotscheck.features.database.entity.ClientType;
-import net.krotscheck.features.database.entity.OAuthToken;
-import net.krotscheck.features.database.entity.OAuthTokenType;
-import net.krotscheck.features.database.entity.Role;
-import net.krotscheck.features.database.entity.User;
-import net.krotscheck.features.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
+import net.krotscheck.kangaroo.database.entity.Application;
+import net.krotscheck.kangaroo.database.entity.ApplicationScope;
+import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.database.entity.Role;
+import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.common.security.PasswordUtil;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.commons.lang3.StringUtils;

@@ -17,8 +17,8 @@
 
 package net.krotscheck.api.oauth.rfc6749;
 
-import net.krotscheck.features.database.entity.ClientConfig;
-import net.krotscheck.features.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.ClientConfig;
+import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.IFixture;

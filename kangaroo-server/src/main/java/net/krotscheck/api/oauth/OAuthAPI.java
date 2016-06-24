@@ -26,7 +26,7 @@ import net.krotscheck.api.oauth.resource.grant.AuthorizationCodeGrantHandler;
 import net.krotscheck.api.oauth.resource.grant.ClientCredentialsGrantHandler;
 import net.krotscheck.api.oauth.resource.grant.OwnerCredentialsGrantHandler;
 import net.krotscheck.api.oauth.resource.grant.RefreshTokenGrantHandler;
-import net.krotscheck.features.database.DatabaseFeature;
+import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.features.version.VersionFeature;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;

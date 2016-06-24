@@ -17,8 +17,8 @@
 
 package net.krotscheck.api.oauth.authenticator;
 
-import net.krotscheck.features.database.entity.Authenticator;
-import net.krotscheck.features.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
 
 import java.net.URI;
 import javax.ws.rs.core.MultivaluedMap;

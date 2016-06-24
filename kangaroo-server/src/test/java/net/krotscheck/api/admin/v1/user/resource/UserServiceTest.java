@@ -17,8 +17,8 @@
 
 package net.krotscheck.api.admin.v1.user.resource;
 
-import net.krotscheck.features.database.DatabaseFeature;
-import net.krotscheck.features.database.entity.User;
+import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;

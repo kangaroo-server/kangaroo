@@ -20,8 +20,8 @@ package net.krotscheck.api.oauth.resource;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.krotscheck.features.database.entity.OAuthToken;
-import net.krotscheck.features.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 
 import java.util.ArrayList;
 import java.util.List;

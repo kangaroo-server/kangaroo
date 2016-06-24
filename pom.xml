@@ -15,6 +15,7 @@
   <modules>
     <module>kangaroo-test</module>
     <module>kangaroo-common</module>
+    <module>kangaroo-database</module>
     <module>kangaroo-server</module>
   </modules>
 

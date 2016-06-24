@@ -17,8 +17,8 @@
 
 package net.krotscheck.api.admin.v1.user.resource;
 
-import net.krotscheck.features.database.entity.User;
-import net.krotscheck.features.database.util.SortUtil;
+import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;

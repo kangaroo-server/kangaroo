@@ -17,9 +17,9 @@
 
 package net.krotscheck.api.oauth.authenticator;
 
-import net.krotscheck.features.database.entity.Authenticator;
-import net.krotscheck.features.database.entity.User;
-import net.krotscheck.features.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
