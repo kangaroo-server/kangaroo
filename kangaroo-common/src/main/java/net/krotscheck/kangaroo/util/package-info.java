@@ -16,6 +16,6 @@
  */
 
 /**
- * Test suite for our security components.
+ * Shared utility classes.
  */
-package net.krotscheck.kangaroo.common.security;
+package net.krotscheck.kangaroo.util;

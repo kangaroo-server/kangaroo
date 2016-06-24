@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.common.security;
+package net.krotscheck.kangaroo.util;
 
 
 import org.apache.commons.codec.binary.Base64;

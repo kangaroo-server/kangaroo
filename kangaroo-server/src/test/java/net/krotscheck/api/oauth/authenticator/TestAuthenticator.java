@@ -43,7 +43,6 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 public final class TestAuthenticator
-        extends AbstractAuthenticator
         implements IAuthenticator {
 
     /**
