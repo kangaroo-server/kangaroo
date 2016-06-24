@@ -16,6 +16,6 @@
  */
 
 /**
- * Unit tests for Status Features.
+ * Version management and response injection.
  */
-package net.krotscheck.features.version;
+package net.krotscheck.kangaroo.common.version;

@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.version;
+package net.krotscheck.kangaroo.common.version;
 
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
@@ -26,34 +27,38 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
- * General smoke test for the status feature.
+ * Test the Version Filter, which attaches the current project version to every
+ * HTTP Request.
  *
  * @author Michael Krotscheck
  */
-public final class VersionFeatureTest extends JerseyTest {
+public final class VersionFilterTest extends JerseyTest {
 
     /**
-     * Construct the application.
+     * Build a test application.
      *
-     * @return A filtered application.
+     * @return Configured version filter app.
      */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();
+        a.register(ConfigurationFeature.class);
         a.register(VersionFeature.class);
         return a;
     }
 
     /**
-     * Test the simple request.
+     * Assert that an injected version string is applied to the response
+     * context.
      *
-     * @throws Exception Add an exception.
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testSimpleRequest() throws Exception {
+    public void testVersionAppliedToResponse() throws Exception {
         Response response = target("/")
                 .request()
                 .get();
         Assert.assertEquals("dev", response.getHeaderString("API-Version"));
     }
 }
+
