@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.version;
+package net.krotscheck.kangaroo.common.version;
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;

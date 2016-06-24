@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.features.version;
-
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
+package net.krotscheck.kangaroo.common.version;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
@@ -34,11 +32,6 @@ public final class VersionFeature implements Feature {
      */
     @Override
     public boolean configure(final FeatureContext context) {
-
-        if (!context.getConfiguration()
-                .isRegistered(ConfigurationFeature.class)) {
-            context.register(ConfigurationFeature.class);
-        }
 
         // Add the configuration injector
         context.register(new VersionFilter.Binder());
