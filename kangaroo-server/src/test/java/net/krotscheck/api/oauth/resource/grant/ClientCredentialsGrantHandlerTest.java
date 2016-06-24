@@ -21,10 +21,10 @@ import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidGran
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnauthorizedClientException;
 import net.krotscheck.api.oauth.resource.TokenResponseEntity;
-import net.krotscheck.features.database.entity.Client;
-import net.krotscheck.features.database.entity.ClientConfig;
-import net.krotscheck.features.database.entity.ClientType;
-import net.krotscheck.features.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientConfig;
+import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.test.EnvironmentBuilder;

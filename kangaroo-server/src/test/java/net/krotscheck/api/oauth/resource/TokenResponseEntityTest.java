@@ -17,9 +17,9 @@
 
 package net.krotscheck.api.oauth.resource;
 
-import net.krotscheck.features.database.entity.ApplicationScope;
-import net.krotscheck.features.database.entity.OAuthToken;
-import net.krotscheck.features.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.database.entity.ApplicationScope;
+import net.krotscheck.kangaroo.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import org.junit.Assert;
 import org.junit.Test;
 

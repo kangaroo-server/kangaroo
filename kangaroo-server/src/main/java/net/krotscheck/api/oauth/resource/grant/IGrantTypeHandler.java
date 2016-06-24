@@ -18,7 +18,7 @@
 package net.krotscheck.api.oauth.resource.grant;
 
 import net.krotscheck.api.oauth.resource.TokenResponseEntity;
-import net.krotscheck.features.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.Client;
 
 import javax.ws.rs.core.MultivaluedMap;
 

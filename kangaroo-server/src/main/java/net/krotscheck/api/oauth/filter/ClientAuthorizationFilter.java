@@ -21,7 +21,7 @@ import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.AccessDeniedException;
 import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidClientException;
 import net.krotscheck.api.oauth.factory.CredentialsFactory.Credentials;
-import net.krotscheck.features.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.Client;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.Session;
