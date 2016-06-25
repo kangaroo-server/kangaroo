@@ -18,8 +18,8 @@
 package net.krotscheck.api.oauth.filter;
 
 import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.AccessDeniedException;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidClientException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.AccessDeniedException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
 import net.krotscheck.api.oauth.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.database.entity.Client;
 import org.apache.commons.lang3.StringUtils;

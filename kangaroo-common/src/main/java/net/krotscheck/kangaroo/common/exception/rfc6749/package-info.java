@@ -18,4 +18,4 @@
 /**
  * Exception thrown by the OAuth API.
  */
-package net.krotscheck.api.oauth.exception.exception;
+package net.krotscheck.kangaroo.common.exception.rfc6749;

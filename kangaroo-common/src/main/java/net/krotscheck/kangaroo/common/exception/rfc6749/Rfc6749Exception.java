@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.exception.exception;
+package net.krotscheck.kangaroo.common.exception.rfc6749;
 
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;

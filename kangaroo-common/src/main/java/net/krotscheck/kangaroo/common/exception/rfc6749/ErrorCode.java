@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.exception.exception;
+package net.krotscheck.kangaroo.common.exception.rfc6749;
 
 /**
  * A list of error codes identified in RFC6749.

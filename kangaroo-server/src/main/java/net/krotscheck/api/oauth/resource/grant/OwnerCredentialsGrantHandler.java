@@ -19,7 +19,7 @@ package net.krotscheck.api.oauth.resource.grant;
 
 import net.krotscheck.api.oauth.authenticator.IAuthenticator;
 import net.krotscheck.api.oauth.authenticator.PasswordAuthenticator;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidGrantException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
 import net.krotscheck.api.oauth.resource.TokenResponseEntity;
 import net.krotscheck.api.oauth.util.ValidationUtil;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
