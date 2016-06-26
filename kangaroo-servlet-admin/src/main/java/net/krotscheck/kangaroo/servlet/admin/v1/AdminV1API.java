@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.admin.v1;
+package net.krotscheck.kangaroo.servlet.admin.v1;
 
 
-import net.krotscheck.api.admin.v1.user.UserFeature;
+import net.krotscheck.kangaroo.servlet.admin.v1.user.UserFeature;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
