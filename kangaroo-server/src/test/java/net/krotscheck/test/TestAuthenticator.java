@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.authenticator;
+package net.krotscheck.test;
 
+import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;

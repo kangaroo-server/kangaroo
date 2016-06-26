@@ -18,10 +18,12 @@
 package net.krotscheck.api.oauth.resource;
 
 import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
-import net.krotscheck.api.oauth.authenticator.IAuthenticator;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.factory.CredentialsFactory.Credentials;
 import net.krotscheck.api.oauth.util.ValidationUtil;
+import net.krotscheck.kangaroo.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
+import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
@@ -30,8 +32,6 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -59,6 +59,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
 
 /**
  * The authorization service for our OAuth2 provider.

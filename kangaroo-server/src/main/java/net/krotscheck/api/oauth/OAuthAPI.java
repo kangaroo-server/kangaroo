@@ -17,7 +17,6 @@
 
 package net.krotscheck.api.oauth;
 
-import net.krotscheck.api.oauth.authenticator.PasswordAuthenticator;
 import net.krotscheck.api.oauth.factory.CredentialsFactory;
 import net.krotscheck.api.oauth.filter.ClientAuthorizationFilter;
 import net.krotscheck.api.oauth.resource.AuthorizationService;
@@ -26,6 +25,7 @@ import net.krotscheck.api.oauth.resource.grant.AuthorizationCodeGrantHandler;
 import net.krotscheck.api.oauth.resource.grant.ClientCredentialsGrantHandler;
 import net.krotscheck.api.oauth.resource.grant.OwnerCredentialsGrantHandler;
 import net.krotscheck.api.oauth.resource.grant.RefreshTokenGrantHandler;
+import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;

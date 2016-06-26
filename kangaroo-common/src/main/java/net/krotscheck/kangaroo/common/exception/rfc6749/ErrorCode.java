@@ -47,7 +47,6 @@ public final class ErrorCode {
     public static final String UNAUTHORIZED_CLIENT =
             "unauthorized_client";
 
-
     /**
      * The resource owner or authorization server denied the
      * request.
