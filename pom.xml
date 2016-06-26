@@ -18,6 +18,7 @@
     <module>kangaroo-database</module>
     <module>kangaroo-authenticator-core</module>
     <module>kangaroo-authenticator-password</module>
+    <module>kangaroo-servlet-oauth2</module>
     <module>kangaroo-server</module>
   </modules>
 

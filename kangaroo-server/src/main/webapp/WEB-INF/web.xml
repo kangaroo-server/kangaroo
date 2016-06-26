@@ -32,7 +32,7 @@
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
-      <param-value>net.krotscheck.api.oauth.OAuthAPI</param-value>
+      <param-value>net.krotscheck.kangaroo.servlet.oauth2.OAuthAPI</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
