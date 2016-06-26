@@ -19,7 +19,7 @@ package net.krotscheck.api.oauth.resource;
 
 import net.krotscheck.api.oauth.annotation.OAuthFilterChain;
 import net.krotscheck.api.oauth.authenticator.IAuthenticator;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.api.oauth.factory.CredentialsFactory.Credentials;
 import net.krotscheck.api.oauth.util.ValidationUtil;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;

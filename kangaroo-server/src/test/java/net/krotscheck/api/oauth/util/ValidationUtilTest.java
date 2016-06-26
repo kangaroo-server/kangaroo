@@ -17,9 +17,9 @@
 
 package net.krotscheck.api.oauth.util;
 
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnsupportedResponseType;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;

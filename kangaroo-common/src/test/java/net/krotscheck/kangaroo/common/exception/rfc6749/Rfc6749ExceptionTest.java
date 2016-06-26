@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.exception.exception;
+package net.krotscheck.kangaroo.common.exception.rfc6749;
 
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidClientException;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidGrantException;
-import net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnsupportedGrantTypeException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedGrantTypeException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,13 +28,13 @@ import java.lang.reflect.Modifier;
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
 
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.AccessDeniedException;
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidRequestException;
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.InvalidScopeException;
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.ServerErrorException;
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.TemporarilyUnavailableException;
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnauthorizedClientException;
-import static net.krotscheck.api.oauth.exception.exception.Rfc6749Exception.UnsupportedResponseType;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.AccessDeniedException;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.ServerErrorException;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.TemporarilyUnavailableException;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnauthorizedClientException;
+import static net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
 
 /**
  * Test the exceptions, and their expected default properties.

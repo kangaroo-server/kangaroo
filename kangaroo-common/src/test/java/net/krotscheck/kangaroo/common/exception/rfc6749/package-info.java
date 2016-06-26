@@ -18,4 +18,4 @@
 /**
  * Unit tests for the OAuth Exceptions.
  */
-package net.krotscheck.api.oauth.exception.exception;
+package net.krotscheck.kangaroo.common.exception.rfc6749;
