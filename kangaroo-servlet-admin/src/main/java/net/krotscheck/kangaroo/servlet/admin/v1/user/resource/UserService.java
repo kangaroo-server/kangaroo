@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.admin.v1.user.resource;
+package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
 
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
