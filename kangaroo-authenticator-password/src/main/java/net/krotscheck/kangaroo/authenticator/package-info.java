@@ -15,25 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth;
-
-
-import net.krotscheck.test.TestAuthenticator;
-
 /**
- * This application
- *
- * @author Michael Krotscheck
+ * Authentication handlers.
  */
-public class OAuthTestApp extends OAuthAPI {
-
-    /**
-     * Constructor. Creates a new application instance.
-     */
-    public OAuthTestApp() {
-        super(); // Initialize all the parent things.
-
-        // Add the test authenticator
-        register(new TestAuthenticator.Binder());
-    }
-}
+package net.krotscheck.kangaroo.authenticator;

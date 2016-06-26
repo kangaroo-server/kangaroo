@@ -16,6 +16,6 @@
  */
 
 /**
- * Authentication handlers.
+ * Test classes related to authentication.
  */
-package net.krotscheck.api.oauth.authenticator;
+package net.krotscheck.kangaroo.authenticator;

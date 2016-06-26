@@ -16,6 +16,8 @@
     <module>kangaroo-test</module>
     <module>kangaroo-common</module>
     <module>kangaroo-database</module>
+    <module>kangaroo-authenticator-core</module>
+    <module>kangaroo-authenticator-password</module>
     <module>kangaroo-server</module>
   </modules>
 

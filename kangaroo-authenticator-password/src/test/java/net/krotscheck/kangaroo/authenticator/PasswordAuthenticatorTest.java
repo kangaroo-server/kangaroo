@@ -15,22 +15,28 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.authenticator;
+package net.krotscheck.kangaroo.authenticator;
 
+import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator.Binder;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
-import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.IFixture;
-import net.krotscheck.test.EnvironmentBuilder;
+import net.krotscheck.util.ResourceUtil;
+import org.glassfish.hk2.api.ActiveDescriptor;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.ServiceLocatorFactory;
+import org.glassfish.hk2.utilities.BuilderHelper;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -44,9 +50,10 @@ import javax.ws.rs.core.UriBuilder;
 public final class PasswordAuthenticatorTest extends DatabaseTest {
 
     /**
-     * Basic testing context.
+     * The tests's backing data.
      */
-    private EnvironmentBuilder context;
+    private static final File TEST_DATA = ResourceUtil.getFileForResource(
+            "PasswordAuthenticatorData.xml");
 
     /**
      * Load data fixtures for each test.
@@ -55,15 +62,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      */
     @Override
     public List<IFixture> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .client(ClientType.OwnerCredentials)
-                .authenticator("password")
-                .user()
-                .login("login", "password");
-
-        List<IFixture> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        return fixtures;
+        return null;
     }
 
     /**
@@ -73,14 +72,16 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      */
     @Override
     public File testData() {
-        return null;
+        return TEST_DATA;
     }
 
     /**
      * Assert that the test delegate does nothing.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testDelegate() {
+    public void testDelegate() throws Exception {
         IAuthenticator a = new PasswordAuthenticator(getSession());
 
         Authenticator config = new Authenticator();
@@ -92,22 +93,29 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
 
     /**
      * Test that a valid authentication works.
+     *
+     * @throws Exception An authenticator exception.
      */
     @Test
-    public void testAuthenticateValid() {
+    public void testAuthenticateValid() throws Exception {
+        Authenticator config = getSession().get(Authenticator.class,
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
-        Assert.assertEquals(context.getUserIdentity(), i);
+        UserIdentity i = a.authenticate(config, params);
+        Assert.assertEquals("login", i.getRemoteId());
     }
 
     /**
      * Assert that trying to authenticate with a null input fails.
+     *
+     * @throws Exception An authenticator exception.
      */
     @Test(expected = InvalidRequestException.class)
-    public void testAuthenticateNullConfig() {
+    public void testAuthenticateNullConfig() throws Exception {
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         a.authenticate(null, params);
@@ -115,9 +123,11 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
 
     /**
      * Assert that trying to authenticate with a null input fails.
+     *
+     * @throws Exception An authenticator exception.
      */
     @Test(expected = InvalidRequestException.class)
-    public void testAuthenticateNullParams() {
+    public void testAuthenticateNullParams() throws Exception {
         IAuthenticator a = new PasswordAuthenticator(getSession());
         Authenticator config = new Authenticator();
         a.authenticate(config, null);
@@ -125,27 +135,66 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
 
     /**
      * Assert that trying to authenticate with no matching identity fails.
+     *
+     * @throws Exception An authenticator exception.
      */
     @Test
-    public void testAuthenticateNoIdentity() {
+    public void testAuthenticateNoIdentity() throws Exception {
+        Authenticator config = getSession().get(Authenticator.class,
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "wrongIdentity");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
+        UserIdentity i = a.authenticate(config, params);
         Assert.assertNull(i);
     }
 
     /**
      * Assert that trying to authenticate with a wrong password fails.
+     *
+     * @throws Exception An authenticator exception.
      */
     @Test
-    public void testAuthenticateWrongPassword() {
+    public void testAuthenticateWrongPassword() throws Exception {
+        Authenticator config = getSession().get(Authenticator.class,
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "wrongpassword");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
+        UserIdentity i = a.authenticate(config, params);
         Assert.assertNull(i);
+    }
+
+    /**
+     * Assert that we can invoke the binder.
+     *
+     * @throws Exception An authenticator exception.
+     */
+    @Test
+    public void testBinder() throws Exception {
+        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
+        ServiceLocator locator = factory.create("PasswordAuthenticatorTest");
+
+        Binder b = new PasswordAuthenticator.Binder();
+        ServiceLocatorUtilities.bind(locator, b);
+
+        List<ActiveDescriptor<?>> descriptors =
+                locator.getDescriptors(
+                        BuilderHelper.createContractFilter(
+                                PasswordAuthenticator.class.getName()));
+        Assert.assertEquals(1, descriptors.size());
+
+        ActiveDescriptor descriptor = descriptors.get(0);
+        Assert.assertNotNull(descriptor);
+        // Request scoped...
+        Assert.assertEquals(RequestScoped.class.getCanonicalName(),
+                descriptor.getScope());
+
+        // ... with no name.
+        Assert.assertNull(descriptor.getName());
     }
 }

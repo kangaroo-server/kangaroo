@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.oauth.authenticator;
+package net.krotscheck.kangaroo.authenticator;
 
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -116,7 +116,6 @@ public final class PasswordAuthenticator
         }
         return identity;
     }
-
 
     /**
      * HK2 Binder for our injector context.

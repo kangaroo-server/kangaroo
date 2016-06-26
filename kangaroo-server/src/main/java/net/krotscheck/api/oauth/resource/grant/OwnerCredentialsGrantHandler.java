@@ -17,11 +17,12 @@
 
 package net.krotscheck.api.oauth.resource.grant;
 
-import net.krotscheck.api.oauth.authenticator.IAuthenticator;
-import net.krotscheck.api.oauth.authenticator.PasswordAuthenticator;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
 import net.krotscheck.api.oauth.resource.TokenResponseEntity;
 import net.krotscheck.api.oauth.util.ValidationUtil;
+import net.krotscheck.kangaroo.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator;
+import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
@@ -29,7 +30,6 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -97,9 +97,9 @@ public final class OwnerCredentialsGrantHandler implements IGrantTypeHandler {
         Authenticator authConfig = ValidationUtil
                 .validateAuthenticator("password", client.getAuthenticators());
 
+        UserIdentity identity;
         // Try to resolve a user identity.
-        UserIdentity identity = authenticator
-                .authenticate(authConfig, formData);
+        identity = authenticator.authenticate(authConfig, formData);
         if (identity == null) {
             throw new HttpStatusException(HttpStatus.SC_UNAUTHORIZED);
         }
