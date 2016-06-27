@@ -16,6 +16,6 @@
  */
 
 /**
- * Unit test for the Root API.
+ * API heartbeat service.
  */
-package net.krotscheck.api.root;
+package net.krotscheck.kangaroo.status;

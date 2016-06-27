@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.root.status;
+package net.krotscheck.kangaroo.status;
 
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;

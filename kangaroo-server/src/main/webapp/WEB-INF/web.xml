@@ -12,7 +12,7 @@
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
-      <param-value>net.krotscheck.api.root.RootAPI</param-value>
+      <param-value>net.krotscheck.kangaroo.RootAPI</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>

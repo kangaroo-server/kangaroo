@@ -18,4 +18,4 @@
 /**
  * Root API for the servlet context.
  */
-package net.krotscheck.api.root;
+package net.krotscheck.kangaroo;

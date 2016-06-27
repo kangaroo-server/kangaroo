@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.root;
+package net.krotscheck.kangaroo;
 
-import net.krotscheck.api.root.status.StatusFeature;
+import net.krotscheck.kangaroo.status.StatusFeature;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
