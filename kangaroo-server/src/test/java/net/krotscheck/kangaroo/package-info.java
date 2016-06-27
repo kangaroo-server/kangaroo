@@ -16,7 +16,6 @@
  */
 
 /**
- * All services in this package, including the root service, the admin services
- * (all versions), and the oauth service.
+ * Unit test for the Root API.
  */
-package net.krotscheck.api;
+package net.krotscheck.kangaroo;

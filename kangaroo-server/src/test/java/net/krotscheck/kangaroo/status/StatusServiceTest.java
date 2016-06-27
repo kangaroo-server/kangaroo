@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.root.status;
+package net.krotscheck.kangaroo.status;
 
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
@@ -25,32 +26,33 @@ import org.junit.Test;
 import javax.ws.rs.core.Application;
 
 /**
- * General smoke test for the status feature.
+ * Unit tests to ensure that the status service returns the expected results.
  *
  * @author Michael Krotscheck
  */
-public final class StatusFeatureTest extends JerseyTest {
+public final class StatusServiceTest extends JerseyTest {
 
     /**
-     * Configure the test application.
+     * Setup the test application.
      *
-     * @return A configured app.
+     * @return A configured application for this test harness.
      */
     @Override
     protected Application configure() {
         ResourceConfig a = new ResourceConfig();
-        a.register(StatusFeature.class);
+        a.register(ConfigurationFeature.class);
+        a.register(StatusService.class);
+
         return a;
     }
 
     /**
-     * Smoke test a simple status request.
+     * Test the status services.
      */
     @Test
-    public void testSimpleRequest() {
-        StatusResponse statusResponse = target("/")
-                .request()
-                .get(StatusResponse.class);
-        Assert.assertEquals("dev", statusResponse.getVersion());
+    public void testStatus() {
+        StatusResponse response =
+                target("/").request().get(StatusResponse.class);
+        Assert.assertEquals("dev", response.getVersion());
     }
 }

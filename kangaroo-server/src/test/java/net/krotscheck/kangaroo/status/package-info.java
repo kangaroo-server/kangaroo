@@ -15,27 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.root.status;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 /**
- * Validate the status response POJO.
- *
- * @author Michael Krotscheck
+ * Unit tests for Status Features.
  */
-public final class StatusResponseTest {
-
-    /**
-     * Assert that the getter and setter works.
-     */
-    @Test
-    public void testGetSetVersion() {
-        StatusResponse instance = new StatusResponse();
-
-        Assert.assertEquals("", instance.getVersion());
-        instance.setVersion("foo");
-        Assert.assertEquals("foo", instance.getVersion());
-    }
-}
+package net.krotscheck.kangaroo.status;

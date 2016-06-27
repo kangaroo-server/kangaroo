@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.root;
+package net.krotscheck.kangaroo;
 
-import net.krotscheck.api.root.status.StatusResponse;
+import net.krotscheck.kangaroo.status.StatusResponse;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.junit.Assert;
