@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.api.admin.v1;
+package net.krotscheck.kangaroo.servlet.admin.v1;
 
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.IFixture;

@@ -16,6 +16,8 @@
  */
 
 /**
- * Unit tests for the user service.
+ * User and user preference management.
+ *
+ * @author Michael Krotscheck
  */
-package net.krotscheck.api.admin.v1.user.resource;
+package net.krotscheck.kangaroo.servlet.admin.v1.user;

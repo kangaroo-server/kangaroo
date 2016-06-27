@@ -18,4 +18,4 @@
 /**
  * Unit tests for the admin API, version 1.
  */
-package net.krotscheck.api.admin.v1;
+package net.krotscheck.kangaroo.servlet.admin.v1;

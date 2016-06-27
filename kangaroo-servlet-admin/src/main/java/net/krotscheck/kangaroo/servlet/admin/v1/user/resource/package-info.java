@@ -16,6 +16,6 @@
  */
 
 /**
- * The server administration API.
+ * The user management feature.
  */
-package net.krotscheck.api.admin.v1;
+package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;

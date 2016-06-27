@@ -15,9 +15,29 @@
  * limitations under the License.
  */
 
+package net.krotscheck.kangaroo.servlet.admin.v1.user;
+
+import net.krotscheck.kangaroo.servlet.admin.v1.user.resource.UserService;
+
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+
 /**
- * User and user preference management.
+ * The User Management API.
  *
  * @author Michael Krotscheck
  */
-package net.krotscheck.api.admin.v1.user;
+public final class UserFeature implements Feature {
+
+    /**
+     * Register this feature.
+     */
+    @Override
+    public boolean configure(final FeatureContext context) {
+
+        // User service
+        context.register(UserService.class);
+
+        return true;
+    }
+}
