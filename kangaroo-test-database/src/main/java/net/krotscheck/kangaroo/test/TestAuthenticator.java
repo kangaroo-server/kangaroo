@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.test;
+package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -49,7 +49,7 @@ public final class TestAuthenticator
     /**
      * Unique foreign ID string for the debug user.
      */
-    private static final String REMOTE_ID = "dev_user";
+    public static final String REMOTE_ID = "dev_user";
 
     /**
      * Hibernate session, to use for database access.
@@ -65,7 +65,6 @@ public final class TestAuthenticator
     public TestAuthenticator(final Session session) {
         this.session = session;
     }
-
 
     /**
      * Execute an authentication process for a specific request.

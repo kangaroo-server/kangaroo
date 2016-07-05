@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.test;
+package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
@@ -28,16 +28,15 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.test.IFixture;
 import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.SortedMap;
@@ -76,9 +75,32 @@ public final class EnvironmentBuilder implements IFixture {
     private Application application;
 
     /**
-     * The current application scope.
+     * The most recent created scope.
+     */
+    private ApplicationScope scope;
+
+    /**
+     * The current application scopes.
      */
     private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+
+    /**
+     * Get the list of tracked entities.
+     *
+     * @return The current list of tracked entities.
+     */
+    public List<AbstractEntity> getTrackedEntities() {
+        return Collections.unmodifiableList(trackedEntities);
+    }
+
+    /**
+     * Return the current list of active scopes.
+     *
+     * @return The list of scopes.
+     */
+    public SortedMap<String, ApplicationScope> getScopes() {
+        return Collections.unmodifiableSortedMap(scopes);
+    }
 
     /**
      * The current role context.
@@ -174,6 +196,15 @@ public final class EnvironmentBuilder implements IFixture {
     }
 
     /**
+     * Get the current scope.
+     *
+     * @return The current scope.
+     */
+    public ApplicationScope getScope() {
+        return scope;
+    }
+
+    /**
      * The list of entities that are under management by this builder.
      */
     private final List<AbstractEntity> trackedEntities = new ArrayList<>();
@@ -224,11 +255,11 @@ public final class EnvironmentBuilder implements IFixture {
      * @return This environment builder.
      */
     public EnvironmentBuilder scope(final String name) {
-        ApplicationScope newScope = new ApplicationScope();
-        newScope.setName(name);
-        newScope.setApplication(application);
-        scopes.put(name, newScope);
-        persist(newScope);
+        scope = new ApplicationScope();
+        scope.setName(name);
+        scope.setApplication(application);
+        scopes.put(name, scope);
+        persist(scope);
         return this;
     }
 
@@ -276,11 +307,8 @@ public final class EnvironmentBuilder implements IFixture {
             client.setRedirects(new HashSet<>());
         }
 
-        try {
-            client.getRedirects().add(new URI(redirect));
-        } catch (URISyntaxException e) {
-            throw new AssertionError("Cannot add redirect", e);
-        }
+        URI redirectUri = UriBuilder.fromUri(redirect).build();
+        client.getRedirects().add(redirectUri);
 
         persist(client);
 
@@ -298,11 +326,8 @@ public final class EnvironmentBuilder implements IFixture {
             client.setReferrers(new HashSet<>());
         }
 
-        try {
-            client.getReferrers().add(new URI(referrer));
-        } catch (URISyntaxException e) {
-            throw new AssertionError("Cannot add referrer", e);
-        }
+        URI referrerUri = UriBuilder.fromUri(referrer).build();
+        client.getReferrers().add(referrerUri);
 
         persist(client);
 
@@ -361,52 +386,23 @@ public final class EnvironmentBuilder implements IFixture {
     }
 
     /**
-     * Clear all created entities from the database.
-     */
-    @Override
-    public void clear() {
-        Transaction t = session.beginTransaction();
-        for (int i = trackedEntities.size() - 1; i >= 0; i--) {
-            AbstractEntity e = trackedEntities.get(i);
-
-            e = session.get(e.getClass(), e.getId());
-            if (e != null) {
-                session.delete(e);
-            }
-        }
-        t.commit();
-        trackedEntities.clear();
-
-        application = null;
-        scopes.clear();
-        role = null;
-        client = null;
-        authenticator = null;
-        user = null;
-        userIdentity = null;
-        token = null;
-    }
-
-    /**
      * Add a login for the current user context.
      *
      * @param login    The user login.
      * @param password The user password.
      * @return This builder.
+     * @throws Exception Thrown if the security algorithm isn't present.
      */
-    public EnvironmentBuilder login(final String login, final String password) {
-        try {
-            userIdentity = new UserIdentity();
-            userIdentity.setUser(user);
-            userIdentity.setRemoteId(login);
-            userIdentity.setSalt(PasswordUtil.createSalt());
-            userIdentity.setPassword(PasswordUtil.hash(password,
-                    userIdentity.getSalt()));
-            userIdentity.setAuthenticator(authenticator);
-            persist(userIdentity);
-        } catch (Exception e) {
-            // do nothing.
-        }
+    public EnvironmentBuilder login(final String login, final String password)
+            throws Exception {
+        userIdentity = new UserIdentity();
+        userIdentity.setUser(user);
+        userIdentity.setRemoteId(login);
+        userIdentity.setSalt(PasswordUtil.createSalt());
+        userIdentity.setPassword(PasswordUtil.hash(password,
+                userIdentity.getSalt()));
+        userIdentity.setAuthenticator(authenticator);
+        persist(userIdentity);
         return this;
     }
 
@@ -431,10 +427,8 @@ public final class EnvironmentBuilder implements IFixture {
      * @return This builder.
      */
     public EnvironmentBuilder authToken() {
-        String redirect = null;
-        if (getClient().getRedirects().size() > 0) {
-            redirect = getClient().getRedirects().iterator().next().toString();
-        }
+        String redirect =
+                getClient().getRedirects().iterator().next().toString();
 
         return token(OAuthTokenType.Authorization, false, null, redirect, null);
     }
@@ -501,5 +495,33 @@ public final class EnvironmentBuilder implements IFixture {
 
         persist(token);
         return this;
+    }
+
+    /**
+     * Clear all created entities from the database.
+     */
+    @Override
+    public void clear() {
+        Transaction t = session.beginTransaction();
+        for (int i = trackedEntities.size() - 1; i >= 0; i--) {
+            AbstractEntity e = trackedEntities.get(i);
+
+            e = session.get(e.getClass(), e.getId());
+            if (e != null) {
+                session.delete(e);
+            }
+        }
+        t.commit();
+        trackedEntities.clear();
+
+        application = null;
+        scopes.clear();
+        scope = null;
+        role = null;
+        client = null;
+        authenticator = null;
+        user = null;
+        userIdentity = null;
+        token = null;
     }
 }
