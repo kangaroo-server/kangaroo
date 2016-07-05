@@ -52,15 +52,17 @@ public interface IDatabaseTest {
      * Load data fixtures for each test.
      *
      * @return A list of fixtures, which will be cleared after the test.
+     * @throws Exception An exception that indicates a failed fixture load.
      */
-    List<IFixture> fixtures();
+    List<IFixture> fixtures() throws Exception;
 
     /**
      * Load the test data.
      *
      * @return The test data.
+     * @throws Exception An exception that indicates a failed test data load.
      */
-    File testData();
+    File testData() throws Exception;
 
     /**
      * Create and return a hibernate session for the test database.

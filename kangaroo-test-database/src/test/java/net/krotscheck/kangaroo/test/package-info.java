@@ -16,6 +16,6 @@
  */
 
 /**
- * Helper test class implementations.
+ * Test helper implementations.
  */
-package net.krotscheck.test;
+package net.krotscheck.kangaroo.test;

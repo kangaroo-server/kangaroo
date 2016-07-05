@@ -17,7 +17,6 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
-import net.krotscheck.kangaroo.servlet.oauth2.rfc6749.AbstractRFC6749Test;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;

@@ -85,6 +85,12 @@
       <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>net.krotscheck</groupId>
+      <artifactId>kangaroo-test-database</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
 
     <!-- The servlet API -->
     <dependency>
