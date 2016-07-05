@@ -17,14 +17,14 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.resource;
 
-import net.krotscheck.kangaroo.servlet.oauth2.OAuthTestApp;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.ClientType;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.servlet.oauth2.OAuthTestApp;
 import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.IFixture;
-import net.krotscheck.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.Session;
