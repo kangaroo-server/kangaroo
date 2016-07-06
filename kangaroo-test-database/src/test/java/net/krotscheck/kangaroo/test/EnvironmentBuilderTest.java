@@ -25,7 +25,6 @@ import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.net.URI;
 import java.util.List;
 
@@ -43,16 +42,6 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
      */
     @Override
     public List<IFixture> fixtures() {
-        return null;
-    }
-
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
         return null;
     }
 
@@ -113,6 +102,13 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertNotNull(b.getClient().getClientSecret());
         Assert.assertEquals(b.getApplication(), b.getClient().getApplication());
 
+        // Create a named client
+        b.client(ClientType.AuthorizationGrant, "new name");
+        assertNewResource(b.getClient());
+        Assert.assertEquals(ClientType.AuthorizationGrant,
+                b.getClient().getType());
+        Assert.assertEquals("new name", b.getClient().getName());
+
         // Set up a test authenticator for this client.
         Assert.assertNull(b.getAuthenticator());
         b.authenticator("test");
@@ -164,6 +160,13 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertNull(b.getUserIdentity().getPassword());
         Assert.assertEquals(b.getAuthenticator(),
                 b.getUserIdentity().getAuthenticator());
+
+        // Add some claims to the user identity
+        Assert.assertNull(b.getUserIdentity().getClaims());
+        b.claim("foo", "bar");
+        b.claim("lol", "cat");
+        Assert.assertEquals("bar", b.getUserIdentity().getClaims().get("foo"));
+        Assert.assertEquals("cat", b.getUserIdentity().getClaims().get("lol"));
 
         // Create an auth token
         Assert.assertNull(b.getToken());

@@ -81,16 +81,6 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that a record has its created and modified date updated during an
      * insert.
      */

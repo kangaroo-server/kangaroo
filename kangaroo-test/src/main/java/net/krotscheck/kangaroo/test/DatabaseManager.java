@@ -17,31 +17,23 @@
 
 package net.krotscheck.kangaroo.test;
 
-import net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.JndiDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
 import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TimeZone;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.ServletContextEvent;
 
 import liquibase.Contexts;
 import liquibase.Liquibase;
@@ -49,8 +41,6 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * A database manager which can be used in multiple tests.
@@ -92,16 +82,6 @@ public final class DatabaseManager {
             LoggerFactory.getLogger(DatabaseManager.class);
 
     /**
-     * Singleton instance of the database tester.
-     */
-    private IDatabaseTester tester;
-
-    /**
-     * A list of all test data files that have been loaded.
-     */
-    private List<IDataSet> testData = new ArrayList<>();
-
-    /**
      * Database connection, currently active.
      */
     private Connection conn;
@@ -113,8 +93,6 @@ public final class DatabaseManager {
 
     /**
      * Set up a JDNI connection for your tests.
-     *
-     * @throws NamingException Thrown if the JNDI name cannot be created.
      */
     public void setupJNDI() {
         logger.info("Setting up JNDI.");
@@ -142,67 +120,6 @@ public final class DatabaseManager {
             // which will happen in a second test run.
             e.getMessage();
         }
-    }
-
-    /**
-     * Load some test data into our database.
-     *
-     * @param dataFile The test data xml file to map.
-     * @throws Exception one of several exceptions encountered while loading.
-     */
-    public void loadTestData(final File dataFile)
-            throws Exception {
-        if (dataFile == null) {
-            return;
-        }
-
-        logger.info("Loading test data...");
-        IDatabaseTester databaseTester = getDatabaseTester();
-        FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
-        IDataSet dataSet = builder.build(dataFile);
-
-        databaseTester.setDataSet(dataSet);
-        databaseTester.onSetup();
-
-        testData.add(dataSet);
-
-        // Rebuild the search index.
-        new SearchIndexContextListener()
-                .contextInitialized(mock(ServletContextEvent.class));
-    }
-
-    /**
-     * Clears the test data.
-     *
-     * @throws Exception one of several exceptions encountered while cleaning.
-     */
-    public void clearTestData() throws Exception {
-        logger.info("Clearing test data...");
-
-        IDatabaseTester databaseTester = getDatabaseTester();
-        for (IDataSet dataSet : testData) {
-            // initialize your dataset here
-            databaseTester.setDataSet(dataSet);
-            databaseTester.onTearDown();
-        }
-
-        testData.clear();
-    }
-
-    /**
-     * Get an instance of the database tester.
-     *
-     * @return The database tester.
-     */
-    private IDatabaseTester getDatabaseTester() {
-        if (tester == null) {
-            tester = new JndiDatabaseTester("java:/comp/env/jdbc/OIDServerDB");
-            tester.setSetUpOperation(DatabaseOperation.DELETE_ALL);
-            tester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
-            tester.setTearDownOperation(DatabaseOperation.DELETE_ALL);
-        }
-
-        return tester;
     }
 
     /**
@@ -273,6 +190,22 @@ public final class DatabaseManager {
         liquibase = new Liquibase("liquibase/db.changelog-master.yaml",
                 new ClassLoaderResourceAccessor(), database);
         liquibase.update(new Contexts());
+    }
+
+    /**
+     * Set up the liquibase search index.
+     *
+     * @throws InterruptedException Thrown if the search index construction
+     *                              is interrupted.
+     */
+    public void buildSearchIndex() throws InterruptedException {
+        // Create the fulltext session.
+        FullTextSession fullTextSession =
+                Search.getFullTextSession(getSession());
+
+        fullTextSession
+                .createIndexer()
+                .startAndWait();
     }
 
     /**

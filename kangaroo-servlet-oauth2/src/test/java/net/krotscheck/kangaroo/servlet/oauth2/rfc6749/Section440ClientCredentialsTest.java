@@ -89,16 +89,6 @@ public final class Section440ClientCredentialsTest
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that a simple token request works.
      */
     @Test

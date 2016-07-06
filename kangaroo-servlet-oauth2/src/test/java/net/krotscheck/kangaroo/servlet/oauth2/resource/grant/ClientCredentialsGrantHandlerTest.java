@@ -117,16 +117,6 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that a valid request works.
      */
     @Test

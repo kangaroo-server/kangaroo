@@ -33,7 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -74,11 +73,6 @@ public final class RefreshTokenGrantHandlerTest
      * A non-refresh-token context.
      */
     private EnvironmentBuilder implicitContext;
-
-    /**
-     * A context with no configured scopes.
-     */
-    private EnvironmentBuilder noScopeContext;
 
     /**
      * A context with an expired refresh token.
@@ -128,14 +122,6 @@ public final class RefreshTokenGrantHandlerTest
                 .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
 
 
-        noScopeContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.OwnerCredentials, true)
-                .bearerToken();
-        authToken = noScopeContext.getToken();
-        noScopeContext
-                .token(OAuthTokenType.Refresh, false, null, null, authToken);
-
-
         expiredContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
                 .scope("debug")
@@ -163,27 +149,15 @@ public final class RefreshTokenGrantHandlerTest
         session = getSession();
         session.refresh(ownerCredsContext.getClient());
         session.refresh(authGrantContext.getClient());
-        session.refresh(noScopeContext.getClient());
         session.refresh(implicitContext.getClient());
 
         List<IFixture> fixtures = new ArrayList<>();
         fixtures.add(authGrantContext);
         fixtures.add(ownerCredsContext);
-        fixtures.add(noScopeContext);
         fixtures.add(expiredContext);
         fixtures.add(zombieRefreshContext);
         fixtures.add(implicitContext);
         return fixtures;
-    }
-
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
     }
 
     /**

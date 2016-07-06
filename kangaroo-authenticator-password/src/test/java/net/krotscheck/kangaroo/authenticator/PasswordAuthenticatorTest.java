@@ -20,10 +20,11 @@ package net.krotscheck.kangaroo.authenticator;
 import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator.Binder;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
-import net.krotscheck.util.ResourceUtil;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -33,10 +34,9 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -50,10 +50,9 @@ import javax.ws.rs.core.UriBuilder;
 public final class PasswordAuthenticatorTest extends DatabaseTest {
 
     /**
-     * The tests's backing data.
+     * Test context.
      */
-    private static final File TEST_DATA = ResourceUtil.getFileForResource(
-            "PasswordAuthenticatorData.xml");
+    private EnvironmentBuilder context;
 
     /**
      * Load data fixtures for each test.
@@ -61,18 +60,16 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
-        return null;
-    }
+    public List<IFixture> fixtures() throws Exception {
+        context = new EnvironmentBuilder(getSession());
+        context.client(ClientType.OwnerCredentials)
+                .authenticator("password")
+                .user()
+                .login("login", "password");
 
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return TEST_DATA;
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        return fixtures;
     }
 
     /**
@@ -98,14 +95,11 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      */
     @Test
     public void testAuthenticateValid() throws Exception {
-        Authenticator config = getSession().get(Authenticator.class,
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
-
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(config, params);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
         Assert.assertEquals("login", i.getRemoteId());
     }
 
@@ -140,14 +134,11 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      */
     @Test
     public void testAuthenticateNoIdentity() throws Exception {
-        Authenticator config = getSession().get(Authenticator.class,
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
-
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "wrongIdentity");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(config, params);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
         Assert.assertNull(i);
     }
 
@@ -158,14 +149,11 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      */
     @Test
     public void testAuthenticateWrongPassword() throws Exception {
-        Authenticator config = getSession().get(Authenticator.class,
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
-
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "wrongpassword");
-        UserIdentity i = a.authenticate(config, params);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
         Assert.assertNull(i);
     }
 

@@ -17,21 +17,22 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
 
-import net.krotscheck.kangaroo.database.DatabaseFeature;
-import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
-import net.krotscheck.util.ResourceUtil;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
@@ -45,10 +46,9 @@ import javax.ws.rs.core.Response;
 public final class UserServiceTest extends ContainerTest {
 
     /**
-     * The tests's backing data.
+     * List of created users, for test comparisons.
      */
-    private static final File TEST_DATA = ResourceUtil.getFileForResource(
-            "net/krotscheck/api/admin/v1/user/UserServiceTest.xml");
+    private List<User> users = new ArrayList<>();
 
     /**
      * Build and configure the application.
@@ -76,18 +76,45 @@ public final class UserServiceTest extends ContainerTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
-        return null;
-    }
+    public List<IFixture> fixtures() throws Exception {
+        users.clear();
+        EnvironmentBuilder context =
+                new EnvironmentBuilder(getSession(), "Test Name")
+                        .role("owner")
+                        .client(ClientType.Implicit, "Test Client")
+                        .authenticator("test");
 
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return TEST_DATA;
+        // User 1
+        context.user()
+                .identity("remote_id_1")
+                .claim("name", "D Test User 1")
+                .claim("email", "noreply_1@example.com");
+        users.add(context.getUser());
+
+        // User 2
+        context.user()
+                .identity("remote_id_2")
+                .claim("name", "C Test User 2")
+                .claim("email", "noreply_2@example.com");
+        users.add(context.getUser());
+
+        // User 3
+        context.user()
+                .identity("remote_id_3")
+                .claim("name", "B Test User Search Search")
+                .claim("email", "noreply_3@example.com");
+        users.add(context.getUser());
+
+        // User 4
+        context.user()
+                .identity("remote_id_4")
+                .claim("name", "A Test User Single Search")
+                .claim("email", "noreply_4@example.com");
+        users.add(context.getUser());
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        return fixtures;
     }
 
     /**
@@ -116,7 +143,7 @@ public final class UserServiceTest extends ContainerTest {
                 .queryParam("q", "Single")
                 .request()
                 .get();
-        List<User> users = response.readEntity(new GenericType<List<User>>() {
+        List<User> results = response.readEntity(new GenericType<List<User>>() {
 
         });
 
@@ -124,9 +151,8 @@ public final class UserServiceTest extends ContainerTest {
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals("Single", response.getHeaderString("Query"));
-        Assert.assertEquals(1, users.size());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
-                users.get(0).getId().toString());
+        Assert.assertEquals(1, results.size());
+        Assert.assertEquals(users.get(3).getId(), results.get(0).getId());
     }
 
     /**
@@ -180,7 +206,7 @@ public final class UserServiceTest extends ContainerTest {
                 .queryParam("q", "Search")
                 .request()
                 .get();
-        List<User> users = response.readEntity(new GenericType<List<User>>() {
+        List<User> results = response.readEntity(new GenericType<List<User>>() {
 
         });
 
@@ -188,11 +214,9 @@ public final class UserServiceTest extends ContainerTest {
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
         Assert.assertEquals("Search", response.getHeaderString("Query"));
-        Assert.assertEquals(2, users.size());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
-                users.get(0).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
-                users.get(1).getId().toString());
+        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(users.get(2).getId(), results.get(0).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(1).getId());
     }
 
     /**
@@ -280,23 +304,19 @@ public final class UserServiceTest extends ContainerTest {
                 .queryParam("sort", "createdDate")
                 .request()
                 .get();
-        List<User> users = response.readEntity(new GenericType<List<User>>() {
+        List<User> results = response.readEntity(new GenericType<List<User>>() {
 
         });
 
         Assert.assertEquals("4", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, users.size());
+        Assert.assertEquals(4, results.size());
 
-        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
-                users.get(0).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
-                users.get(1).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
-                users.get(2).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
-                users.get(3).getId().toString());
+        Assert.assertEquals(users.get(0).getId(), results.get(0).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
     }
 
     /**
@@ -321,23 +341,19 @@ public final class UserServiceTest extends ContainerTest {
                 .queryParam("order", "asc")
                 .request()
                 .get();
-        List<User> users = response.readEntity(new GenericType<List<User>>() {
+        List<User> results = response.readEntity(new GenericType<List<User>>() {
 
         });
 
         Assert.assertEquals("4", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, users.size());
+        Assert.assertEquals(4, results.size());
 
-        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
-                users.get(0).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
-                users.get(1).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
-                users.get(2).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
-                users.get(3).getId().toString());
+        Assert.assertEquals(users.get(0).getId(), results.get(0).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
     }
 
     /**
@@ -350,23 +366,19 @@ public final class UserServiceTest extends ContainerTest {
                 .queryParam("order", "desc")
                 .request()
                 .get();
-        List<User> users = response.readEntity(new GenericType<List<User>>() {
+        List<User> results = response.readEntity(new GenericType<List<User>>() {
 
         });
 
         Assert.assertEquals("4", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, users.size());
+        Assert.assertEquals(4, results.size());
 
-        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
-                users.get(0).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
-                users.get(1).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
-                users.get(2).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
-                users.get(3).getId().toString());
+        Assert.assertEquals(users.get(3).getId(), results.get(0).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(0).getId(), results.get(3).getId());
     }
 
     /**
@@ -379,22 +391,18 @@ public final class UserServiceTest extends ContainerTest {
                 .queryParam("order", "aasdfasdf")
                 .request()
                 .get();
-        List<User> users = response.readEntity(new GenericType<List<User>>() {
+        List<User> results = response.readEntity(new GenericType<List<User>>() {
 
         });
 
         Assert.assertEquals("4", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, users.size());
+        Assert.assertEquals(4, results.size());
 
-        Assert.assertEquals("00000000-0000-0000-0000-000000000004",
-                users.get(0).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000003",
-                users.get(1).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000002",
-                users.get(2).getId().toString());
-        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
-                users.get(3).getId().toString());
+        Assert.assertEquals(users.get(0).getId(), results.get(0).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
     }
 }

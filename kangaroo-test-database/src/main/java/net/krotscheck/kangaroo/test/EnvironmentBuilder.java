@@ -37,8 +37,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -274,6 +276,18 @@ public final class EnvironmentBuilder implements IFixture {
     }
 
     /**
+     * Add a client to this application.
+     *
+     * @param type The client type.
+     * @param name An explicit client name.
+     * @return This builder.
+     */
+    public EnvironmentBuilder client(final ClientType type,
+                                     final String name) {
+        return client(type, name, false);
+    }
+
+    /**
      * Add a client, with a secret, to this application.
      *
      * @param isPrivate Is this a private client or not?
@@ -282,8 +296,22 @@ public final class EnvironmentBuilder implements IFixture {
      */
     public EnvironmentBuilder client(final ClientType type,
                                      final Boolean isPrivate) {
+        return client(type, "Test Client", isPrivate);
+    }
+
+    /**
+     * Add a client, with a name, to this application.
+     *
+     * @param isPrivate Is this a private client or not?
+     * @param name      An explicit client name.
+     * @param type      The client type.
+     * @return This builder.
+     */
+    public EnvironmentBuilder client(final ClientType type,
+                                     final String name,
+                                     final Boolean isPrivate) {
         client = new Client();
-        client.setName("Test Client");
+        client.setName(name);
         client.setType(type);
         client.setApplication(application);
 
@@ -368,6 +396,7 @@ public final class EnvironmentBuilder implements IFixture {
      * @param e The entity to persist.
      */
     private void persist(final AbstractEntity e) {
+
         // Set created/updated dates for all entities.
         e.setCreatedDate(Calendar.getInstance(UTC));
         e.setModifiedDate(Calendar.getInstance(UTC));
@@ -494,6 +523,23 @@ public final class EnvironmentBuilder implements IFixture {
         token.setScopes(newScopes);
 
         persist(token);
+        return this;
+    }
+
+    /**
+     * Add an identity claim.
+     *
+     * @param name  Name of the field.
+     * @param value Value of the field.
+     * @return This builder.
+     */
+    public EnvironmentBuilder claim(final String name, final String value) {
+        Map<String, String> claims = userIdentity.getClaims();
+        if (claims == null) {
+            userIdentity.setClaims(new HashMap<>());
+        }
+        userIdentity.getClaims().putIfAbsent(name, value);
+        persist(userIdentity);
         return this;
     }
 

@@ -98,16 +98,6 @@ public final class AuthorizationServiceTest extends ContainerTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that an invalid grant type is rejected.
      */
     @Test
