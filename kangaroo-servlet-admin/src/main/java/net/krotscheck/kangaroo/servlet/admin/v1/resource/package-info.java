@@ -16,6 +16,6 @@
  */
 
 /**
- * Unit tests for the user service.
+ * The resources and services of the Admin API.
  */
-package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
+package net.krotscheck.kangaroo.servlet.admin.v1.resource;

@@ -468,7 +468,17 @@ public final class EnvironmentBuilder implements IFixture {
      * @return This builder.
      */
     public EnvironmentBuilder bearerToken() {
-        return token(OAuthTokenType.Bearer, false, null, null, null);
+        return bearerToken(null);
+    }
+
+    /**
+     * Add a scoped bearer token to this user.
+     *
+     * @param scopes The scopes to assign to this token.
+     * @return This builder.
+     */
+    public EnvironmentBuilder bearerToken(final String scopes) {
+        return token(OAuthTokenType.Bearer, false, scopes, null, null);
     }
 
     /**

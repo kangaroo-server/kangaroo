@@ -16,6 +16,6 @@
  */
 
 /**
- * The user management feature.
+ * Unit tests for the administration services.
  */
-package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
+package net.krotscheck.kangaroo.servlet.admin.v1.resource;

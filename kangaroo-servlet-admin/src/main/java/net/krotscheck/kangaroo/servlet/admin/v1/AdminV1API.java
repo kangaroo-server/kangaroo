@@ -18,12 +18,12 @@
 package net.krotscheck.kangaroo.servlet.admin.v1;
 
 
-import net.krotscheck.kangaroo.servlet.admin.v1.user.UserFeature;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -50,6 +50,6 @@ public final class AdminV1API extends ResourceConfig {
         register(VersionFeature.class);          // Version response attachment.
 
         // API Services
-        register(UserFeature.class);             // User service.
+        register(UserService.class);
     }
 }
