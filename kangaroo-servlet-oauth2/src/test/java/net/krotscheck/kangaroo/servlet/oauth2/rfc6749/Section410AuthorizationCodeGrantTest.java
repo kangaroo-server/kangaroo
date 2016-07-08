@@ -144,16 +144,6 @@ public final class Section410AuthorizationCodeGrantTest
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that a simple request works. This request requires the setup of a
      * default authenticator, a single redirect_uri, and a default scope.
      *

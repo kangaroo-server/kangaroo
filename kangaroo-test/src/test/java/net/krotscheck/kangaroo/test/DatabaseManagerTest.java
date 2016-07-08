@@ -17,13 +17,10 @@
 
 package net.krotscheck.kangaroo.test;
 
-import net.krotscheck.util.ResourceUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
 
 /**
  * Smoke tests for the database manager, in order to get coverage so that
@@ -32,12 +29,6 @@ import java.io.File;
  * @author Michael Krotscheck
  */
 public final class DatabaseManagerTest {
-
-    /**
-     * The tests's backing data.
-     */
-    private static final File TEST_DATA =
-            ResourceUtil.getFileForResource("TestData.xml");
 
     /**
      * Walk through the whole lifecycle. This isn't really intended to test
@@ -52,8 +43,6 @@ public final class DatabaseManagerTest {
         m.setupJNDI();
         m.setupJNDI(); // Run it again, to ensure the exception is caught.
         m.setupDatabase();
-        m.loadTestData(null);
-        m.loadTestData(TEST_DATA);
 
         SessionFactory f1 = m.getSessionFactory();
         Session s1 = m.getSession();
@@ -65,7 +54,6 @@ public final class DatabaseManagerTest {
         Assert.assertFalse(f1.isClosed());
         Assert.assertTrue(s2.isOpen());
 
-        m.clearTestData();
         m.cleanSessions();
         m.cleanDatabase();
 

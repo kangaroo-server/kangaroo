@@ -70,20 +70,6 @@
 
   <dependencies>
 
-    <!-- DbUnit -->
-    <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <version>2.5.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
-      <version>2.1.1</version>
-      <scope>compile</scope>
-    </dependency>
-
     <!-- JUnit -->
     <dependency>
       <groupId>junit</groupId>
@@ -150,6 +136,12 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>2.1.1</version>
+      <scope>compile</scope>
     </dependency>
 
     <!-- Jersey (JAX-RS) -->

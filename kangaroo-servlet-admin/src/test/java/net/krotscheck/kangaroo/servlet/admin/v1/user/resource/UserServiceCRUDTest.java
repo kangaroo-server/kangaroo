@@ -17,21 +17,23 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
 
-import net.krotscheck.kangaroo.database.DatabaseFeature;
-import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
-import net.krotscheck.util.ResourceUtil;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -43,10 +45,9 @@ import javax.ws.rs.core.Response;
 public final class UserServiceCRUDTest extends ContainerTest {
 
     /**
-     * The tests's backing data.
+     * List of created users, for test comparisons.
      */
-    private static final File TEST_DATA = ResourceUtil.getFileForResource(
-            "net/krotscheck/api/admin/v1/user/UserServiceTest.xml");
+    private List<User> users = new ArrayList<>();
 
     /**
      * Build and configure the application.
@@ -74,18 +75,45 @@ public final class UserServiceCRUDTest extends ContainerTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
-        return null;
-    }
+    public List<IFixture> fixtures() throws Exception {
+        users.clear();
+        EnvironmentBuilder context =
+                new EnvironmentBuilder(getSession(), "Test Name")
+                        .role("owner")
+                        .client(ClientType.Implicit, "Test Client")
+                        .authenticator("test");
 
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return TEST_DATA;
+        // User 1
+        context.user()
+                .identity("remote_id_1")
+                .claim("name", "D Test User 1")
+                .claim("email", "noreply_1@example.com");
+        users.add(context.getUser());
+
+        // User 2
+        context.user()
+                .identity("remote_id_2")
+                .claim("name", "C Test User 2")
+                .claim("email", "noreply_2@example.com");
+        users.add(context.getUser());
+
+        // User 3
+        context.user()
+                .identity("remote_id_3")
+                .claim("name", "B Test User Search")
+                .claim("email", "noreply_3@example.com");
+        users.add(context.getUser());
+
+        // User 4
+        context.user()
+                .identity("remote_id_4")
+                .claim("name", "A Test User Single Search")
+                .claim("email", "noreply_4@example.com");
+        users.add(context.getUser());
+
+        List<IFixture> fixtures = new ArrayList<>();
+        fixtures.add(context);
+        return fixtures;
     }
 
     /**
@@ -93,12 +121,12 @@ public final class UserServiceCRUDTest extends ContainerTest {
      */
     @Test
     public void testGetUser() {
-        User responseUser = target("/user/00000000-0000-0000-0000-000000000001")
+        String path = String.format("/user/%s", users.get(0).getId());
+        User responseUser = target(path)
                 .request()
                 .get(User.class);
 
-        Assert.assertEquals("00000000-0000-0000-0000-000000000001",
-                responseUser.getId().toString());
+        Assert.assertEquals(users.get(0).getId(), responseUser.getId());
     }
 
     /**
@@ -106,7 +134,8 @@ public final class UserServiceCRUDTest extends ContainerTest {
      */
     @Test
     public void testGetUnknownUser() {
-        Response response = target("/user/00000000-0000-0000-0000-000000000100")
+        String path = String.format("/user/%s", UUID.randomUUID());
+        Response response = target(path)
                 .request()
                 .get();
 

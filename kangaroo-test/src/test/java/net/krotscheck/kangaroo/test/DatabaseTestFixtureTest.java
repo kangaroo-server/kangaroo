@@ -22,7 +22,6 @@ import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,16 +40,6 @@ public final class DatabaseTestFixtureTest extends DatabaseTest {
     @Override
     public List<IFixture> fixtures() {
         return new ArrayList<>();
-    }
-
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
     }
 
     /**

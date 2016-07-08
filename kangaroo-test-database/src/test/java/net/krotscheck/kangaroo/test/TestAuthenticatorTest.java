@@ -68,16 +68,6 @@ public final class TestAuthenticatorTest extends DatabaseTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that calling the delegate method immediately redirects to the
      * redirect URL.
      *

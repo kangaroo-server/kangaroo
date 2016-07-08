@@ -86,7 +86,6 @@ public abstract class ContainerTest
      */
     @AfterClass
     public static void removeDatabaseSchema() throws Exception {
-        manager.clearTestData();
         manager.cleanDatabase();
     }
 
@@ -94,31 +93,24 @@ public abstract class ContainerTest
     /**
      * Set up the fixtures and any environment that's necessary.
      *
-     * @throws Exception An exception that indicates a failed data clear.
+     * @throws Exception Thrown in the fixtures() interface.
      */
     @Before
-    @Override
     public final void setupData() throws Exception {
-        // Load any test data available.
-        manager.loadTestData(testData());
-
         List<IFixture> newFixtures = fixtures();
         if (newFixtures != null) {
             fixtures.addAll(newFixtures);
         }
+        manager.buildSearchIndex();
     }
 
     /**
      * Cleanup the session factory after every run.
      */
     @After
-    @Override
-    public final void clearData() throws Exception {
+    public final void clearData() {
         fixtures.forEach(IFixture::clear);
         fixtures.clear();
-
-        // Clear the test data.
-        manager.clearTestData();
 
         // Clean any outstanding sessions.
         manager.cleanSessions();
