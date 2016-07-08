@@ -53,16 +53,6 @@ public final class AdminV1APITest extends ContainerTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * The application smoketest.
      */
     @Test

@@ -23,7 +23,6 @@
   <logger name="ContextClassLoaderXsdStreamResolver" level="WARN"/>
   <logger name="jndi" level="WARN"/>
   <logger name="org.eclipse.jetty" level="WARN"/>
-  <logger name="org.dbunit" level="WARN"/>
   <logger name="net.krotscheck.jersey2" level="WARN"/>
   <logger name="ch.qos" level="WARN"/>
 </configuration>

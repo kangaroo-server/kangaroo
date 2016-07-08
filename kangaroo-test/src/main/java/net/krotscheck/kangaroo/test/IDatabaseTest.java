@@ -19,10 +19,7 @@ package net.krotscheck.kangaroo.test;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -33,36 +30,12 @@ import java.util.List;
 public interface IDatabaseTest {
 
     /**
-     * Set up the fixtures and any environment that's necessary.
-     *
-     * @throws Exception An exception that indicates a failed data load.
-     */
-    @Before
-    void setupData() throws Exception;
-
-    /**
-     * Cleanup the session factory after every run.
-     *
-     * @throws Exception An exception that indicates a failed data clear.
-     */
-    @After
-    void clearData() throws Exception;
-
-    /**
      * Load data fixtures for each test.
      *
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
     List<IFixture> fixtures() throws Exception;
-
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     * @throws Exception An exception that indicates a failed test data load.
-     */
-    File testData() throws Exception;
 
     /**
      * Create and return a hibernate session for the test database.

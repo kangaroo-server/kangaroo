@@ -711,11 +711,11 @@ databaseChangeLog:
       - addForeignKeyConstraint:
           baseColumnNames: user_identity
           baseTableName: user_identity_claims
-          constraintName: fk_user_identity_claims_users
+          constraintName: fk_user_identity_claims_user_identities
           onDelete: CASCADE
           onUpdate: CASCADE
           referencedColumnNames: id
-          referencedTableName: users
+          referencedTableName: user_identities
 
       # An OAuth Token is issued to a given, valid, identity, on one
       # particular application client.

@@ -62,14 +62,4 @@ public final class RootAPITest extends ContainerTest {
     public List<IFixture> fixtures() {
         return null;
     }
-
-    /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
 }

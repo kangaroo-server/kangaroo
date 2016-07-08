@@ -136,16 +136,6 @@ public final class Section600RefreshTokenTest
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that a simple refresh request works.
      */
     @Test

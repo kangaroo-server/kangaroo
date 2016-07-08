@@ -90,16 +90,6 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Setup our test data.
      */
     @Before

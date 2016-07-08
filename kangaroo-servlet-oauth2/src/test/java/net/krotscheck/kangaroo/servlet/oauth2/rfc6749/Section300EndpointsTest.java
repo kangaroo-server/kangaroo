@@ -44,16 +44,6 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Assert that the /authorize endpoint exists.
      */
     @Test
