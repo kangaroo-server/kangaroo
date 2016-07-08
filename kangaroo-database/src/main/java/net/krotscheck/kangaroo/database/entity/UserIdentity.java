@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDese
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -102,6 +103,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
     @Cascade(CascadeType.ALL)
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @IndexedEmbedded
+    @Analyzer(definition = "entity_analyzer")
     private Map<String, String> claims;
 
     /**

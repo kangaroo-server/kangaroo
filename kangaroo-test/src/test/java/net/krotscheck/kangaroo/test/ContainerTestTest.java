@@ -70,16 +70,6 @@ public final class ContainerTestTest extends ContainerTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Test that convenience methods are accessible.
      */
     @Test

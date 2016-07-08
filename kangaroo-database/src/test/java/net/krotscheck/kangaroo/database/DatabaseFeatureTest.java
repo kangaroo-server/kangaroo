@@ -69,16 +69,6 @@ public final class DatabaseFeatureTest extends ContainerTest {
     }
 
     /**
-     * Load the test data.
-     *
-     * @return The test data.
-     */
-    @Override
-    public File testData() {
-        return null;
-    }
-
-    /**
      * Quick check to see if we can inject the various components of the
      * database feature.
      */
