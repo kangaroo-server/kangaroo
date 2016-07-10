@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
+import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -33,7 +34,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -50,7 +51,8 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 @Path("/user")
-@PermitAll
+@RolesAllowed("user")
+@OAuth2
 public final class UserService extends AbstractService {
 
     /**
@@ -170,7 +172,6 @@ public final class UserService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
     @Produces(MediaType.APPLICATION_JSON)
-    @PermitAll
     public Response getUser(@PathParam("id") final UUID id) {
         User user = getSession().get(User.class, id);
         if (user == null) {

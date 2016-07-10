@@ -23,9 +23,11 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 /**
  * The OID Servlet application, including all configured resources and
@@ -42,12 +44,18 @@ public final class AdminV1API extends ResourceConfig {
         // No autodiscovery, we load everything explicitly.
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
+        // Ensure that role annotations are respected.
+        register(RolesAllowedDynamicFeature.class);
+
         // Common features.
         register(ConfigurationFeature.class);    // Configuration loader
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(VersionFeature.class);          // Version response attachment.
+
+        // API Authorization
+        register(new OAuth2AuthorizationFilter.Binder());
 
         // API Services
         register(UserService.class);

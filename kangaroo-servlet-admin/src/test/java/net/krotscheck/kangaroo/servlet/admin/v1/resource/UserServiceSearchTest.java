@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
@@ -43,6 +44,16 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
     private List<User> users = new ArrayList<>();
 
     /**
+     * Authorization header, so we can auth against this resource.
+     */
+    private String authHeader;
+
+    /**
+     * Authorization header with an inappropriate scope.
+     */
+    private String authHeaderNoScope;
+
+    /**
      * Load data fixtures for each test.
      *
      * @return A list of fixtures, which will be cleared after the test.
@@ -52,7 +63,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         users.clear();
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
-                        .role("owner")
+                        .scope("user")
                         .client(ClientType.Implicit, "Test Client")
                         .authenticator("test");
 
@@ -84,6 +95,15 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
                 .claim("email", "noreply_4@example.com");
         users.add(context.getUser());
 
+        // Build an auth header.
+        context.bearerToken("user");
+        authHeader = String.format("Bearer %s", context.getToken().getId());
+
+        // Build an auth header with no valid scope.
+        context.bearerToken();
+        authHeaderNoScope =
+                String.format("Bearer %s", context.getToken().getId());
+
         List<IFixture> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
@@ -99,6 +119,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user/search")
                 .queryParam("q", "with")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
 
         Assert.assertEquals(400, response.getStatus());
@@ -114,6 +135,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user/search")
                 .queryParam("q", "Single")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> results = response.readEntity(new GenericType<List<User>>() {
 
@@ -136,6 +158,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
                 .queryParam("q", "User")
                 .queryParam("offset", "2")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
 
@@ -157,6 +180,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
                 .queryParam("q", "User")
                 .queryParam("limit", "2")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
 
@@ -177,6 +201,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user/search")
                 .queryParam("q", "Search")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> results = response.readEntity(new GenericType<List<User>>() {
 
@@ -199,6 +224,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user/search")
                 .queryParam("q", "FooBar")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
 
@@ -218,6 +244,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
     public void testBrowseUsers() {
         Response response = target("/user")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
 
@@ -237,6 +264,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user")
                 .queryParam("limit", 2)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
 
@@ -256,6 +284,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user")
                 .queryParam("offset", 2)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> users = response.readEntity(new GenericType<List<User>>() {
 
@@ -275,6 +304,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user")
                 .queryParam("sort", "createdDate")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> results = response.readEntity(new GenericType<List<User>>() {
 
@@ -299,6 +329,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Response response = target("/user")
                 .queryParam("sort", "invalidfield")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
     }
@@ -312,6 +343,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
                 .queryParam("sort", "createdDate")
                 .queryParam("order", "asc")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> results = response.readEntity(new GenericType<List<User>>() {
 
@@ -337,6 +369,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
                 .queryParam("sort", "createdDate")
                 .queryParam("order", "desc")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> results = response.readEntity(new GenericType<List<User>>() {
 
@@ -362,6 +395,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
                 .queryParam("sort", "createdDate")
                 .queryParam("order", "aasdfasdf")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
         List<User> results = response.readEntity(new GenericType<List<User>>() {
 
@@ -376,5 +410,33 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
         Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
         Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
+    }
+
+    /**
+     * Assert that the resource may only be accessed with a correctly scoped
+     * token.
+     */
+    @Test
+    public void testBrowseInvalidScopeToken() {
+        Response response = target("/user")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeaderNoScope)
+                .get();
+
+        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
+    }
+
+    /**
+     * Assert that the resource may only be accessed with a correctly scoped
+     * token.
+     */
+    @Test
+    public void testSearchInvalidScopeToken() {
+        Response response = target("/user/search")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeaderNoScope)
+                .get();
+
+        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
     }
 }
