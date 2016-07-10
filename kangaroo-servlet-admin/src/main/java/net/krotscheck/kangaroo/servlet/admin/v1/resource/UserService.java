@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
+import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -51,7 +52,7 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 @Path("/user")
-@RolesAllowed("user")
+@RolesAllowed(Scope.USER)
 @OAuth2
 public final class UserService extends AbstractService {
 
