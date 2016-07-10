@@ -19,6 +19,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
@@ -63,7 +64,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         users.clear();
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
-                        .scope("user")
+                        .scope(Scope.USER)
                         .client(ClientType.Implicit, "Test Client")
                         .authenticator("test");
 
@@ -96,7 +97,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         users.add(context.getUser());
 
         // Build an auth header.
-        context.bearerToken("user");
+        context.bearerToken(Scope.USER);
         authHeader = String.format("Bearer %s", context.getToken().getId());
 
         // Build an auth header with no valid scope.
