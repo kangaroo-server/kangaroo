@@ -21,12 +21,14 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
+import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
@@ -42,6 +44,16 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
     private List<User> users = new ArrayList<>();
 
     /**
+     * Authorization header, so we can auth against this resource.
+     */
+    private String authHeader;
+
+    /**
+     * Authorization header with an inappropriate scope.
+     */
+    private String authHeaderNoScope;
+
+    /**
      * Load data fixtures for each test.
      *
      * @return A list of fixtures, which will be cleared after the test.
@@ -52,7 +64,7 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
 
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
-                        .role("owner")
+                        .scope("user")
                         .client(ClientType.Implicit, "Test Client")
                         .authenticator("test");
 
@@ -84,6 +96,15 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
                 .claim("email", "noreply_4@example.com");
         users.add(context.getUser());
 
+        // Build an auth header.
+        context.bearerToken("user");
+        authHeader = String.format("Bearer %s", context.getToken().getId());
+
+        // Build an auth header with no valid scope.
+        context.bearerToken();
+        authHeaderNoScope =
+                String.format("Bearer %s", context.getToken().getId());
+
         List<IFixture> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
@@ -97,6 +118,7 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
         String path = String.format("/user/%s", users.get(0).getId());
         User responseUser = target(path)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get(User.class);
 
         Assert.assertEquals(users.get(0).getId(), responseUser.getId());
@@ -110,6 +132,7 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
         String path = String.format("/user/%s", UUID.randomUUID());
         Response response = target(path)
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
 
         Assert.assertEquals(404, response.getStatus());
@@ -122,6 +145,7 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
     public void testGetInvalidUUID() {
         Response response = target("/user/00000000")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
 
         Assert.assertEquals(404, response.getStatus());
@@ -134,8 +158,24 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
     public void testGetImproperlyFormattedUser() {
         Response response = target("/user/alskdfjasdf")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .get();
 
         Assert.assertEquals(404, response.getStatus());
+    }
+
+    /**
+     * Assert that the resource may only be accessed with a correctly scoped
+     * token.
+     */
+    @Test
+    public void testInvalidScopeToken() {
+        String path = String.format("/user/%s", users.get(0).getId());
+        Response response = target(path)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, authHeaderNoScope)
+                .get();
+
+        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
     }
 }
