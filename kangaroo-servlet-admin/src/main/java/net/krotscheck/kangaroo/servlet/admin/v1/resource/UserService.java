@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
+package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
-import net.krotscheck.kangaroo.database.entity.User;
-import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
+import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.database.util.SortUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -45,26 +45,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * The user service endpoint.
+ * A RESTful API that permits the management of user resources.
+ *
+ * @author Michael Krotscheck
  */
 @Path("/user")
 @PermitAll
-public final class UserService {
-
-    /**
-     * Hibernate session.
-     */
-    private final Session session;
-
-    /**
-     * The hibernate search factory.
-     */
-    private final SearchFactory searchFactory;
-
-    /**
-     * The hibernate fulltext session.
-     */
-    private final FullTextSession fullTextSession;
+public final class UserService extends AbstractService {
 
     /**
      * Create a new instance of the user service.
@@ -77,9 +64,7 @@ public final class UserService {
     public UserService(final Session session,
                        final SearchFactory searchFactory,
                        final FullTextSession fullTextSession) {
-        this.session = session;
-        this.searchFactory = searchFactory;
-        this.fullTextSession = fullTextSession;
+        super(session, searchFactory, fullTextSession);
     }
 
     /**
@@ -101,7 +86,7 @@ public final class UserService {
             @DefaultValue("") @QueryParam("q")
             final String queryString) {
 
-        QueryBuilder builder = searchFactory
+        QueryBuilder builder = getSearchFactory()
                 .buildQueryBuilder()
                 .forEntity(User.class)
                 .get();
@@ -114,7 +99,8 @@ public final class UserService {
                 .createQuery();
 
         FullTextQuery query =
-                fullTextSession.createFullTextQuery(luceneQuery, User.class);
+                getFullTextSession()
+                        .createFullTextQuery(luceneQuery, User.class);
         query.setFirstResult(offset);
         query.setMaxResults(limit);
 
@@ -157,10 +143,10 @@ public final class UserService {
             final SortOrder order) {
 
         // Assert that the sort is on a valid column
-        Criteria countCriteria = session.createCriteria(User.class);
+        Criteria countCriteria = getSession().createCriteria(User.class);
         countCriteria.setProjection(Projections.rowCount());
 
-        Criteria browseCriteria = session.createCriteria(User.class);
+        Criteria browseCriteria = getSession().createCriteria(User.class);
         browseCriteria.setFirstResult(offset);
         browseCriteria.setMaxResults(limit);
         browseCriteria.addOrder(SortUtil.order(order, sort));
@@ -186,7 +172,7 @@ public final class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     @PermitAll
     public Response getUser(@PathParam("id") final UUID id) {
-        User user = session.get(User.class, id);
+        User user = getSession().get(User.class, id);
         if (user == null) {
             throw new HttpNotFoundException();
         }

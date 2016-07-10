@@ -15,29 +15,33 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.servlet.admin.v1.user;
+package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
-import net.krotscheck.kangaroo.servlet.admin.v1.user.resource.UserService;
+import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
+import net.krotscheck.kangaroo.test.ContainerTest;
 
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
+import org.glassfish.jersey.test.TestProperties;
+
+import javax.ws.rs.core.Application;
 
 /**
- * The User Management API.
+ * Abstract test harness for the administration API. Handles all of our data
+ * bootstrapping.
  *
  * @author Michael Krotscheck
  */
-public final class UserFeature implements Feature {
+public abstract class AbstractResourceTest extends ContainerTest {
 
     /**
-     * Register this feature.
+     * Create the application under test.
+     *
+     * @return A configured api servlet.
      */
     @Override
-    public boolean configure(final FeatureContext context) {
+    protected final Application configure() {
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
 
-        // User service
-        context.register(UserService.class);
-
-        return true;
+        return new AdminV1API();
     }
 }

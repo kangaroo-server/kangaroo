@@ -15,26 +15,18 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.servlet.admin.v1.user.resource;
+package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
-import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
-import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
-import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
-import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -43,32 +35,12 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class UserServiceTest extends ContainerTest {
+public final class UserServiceSearchTest extends AbstractResourceTest {
 
     /**
      * List of created users, for test comparisons.
      */
     private List<User> users = new ArrayList<>();
-
-    /**
-     * Build and configure the application.
-     *
-     * @return A configured application.
-     */
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
-        ResourceConfig a = new ResourceConfig();
-        a.register(ConfigurationFeature.class);
-        a.register(ExceptionFeature.class);
-        a.register(JacksonFeature.class);
-        a.register(DatabaseFeature.class);
-        a.register(UserService.class);
-
-        return a;
-    }
 
     /**
      * Load data fixtures for each test.
