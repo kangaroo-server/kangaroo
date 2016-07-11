@@ -22,7 +22,8 @@
 <hibernate-configuration>
   <session-factory>
     <!-- Connection properties -->
-    <property name="connection.datasource">java:comp/env/jdbc/OIDServerDB
+    <property name="connection.datasource">
+      java:comp/env/jdbc/OIDServerDB
     </property>
 
     <!-- Generic hibernate configuration -->
@@ -52,6 +53,7 @@
     <mapping class="net.krotscheck.kangaroo.database.entity.Authenticator"/>
     <mapping class="net.krotscheck.kangaroo.database.entity.AuthenticatorState"/>
     <mapping class="net.krotscheck.kangaroo.database.entity.Client"/>
+    <mapping class="net.krotscheck.kangaroo.database.entity.ConfigurationEntry"/>
     <mapping class="net.krotscheck.kangaroo.database.entity.OAuthToken"/>
     <mapping class="net.krotscheck.kangaroo.database.entity.Role"/>
     <mapping class="net.krotscheck.kangaroo.database.entity.User"/>

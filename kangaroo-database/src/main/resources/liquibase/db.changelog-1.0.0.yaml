@@ -4,6 +4,57 @@ databaseChangeLog:
       author: krotscheck
       changes:
 
+      # The Configuration table.
+      - createTable:
+          tableName: configuration
+          columns:
+            - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_configuration_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
+                name: section
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: key
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: value
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: section
+              type: varchar(255)
+          indexName: idx_configuration_section
+          tableName: configuration
+      - createIndex:
+          columns:
+          - column:
+              name: key
+              type: varchar(255)
+          indexName: idx_configuration_key
+          tableName: configuration
+      - addUniqueConstraint:
+          columnNames: section, key
+          constraintName: uq_configuration_section_key
+          tableName: configuration
+
       # The Application table, the root resource from which everything else
       # is derived.
       - createTable:
@@ -875,3 +926,5 @@ databaseChangeLog:
             tableName: application_scopes
         - dropTable:
             tableName: applications
+        - dropTable:
+            tableName: configuration
