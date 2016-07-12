@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.servlet.admin.v1.config.AdminConfigurationFactory;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
 import org.glassfish.jersey.CommonProperties;
@@ -53,6 +54,9 @@ public final class AdminV1API extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(VersionFeature.class);          // Version response attachment.
+
+        // Internal components
+        register(new AdminConfigurationFactory.Binder());
 
         // API Authorization
         register(new OAuth2AuthorizationFilter.Binder());
