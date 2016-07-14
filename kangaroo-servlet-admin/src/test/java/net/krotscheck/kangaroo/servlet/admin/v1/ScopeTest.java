@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 /**
  * Unit tests for our Scope constants.
@@ -56,5 +57,22 @@ public final class ScopeTest {
         Assert.assertEquals("user", Scope.USER);
         Assert.assertEquals("role", Scope.ROLE);
         Assert.assertEquals("identity", Scope.IDENTITY);
+    }
+
+    /**
+     * Test that the list of scopes is all there.
+     */
+    @Test
+    public void testAllScopeList() {
+        List<String> allScopes = Scope.allScopes();
+
+        Assert.assertTrue(allScopes.contains(Scope.APPLICATION));
+        Assert.assertTrue(allScopes.contains(Scope.AUTHENTICATOR));
+        Assert.assertTrue(allScopes.contains(Scope.CLIENT));
+        Assert.assertTrue(allScopes.contains(Scope.USER));
+        Assert.assertTrue(allScopes.contains(Scope.ROLE));
+        Assert.assertTrue(allScopes.contains(Scope.IDENTITY));
+
+        Assert.assertEquals(6, allScopes.size());
     }
 }
