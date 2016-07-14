@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.servlet.admin.v1.config;
+package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.database.config.HibernateConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -34,7 +34,7 @@ import javax.inject.Singleton;
  *
  * @author Michael Krotscheck
  */
-public final class AdminConfigurationFactory
+public final class ServletConfigFactory
         implements Factory<Configuration> {
 
     /**
@@ -54,7 +54,7 @@ public final class AdminConfigurationFactory
      * @param factory The hibernate session factory.
      */
     @Inject
-    public AdminConfigurationFactory(final SessionFactory factory) {
+    public ServletConfigFactory(final SessionFactory factory) {
         this.factory = factory;
     }
 
@@ -88,7 +88,7 @@ public final class AdminConfigurationFactory
 
         @Override
         protected void configure() {
-            bindFactory(AdminConfigurationFactory.class)
+            bindFactory(ServletConfigFactory.class)
                     .to(Configuration.class)
                     .named(GROUP_NAME)
                     .in(Singleton.class);

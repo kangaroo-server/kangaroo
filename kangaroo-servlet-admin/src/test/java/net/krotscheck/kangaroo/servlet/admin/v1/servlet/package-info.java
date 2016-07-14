@@ -16,6 +16,6 @@
  */
 
 /**
- * Management of persisted configuration for the admin API.
+ * Test for servlet-related components.
  */
-package net.krotscheck.kangaroo.servlet.admin.v1.config;
+package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
