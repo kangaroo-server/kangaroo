@@ -16,6 +16,8 @@
  */
 
 /**
- * Configuration tests.
+ * Classes and components that describe the running servlet. This includes
+ * servlet configuration, the database Application instance, a list of
+ * owners, etc.
  */
-package net.krotscheck.kangaroo.servlet.admin.v1.config;
+package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
