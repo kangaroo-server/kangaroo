@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.servlet.admin.v1.config;
+package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.database.config.HibernateConfiguration;
-import net.krotscheck.kangaroo.servlet.admin.v1.config.AdminConfigurationFactory.Binder;
+import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
+import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory.Binder;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.commons.configuration.Configuration;
@@ -39,7 +40,7 @@ import javax.inject.Singleton;
  * Test that the admin configuration factory creates a singleton instance of
  * the HibernateConfiguration.
  */
-public final class AdminConfigurationFactoryTest extends DatabaseTest {
+public final class ServletConfigFactoryTest extends DatabaseTest {
 
     /**
      * Load data fixtures for each test.
@@ -60,12 +61,12 @@ public final class AdminConfigurationFactoryTest extends DatabaseTest {
         // Load some data.
         HibernateConfiguration compareConfig =
                 new HibernateConfiguration(getSessionFactory(),
-                        AdminConfigurationFactory.GROUP_NAME);
+                        ServletConfigFactory.GROUP_NAME);
         compareConfig.addProperty("test", "property");
 
         // Create a new instance from the factory.
-        AdminConfigurationFactory factory =
-                new AdminConfigurationFactory(getSessionFactory());
+        ServletConfigFactory factory =
+                new ServletConfigFactory(getSessionFactory());
         Configuration created = factory.provide();
 
         // Make sure it can access the data.
@@ -78,8 +79,8 @@ public final class AdminConfigurationFactoryTest extends DatabaseTest {
     @Test
     public void testDispose() {
         // Create a new instance from the factory.
-        AdminConfigurationFactory factory =
-                new AdminConfigurationFactory(getSessionFactory());
+        ServletConfigFactory factory =
+                new ServletConfigFactory(getSessionFactory());
         Configuration mock = Mockito.mock(Configuration.class);
         factory.dispose(mock);
 
@@ -94,14 +95,14 @@ public final class AdminConfigurationFactoryTest extends DatabaseTest {
         ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
         ServiceLocator locator = factory.create(getClass().getCanonicalName());
 
-        Binder b = new AdminConfigurationFactory.Binder();
+        Binder b = new ServletConfigFactory.Binder();
         ServiceLocatorUtilities.bind(locator, b);
 
         List<ActiveDescriptor<?>> descriptors =
                 locator.getDescriptors(
                         BuilderHelper.createNameAndContractFilter(
                                 Configuration.class.getName(),
-                                AdminConfigurationFactory.GROUP_NAME));
+                                ServletConfigFactory.GROUP_NAME));
         Assert.assertEquals(1, descriptors.size());
 
         ActiveDescriptor descriptor = descriptors.get(0);
@@ -111,7 +112,7 @@ public final class AdminConfigurationFactoryTest extends DatabaseTest {
                 descriptor.getScope());
 
         // ... check name.
-        Assert.assertEquals(AdminConfigurationFactory.GROUP_NAME,
+        Assert.assertEquals(ServletConfigFactory.GROUP_NAME,
                 descriptor.getName());
     }
 
@@ -124,7 +125,7 @@ public final class AdminConfigurationFactoryTest extends DatabaseTest {
     @Test
     public void testGenericInterface() throws Exception {
         // Intentionally using the generic untyped interface here.
-        Factory factory = new AdminConfigurationFactory(getSessionFactory());
+        Factory factory = new ServletConfigFactory(getSessionFactory());
         Object instance = factory.provide();
         Assert.assertTrue(instance instanceof HibernateConfiguration);
         factory.dispose(instance);
