@@ -17,6 +17,10 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * List of all authorization scopes used in this application.
  *
@@ -60,4 +64,15 @@ public final class Scope {
      * Authorization scope for the roles resource.
      */
     public static final String ROLE = "role";
+
+    /**
+     * Get a list of all the scopes.
+     *
+     * @return A list of all scopes.
+     */
+    public static List<String> allScopes() {
+        return Collections.unmodifiableList(
+                Arrays.asList(APPLICATION, AUTHENTICATOR, CLIENT, IDENTITY,
+                        ROLE, USER));
+    }
 }
