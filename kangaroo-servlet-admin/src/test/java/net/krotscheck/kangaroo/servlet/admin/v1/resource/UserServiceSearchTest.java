@@ -251,10 +251,10 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, users.size());
+        Assert.assertEquals(5, users.size()); // Remember the bootstrap user.
     }
 
     /**
@@ -271,7 +271,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("2", response.getHeaderString("Limit"));
         Assert.assertEquals(2, users.size());
@@ -291,10 +291,10 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("2", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(2, users.size());
+        Assert.assertEquals(3, users.size());
     }
 
     /**
@@ -311,15 +311,15 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, results.size());
+        Assert.assertEquals(5, results.size()); // Remember the bootstrap user.
 
-        Assert.assertEquals(users.get(0).getId(), results.get(0).getId());
-        Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
-        Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
-        Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
+        Assert.assertEquals(users.get(0).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(3).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(4).getId());
     }
 
     /**
@@ -350,15 +350,15 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, results.size());
+        Assert.assertEquals(5, results.size()); // Remember the bootstrap user.
 
-        Assert.assertEquals(users.get(0).getId(), results.get(0).getId());
-        Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
-        Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
-        Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
+        Assert.assertEquals(users.get(0).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(3).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(4).getId());
     }
 
     /**
@@ -376,10 +376,10 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, results.size());
+        Assert.assertEquals(5, results.size()); // Remember the bootstrap user.
 
         Assert.assertEquals(users.get(3).getId(), results.get(0).getId());
         Assert.assertEquals(users.get(2).getId(), results.get(1).getId());
@@ -402,15 +402,15 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
 
         });
 
-        Assert.assertEquals("4", response.getHeaderString("Total"));
+        Assert.assertEquals("5", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals(4, results.size());
+        Assert.assertEquals(5, results.size()); // Remember the bootstrap user.
 
-        Assert.assertEquals(users.get(0).getId(), results.get(0).getId());
-        Assert.assertEquals(users.get(1).getId(), results.get(1).getId());
-        Assert.assertEquals(users.get(2).getId(), results.get(2).getId());
-        Assert.assertEquals(users.get(3).getId(), results.get(3).getId());
+        Assert.assertEquals(users.get(0).getId(), results.get(1).getId());
+        Assert.assertEquals(users.get(1).getId(), results.get(2).getId());
+        Assert.assertEquals(users.get(2).getId(), results.get(3).getId());
+        Assert.assertEquals(users.get(3).getId(), results.get(4).getId());
     }
 
     /**

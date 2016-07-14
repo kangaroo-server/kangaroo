@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
+import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -57,6 +58,7 @@ public final class AdminV1API extends ResourceConfig {
 
         // Internal components
         register(new ServletConfigFactory.Binder());
+        register(new FirstRunContainerLifecycleListener.Binder());
 
         // API Authorization
         register(new OAuth2AuthorizationFilter.Binder());
