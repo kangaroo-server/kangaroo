@@ -125,8 +125,8 @@ public final class CredentialsFactoryTest {
 
         // Intentionally using the generic untyped interface here.
         Factory factory = new CredentialsFactory(provider);
-        Object instance = factory.provide();
-        Assert.assertTrue(instance instanceof Credentials);
+        Object instance = (Credentials) factory.provide();
+        Assert.assertNotNull(instance);
         factory.dispose(instance);
     }
 
@@ -405,7 +405,6 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testGetEmptyId() {
-        UUID clientId = UUID.randomUUID();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,

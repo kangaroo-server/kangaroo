@@ -48,6 +48,11 @@ public final class HttpUtil {
     private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     /**
+     * The character set we're using.
+     */
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+
+    /**
      * Private constructor - utility class.
      */
     private HttpUtil() {
@@ -64,8 +69,8 @@ public final class HttpUtil {
     public static String authHeaderBasic(final String login,
                                          final String password) {
         byte[] bytesEncoded =
-                Base64.encodeBase64((login + ":" + password).getBytes());
-        return "Basic " + new String(bytesEncoded);
+                Base64.encodeBase64((login + ":" + password).getBytes(UTF8));
+        return "Basic " + new String(bytesEncoded, UTF8);
     }
 
     /**

@@ -36,7 +36,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -68,7 +67,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
     /**
      * The current session.
      */
-    private static Session session;
+    private Session session;
 
     @Override
     protected javax.ws.rs.core.Application configure() {
