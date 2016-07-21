@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Type;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -115,6 +116,7 @@ public final class Client extends AbstractEntity {
     @CollectionTable(name = "client_referrers",
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "referrer")
+    @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
     private Set<URI> referrers;
 
     /**
@@ -124,6 +126,7 @@ public final class Client extends AbstractEntity {
     @CollectionTable(name = "client_redirects",
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "redirect")
+    @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
     private Set<URI> redirects;
 
     /**
