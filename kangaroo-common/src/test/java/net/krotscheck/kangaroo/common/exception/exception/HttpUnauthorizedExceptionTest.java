@@ -32,15 +32,6 @@ import javax.ws.rs.core.UriBuilder;
 public final class HttpUnauthorizedExceptionTest {
 
     /**
-     * Identity Test.
-     */
-    @Test
-    public void testHttpStatusException() {
-        HttpUnauthorizedException e = new HttpUnauthorizedException();
-        Assert.assertTrue(e instanceof HttpUnauthorizedException);
-    }
-
-    /**
      * Test default values.
      */
     @Test

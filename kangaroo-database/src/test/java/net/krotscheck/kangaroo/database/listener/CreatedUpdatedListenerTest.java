@@ -129,7 +129,7 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
         a.setName("bar");
         Transaction t2 = s.beginTransaction();
         s.saveOrUpdate(a);
-        t.commit();
+        t2.commit();
 
         Assert.assertEquals(created, a.getCreatedDate());
         Assert.assertNotEquals(modified, a.getModifiedDate());

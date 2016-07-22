@@ -139,6 +139,6 @@ public final class ObjectMapperFactoryTest {
         when(locator.getAllServices(Module.class)).thenReturn(modules);
 
         ObjectMapperFactory factory = new ObjectMapperFactory(locator);
-        ObjectMapper mapper = factory.provide();
+        factory.provide();
     }
 }
