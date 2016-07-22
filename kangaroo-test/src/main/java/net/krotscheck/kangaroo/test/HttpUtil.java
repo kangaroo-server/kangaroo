@@ -86,6 +86,26 @@ public final class HttpUtil {
     }
 
     /**
+     * Create a bearer authorization header.
+     *
+     * @param token The bearer token ID.
+     * @return 'Bearer (token)'
+     */
+    public static String authHeaderBearer(final UUID token) {
+        return authHeaderBearer(token.toString());
+    }
+
+    /**
+     * Create a bearer authorization header.
+     *
+     * @param token The bearer token ID.
+     * @return 'Bearer (token)'
+     */
+    public static String authHeaderBearer(final String token) {
+        return String.format("Bearer %s", token);
+    }
+
+    /**
      * Helper method, which extracts the query string from a URI.
      *
      * @param uri The URI from which we're pulling the query response.

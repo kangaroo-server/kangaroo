@@ -74,6 +74,22 @@ public final class HttpUtilTest {
         c.newInstance();
     }
 
+    /**
+     * Test the bearer auth header.
+     */
+    @Test
+    public void testAuthHeaderBearer() {
+        UUID token = UUID.randomUUID();
+        String expected = String.format("Bearer %s", token.toString());
+
+        // Test via string.
+        String header = HttpUtil.authHeaderBearer(token.toString());
+        Assert.assertEquals(expected, header);
+
+        // Test via uuid
+        String uuidHeader = HttpUtil.authHeaderBearer(token);
+        Assert.assertEquals(expected, uuidHeader);
+    }
 
     /**
      * Test the basic auth header with strings.
