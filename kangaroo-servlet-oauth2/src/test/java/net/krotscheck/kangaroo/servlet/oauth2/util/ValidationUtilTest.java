@@ -332,8 +332,7 @@ public final class ValidationUtilTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testInvalidScope() throws Exception {
-        SortedMap<String, ApplicationScope> scopes = ValidationUtil
-                .validateScope(new String[]{"invalid"}, validScopes);
+        ValidationUtil.validateScope(new String[]{"invalid"}, validScopes);
     }
 
     /**

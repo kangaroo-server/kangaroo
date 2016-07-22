@@ -118,7 +118,8 @@ public final class DatabaseManager {
         } catch (NamingException e) {
             // Do nothing, this is only thrown if the context already exists,
             // which will happen in a second test run.
-            e.getMessage();
+            logger.debug("JDNI Naming Exception, resource likely already "
+                    + "exists.");
         }
     }
 

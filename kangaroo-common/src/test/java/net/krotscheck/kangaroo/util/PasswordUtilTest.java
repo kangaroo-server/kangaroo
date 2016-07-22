@@ -81,8 +81,6 @@ public final class PasswordUtilTest {
         String salt2 = PasswordUtil.createSalt();
         String hash1 = PasswordUtil.hash(password, salt1);
 
-        String hahs = PasswordUtil.hash("password", salt1);
-
         Assert.assertTrue(PasswordUtil.isValid(password, salt1, hash1));
         Assert.assertFalse(PasswordUtil.isValid(password, salt2, hash1));
     }
