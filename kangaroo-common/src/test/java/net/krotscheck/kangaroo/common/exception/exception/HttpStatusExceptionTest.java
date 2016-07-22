@@ -34,15 +34,6 @@ import javax.ws.rs.core.UriBuilder;
 public final class HttpStatusExceptionTest {
 
     /**
-     * Identity Test.
-     */
-    @Test
-    public void testHttpStatusException() {
-        HttpForbiddenException e = new HttpForbiddenException();
-        Assert.assertTrue(e instanceof HttpStatusException);
-    }
-
-    /**
      * Test construction with a status code.
      */
     @Test

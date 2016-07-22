@@ -28,7 +28,7 @@ import java.net.URI;
  * @author Michael Krotscheck
  * @see <a href="https://tools.ietf.org/html/rfc6749">https://tools.ietf.org/html/rfc6749</a>
  */
-public final class Rfc6749Exception {
+public final class Rfc6749Exception extends Exception {
 
     /**
      * The request is missing a required parameter, includes an invalid
