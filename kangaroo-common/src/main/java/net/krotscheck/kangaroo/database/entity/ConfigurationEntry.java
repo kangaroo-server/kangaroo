@@ -42,14 +42,14 @@ public final class ConfigurationEntry extends AbstractEntity {
      * The key name.
      */
     @Basic(optional = false)
-    @Column(name = "key", nullable = false)
+    @Column(name = "configKey", nullable = false)
     private String key;
 
     /**
      * The stored value.
      */
     @Basic(optional = false)
-    @Column(name = "value", nullable = false)
+    @Column(name = "configValue", nullable = false)
     private String value;
 
     /**

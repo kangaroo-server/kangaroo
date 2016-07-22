@@ -22,7 +22,19 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import org.hibernate.annotations.Cascade;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import org.hibernate.annotations.SortNatural;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -32,10 +44,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * The application entity, representing an app which uses our system for
@@ -45,6 +61,16 @@ import java.util.List;
  */
 @Entity
 @Table(name = "roles")
+@Indexed(index = "roles")
+@Analyzer(definition = "entity_analyzer")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_role_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_role_application",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class Role extends AbstractEntity {
 
     /**
@@ -54,14 +80,15 @@ public final class Role extends AbstractEntity {
     @JoinColumn(name = "application", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = Application.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id", "owner.id"})
     private Application application;
 
     /**
      * List of the users that have this role.
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JsonIgnore
+    @ContainedIn
     private List<User> users;
 
     /**
@@ -69,10 +96,13 @@ public final class Role extends AbstractEntity {
      */
     @Basic(optional = false)
     @Column(name = "name", nullable = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Size(min = 3, max = 255, message = "Role name must be between 3 "
+            + "and 255 characters.")
     private String name;
 
     /**
-     * List of the application's scopes.
+     * List of the role's scopes.
      */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "role_scopes",
@@ -83,7 +113,9 @@ public final class Role extends AbstractEntity {
                     @JoinColumn(name = "scope",
                             nullable = false, updatable = false)})
     @JsonIgnore
-    private List<ApplicationScope> scopes;
+    @MapKey(name = "name")
+    @SortNatural
+    private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
 
     /**
      * Get the application.
@@ -144,7 +176,7 @@ public final class Role extends AbstractEntity {
      *
      * @return A list of scopes.
      */
-    public List<ApplicationScope> getScopes() {
+    public SortedMap<String, ApplicationScope> getScopes() {
         return scopes;
     }
 
@@ -153,8 +185,8 @@ public final class Role extends AbstractEntity {
      *
      * @param scopes A new list of scopes.
      */
-    public void setScopes(final List<ApplicationScope> scopes) {
-        this.scopes = new ArrayList<>(scopes);
+    public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
+        this.scopes = new TreeMap<>(scopes);
     }
 
     /**

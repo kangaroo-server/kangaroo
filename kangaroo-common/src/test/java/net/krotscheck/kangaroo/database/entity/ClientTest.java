@@ -99,7 +99,7 @@ public final class ClientTest {
     public void testGetSetType() {
         Client c = new Client();
 
-        Assert.assertEquals(ClientType.AuthorizationGrant, c.getType());
+        Assert.assertNull(c.getType());
         c.setType(ClientType.Implicit);
         Assert.assertEquals(ClientType.Implicit, c.getType());
     }
@@ -117,7 +117,7 @@ public final class ClientTest {
         URI referrer = new URI("https://example.com/oauth/foo?lol=cat#omg");
         referrers.add(referrer);
 
-        Assert.assertNull(c.getReferrers());
+        Assert.assertEquals(0, c.getReferrers().size());
         c.setReferrers(referrers);
         Assert.assertEquals(referrers, c.getReferrers());
         Assert.assertTrue(c.getReferrers().contains(referrer));
@@ -136,7 +136,7 @@ public final class ClientTest {
         URI redirect = new URI("https://example.com/oauth/foo?lol=cat#omg");
         redirects.add(redirect);
 
-        Assert.assertNull(c.getRedirects());
+        Assert.assertEquals(0, c.getRedirects().size());
         c.setRedirects(redirects);
         Assert.assertEquals(redirects, c.getRedirects());
         Assert.assertTrue(c.getRedirects().contains(redirect));
@@ -195,7 +195,7 @@ public final class ClientTest {
         Client client = new Client();
         Map<String, String> configuration = new HashMap<>();
 
-        Assert.assertNull(client.getConfiguration());
+        Assert.assertEquals(0, client.getConfiguration().size());
         client.setConfiguration(configuration);
         Assert.assertEquals(configuration, client.getConfiguration());
         Assert.assertNotSame(configuration, client.getConfiguration());

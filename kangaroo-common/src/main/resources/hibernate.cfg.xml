@@ -38,8 +38,7 @@
     <property name="default_batch_fetch_size">8</property>
 
     <!-- Hibernate Search Configuration -->
-    <property name="search.default.directory_provider">filesystem</property>
-    <property name="hibernate.search.default.indexBase">/tmp/oid_lucene</property>
+    <property name="search.default.directory_provider">ram</property>
     <property name="search.default.optimizer.operation_limit">1000</property>
     <property name="search.default.optimizer.transaction_limit">100</property>
     <property name="search.lucene_version">LUCENE_CURRENT</property>

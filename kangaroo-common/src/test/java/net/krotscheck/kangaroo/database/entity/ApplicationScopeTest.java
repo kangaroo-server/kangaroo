@@ -80,7 +80,7 @@ public final class ApplicationScopeTest {
         List<Role> roles = new ArrayList<>();
         roles.add(new Role());
 
-        Assert.assertNull(scope.getRoles());
+        Assert.assertTrue(scope.getRoles().size() == 0);
         scope.setRoles(roles);
         Assert.assertEquals(roles, scope.getRoles());
         Assert.assertNotSame(roles, scope.getRoles());
@@ -95,7 +95,7 @@ public final class ApplicationScopeTest {
         List<OAuthToken> tokens = new ArrayList<>();
         tokens.add(new OAuthToken());
 
-        Assert.assertNull(scope.getTokens());
+        Assert.assertTrue(scope.getTokens().size() == 0);
         scope.setTokens(tokens);
         Assert.assertEquals(tokens, scope.getTokens());
         Assert.assertNotSame(tokens, scope.getTokens());

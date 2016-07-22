@@ -62,7 +62,7 @@ public final class URITypeDescriptor extends AbstractTypeDescriptor<URI> {
      */
     public URI fromString(final String string) {
         try {
-            return UriBuilder.fromPath(string).build();
+            return UriBuilder.fromUri(string).build();
         } catch (Exception e) {
             throw new HibernateException(
                     "Unable to convert string [" + string + "] to URI : " + e);

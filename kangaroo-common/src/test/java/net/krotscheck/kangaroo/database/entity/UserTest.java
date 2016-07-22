@@ -61,6 +61,22 @@ public final class UserTest {
     }
 
     /**
+     * Assert that we can get and set the applications which this user owns
+     */
+    @Test
+    public void testGetSetApplications() {
+        User u = new User();
+        List<Application> applications = new ArrayList<>();
+        applications.add(new Application());
+        applications.add(new Application());
+
+        Assert.assertNull(u.getApplications());
+        u.setApplications(applications);
+        Assert.assertEquals(applications, u.getApplications());
+        Assert.assertNotSame(applications, u.getApplications());
+    }
+
+    /**
      * Assert that we can get and set the user's role.
      */
     @Test

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
+import org.apache.lucene.analysis.charfilter.MappingCharFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilterFactory;
@@ -57,7 +58,12 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AnalyzerDef(name = "entity_analyzer",
         charFilters = {
-                @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
+                @CharFilterDef(factory = HTMLStripCharFilterFactory.class),
+                @CharFilterDef(factory = MappingCharFilterFactory.class,
+                        params = {@Parameter(
+                                name = "mapping",
+                                value = "kangaroo-char-mapping.properties")}
+                )
         },
         tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class),
         filters = {
@@ -71,7 +77,7 @@ import java.util.UUID;
                 @TokenFilterDef(
                         factory = RemoveDuplicatesTokenFilterFactory.class)
         })
-public abstract class AbstractEntity {
+public abstract class AbstractEntity implements Cloneable {
 
     /**
      * The DB ID.
@@ -203,5 +209,15 @@ public abstract class AbstractEntity {
     public final String toString() {
         return String.format("%s [id=%s]", this.getClass().getCanonicalName(),
                 getId());
+    }
+
+    /**
+     * Clone this instance.
+     *
+     * @return A clone of this entity.
+     */
+    @Override
+    public final Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

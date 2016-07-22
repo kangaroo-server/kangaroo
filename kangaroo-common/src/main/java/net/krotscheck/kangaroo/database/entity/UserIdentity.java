@@ -20,19 +20,26 @@ package net.krotscheck.kangaroo.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import net.krotscheck.kangaroo.database.jackson.Views;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -56,8 +63,19 @@ import java.util.Map;
  * @author Michael Krotscheck
  */
 @Entity
+@Indexed(index = "user_identities")
 @Table(name = "user_identities")
-@Analyzer(definition = "entity_analyzer")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_identity_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_identity_user",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_identity_authenticator",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class UserIdentity extends AbstractEntity {
 
     /**
@@ -68,6 +86,8 @@ public final class UserIdentity extends AbstractEntity {
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = User.Deserializer.class)
     @ContainedIn
+    @JsonView(Views.Public.class)
+    @IndexedEmbedded(includePaths = {"id", "application.owner.id"})
     private User user;
 
     /**
@@ -77,14 +97,22 @@ public final class UserIdentity extends AbstractEntity {
     @JoinColumn(name = "authenticator", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = Authenticator.Deserializer.class)
+    @JsonView(Views.Public.class)
+    @IndexedEmbedded(includePaths = {"id"})
     private Authenticator authenticator;
 
     /**
      * OAuth tokens issued to this identity.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "identity")
-    @Cascade(CascadeType.ALL)
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "identity",
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ContainedIn
     private List<OAuthToken> tokens;
 
     /**
@@ -93,6 +121,8 @@ public final class UserIdentity extends AbstractEntity {
      */
     @Basic(optional = false)
     @Column(name = "remoteId", nullable = false, updatable = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @JsonView(Views.Public.class)
     private String remoteId;
 
     /**
@@ -101,29 +131,28 @@ public final class UserIdentity extends AbstractEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_identity_claims",
             joinColumns = @JoinColumn(name = "user_identity"))
-    @MapKeyColumn(name = "key")
-    @Column(name = "value")
-    @Cascade(CascadeType.ALL)
+    @MapKeyColumn(name = "claimKey")
+    @Column(name = "claimValue")
     @Field(name = "claims",
             index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @IndexedEmbedded
-    @Analyzer(definition = "entity_analyzer")
-    private Map<String, String> claims;
+    @JsonView(Views.Public.class)
+    private Map<String, String> claims = new HashMap<>();
 
     /**
      * The user's password salt.
      */
-    @JsonIgnore
     @Basic
-    @Column(name = "salt", nullable = true, updatable = true)
+    @Column(name = "salt")
+    @JsonView(Views.Secure.class)
     private String salt;
 
     /**
      * The user's hashed password.
      */
-    @JsonIgnore
     @Basic
-    @Column(name = "password", nullable = true, updatable = true)
+    @Column(name = "password")
+    @JsonView(Views.Secure.class)
     private String password;
 
     /**

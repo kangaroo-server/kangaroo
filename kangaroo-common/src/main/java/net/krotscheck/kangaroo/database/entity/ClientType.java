@@ -64,5 +64,23 @@ public enum ClientType {
      *
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.4">https://tools.ietf.org/html/rfc6749#section-4.4</a>
      */
-    ClientCredentials
+    ClientCredentials;
+
+    /**
+     * Is the client type one of the passed in list of types?
+     *
+     * @param types An array of types to check against.
+     * @return True if the type matches, otherwise false.
+     */
+    public Boolean in(final ClientType... types) {
+        if (types == null) {
+            return false;
+        }
+        for (ClientType type : types) {
+            if (this.equals(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
