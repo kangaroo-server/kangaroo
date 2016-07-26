@@ -226,6 +226,27 @@ public final class EnvironmentBuilder implements IFixture {
         persist(application);
     }
 
+    /**
+     * Create a new builder around an existing application. In this case,
+     * only the application's ID is used, as the entity may be a member of a
+     * different session. Note that this will try to populate some of the
+     * internal fields with what's already been loaded into the database, so
+     * missing fields may cause errors.
+     *
+     * @param session A Hibernate session to use.
+     * @param app     The Application entity to wrap.
+     */
+    public EnvironmentBuilder(final Session session,
+                              final Application app) {
+        this.session = session;
+
+        // Load this entity from the provided session.
+        this.application = session.get(Application.class, app.getId());
+        this.scopes = this.application.getScopes();
+        this.client = this.application.getClients().get(0);
+        this.authenticator = this.client.getAuthenticators().get(0);
+        this.user = this.application.getUsers().get(0);
+    }
 
     /**
      * Create a new builder.
