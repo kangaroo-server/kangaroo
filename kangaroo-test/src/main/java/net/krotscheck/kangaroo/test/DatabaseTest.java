@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -87,7 +88,9 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @After
     public final void clearData() throws Exception {
-        fixtures.forEach(IFixture::clear);
+        List<IFixture> reversed = new ArrayList<>(fixtures);
+        Collections.reverse(reversed);
+        reversed.forEach(IFixture::clear);
         fixtures.clear();
 
         // Clean any outstanding sessions.
