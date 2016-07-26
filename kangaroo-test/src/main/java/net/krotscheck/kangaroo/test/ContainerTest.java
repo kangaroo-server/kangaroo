@@ -32,6 +32,7 @@ import org.junit.BeforeClass;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -109,7 +110,9 @@ public abstract class ContainerTest
      */
     @After
     public final void clearData() {
-        fixtures.forEach(IFixture::clear);
+        List<IFixture> reversed = new ArrayList<>(fixtures);
+        Collections.reverse(reversed);
+        reversed.forEach(IFixture::clear);
         fixtures.clear();
 
         // Clean any outstanding sessions.
