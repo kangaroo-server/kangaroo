@@ -266,6 +266,19 @@ public final class EnvironmentBuilder implements IFixture {
     }
 
     /**
+     * Add a list of scopes to this application.
+     *
+     * @param scopes The list of scopes to add.
+     * @return This builder.
+     */
+    public EnvironmentBuilder scopes(final List<String> scopes) {
+        for (String scope : scopes) {
+            scope(scope);
+        }
+        return this;
+    }
+
+    /**
      * Add a client to this application.
      *
      * @param type The client type.
