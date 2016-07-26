@@ -18,15 +18,18 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
+import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.database.entity.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,13 +41,30 @@ import java.util.List;
 public final class EnvironmentBuilderTest extends DatabaseTest {
 
     /**
+     * Fixture context for the environment builder.
+     */
+    private EnvironmentBuilder context;
+
+    /**
      * Load data fixtures for each test.
      *
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
     public List<IFixture> fixtures() {
-        return null;
+        // Create an independent session.
+        SessionFactory f = getSessionFactory();
+
+        context = new EnvironmentBuilder(f.openSession(), "Test App")
+                .client(ClientType.OwnerCredentials)
+                .authenticator("password")
+                .scopes(Arrays.asList("one", "two", "three"))
+                .role("admin")
+                .role("member")
+                .user()
+                .identity("admin");
+
+        return Arrays.asList(context);
     }
 
     /**
@@ -244,5 +264,70 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertNull(b.getAuthenticator());
         Assert.assertNull(b.getToken());
         Assert.assertEquals(0, b.getTrackedEntities().size());
+    }
+
+    /**
+     * Assert that we can wrap the builder around an application.
+     */
+    @Test
+    public void testApplicationWrapper() {
+        // A mock, self-owned admin application.
+        Application adminApp = context.getApplication();
+
+        Session session = getSession();
+        EnvironmentBuilder b =
+                new EnvironmentBuilder(session, context.getApplication());
+        Assert.assertEquals(adminApp, b.getApplication());
+
+        // Create a user in the new context.
+        b.user();
+        User createdUser = b.getUser();
+
+        // Ensure that clearing does not delete the app, but does delete the
+        // user.
+        b.clear();
+
+        User oldUser = session.get(User.class, createdUser.getId());
+        Assert.assertNull(oldUser);
+
+        adminApp = session.get(Application.class, adminApp.getId());
+        Assert.assertNotNull(adminApp);
+    }
+
+    /**
+     * Test that a managed application can be deleted by an API call, without
+     * causing a major problem.
+     */
+    @Test
+    public void testDeleteEnvironmentApplication() {
+        SessionFactory f = getSessionFactory();
+        Session builderSession = f.openSession();
+
+        // Create a new application with some basic data.
+        EnvironmentBuilder b = new EnvironmentBuilder(builderSession)
+                .client(ClientType.OwnerCredentials)
+                .authenticator("password")
+                .scope("test")
+                .role("admin")
+                .user();
+
+        // Create a new session
+        Session manualSession = f.openSession();
+        Assert.assertNotSame(manualSession, builderSession);
+
+        // Load the app into this session.
+        Application testApp = manualSession.get(Application.class,
+                b.getApplication().getId());
+        Assert.assertNotNull(testApp);
+
+        // Delete the app
+        Transaction t = manualSession.beginTransaction();
+        manualSession.delete(testApp);
+        t.commit();
+        manualSession.close();
+
+        // Now clear the builder.
+        b.clear();
+        builderSession.close();
     }
 }
