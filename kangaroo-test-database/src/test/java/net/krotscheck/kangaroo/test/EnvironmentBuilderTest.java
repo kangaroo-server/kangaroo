@@ -26,6 +26,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,6 +66,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
      *
      * @throws Exception Should not be thrown.
      */
+    @SuppressWarnings("methodlength")
     @Test
     public void smokeTest() throws Exception {
         EnvironmentBuilder b = new EnvironmentBuilder(getSession());
@@ -84,6 +87,11 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         assertNewResource(b.getScope());
         Assert.assertEquals("testScope", b.getScope().getName());
         Assert.assertEquals(b.getApplication(), b.getScope().getApplication());
+
+        // Add more scopes
+        b.scopes(Arrays.asList("otherScope", "yetAnotherScope"));
+        Assert.assertEquals("yetAnotherScope", b.getScope().getName());
+        Assert.assertEquals(3, b.getScopes().size());
 
         // Create a new client
         Assert.assertNull(b.getClient());
