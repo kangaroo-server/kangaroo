@@ -52,12 +52,15 @@ public final class DatabaseManager {
     /**
      * JDBC Connection string.
      */
+//    public static final String JDBC =
+//            "jdbc:mysql://localhost:3306/oid?useUnicode=yes";
     public static final String JDBC =
             "jdbc:h2:mem:target/test/db/h2/hibernate";
 
     /**
      * JDBC Connection string.
      */
+//    public static final String DRIVER = "com.mysql.jdbc.Driver";
     public static final String DRIVER = "org.h2.Driver";
 
     /**
