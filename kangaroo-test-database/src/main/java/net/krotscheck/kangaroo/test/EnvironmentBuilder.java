@@ -439,9 +439,10 @@ public final class EnvironmentBuilder implements IFixture {
         session.saveOrUpdate(e);
         t.commit();
 
+        // Evict the entity, so that it's freshly loaded later.
+        session.evict(e);
+
         if (!trackedEntities.contains(e)) {
-            // Evict the entity, so that it's freshly loaded later.
-            session.evict(e);
             trackedEntities.add(e);
         }
 
@@ -585,6 +586,29 @@ public final class EnvironmentBuilder implements IFixture {
         userIdentity.getClaims().putIfAbsent(name, value);
         persist(userIdentity);
         return this;
+    }
+
+    /**
+     * Set the owner for the current application.
+     *
+     * @param user The new owner.
+     * @return This builder.
+     */
+    public EnvironmentBuilder owner(final User user) {
+        // Reload the owner from the current session.
+        User sessionUser = session.get(User.class, user.getId());
+        application.setOwner(sessionUser);
+        persist(application);
+        return this;
+    }
+
+    /**
+     * Get the owner of this app.
+     *
+     * @return The application owner.
+     */
+    public User getOwner() {
+        return application.getOwner();
     }
 
     /**
