@@ -242,10 +242,15 @@ public final class EnvironmentBuilder implements IFixture {
 
         // Load this entity from the provided session.
         this.application = session.get(Application.class, app.getId());
-        this.scopes = this.application.getScopes();
+        this.scopes.putAll(this.application.getScopes());
         this.client = this.application.getClients().get(0);
         this.authenticator = this.client.getAuthenticators().get(0);
         this.user = this.application.getUsers().get(0);
+        if (this.application.getRoles().size() > 0) {
+            this.role = this.application.getRoles().get(0);
+        }
+
+        session.clear();
     }
 
     /**
@@ -445,7 +450,11 @@ public final class EnvironmentBuilder implements IFixture {
             trackedEntities.add(e);
         }
 
+        // Persist all changes.
         session.flush();
+
+        // Make sure everything's evicted, so we can load it cleanly later.
+        session.clear();
     }
 
     /**

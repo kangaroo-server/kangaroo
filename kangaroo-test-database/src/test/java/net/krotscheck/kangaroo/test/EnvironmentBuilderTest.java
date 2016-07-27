@@ -59,8 +59,6 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .scopes(Arrays.asList("one", "two", "three"))
-                .role("admin")
-                .role("member")
                 .user()
                 .identity("admin");
 
@@ -292,6 +290,24 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
 
         adminApp = session.get(Application.class, adminApp.getId());
         Assert.assertNotNull(adminApp);
+    }
+
+    /**
+     * Assert that we can wrap the builder around an application.
+     */
+    @Test
+    public void testApplicationWrapperWithRoles() {
+        // Add some roles...
+        context.role("admin");
+        context.role("member");
+
+        // A mock, self-owned admin application.
+        Application adminApp = context.getApplication();
+
+        Session session = getSession();
+        EnvironmentBuilder b =
+                new EnvironmentBuilder(session, context.getApplication());
+        Assert.assertEquals(adminApp, b.getApplication());
     }
 
     /**
