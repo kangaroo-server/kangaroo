@@ -203,6 +203,16 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
     }
 
     /**
+     * Cover the scope methods until we have real use of them.
+     */
+    @Test
+    public void testScopes() {
+        UserService u = new UserService();
+        Assert.assertEquals(Scope.USER, u.getAccessScope());
+        Assert.assertEquals(Scope.USER_ADMIN, u.getAdminScope());
+    }
+
+    /**
      * Construct the request URL for this test given a specific resource ID.
      *
      * @param id The ID to use.
