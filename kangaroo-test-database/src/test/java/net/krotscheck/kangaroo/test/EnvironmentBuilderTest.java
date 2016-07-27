@@ -94,6 +94,11 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         // Make sure we have an application.
         Assert.assertNotNull(b.getApplication());
 
+        // Set the owner
+        Assert.assertNull(b.getOwner());
+        b.owner(context.getUser());
+        Assert.assertEquals(context.getUser(), b.getOwner());
+
         // Create a role.
         Assert.assertNull(b.getRole());
         b.role("testRole");
@@ -303,8 +308,12 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         SessionFactory f = getSessionFactory();
         Session builderSession = f.openSession();
 
+        // Create a dummy owner...
+        context.user();
+
         // Create a new application with some basic data.
         EnvironmentBuilder b = new EnvironmentBuilder(builderSession)
+                .owner(context.getUser())
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .scope("test")
