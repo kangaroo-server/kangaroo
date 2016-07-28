@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
+import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
@@ -60,8 +61,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .scopes(Arrays.asList("one", "two", "three"))
-                .user()
-                .identity("admin");
+                .user();
 
         return Arrays.asList(context);
     }
@@ -98,19 +98,27 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         b.owner(context.getUser());
         Assert.assertEquals(context.getUser(), b.getOwner());
 
-        // Create a role.
-        Assert.assertNull(b.getRole());
-        b.role("testRole");
-        assertNewResource(b.getRole());
-        Assert.assertEquals("testRole", b.getRole().getName());
-        Assert.assertEquals(b.getApplication(), b.getRole().getApplication());
-
         // Create a scope
         Assert.assertNull(b.getScope());
         b.scope("testScope");
         assertNewResource(b.getScope());
         Assert.assertEquals("testScope", b.getScope().getName());
         Assert.assertEquals(b.getApplication(), b.getScope().getApplication());
+
+        // Create a role.
+        Assert.assertNull(b.getRole());
+        b.role("testRole");
+        assertNewResource(b.getRole());
+        Assert.assertEquals("testRole", b.getRole().getName());
+        Assert.assertEquals(b.getApplication(), b.getRole().getApplication());
+        Assert.assertEquals(0, b.getRole().getScopes().size());
+
+        // Create a role with scopes.
+        b.role("scopedRole", new String[]{"testScope", "omgNoScope"});
+        assertNewResource(b.getRole());
+        Assert.assertEquals("scopedRole", b.getRole().getName());
+        Assert.assertEquals(b.getApplication(), b.getRole().getApplication());
+        Assert.assertEquals(1, b.getRole().getScopes().size());
 
         // Add more scopes
         b.scopes(Arrays.asList("otherScope", "yetAnotherScope"));
@@ -184,6 +192,11 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals("login", b.getUserIdentity().getRemoteId());
         Assert.assertNotNull(b.getUserIdentity().getPassword());
 
+        // Add a random user identity.
+        b.identity();
+        assertNewResource(b.getUserIdentity());
+        Assert.assertNotEquals("login", b.getUserIdentity().getRemoteId());
+
         // Add a regular user identity to the current authenticator
         b.identity("remote_identity");
         assertNewResource(b.getUserIdentity());
@@ -243,13 +256,34 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
 
         // Create a scoped token
         b.token(OAuthTokenType.Bearer, false, "testScope", null, null);
-        assertNewResource(b.getToken());
         OAuthToken sToken = b.getToken();
+        assertNewResource(sToken);
         Assert.assertEquals(OAuthTokenType.Bearer, sToken.getTokenType());
         Assert.assertEquals(b.getClient(), sToken.getClient());
         Assert.assertEquals(b.getUserIdentity(), sToken.getIdentity());
         Assert.assertTrue(sToken.getScopes().containsKey("testScope"));
         Assert.assertFalse(sToken.isExpired());
+
+        // Create a token for a credentials client.
+        b.client(ClientType.ClientCredentials)
+                .bearerToken();
+        OAuthToken cToken = b.getToken();
+        assertNewResource(cToken);
+        Assert.assertEquals(OAuthTokenType.Bearer, cToken.getTokenType());
+        Assert.assertEquals(b.getClient(), cToken.getClient());
+        Assert.assertNull(cToken.getIdentity());
+
+        // Create an authenticator state
+        Assert.assertNull(b.getAuthenticatorState());
+        b.authenticatorState();
+        AuthenticatorState aState = b.getAuthenticatorState();
+        assertNewResource(aState);
+        Assert.assertEquals(b.getClient(), aState.getClient());
+        Assert.assertEquals(b.getAuthenticator(), aState.getAuthenticator());
+
+        // Test getting all entities.
+        List<AbstractEntity> e = b.getTrackedEntities();
+        Assert.assertEquals(22, e.size());
 
         // Delete one of our entities to make sure it's skipped during clearing.
         Transaction t = getSession().beginTransaction();
@@ -314,6 +348,24 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         EnvironmentBuilder b =
                 new EnvironmentBuilder(session, context.getApplication());
         Assert.assertEquals(adminApp, b.getApplication());
+    }
+
+    /**
+     * Assert that we can wrap the builder around an application.
+     */
+    @Test
+    public void testApplicationWrapperWithIdentities() {
+        // Add an identity
+        context.identity("admin");
+
+        // A mock, self-owned admin application.
+        Application adminApp = context.getApplication();
+
+        Session session = getSession();
+        EnvironmentBuilder b =
+                new EnvironmentBuilder(session, context.getApplication());
+        Assert.assertEquals(adminApp, b.getApplication());
+        Assert.assertNotNull(b.getUserIdentity());
     }
 
     /**
