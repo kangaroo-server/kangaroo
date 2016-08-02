@@ -38,32 +38,32 @@ public final class Scope {
     /**
      * Authorization scope for the user resource.
      */
-    public static final String USER = "user";
+    public static final String USER = "kangaroo:user";
 
     /**
      * Authorization scope for the application resource.
      */
-    public static final String APPLICATION = "application";
+    public static final String APPLICATION = "kangaroo:application";
 
     /**
      * Authorization scope for the authenticator resource.
      */
-    public static final String AUTHENTICATOR = "authenticator";
+    public static final String AUTHENTICATOR = "kangaroo:authenticator";
 
     /**
      * Authorization scope for the client resource.
      */
-    public static final String CLIENT = "client";
+    public static final String CLIENT = "kangaroo:client";
 
     /**
      * Authorization scope for the identity resource.
      */
-    public static final String IDENTITY = "identity";
+    public static final String IDENTITY = "kangaroo:identity";
 
     /**
      * Authorization scope for the roles resource.
      */
-    public static final String ROLE = "role";
+    public static final String ROLE = "kangaroo:role";
 
     /**
      * Get a list of all the scopes.
