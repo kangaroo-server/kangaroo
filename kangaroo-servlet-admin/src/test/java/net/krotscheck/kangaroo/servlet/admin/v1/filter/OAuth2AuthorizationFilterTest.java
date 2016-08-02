@@ -21,6 +21,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
+import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.Binder;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.OAuthTokenContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
@@ -91,7 +92,7 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
     public List<IFixture> fixtures() throws Exception {
         EnvironmentBuilder context = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
-                .scope("user")
+                .scope(Scope.USER)
                 .redirect("http://example.com/redirect")
                 .referrer("http://example.com/redirect")
                 .authenticator("test")
@@ -99,7 +100,7 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
                 .identity("remote_identity");
 
         // Valid token
-        context.token(OAuthTokenType.Bearer, false, "user", null, null);
+        context.token(OAuthTokenType.Bearer, false, Scope.USER, null, null);
         validBearerToken = context.getToken();
 
         // Valid token
@@ -107,7 +108,7 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
         noScopeBearerToken = context.getToken();
 
         // Expired token.
-        context.token(OAuthTokenType.Bearer, true, "user", null, null);
+        context.token(OAuthTokenType.Bearer, true, Scope.USER, null, null);
         expiredBearerToken = context.getToken();
 
         // Auth token
