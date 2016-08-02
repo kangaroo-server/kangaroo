@@ -51,12 +51,12 @@ public final class ScopeTest {
      */
     @Test
     public void testExpectedConstants() {
-        Assert.assertEquals("application", Scope.APPLICATION);
-        Assert.assertEquals("authenticator", Scope.AUTHENTICATOR);
-        Assert.assertEquals("client", Scope.CLIENT);
-        Assert.assertEquals("user", Scope.USER);
-        Assert.assertEquals("role", Scope.ROLE);
-        Assert.assertEquals("identity", Scope.IDENTITY);
+        Assert.assertEquals("kangaroo:application", Scope.APPLICATION);
+        Assert.assertEquals("kangaroo:authenticator", Scope.AUTHENTICATOR);
+        Assert.assertEquals("kangaroo:client", Scope.CLIENT);
+        Assert.assertEquals("kangaroo:user", Scope.USER);
+        Assert.assertEquals("kangaroo:role", Scope.ROLE);
+        Assert.assertEquals("kangaroo:identity", Scope.IDENTITY);
     }
 
     /**
