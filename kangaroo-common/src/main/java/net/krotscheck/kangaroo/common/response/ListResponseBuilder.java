@@ -17,7 +17,6 @@
 
 package net.krotscheck.kangaroo.common.response;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 
@@ -32,11 +31,6 @@ public final class ListResponseBuilder {
      * The wrapped builder.
      */
     private Response.ResponseBuilder builder = Response.ok();
-
-    /**
-     * The list of headers which have been added.
-     */
-    private final List<String> addedHeaders = new ArrayList<>();
 
     /**
      * Create a new personal response builder.
@@ -65,9 +59,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder limit(final Number limit) {
-        String headerName = ApiParam.LIMIT_HEADER;
-        builder.header(headerName, limit.longValue());
-        addedHeaders.add(headerName);
+        builder.header(ApiParam.LIMIT_HEADER, limit.longValue());
         return this;
     }
 
@@ -78,9 +70,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder total(final Number total) {
-        String headerName = ApiParam.TOTAL_HEADER;
-        builder.header(headerName, total.longValue());
-        addedHeaders.add(headerName);
+        builder.header(ApiParam.TOTAL_HEADER, total.longValue());
         return this;
     }
 
@@ -91,9 +81,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder total(final Object total) {
-        String headerName = ApiParam.TOTAL_HEADER;
-        builder.header(headerName, Long.valueOf(total.toString()));
-        addedHeaders.add(headerName);
+        builder.header(ApiParam.TOTAL_HEADER, Long.valueOf(total.toString()));
         return this;
     }
 
@@ -104,9 +92,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder offset(final Number offset) {
-        String headerName = ApiParam.OFFSET_HEADER;
-        builder.header(headerName, offset.longValue());
-        addedHeaders.add(headerName);
+        builder.header(ApiParam.OFFSET_HEADER, offset.longValue());
         return this;
     }
 
@@ -117,9 +103,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder sort(final String sort) {
-        String headerName = ApiParam.SORT_HEADER;
-        builder.header(headerName, sort);
-        addedHeaders.add(headerName);
+        builder.header(ApiParam.SORT_HEADER, sort);
         return this;
     }
 
@@ -130,9 +114,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder order(final SortOrder order) {
-        String headerName = ApiParam.ORDER_HEADER;
-        builder.header(headerName, order.toString());
-        addedHeaders.add(headerName);
+        builder.header(ApiParam.ORDER_HEADER, order.toString());
         return this;
     }
 
@@ -153,7 +135,6 @@ public final class ListResponseBuilder {
      */
     public Response build() {
         // Apply the vary headers
-        builder.header("Vary", String.join(",", addedHeaders));
         return builder.build();
     }
 }
