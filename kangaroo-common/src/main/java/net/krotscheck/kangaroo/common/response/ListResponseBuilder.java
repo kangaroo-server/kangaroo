@@ -147,19 +147,6 @@ public final class ListResponseBuilder {
     }
 
     /**
-     * Add a search query to the response.
-     *
-     * @param query The search query to add.
-     * @return This builder.
-     */
-    public ListResponseBuilder query(final String query) {
-        String headerName = ApiParam.QUERY_HEADER;
-        builder.header(headerName, query);
-        addedHeaders.add(headerName);
-        return this;
-    }
-
-    /**
      * Build the response.
      *
      * @return The response.

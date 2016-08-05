@@ -96,11 +96,6 @@ public final class ApiParam {
     public static final String TOTAL_HEADER = "Total";
 
     /**
-     * Header Name: Query String.
-     */
-    public static final String QUERY_HEADER = "Query";
-
-    /**
      * Query variable: Query String.
      */
     public static final String QUERY_QUERY = "q";

@@ -112,7 +112,6 @@ public final class UserService extends AbstractService {
 
         return ListResponseBuilder
                 .builder()
-                .query(queryString)
                 .offset(offset)
                 .limit(limit)
                 .addResult(results)
