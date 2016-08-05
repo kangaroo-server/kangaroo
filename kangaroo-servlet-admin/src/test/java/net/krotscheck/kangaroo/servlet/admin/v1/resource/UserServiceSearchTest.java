@@ -145,7 +145,6 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Assert.assertEquals("1", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals("Single", response.getHeaderString("Query"));
         Assert.assertEquals(1, results.size());
         Assert.assertEquals(users.get(3).getId(), results.get(0).getId());
     }
@@ -168,7 +167,6 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Assert.assertEquals("4", response.getHeaderString("Total"));
         Assert.assertEquals("2", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals("User", response.getHeaderString("Query"));
         Assert.assertEquals(2, users.size());
     }
 
@@ -190,7 +188,6 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Assert.assertEquals("4", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("2", response.getHeaderString("Limit"));
-        Assert.assertEquals("User", response.getHeaderString("Query"));
         Assert.assertEquals(2, users.size());
     }
 
@@ -211,7 +208,6 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Assert.assertEquals("2", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals("Search", response.getHeaderString("Query"));
         Assert.assertEquals(2, results.size());
         Assert.assertEquals(users.get(2).getId(), results.get(0).getId());
         Assert.assertEquals(users.get(3).getId(), results.get(1).getId());
@@ -234,7 +230,6 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         Assert.assertEquals("0", response.getHeaderString("Total"));
         Assert.assertEquals("0", response.getHeaderString("Offset"));
         Assert.assertEquals("10", response.getHeaderString("Limit"));
-        Assert.assertEquals("FooBar", response.getHeaderString("Query"));
         Assert.assertEquals(0, users.size());
     }
 
