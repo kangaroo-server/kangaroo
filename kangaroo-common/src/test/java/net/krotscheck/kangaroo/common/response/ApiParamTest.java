@@ -62,7 +62,6 @@ public final class ApiParamTest {
 
         Assert.assertEquals("Total", ApiParam.TOTAL_HEADER);
 
-        Assert.assertEquals("Query", ApiParam.QUERY_HEADER);
         Assert.assertEquals("q", ApiParam.QUERY_QUERY);
         Assert.assertEquals("", ApiParam.QUERY_DEFAULT);
 

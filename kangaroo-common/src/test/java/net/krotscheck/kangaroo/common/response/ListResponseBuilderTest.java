@@ -266,23 +266,6 @@ public final class ListResponseBuilderTest {
     }
 
     /**
-     * Assert that you can apply a search query.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testQuery() throws Exception {
-        ListResponseBuilder b = ListResponseBuilder.builder();
-        b.query("foo");
-        Response response = b.build();
-
-        Assert.assertEquals("foo",
-                response.getHeaderString(ApiParam.QUERY_HEADER));
-        Assert.assertEquals(ApiParam.QUERY_HEADER,
-                response.getHeaderString("Vary"));
-    }
-
-    /**
      * Assert that SortOrder.fromString always works.
      *
      * @throws Exception Should not be thrown.
