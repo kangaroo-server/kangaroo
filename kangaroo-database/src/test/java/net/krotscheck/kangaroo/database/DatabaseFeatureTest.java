@@ -51,7 +51,7 @@ public final class DatabaseFeatureTest extends ContainerTest {
      * @return A configured application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(DatabaseFeature.class);
         a.register(MockService.class);

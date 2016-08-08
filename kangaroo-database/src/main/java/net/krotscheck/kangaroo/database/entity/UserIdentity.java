@@ -25,6 +25,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -56,6 +57,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "user_identities")
+@Analyzer(definition = "entity_analyzer")
 public final class UserIdentity extends AbstractEntity implements Principal {
 
     /**
@@ -65,6 +67,7 @@ public final class UserIdentity extends AbstractEntity implements Principal {
     @JoinColumn(name = "user", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = User.Deserializer.class)
+    @ContainedIn
     private User user;
 
     /**
@@ -101,7 +104,8 @@ public final class UserIdentity extends AbstractEntity implements Principal {
     @MapKeyColumn(name = "key")
     @Column(name = "value")
     @Cascade(CascadeType.ALL)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field(name = "claims",
+            index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @IndexedEmbedded
     @Analyzer(definition = "entity_analyzer")
     private Map<String, String> claims;

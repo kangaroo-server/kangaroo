@@ -17,15 +17,16 @@
 
 package net.krotscheck.kangaroo;
 
+import net.krotscheck.jersey2.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.status.StatusResponse;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.IFixture;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Application;
 
 /**
  * Simple smoke test for the API.
@@ -38,8 +39,10 @@ public final class RootAPITest extends ContainerTest {
      * @return The constructed application.
      */
     @Override
-    protected Application configure() {
-        return new RootAPI();
+    protected ResourceConfig createApplication() {
+        ResourceConfig root = new RootAPI();
+        root.register(HibernateFeature.class);
+        return root;
     }
 
     /**
@@ -60,6 +63,6 @@ public final class RootAPITest extends ContainerTest {
      */
     @Override
     public List<IFixture> fixtures() {
-        return null;
+        return new ArrayList<>();
     }
 }

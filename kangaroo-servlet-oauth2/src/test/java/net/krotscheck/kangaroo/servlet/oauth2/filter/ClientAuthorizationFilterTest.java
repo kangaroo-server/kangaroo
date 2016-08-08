@@ -70,7 +70,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
     private Session session;
 
     @Override
-    protected javax.ws.rs.core.Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
         config.register(ConfigurationFeature.class);
         config.register(HibernateFeature.class);
