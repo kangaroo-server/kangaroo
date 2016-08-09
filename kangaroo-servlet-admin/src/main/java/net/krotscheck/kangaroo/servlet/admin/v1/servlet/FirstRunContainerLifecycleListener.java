@@ -37,8 +37,6 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -96,83 +94,78 @@ public final class FirstRunContainerLifecycleListener
         logger.info("Bootstrapping Application");
 
         Session s = sessionFactory.openSession();
-        try {
-            // Create the application.
-            Application servletApp = new Application();
-            servletApp.setName("Kangaroo");
 
-            // Create the application's client.
-            Client servletClient = new Client();
-            servletClient.setApplication(servletApp);
-            servletClient.setName("Kangaroo Web UI");
-            servletClient.setType(ClientType.OwnerCredentials);
+        // Create the application.
+        Application servletApp = new Application();
+        servletApp.setName("Kangaroo");
 
-            // Create the password authenticator
-            Authenticator passwordAuth = new Authenticator();
-            passwordAuth.setType("password");
-            passwordAuth.setClient(servletClient);
+        // Create the application's client.
+        Client servletClient = new Client();
+        servletClient.setApplication(servletApp);
+        servletClient.setName("Kangaroo Web UI");
+        servletClient.setType(ClientType.OwnerCredentials);
 
-            // Create the scopes
-            List<ApplicationScope> scopes = new ArrayList<>();
-            for (String scope : Scope.allScopes()) {
-                ApplicationScope newScope = new ApplicationScope();
-                newScope.setApplication(servletApp);
-                newScope.setName(scope);
-                scopes.add(newScope);
-            }
+        // Create the password authenticator
+        Authenticator passwordAuth = new Authenticator();
+        passwordAuth.setType("password");
+        passwordAuth.setClient(servletClient);
 
-            // Create the roles.
-            Role adminRole = new Role();
-            adminRole.setName("admin");
-            adminRole.setApplication(servletApp);
-            adminRole.setScopes(scopes);
-
-            Role memberRole = new Role();
-            memberRole.setName("member");
-            memberRole.setApplication(servletApp);
-            memberRole.setScopes(scopes);
-
-            // Create the first admin
-            User adminUser = new User();
-            adminUser.setApplication(servletApp);
-            adminUser.setRole(adminRole);
-
-            // Create the admin's login identity.
-            UserIdentity adminIdentity = new UserIdentity();
-            adminIdentity.setAuthenticator(passwordAuth);
-            adminIdentity.setRemoteId("admin");
-            adminIdentity.setUser(adminUser);
-            adminIdentity.setSalt(PasswordUtil.createSalt());
-            adminIdentity.setPassword(
-                    PasswordUtil.hash("admin", adminIdentity.getSalt()));
-
-            Transaction t = s.beginTransaction();
-            s.save(servletApp);
-            s.save(servletClient);
-            s.save(passwordAuth);
-            scopes.forEach(s::save);
-            s.save(adminRole);
-            s.save(memberRole);
-            s.save(adminUser);
-            s.save(adminIdentity);
-            t.commit();
-
-            logger.info(String.format("Application ID: %s",
-                    servletApp.getId()));
-            logger.info(String.format("Admin User ID: %s",
-                    adminUser.getId()));
-            logger.info("Application created. Let's rock!");
-
-            // Refresh the servlet app, populating all persisted references.
-            s.refresh(servletApp);
-
-            return servletApp;
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException("Unable to persist kangaroo admin "
-                    + "application.", e);
-        } finally {
-            s.close();
+        // Create the scopes
+        List<ApplicationScope> scopes = new ArrayList<>();
+        for (String scope : Scope.allScopes()) {
+            ApplicationScope newScope = new ApplicationScope();
+            newScope.setApplication(servletApp);
+            newScope.setName(scope);
+            scopes.add(newScope);
         }
+
+        // Create the roles.
+        Role adminRole = new Role();
+        adminRole.setName("admin");
+        adminRole.setApplication(servletApp);
+        adminRole.setScopes(scopes);
+
+        Role memberRole = new Role();
+        memberRole.setName("member");
+        memberRole.setApplication(servletApp);
+        memberRole.setScopes(scopes);
+
+        // Create the first admin
+        User adminUser = new User();
+        adminUser.setApplication(servletApp);
+        adminUser.setRole(adminRole);
+
+        // Create the admin's login identity.
+        UserIdentity adminIdentity = new UserIdentity();
+        adminIdentity.setAuthenticator(passwordAuth);
+        adminIdentity.setRemoteId("admin");
+        adminIdentity.setUser(adminUser);
+        adminIdentity.setSalt(PasswordUtil.createSalt());
+        adminIdentity.setPassword(
+                PasswordUtil.hash("admin", adminIdentity.getSalt()));
+
+        Transaction t = s.beginTransaction();
+        s.save(servletApp);
+        s.save(servletClient);
+        s.save(passwordAuth);
+        scopes.forEach(s::save);
+        s.save(adminRole);
+        s.save(memberRole);
+        s.save(adminUser);
+        s.save(adminIdentity);
+        t.commit();
+
+        logger.info(String.format("Application ID: %s",
+                servletApp.getId()));
+        logger.info(String.format("Admin User ID: %s",
+                adminUser.getId()));
+        logger.info("Application created. Let's rock!");
+
+        // Refresh the servlet app, populating all persisted references.
+        s.refresh(servletApp);
+        s.close();
+
+        return servletApp;
     }
 
     /**

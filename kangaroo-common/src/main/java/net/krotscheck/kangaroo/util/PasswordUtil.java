@@ -58,23 +58,23 @@ public final class PasswordUtil {
      * @param password The password.
      * @param salt     The salt.
      * @return The hash.
-     * @throws NoSuchAlgorithmException Thrown if the encryption algorithm is
-     *                                  not available.
-     * @throws InvalidKeySpecException  Thrown if the key spec is not
-     *                                  available.
      */
     public static String hash(final String password,
-                              final String salt)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
+                              final String salt) {
         char[] chars = password.toCharArray();
         byte[] saltBytes = Base64.decodeBase64(salt);
         int iterations = 1000;
         PBEKeySpec spec = new PBEKeySpec(chars, saltBytes, iterations, 64 * 8);
 
-        SecretKeyFactory skf =
-                SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] encodedPassword = skf.generateSecret(spec).getEncoded();
-        return Base64.encodeBase64String(encodedPassword);
+        try {
+            SecretKeyFactory skf =
+                    SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            byte[] encodedPassword = skf.generateSecret(spec).getEncoded();
+            return Base64.encodeBase64String(encodedPassword);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            // If you don't have encryption, you don't get to play.
+            throw new RuntimeException(e);
+        }
     }
 
     /**
