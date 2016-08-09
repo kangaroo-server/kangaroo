@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.database.type;
 
 import org.hibernate.HibernateException;
-import org.hibernate.type.DiscriminatorType;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
 import org.junit.Assert;
 import org.junit.Test;

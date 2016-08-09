@@ -26,18 +26,16 @@ import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
-import org.glassfish.jersey.test.TestProperties;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -66,10 +64,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      * @return A configured application.
      */
     @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
+    protected ResourceConfig createApplication() {
         return new OAuthTestApp();
     }
 

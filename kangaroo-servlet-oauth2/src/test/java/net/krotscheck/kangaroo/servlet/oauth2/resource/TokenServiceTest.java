@@ -26,15 +26,13 @@ import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
-import org.glassfish.jersey.test.TestProperties;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -59,10 +57,7 @@ public final class TokenServiceTest extends ContainerTest {
      * @return A configured application.
      */
     @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
+    protected ResourceConfig createApplication() {
         return new OAuthAPI();
     }
 

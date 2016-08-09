@@ -33,6 +33,7 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,7 +42,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
@@ -78,7 +78,7 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
      * @return An instance of the Admin servlet.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         return new AdminV1API();
     }
 

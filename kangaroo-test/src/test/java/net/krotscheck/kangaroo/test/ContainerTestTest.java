@@ -17,22 +17,20 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.jersey2.hibernate.HibernateFeature;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -50,12 +48,10 @@ public final class ContainerTestTest extends ContainerTest {
      * @return A dummy app!
      */
     @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
+    protected ResourceConfig createApplication() {
         ResourceConfig c = new ResourceConfig();
         c.register(RedirectingResource.class);
+        c.register(HibernateFeature.class);
         return c;
     }
 
@@ -74,10 +70,12 @@ public final class ContainerTestTest extends ContainerTest {
      */
     @Test
     public void testTest() {
-        Session s = getSession();
+        Session s1 = getSession();
+        Session s2 = getSession();
         SessionFactory f = getSessionFactory();
 
-        Assert.assertTrue(s.isOpen());
+        Assert.assertTrue(s1.isOpen());
+        Assert.assertSame(s2, s1);
         Assert.assertFalse(f.isClosed());
 
         Response r = target("/redirect")
@@ -116,7 +114,7 @@ public final class ContainerTestTest extends ContainerTest {
         }
 
         /**
-         * A redirected handler
+         * A redirected handler.
          *
          * @param foo Test passthrough value.
          * @return An OK response.
