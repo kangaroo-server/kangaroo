@@ -22,7 +22,6 @@ import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener.Binder;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.IFixture;
-import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -36,16 +35,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -56,9 +47,6 @@ import javax.inject.Singleton;
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(PasswordUtil.class)
-@PowerMockIgnore({"javax.*", "com.sun.*", "org.xml.*"})
 public final class FirstRunContainerLifecycleListenerTest
         extends DatabaseTest {
 
@@ -120,55 +108,6 @@ public final class FirstRunContainerLifecycleListenerTest
 
         // Cleanup
         testConfig.clear();
-    }
-
-    /**
-     * Assert that a fatal exception is thrown when the password util blows up.
-     *
-     * @throws Exception Runtime exception thrown to stop servlet
-     *                   initialization.
-     */
-    @Test(expected = RuntimeException.class)
-    public void assertBootstrapException() throws Exception {
-        Configuration testConfig = new HibernateConfiguration(
-                getSessionFactory(), ServletConfigFactory.GROUP_NAME);
-        SessionFactory mockFactory = Mockito.mock(SessionFactory.class);
-        Container mockContainer = Mockito.mock(Container.class);
-
-        PowerMockito.mockStatic(PasswordUtil.class);
-        Mockito.when(
-                PasswordUtil.hash(Matchers.anyString(), Matchers.anyString()))
-                .thenThrow(NoSuchAlgorithmException.class);
-
-        ContainerLifecycleListener l =
-                new FirstRunContainerLifecycleListener(
-                        mockFactory, testConfig);
-        l.onStartup(mockContainer);
-    }
-
-    /**
-     * Assert that a fatal exception is thrown when the password util blows
-     * up with yet another error.
-     *
-     * @throws Exception Runtime exception thrown to stop servlet
-     *                   initialization.
-     */
-    @Test(expected = RuntimeException.class)
-    public void assertBootstrapInvalidKeyException() throws Exception {
-        Configuration testConfig = new HibernateConfiguration(
-                getSessionFactory(), ServletConfigFactory.GROUP_NAME);
-        SessionFactory mockFactory = Mockito.mock(SessionFactory.class);
-        Container mockContainer = Mockito.mock(Container.class);
-
-        PowerMockito.mockStatic(PasswordUtil.class);
-        Mockito.when(
-                PasswordUtil.hash(Matchers.anyString(), Matchers.anyString()))
-                .thenThrow(InvalidKeySpecException.class);
-
-        ContainerLifecycleListener l =
-                new FirstRunContainerLifecycleListener(
-                        mockFactory, testConfig);
-        l.onStartup(mockContainer);
     }
 
     /**
