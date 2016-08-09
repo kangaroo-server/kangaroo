@@ -480,6 +480,12 @@
       <version>${slf4j.version}</version>
     </dependency>
 
+    <!-- special dependency to fix liquibase's logging fetish -->
+    <dependency>
+      <groupId>com.mattbertolini</groupId>
+      <artifactId>liquibase-slf4j</artifactId>
+      <version>1.2.1</version>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
