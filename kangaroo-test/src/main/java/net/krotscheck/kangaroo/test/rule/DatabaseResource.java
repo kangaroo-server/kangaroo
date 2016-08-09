@@ -15,16 +15,12 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.test;
+package net.krotscheck.kangaroo.test.rule;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.search.FullTextSession;
-import org.hibernate.search.Search;
-import org.hibernate.service.ServiceRegistry;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +39,12 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
 /**
- * A database manager which can be used in multiple tests.
+ * This JUnit4 rule ensures that the JNDI resource has been bootstrapped, and
+ * that the database schema has been migrated into the test database.
  *
  * @author Michael Krotscheck
  */
-public final class DatabaseManager {
+public final class DatabaseResource implements TestRule {
 
     /**
      * JDBC Connection string.
@@ -82,7 +79,7 @@ public final class DatabaseManager {
      * Logger instance.
      */
     private static Logger logger =
-            LoggerFactory.getLogger(DatabaseManager.class);
+            LoggerFactory.getLogger(DatabaseResource.class);
 
     /**
      * Database connection, currently active.
@@ -127,49 +124,6 @@ public final class DatabaseManager {
     }
 
     /**
-     * Internal session factory, reconstructed for every test run.
-     */
-    private SessionFactory sessionFactory;
-
-    /**
-     * The last created session.
-     */
-    private Session session;
-
-    /**
-     * Build, or retrieve, a session factory.
-     *
-     * @return The session factory.
-     */
-    public SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-
-            ServiceRegistry serviceRegistry =
-                    new StandardServiceRegistryBuilder()
-                            .configure()
-                            .build();
-
-            sessionFactory = new MetadataSources(serviceRegistry)
-                    .buildMetadata()
-                    .buildSessionFactory();
-        }
-        return sessionFactory;
-    }
-
-    /**
-     * Create and return a hibernate session for the test database.
-     *
-     * @return The constructed session.
-     */
-    public Session getSession() {
-        if (session == null) {
-            SessionFactory factory = getSessionFactory();
-            session = factory.openSession();
-        }
-        return session;
-    }
-
-    /**
      * Migrate the current database using the existing liquibase schema.
      *
      * @throws Exception Exceptions thrown during migration. If these fail,
@@ -197,53 +151,45 @@ public final class DatabaseManager {
     }
 
     /**
-     * Set up the liquibase search index.
-     *
-     * @throws InterruptedException Thrown if the search index construction
-     *                              is interrupted.
-     */
-    public void buildSearchIndex() throws InterruptedException {
-        // Create the fulltext session.
-        FullTextSession fullTextSession =
-                Search.getFullTextSession(getSession());
-
-        fullTextSession
-                .createIndexer()
-                .startAndWait();
-    }
-
-    /**
      * Clean any previously established database schema.
      *
-     * @throws Exception Exceptions thrown during migration. If these fail,
-     *                   fix your tests!
+     * @throws Throwable An exception encountered during teardown.
      */
-    public void cleanDatabase() throws Exception {
-        if (liquibase != null) {
-            logger.info("Cleaning Database.");
-            liquibase.rollback(1000, null);
-            liquibase = null;
-        }
+    public void cleanDatabase() throws Throwable {
+        logger.info("Cleaning Database.");
+        liquibase.rollback(1000, null);
+        liquibase = null;
 
-        if (conn != null) {
-            logger.info("Closing connection.");
-            conn.close();
-            conn = null;
-        }
+        logger.info("Closing connection.");
+        conn.close();
+        conn = null;
     }
 
     /**
-     * Clean all sessions.
+     * Modifies the method-running {@link Statement} to implement this
+     * test-running rule.
+     *
+     * @param base        The {@link Statement} to be modified
+     * @param description A {@link Description} of the test implemented in
+     *                    {@code base}
+     * @return a new statement, which may be the same as {@code base},
+     * a wrapper around {@code base}, or a completely new Statement.
      */
-    public void cleanSessions() {
-        if (session != null) {
-            session.close();
-            session = null;
-        }
+    @Override
+    public Statement apply(final Statement base,
+                           final Description description) {
+        return new Statement() {
 
-        if (sessionFactory != null) {
-            sessionFactory.close();
-            sessionFactory = null;
-        }
+            @Override
+            public void evaluate() throws Throwable {
+                setupJNDI();
+                setupDatabase();
+                try {
+                    base.evaluate();
+                } finally {
+                    cleanDatabase();
+                }
+            }
+        };
     }
 }

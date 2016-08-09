@@ -21,12 +21,11 @@ import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorRespon
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
@@ -42,7 +41,7 @@ public final class OAuthAPITest extends ContainerTest {
      * @return The constructed application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         return new OAuthAPI();
     }
 

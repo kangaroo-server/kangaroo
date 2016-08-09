@@ -19,11 +19,11 @@ package net.krotscheck.kangaroo.servlet.admin.v1;
 
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.IFixture;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
@@ -37,7 +37,7 @@ public final class AdminV1APITest extends ContainerTest {
      * @return The constructed application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         return new AdminV1API();
     }
 
