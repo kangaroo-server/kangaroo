@@ -37,10 +37,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -466,8 +464,7 @@ public final class EnvironmentBuilder implements IFixture {
      * @return This builder.
      * @throws Exception Thrown if the security algorithm isn't present.
      */
-    public EnvironmentBuilder login(final String login, final String password)
-            throws Exception {
+    public EnvironmentBuilder login(final String login, final String password) {
         userIdentity = new UserIdentity();
         userIdentity.setUser(user);
         userIdentity.setRemoteId(login);
@@ -588,10 +585,9 @@ public final class EnvironmentBuilder implements IFixture {
      * @return This builder.
      */
     public EnvironmentBuilder claim(final String name, final String value) {
-        Map<String, String> claims = userIdentity.getClaims();
-        if (claims == null) {
-            userIdentity.setClaims(new HashMap<>());
-        }
+        // User identity has to be separately hydrated and persisted, in
+        // order to make sure we get the latest entity.
+        session.refresh(userIdentity);
         userIdentity.getClaims().putIfAbsent(name, value);
         persist(userIdentity);
         return this;

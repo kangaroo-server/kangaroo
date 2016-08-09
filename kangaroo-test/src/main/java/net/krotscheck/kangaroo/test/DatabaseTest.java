@@ -17,12 +17,15 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.service.ServiceRegistry;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,35 +40,25 @@ import java.util.List;
 public abstract class DatabaseTest implements IDatabaseTest {
 
     /**
-     * The database management instance.
+     * Ensure that a JDNI resource is set up for this suite.
      */
-    private static DatabaseManager manager = new DatabaseManager();
+    @ClassRule
+    public static final DatabaseResource JNDI = new DatabaseResource();
+
+    /**
+     * Internal session factory, reconstructed for every test run.
+     */
+    private SessionFactory sessionFactory;
+
+    /**
+     * The last created session.
+     */
+    private Session session;
 
     /**
      * The list of loaded fixtures.
      */
     private List<IFixture> fixtures = new ArrayList<>();
-
-    /**
-     * Setup a database for our application.
-     *
-     * @throws Exception Initialization exception.
-     */
-    @BeforeClass
-    public static void setupDatabaseSchema() throws Exception {
-        manager.setupJNDI();
-        manager.setupDatabase();
-    }
-
-    /**
-     * Shut down the database.
-     *
-     * @throws Exception Teardown Exceptions.
-     */
-    @AfterClass
-    public static void removeDatabaseSchema() throws Exception {
-        manager.cleanDatabase();
-    }
 
     /**
      * Set up the fixtures and any environment that's necessary.
@@ -74,11 +67,22 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @Before
     public final void setupData() throws Exception {
+        // Create the session factory.
+        ServiceRegistry serviceRegistry =
+                new StandardServiceRegistryBuilder()
+                        .configure()
+                        .build();
+        sessionFactory = new MetadataSources(serviceRegistry)
+                .buildMetadata()
+                .buildSessionFactory();
+
+        // Create the session
+        session = sessionFactory.openSession();
+
         List<IFixture> newFixtures = fixtures();
         if (newFixtures != null) {
             fixtures.addAll(newFixtures);
         }
-        manager.buildSearchIndex();
     }
 
     /**
@@ -94,7 +98,11 @@ public abstract class DatabaseTest implements IDatabaseTest {
         fixtures.clear();
 
         // Clean any outstanding sessions.
-        manager.cleanSessions();
+        session.close();
+        session = null;
+
+        sessionFactory.close();
+        sessionFactory = null;
     }
 
     /**
@@ -104,7 +112,7 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @Override
     public final Session getSession() {
-        return manager.getSession();
+        return session;
     }
 
     /**
@@ -114,6 +122,7 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @Override
     public final SessionFactory getSessionFactory() {
-        return manager.getSessionFactory();
+        return sessionFactory;
     }
+
 }

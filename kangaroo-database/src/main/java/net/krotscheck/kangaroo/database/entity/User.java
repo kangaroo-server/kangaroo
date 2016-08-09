@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
@@ -43,6 +44,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "users")
 @Indexed(index = "users")
+@Analyzer(definition = "entity_analyzer")
 public final class User extends AbstractEntity {
 
     /**

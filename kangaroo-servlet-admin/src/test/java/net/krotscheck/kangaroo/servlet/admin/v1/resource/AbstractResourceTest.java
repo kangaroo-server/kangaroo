@@ -19,10 +19,8 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
 import net.krotscheck.kangaroo.test.ContainerTest;
-
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
-
-import javax.ws.rs.core.Application;
 
 /**
  * Abstract test harness for the administration API. Handles all of our data
@@ -38,7 +36,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * @return A configured api servlet.
      */
     @Override
-    protected final Application configure() {
+    protected final ResourceConfig createApplication() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
 

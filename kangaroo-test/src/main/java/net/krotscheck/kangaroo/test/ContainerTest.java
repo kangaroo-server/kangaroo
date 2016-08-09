@@ -17,24 +17,28 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
@@ -52,12 +56,23 @@ public abstract class ContainerTest
     /**
      * The database management instance.
      */
-    private static DatabaseManager manager = new DatabaseManager();
+    @ClassRule
+    public static final DatabaseResource JNDI = new DatabaseResource();
 
     /**
      * The list of loaded fixtures.
      */
     private List<IFixture> fixtures = new ArrayList<>();
+
+    /**
+     * Session factory, injected by Jersey2.
+     */
+    private SessionFactory sessionFactory;
+
+    /**
+     * Session specifically for this test, cleaned up after each test.
+     */
+    private Session session;
 
     /**
      * Configure all jersey2 clients.
@@ -70,26 +85,29 @@ public abstract class ContainerTest
     }
 
     /**
-     * Setup a database for our application.
+     * Ask the test to construct an application, and then inject this test
+     * into the context.
      *
-     * @throws Exception Initialization exception.
+     * @return The application itself
      */
-    @BeforeClass
-    public static void setupDatabaseSchema() throws Exception {
-        manager.setupJNDI();
-        manager.setupDatabase();
+    @Override
+    protected final Application configure() {
+        // General configuration.
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
+
+        ResourceConfig config = createApplication();
+        config.register(this);
+
+        return config;
     }
 
     /**
-     * Shut down the database.
+     * Create an application.
      *
-     * @throws Exception Teardown Exceptions.
+     * @return The application to test.
      */
-    @AfterClass
-    public static void removeDatabaseSchema() throws Exception {
-        manager.cleanDatabase();
-    }
-
+    protected abstract ResourceConfig createApplication();
 
     /**
      * Set up the fixtures and any environment that's necessary.
@@ -98,11 +116,12 @@ public abstract class ContainerTest
      */
     @Before
     public final void setupData() throws Exception {
+        session = sessionFactory.openSession();
+
         List<IFixture> newFixtures = fixtures();
         if (newFixtures != null) {
             fixtures.addAll(newFixtures);
         }
-        manager.buildSearchIndex();
     }
 
     /**
@@ -115,8 +134,9 @@ public abstract class ContainerTest
         reversed.forEach(IFixture::clear);
         fixtures.clear();
 
-        // Clean any outstanding sessions.
-        manager.cleanSessions();
+        // Clear the session.
+        session.close();
+        session = null;
     }
 
     /**
@@ -125,7 +145,17 @@ public abstract class ContainerTest
      * @return The constructed session.
      */
     public final Session getSession() {
-        return manager.getSession();
+        return session;
+    }
+
+    /**
+     * Set the injected session factory.
+     *
+     * @param sessionFactory The new session factory from the jersey context.
+     */
+    @Inject
+    public final void setSessionFactory(final SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     /**
@@ -135,7 +165,7 @@ public abstract class ContainerTest
      */
     @Override
     public final SessionFactory getSessionFactory() {
-        return manager.getSessionFactory();
+        return sessionFactory;
     }
 
     /**

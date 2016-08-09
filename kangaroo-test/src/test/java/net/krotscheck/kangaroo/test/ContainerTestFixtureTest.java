@@ -17,16 +17,15 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.jersey2.hibernate.HibernateFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Application;
 
 /**
  * Test the container test, by implementing the container test.
@@ -41,8 +40,10 @@ public final class ContainerTestFixtureTest extends ContainerTest {
      * @return A dummy app!
      */
     @Override
-    protected Application configure() {
-        return new ResourceConfig();
+    protected ResourceConfig createApplication() {
+        ResourceConfig app = new ResourceConfig();
+        app.register(HibernateFeature.class);
+        return app;
     }
 
     /**
