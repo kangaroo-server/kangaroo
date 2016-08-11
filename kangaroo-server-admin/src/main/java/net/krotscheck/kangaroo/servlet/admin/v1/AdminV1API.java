@@ -27,12 +27,14 @@ import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ApplicationService;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.ScopeService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+
 
 /**
  * The OID Servlet application, including all configured resources and
@@ -70,6 +72,7 @@ public final class AdminV1API extends ResourceConfig {
 
         // API Services
         register(ApplicationService.class);
+        register(ScopeService.class);
         register(UserService.class);
     }
 }
