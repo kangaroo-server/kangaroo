@@ -31,7 +31,6 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +57,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "user_identities")
 @Analyzer(definition = "entity_analyzer")
-public final class UserIdentity extends AbstractEntity implements Principal {
+public final class UserIdentity extends AbstractEntity {
 
     /**
      * The user to whom this identity record belongs.
@@ -196,17 +195,6 @@ public final class UserIdentity extends AbstractEntity implements Principal {
      */
     public void setClaims(final Map<String, String> claims) {
         this.claims = new HashMap<>(claims);
-    }
-
-    /**
-     * Returns the name of this principal, in our case the remote ID.
-     *
-     * @return the name of this principal.
-     */
-    @Override
-    @JsonIgnore
-    public String getName() {
-        return getRemoteId();
     }
 
     /**
