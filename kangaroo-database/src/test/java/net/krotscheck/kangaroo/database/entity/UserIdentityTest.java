@@ -101,18 +101,6 @@ public final class UserIdentityTest {
     }
 
     /**
-     * Test the name.
-     */
-    @Test
-    public void testGetName() {
-        UserIdentity identity = new UserIdentity();
-
-        Assert.assertNull(identity.getName());
-        identity.setRemoteId("foo");
-        Assert.assertEquals("foo", identity.getName());
-    }
-
-    /**
      * Test getting/setting the claims.
      */
     @Test

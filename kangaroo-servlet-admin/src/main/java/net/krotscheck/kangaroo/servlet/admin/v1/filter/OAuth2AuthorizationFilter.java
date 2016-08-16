@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.servlet.admin.v1.filter;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -146,7 +145,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         /**
          * The principal.
          */
-        private final UserIdentity principal;
+        private final OAuthToken principal;
 
         /**
          * The principal.
@@ -163,7 +162,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         public OAuthTokenContext(final OAuthToken token,
                                  final Boolean isSecure) {
             // Materialize the scopes and the user identity.
-            principal = token.getIdentity();
+            principal = token;
             scopes = token.getScopes();
             secure = isSecure;
         }

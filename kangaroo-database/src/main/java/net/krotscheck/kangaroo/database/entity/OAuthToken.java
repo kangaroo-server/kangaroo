@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDese
 import org.hibernate.annotations.SortNatural;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.Calendar;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -46,7 +47,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "oauth_tokens")
-public final class OAuthToken extends AbstractEntity {
+public final class OAuthToken extends AbstractEntity implements Principal {
 
     /**
      * The authenticated user identity.
@@ -252,6 +253,22 @@ public final class OAuthToken extends AbstractEntity {
      */
     public void setRedirect(final URI redirect) {
         this.redirect = redirect;
+    }
+
+    /**
+     * Returns the name of this principal. In our case, this will either be
+     * the remote ID of the user identity, or the human readable name of the
+     * OAuth Client application (in the case of a ClientCredentials Client).
+     *
+     * @return the name of this principal.
+     */
+    @Override
+    public String getName() {
+        if (getClient().getType().equals(ClientType.ClientCredentials)) {
+            return getClient().getName();
+        } else {
+            return getIdentity().getRemoteId();
+        }
     }
 
     /**
