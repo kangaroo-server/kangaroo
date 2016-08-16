@@ -132,6 +132,43 @@ public final class OAuthTokenTest {
     }
 
     /**
+     * Test getting the principal name for a regular user.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testGetNameUserIdentity() throws Exception {
+        OAuthToken token = new OAuthToken();
+        UserIdentity u = new UserIdentity();
+        u.setRemoteId("RemoteId");
+
+        Client c = new Client();
+        c.setType(ClientType.Implicit);
+        c.setName("foo");
+
+        token.setClient(c);
+        token.setIdentity(u);
+
+        Assert.assertEquals(u.getRemoteId(), token.getName());
+    }
+
+    /**
+     * Test getting the principal name for a credentials client.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testGetNameClient() throws Exception {
+        OAuthToken token = new OAuthToken();
+        Client c = new Client();
+        c.setType(ClientType.ClientCredentials);
+        c.setName("foo");
+
+        token.setClient(c);
+        Assert.assertEquals(c.getName(), token.getName());
+    }
+
+    /**
      * Test get/set scope list.
      */
     @Test
