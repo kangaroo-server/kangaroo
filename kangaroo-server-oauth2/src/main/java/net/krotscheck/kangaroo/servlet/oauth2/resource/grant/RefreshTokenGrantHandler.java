@@ -102,7 +102,7 @@ public final class RefreshTokenGrantHandler implements IGrantTypeHandler {
                 ValidationUtil.revalidateScope(
                         formData.getFirst("scope"),
                         refreshToken.getScopes(),
-                        refreshToken.getClient().getApplication().getScopes()
+                        refreshToken.getIdentity().getUser().getRole()
                 );
 
         // Ensure that we retrieve a state, if it exists.

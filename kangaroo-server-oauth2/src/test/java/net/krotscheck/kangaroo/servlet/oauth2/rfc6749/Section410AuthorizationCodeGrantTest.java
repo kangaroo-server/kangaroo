@@ -40,6 +40,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * These tests run through the Authorization Code Grant Flow.
  *
@@ -92,18 +96,19 @@ public final class Section410AuthorizationCodeGrantTest
     @Override
     public List<EnvironmentBuilder> fixtures() {
         context = new EnvironmentBuilder(getSession())
-                .role("debug")
+                .scope("debug")
+                .role("test", new String[]{"debug"})
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("test")
                 .redirect("http://valid.example.com/redirect")
-                .scope("debug")
                 .authToken();
         bareContext = new EnvironmentBuilder(getSession())
-                .role("debug")
+                .scope("debug")
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("test");
         authContext = new EnvironmentBuilder(getSession())
-                .role("debug")
+                .scope("debug")
+                .role("test", new String[]{"debug"})
                 .client(ClientType.AuthorizationGrant, true)
                 .authenticator("test")
                 .redirect("http://valid.example.com/redirect")
@@ -111,20 +116,21 @@ public final class Section410AuthorizationCodeGrantTest
                 .identity("remote_identity")
                 .authToken();
         noauthContext = new EnvironmentBuilder(getSession())
-                .role("debug")
+                .scope("debug")
+                .role("test", new String[]{"debug"})
                 .client(ClientType.AuthorizationGrant)
-                .redirect("http://valid.example.com/redirect")
-                .scope("debug");
+                .redirect("http://valid.example.com/redirect");
         misconfiguredAuthContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("foo")
                 .redirect("http://valid.example.com/redirect")
                 .scope("debug");
         invalidClientContext = new EnvironmentBuilder(getSession())
+                .scope("debug")
+                .role("test", new String[]{"debug"})
                 .client(ClientType.Implicit)
                 .authenticator("foo")
                 .redirect("http://valid.example.com/redirect")
-                .scope("debug")
                 .authToken();
 
         authHeader = HttpUtil.authHeaderBasic(
@@ -776,6 +782,125 @@ public final class Section410AuthorizationCodeGrantTest
         ErrorResponse error = r.readEntity(ErrorResponse.class);
         Assert.assertEquals("invalid_request", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request to an application, from a user which has no
+     * assigned role, who is requesting scopes, will result in an invalid
+     * scope response.
+     */
+    @Test
+    public void testAuthorizeRedirectNoRole() {
+        // Fill out the bare context. The test authenticator will assign a
+        // null role if none has been created, so we don't create one here.
+        bareContext
+                .redirect("http://valid.example.com/redirect");
+
+        Response first = target("/authorize")
+                .queryParam("response_type", "code")
+                .queryParam("client_id",
+                        bareContext.getClient().getId().toString())
+                .request()
+                .get();
+
+        // We expect this response to head to /authorize/redirect
+        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        URI firstLocation = first.getLocation();
+        assertEquals("http", firstLocation.getScheme());
+        assertEquals("localhost", firstLocation.getHost());
+        assertEquals("/authorize/callback", firstLocation.getPath());
+
+        // Follow the redirect
+        Response second = followRedirect(first);
+        URI secondLocation = second.getLocation();
+
+        // Extract the query parameters in the fragment
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(secondLocation);
+        assertTrue(params.containsKey("error"));
+        assertEquals("invalid_scope", params.getFirst("error"));
+        assertTrue(params.containsKey("error_description"));
+    }
+
+    /**
+     * Assert that a request to an application, from a user which has a role,
+     * but who may not access the requested scope, will result in an invalid
+     * scope response.
+     */
+    @Test
+    public void testAuthorizeRedirectRoleWithoutRequestedScope() {
+        // Fill out the bare context. The test authenticator will assign the
+        // 'test' role if it finds it, so we create it here to ensure that it
+        // has no permitted scopes.
+        bareContext
+                .redirect("http://valid.example.com/redirect")
+                .role("test", new String[]{});
+
+        Response first = target("/authorize")
+                .queryParam("response_type", "code")
+                .queryParam("scope", "debug")
+                .queryParam("client_id",
+                        bareContext.getClient().getId().toString())
+                .request()
+                .get();
+
+        // We expect this response to head to /authorize/redirect
+        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        URI firstLocation = first.getLocation();
+        assertEquals("http", firstLocation.getScheme());
+        assertEquals("localhost", firstLocation.getHost());
+        assertEquals("/authorize/callback", firstLocation.getPath());
+
+        // Follow the redirect
+        Response second = followRedirect(first);
+        URI secondLocation = second.getLocation();
+
+        // Extract the query parameters in the fragment
+
+        // Extract the query parameters in the fragment
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(secondLocation);
+        assertTrue(params.containsKey("error"));
+        assertEquals("invalid_scope", params.getFirst("error"));
+        assertTrue(params.containsKey("error_description"));
+    }
+
+    /**
+     * Assert that a request to an application, from a user which has a role,
+     * but no scopes, may still request a token with no assigned scope.
+     */
+    @Test
+    public void testAuthorizeRedirectRoleWantsNoScope() {
+        // Fill out the bare context. The test authenticator will assign the
+        // 'test' role if it finds it, so we create it here to ensure that it
+        // has no permitted scopes.
+        bareContext
+                .redirect("http://valid.example.com/redirect")
+                .role("test", new String[]{});
+
+        Response first = target("/authorize")
+                .queryParam("response_type", "code")
+                .queryParam("client_id",
+                        context.getClient().getId().toString())
+                .request()
+                .get();
+
+        // We expect this response to head to /authorize/redirect
+        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        URI firstLocation = first.getLocation();
+        assertEquals("http", firstLocation.getScheme());
+        assertEquals("localhost", firstLocation.getHost());
+        assertEquals("/authorize/callback", firstLocation.getPath());
+
+        // Follow the redirect
+        Response second = followRedirect(first);
+        URI secondLocation = second.getLocation();
+
+        // Extract the query parameters in the fragment
+        MultivaluedMap<String, String> params =
+                HttpUtil.parseQueryParams(secondLocation);
+        Assert.assertTrue(params.containsKey("code"));
+        Assert.assertFalse(params.containsKey("state"));
     }
 
     /**

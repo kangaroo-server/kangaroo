@@ -86,11 +86,11 @@ public final class Section600RefreshTokenTest
     @Override
     public List<EnvironmentBuilder> fixtures() {
         context = new EnvironmentBuilder(getSession())
-                .role("debug")
-                .client(ClientType.AuthorizationGrant)
-                .authenticator("debug")
                 .scope("debug")
                 .scope("debug2")
+                .role("test", new String[]{"debug", "debug2"})
+                .client(ClientType.AuthorizationGrant)
+                .authenticator("debug")
                 .user()
                 .identity("test_identity_1")
                 .bearerToken();
@@ -114,11 +114,11 @@ public final class Section600RefreshTokenTest
         expiredToken = context.getToken();
 
         authContext = new EnvironmentBuilder(getSession())
-                .role("debug")
-                .client(ClientType.OwnerCredentials, true)
-                .authenticator("debug")
                 .scope("debug")
                 .scope("debug2")
+                .role("test", new String[]{"debug", "debug2"})
+                .client(ClientType.OwnerCredentials, true)
+                .authenticator("debug")
                 .user()
                 .identity("test_identity_2")
                 .bearerToken()
