@@ -17,13 +17,19 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.filter;
 
+import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
+import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -31,6 +37,7 @@ import java.util.SortedMap;
 import java.util.UUID;
 import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.ws.rs.Priorities;
@@ -55,13 +62,23 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
     private final Provider<Session> sessionProvider;
 
     /**
+     * The request's servlet configuration provider.
+     */
+    private final Provider<Configuration> configProvider;
+
+    /**
      * Create a new instance of this authorization filter.
      *
      * @param sessionProvider The context-relevant session provider.
+     * @param configProvider  Servlet Configuration Provider
      */
     @Inject
-    public OAuth2AuthorizationFilter(final Provider<Session> sessionProvider) {
+    public OAuth2AuthorizationFilter(final Provider<Session> sessionProvider,
+                                     @Named(ServletConfigFactory.GROUP_NAME)
+                                     final Provider<Configuration>
+                                             configProvider) {
         this.sessionProvider = sessionProvider;
+        this.configProvider = configProvider;
     }
 
     /**
@@ -77,7 +94,20 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
             throws IOException {
         String header =
                 requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-        OAuthToken token = getTokenFromHeader(header);
+        UUID tokenId = getTokenIdFromHeader(header);
+        Application a = loadAdminApplication();
+
+        Session session = sessionProvider.get();
+
+        Criteria c = session.createCriteria(OAuthToken.class)
+                .createAlias("client", "c")
+                .createAlias("c.application", "a")
+                .add(Restrictions.eq("id", tokenId))
+                .add(Restrictions.eq("a.id", a.getId()))
+                .add(Restrictions.eq("tokenType", OAuthTokenType.Bearer))
+                .setMaxResults(1)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        OAuthToken token = (OAuthToken) c.uniqueResult();
 
         // Blank token, and/or expired tokens, throw an exception.
         if (token == null || token.isExpired()) {
@@ -95,7 +125,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
      * @param header The header string.
      * @return An OAuth token, or null.
      */
-    private OAuthToken getTokenFromHeader(final String header) {
+    private UUID getTokenIdFromHeader(final String header) {
 
         if (StringUtils.isEmpty(header)) {
             return null;
@@ -110,25 +140,25 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
             return null;
         }
 
-        UUID tokenId;
         try {
-            tokenId = UUID.fromString(token[1]);
+            return UUID.fromString(token[1]);
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }
+    }
 
-        Session session = sessionProvider.get();
-        OAuthToken oauthToken = session.get(OAuthToken.class, tokenId);
+    /**
+     * Resolve the admin application.
+     *
+     * @return The admin application as configured in the database.
+     */
+    private Application loadAdminApplication() {
+        Configuration servletConfig = configProvider.get();
+        String uuidString = servletConfig.getString(Config.APPLICATION_ID);
+        UUID appId = UUID.fromString(uuidString);
 
-        if (oauthToken == null) {
-            return null;
-        }
-
-        if (!oauthToken.getTokenType().equals(OAuthTokenType.Bearer)) {
-            return null;
-        }
-
-        return oauthToken;
+        Session s = sessionProvider.get();
+        return s.get(Application.class, appId);
     }
 
     /**
@@ -184,7 +214,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
          */
         @Override
         public boolean isUserInRole(final String roleName) {
-            return scopes.containsKey(roleName);
+            return principal.getScopes().containsKey(roleName);
         }
 
         /**
