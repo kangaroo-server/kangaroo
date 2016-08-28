@@ -220,4 +220,11 @@ public abstract class AbstractEntity implements Cloneable {
     public final Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    public abstract User getOwner();
 }

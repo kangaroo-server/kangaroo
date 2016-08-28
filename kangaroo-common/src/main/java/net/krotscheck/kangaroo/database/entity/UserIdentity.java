@@ -50,6 +50,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -279,6 +280,21 @@ public final class UserIdentity extends AbstractEntity {
      */
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (user != null) {
+            return user.getOwner();
+        }
+        return null;
     }
 
     /**

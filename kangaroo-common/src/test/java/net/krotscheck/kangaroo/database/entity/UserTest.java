@@ -29,6 +29,11 @@ import net.krotscheck.kangaroo.database.entity.User.Deserializer;
 import net.krotscheck.kangaroo.database.util.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -44,6 +49,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
+@RunWith(PowerMockRunner.class)
 public final class UserTest {
 
     /**
@@ -102,6 +108,24 @@ public final class UserTest {
         user.setIdentities(identities);
         Assert.assertEquals(identities, user.getIdentities());
         Assert.assertNotSame(identities, user.getIdentities());
+    }
+
+    /**
+     * Assert that we retrieve the owner from the parent client.
+     */
+    @Test
+    @PrepareForTest(Application.class)
+    public void testGetOwner() {
+        User user = new User();
+        Application spy = PowerMockito.spy(new Application());
+
+        // Null check
+        Assert.assertNull(user.getOwner());
+
+        user.setApplication(spy);
+        user.getOwner();
+
+        Mockito.verify(spy).getOwner();
     }
 
     /**
