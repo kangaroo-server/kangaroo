@@ -19,6 +19,7 @@ package net.krotscheck.kangaroo.database;
 
 import net.krotscheck.jersey2.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.database.listener.CreatedUpdatedListener;
+import net.krotscheck.kangaroo.database.mapper.ConstraintViolationExceptionMapper;
 import net.krotscheck.kangaroo.database.mapper.HibernateExceptionMapper;
 import net.krotscheck.kangaroo.database.mapper.PropertyValueExceptionMapper;
 import net.krotscheck.kangaroo.database.mapper.QueryExceptionMapper;
@@ -49,6 +50,7 @@ public final class DatabaseFeature implements Feature {
         context.register(new CreatedUpdatedListener.Binder());
         context.register(new QueryExceptionMapper.Binder());
         context.register(new HibernateExceptionMapper.Binder());
+        context.register(new ConstraintViolationExceptionMapper.Binder());
         context.register(new PropertyValueExceptionMapper.Binder());
         context.register(new SearchExceptionMapper.Binder());
 
