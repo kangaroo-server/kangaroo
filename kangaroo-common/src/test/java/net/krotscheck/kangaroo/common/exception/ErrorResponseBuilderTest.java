@@ -21,16 +21,21 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
@@ -171,6 +176,49 @@ public final class ErrorResponseBuilderTest {
     @Test
     public void testFromWebApplicationException() {
         WebApplicationException e = new WebApplicationException();
+
+        Response r = ErrorResponseBuilder.from(e).build();
+        ErrorResponse er = (ErrorResponse) r.getEntity();
+
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, r.getStatus());
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                er.getHttpStatus());
+        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("internal_server_error", er.getError());
+    }
+
+    /**
+     * Test building from a ConstraintViolationException.
+     */
+    @Test
+    public void testFromConstraintException() {
+        Set<ConstraintViolation<Application>> violations = new HashSet<>();
+        ConstraintViolation m = Mockito.mock(ConstraintViolation.class);
+        Mockito.when(m.getMessage()).thenReturn("test 1");
+        violations.add(m);
+
+        ConstraintViolationException e =
+                new ConstraintViolationException("message", violations);
+
+        Response r = ErrorResponseBuilder.from(e).build();
+        ErrorResponse er = (ErrorResponse) r.getEntity();
+
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
+        Assert.assertEquals("test 1", er.getErrorDescription());
+        Assert.assertNull(er.getRedirectUrl());
+        Assert.assertEquals("bad_request", er.getError());
+    }
+
+    /**
+     * Test building from a ConstraintViolationException with no violations.
+     */
+    @Test
+    public void testFromConstraintExceptionNoViolations() {
+        Set<ConstraintViolation<Application>> violations = new HashSet<>();
+        ConstraintViolationException e =
+                new ConstraintViolationException("message", violations);
 
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
