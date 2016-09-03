@@ -32,6 +32,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -156,6 +159,23 @@ public final class ErrorResponseBuilder {
      */
     public static ErrorResponseBuilder from(final WebApplicationException e) {
         return from(e.getResponse().getStatus());
+    }
+
+    /**
+     * Return an error object constructed from a generic unknown
+     * requestMapping.
+     *
+     * @param e The exception to map.
+     * @return This builder.
+     */
+    public static ErrorResponseBuilder from(
+            final ConstraintViolationException e) {
+        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
+        if (violations.size() > 0) {
+            return from(HttpStatus.SC_BAD_REQUEST,
+                    violations.iterator().next().getMessage());
+        }
+        return from(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
 
     /**
