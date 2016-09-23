@@ -29,16 +29,18 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -132,6 +134,20 @@ public abstract class ContainerTest
         // Clear the session.
         session.close();
         session = null;
+    }
+
+    /**
+     * Install the JUL-to-SLF4J logging bridge, before any application is
+     * bootstrapped. This explicitly pre-empts the same code in the logging
+     * feature, to catch test-initialization related log messages from
+     * jerseytest.
+     */
+    @BeforeClass
+    public static void installLogging() {
+        if (!SLF4JBridgeHandler.isInstalled()) {
+            SLF4JBridgeHandler.removeHandlersForRootLogger();
+            SLF4JBridgeHandler.install();
+        }
     }
 
     /**

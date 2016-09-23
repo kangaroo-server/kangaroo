@@ -21,6 +21,7 @@ import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory;
@@ -49,6 +50,7 @@ public class OAuthAPI extends ResourceConfig {
         property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
 
         // Common features.
+        register(LoggingFeature.class);          // Logging Configuration
         register(ConfigurationFeature.class);    // Configuration loader
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
