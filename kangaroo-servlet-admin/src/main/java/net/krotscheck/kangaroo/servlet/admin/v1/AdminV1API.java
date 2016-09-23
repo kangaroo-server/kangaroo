@@ -21,6 +21,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
@@ -50,6 +51,7 @@ public final class AdminV1API extends ResourceConfig {
         register(RolesAllowedDynamicFeature.class);
 
         // Common features.
+        register(LoggingFeature.class);          // Logging Configuration
         register(ConfigurationFeature.class);    // Configuration loader
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
