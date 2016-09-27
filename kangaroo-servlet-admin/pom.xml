@@ -71,20 +71,10 @@
     </dependency>
     <dependency>
       <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-database</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-test</artifactId>
+      <artifactId>kangaroo-common</artifactId>
       <version>${project.parent.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-test-database</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>test</scope>
+      <type>test-jar</type>
     </dependency>
   </dependencies>
 </project>

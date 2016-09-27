@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
@@ -67,11 +66,11 @@ public final class TokenServiceTest extends ContainerTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         context = new EnvironmentBuilder(getSession())
                 .client(ClientType.ClientCredentials, true);
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
     }

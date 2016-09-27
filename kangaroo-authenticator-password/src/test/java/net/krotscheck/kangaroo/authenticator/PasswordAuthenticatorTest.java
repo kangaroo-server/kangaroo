@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -60,14 +59,14 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures() throws Exception {
         context = new EnvironmentBuilder(getSession());
         context.client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .user()
                 .login("login", "password");
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
     }

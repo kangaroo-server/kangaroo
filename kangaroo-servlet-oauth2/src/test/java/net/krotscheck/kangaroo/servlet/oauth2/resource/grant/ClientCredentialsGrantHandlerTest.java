@@ -27,12 +27,10 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -92,7 +90,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         context = new EnvironmentBuilder(getSession())
                 .client(ClientType.ClientCredentials, true)
                 .scope("debug");
@@ -108,7 +106,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
         // The environment builder detaches its data, this reconnects it.
         getSession().refresh(context.getClient());
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         fixtures.add(noScopeContext);
         fixtures.add(implicitContext);

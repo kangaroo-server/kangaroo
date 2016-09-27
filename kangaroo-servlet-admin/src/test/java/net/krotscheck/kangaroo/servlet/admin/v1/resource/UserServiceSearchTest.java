@@ -21,7 +21,6 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,7 +59,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures() throws Exception {
         users.clear();
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
@@ -105,7 +104,7 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         authHeaderNoScope =
                 String.format("Bearer %s", context.getToken().getId());
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
     }
