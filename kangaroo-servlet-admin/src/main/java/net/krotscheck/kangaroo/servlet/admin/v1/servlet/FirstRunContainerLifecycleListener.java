@@ -91,7 +91,7 @@ public final class FirstRunContainerLifecycleListener
      * @return Kangaroo's admin application instance.
      */
     private Application bootstrapApplication() {
-        logger.info("Bootstrapping Application");
+        logger.debug("Bootstrapping Application");
 
         Session s = sessionFactory.openSession();
 
@@ -159,7 +159,7 @@ public final class FirstRunContainerLifecycleListener
                 servletApp.getId()));
         logger.info(String.format("Admin User ID: %s",
                 adminUser.getId()));
-        logger.info("Application created. Let's rock!");
+        logger.debug("Application created. Let's rock!");
 
         // Refresh the servlet app, populating all persisted references.
         s.refresh(servletApp);
