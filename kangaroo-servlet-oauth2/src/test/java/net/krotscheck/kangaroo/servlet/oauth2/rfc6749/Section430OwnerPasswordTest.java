@@ -25,11 +25,9 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.Entity;
@@ -82,7 +80,7 @@ public final class Section430OwnerPasswordTest
      * @throws Exception Should not be thrown.
      */
     @Override
-    public List<IFixture> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures() throws Exception {
         builder = new EnvironmentBuilder(getSession())
                 .scope("debug")
                 .client(ClientType.OwnerCredentials)
@@ -99,7 +97,7 @@ public final class Section430OwnerPasswordTest
                 authBuilder.getClient().getId(),
                 authBuilder.getClient().getClientSecret());
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(builder);
         fixtures.add(authBuilder);
         return fixtures;

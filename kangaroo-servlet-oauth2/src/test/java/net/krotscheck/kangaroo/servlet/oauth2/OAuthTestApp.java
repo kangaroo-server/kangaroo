@@ -17,7 +17,6 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2;
 
-
 import net.krotscheck.kangaroo.test.TestAuthenticator;
 
 /**

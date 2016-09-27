@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.test.ContainerTest;
-import net.krotscheck.kangaroo.test.IFixture;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -84,7 +84,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         return null;
     }
 

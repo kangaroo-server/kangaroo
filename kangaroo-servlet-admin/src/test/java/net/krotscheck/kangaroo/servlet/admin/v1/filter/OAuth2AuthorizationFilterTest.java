@@ -26,7 +26,7 @@ import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.OAuthTokenContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import net.krotscheck.kangaroo.test.IFixture;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -89,7 +89,7 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
-    public List<IFixture> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures() throws Exception {
         EnvironmentBuilder context = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
                 .scope(Scope.USER)
@@ -115,7 +115,7 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
         context.authToken();
         authToken = context.getToken();
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
     }

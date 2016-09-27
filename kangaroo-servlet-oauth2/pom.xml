@@ -71,25 +71,22 @@
     </dependency>
     <dependency>
       <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-database</artifactId>
+      <artifactId>kangaroo-common</artifactId>
       <version>${project.parent.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>net.krotscheck</groupId>
+      <artifactId>kangaroo-authenticator-core</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>net.krotscheck</groupId>
       <artifactId>kangaroo-authenticator-password</artifactId>
       <version>${project.parent.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-test</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-test-database</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <!-- The servlet API -->

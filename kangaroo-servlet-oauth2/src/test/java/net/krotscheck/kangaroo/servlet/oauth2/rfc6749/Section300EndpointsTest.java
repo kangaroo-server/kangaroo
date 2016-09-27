@@ -17,12 +17,11 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
-import net.krotscheck.kangaroo.test.IFixture;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 import javax.ws.rs.core.Response;
 
@@ -39,7 +38,7 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         return null;
     }
 

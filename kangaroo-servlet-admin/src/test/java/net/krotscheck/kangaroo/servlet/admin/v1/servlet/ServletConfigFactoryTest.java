@@ -18,10 +18,9 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.database.config.HibernateConfiguration;
-import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory.Binder;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.IFixture;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Factory;
@@ -49,7 +48,7 @@ public final class ServletConfigFactoryTest extends DatabaseTest {
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
-    public List<IFixture> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures() throws Exception {
         return null;
     }
 
