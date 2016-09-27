@@ -26,11 +26,9 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.Entity;
@@ -86,7 +84,7 @@ public final class Section600RefreshTokenTest
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         context = new EnvironmentBuilder(getSession())
                 .role("debug")
                 .client(ClientType.AuthorizationGrant)
@@ -129,7 +127,7 @@ public final class Section600RefreshTokenTest
                 authContext.getClient().getId(),
                 authContext.getClient().getClientSecret());
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         fixtures.add(authContext);
         return fixtures;

@@ -22,12 +22,10 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +69,7 @@ public final class Section420ImplicitGrantTest
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         context = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit)
                 .authenticator("test")
@@ -85,7 +83,7 @@ public final class Section420ImplicitGrantTest
                 .scope("debug")
                 .redirect("http://valid.example.com/redirect");
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         fixtures.add(bareContext);
         fixtures.add(noauthContext);

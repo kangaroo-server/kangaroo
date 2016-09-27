@@ -18,7 +18,7 @@
 package net.krotscheck.kangaroo.servlet.admin.v1;
 
 import net.krotscheck.kangaroo.test.ContainerTest;
-import net.krotscheck.kangaroo.test.IFixture;
+import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public final class AdminV1APITest extends ContainerTest {
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         return null;
     }
 
