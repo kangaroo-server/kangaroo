@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import net.krotscheck.kangaroo.test.IFixture;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Before;
@@ -99,7 +98,7 @@ public final class RefreshTokenGrantHandlerTest
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<IFixture> fixtures() {
+    public List<EnvironmentBuilder> fixtures() {
         OAuthToken authToken;
 
         authGrantContext = new EnvironmentBuilder(getSession())
@@ -151,7 +150,7 @@ public final class RefreshTokenGrantHandlerTest
         session.refresh(authGrantContext.getClient());
         session.refresh(implicitContext.getClient());
 
-        List<IFixture> fixtures = new ArrayList<>();
+        List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(authGrantContext);
         fixtures.add(ownerCredsContext);
         fixtures.add(expiredContext);
