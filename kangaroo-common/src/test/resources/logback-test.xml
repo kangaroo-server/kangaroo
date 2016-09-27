@@ -45,6 +45,7 @@
   <logger name="org.eclipse.jetty" level="WARN"/>
   <logger name="net.krotscheck.jersey2" level="WARN"/>
   <logger name="ch.qos" level="WARN"/>
+  <logger name="org.glassfish.jersey.test.jetty" level="ERROR"/>
   <logger name="org.glassfish.jersey.test" level="INFO"/>
   <logger name="org.glassfish.jersey.internal" level="ERROR"/>
 

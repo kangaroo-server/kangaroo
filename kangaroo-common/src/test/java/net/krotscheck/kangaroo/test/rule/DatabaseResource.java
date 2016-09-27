@@ -95,7 +95,7 @@ public final class DatabaseResource implements TestRule {
      * Set up a JDNI connection for your tests.
      */
     public void setupJNDI() {
-        logger.info("Setting up JNDI.");
+        logger.debug("Setting up JNDI.");
         // Create initial context
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
                 "org.eclipse.jetty.jndi.InitialContextFactory");
@@ -160,7 +160,7 @@ public final class DatabaseResource implements TestRule {
         liquibase.rollback(1000, null);
         liquibase = null;
 
-        logger.info("Closing connection.");
+        logger.debug("Closing connection.");
         conn.close();
         conn = null;
     }

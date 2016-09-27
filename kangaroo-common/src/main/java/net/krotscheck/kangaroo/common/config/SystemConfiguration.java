@@ -90,7 +90,7 @@ public final class SystemConfiguration extends CompositeConfiguration {
      * Run the global configuration settings.
      */
     private void configureGlobal() {
-        logger.info("Setting default timezone....");
+        logger.debug("Setting default timezone....");
         TimeZone.setDefault(getTimezone());
     }
 
