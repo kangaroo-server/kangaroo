@@ -34,13 +34,46 @@
     servlets.
   </description>
 
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <testResources>
+          <testResource>
+            <directory>${basedir}/src/test/resources/logback/default</directory>
+            <targetPath>${project.build.testOutputDirectory}</targetPath>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+    <profile>
+      <id>travis</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <testResources>
+          <testResource>
+            <directory>${basedir}/src/test/resources/logback/travis/</directory>
+            <targetPath>${project.build.testOutputDirectory}</targetPath>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+  </profiles>
+
   <build>
     <testResources>
       <testResource>
         <directory>${basedir}/src/test/resources</directory>
+        <excludes>
+          <exclude>logback/**</exclude>
+        </excludes>
       </testResource>
     </testResources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

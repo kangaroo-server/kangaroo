@@ -8,16 +8,13 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
-cache:
-  directories:
-  - $HOME/.m2
 before_script:
-  - mvn clean
-  - mvn checkstyle:check
-  - mvn cobertura:check
-  - mvn pmd:check
-  - mvn pmd:cpd-check
+  - mvn clean -Ptravis
+  - mvn checkstyle:check -Ptravis
+  - mvn cobertura:check -Ptravis
+  - mvn pmd:check -Ptravis
+  - mvn pmd:cpd-check -Ptravis
 script:
-  - mvn install
+  - mvn install -Ptravis
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn cobertura:cobertura coveralls:report -Ptravis
