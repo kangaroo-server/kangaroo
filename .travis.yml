@@ -10,11 +10,11 @@ branches:
   - /^release\/.*$/
 before_script:
   - mvn clean -Ptravis
+script:
   - mvn checkstyle:check -Ptravis
-  - mvn cobertura:check -Ptravis
   - mvn pmd:check -Ptravis
   - mvn pmd:cpd-check -Ptravis
-script:
-  - mvn install -Ptravis
+  - mvn cobertura:check -Ptravis
+  - mvn install -DskipTests -Ptravis
 after_success:
-  - mvn cobertura:cobertura coveralls:report -Ptravis
+  - mvn cobertura:cobertura coveralls:report -DskipTests -Ptravis
