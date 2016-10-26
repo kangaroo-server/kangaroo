@@ -17,42 +17,126 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import javax.ws.rs.core.Response.Status;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Tests for the UserService CRUD actions.
  *
  * @author Michael Krotscheck
  */
-public final class UserServiceCRUDTest extends AbstractResourceTest {
+public final class UserServiceCRUDTest
+        extends AbstractServiceCRUDTest<User> {
 
     /**
-     * List of created users, for test comparisons.
+     * Create a new instance of this parameterized test.
+     *
+     * @param clientType    The type of client.
+     * @param tokenScope    The client scope to issue.
+     * @param createUser    Whether to create a new user.
+     * @param shouldSucceed Should this test succeed?
      */
-    private List<User> users = new ArrayList<>();
+    public UserServiceCRUDTest(final ClientType clientType,
+                               final String tokenScope,
+                               final Boolean createUser,
+                               final Boolean shouldSucceed) {
+        super(User.class, clientType, tokenScope, createUser,
+                shouldSucceed);
+    }
 
     /**
-     * Authorization header, so we can auth against this resource.
+     * Test parameters.
+     *
+     * @return List of parameters used to reconstruct this test.
      */
-    private String authHeader;
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER_ADMIN,
+                        false,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER,
+                        false,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER_ADMIN,
+                        true,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER,
+                        true,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.USER_ADMIN,
+                        false,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.USER,
+                        false,
+                        false
+                });
+    }
 
     /**
-     * Authorization header with an inappropriate scope.
+     * Return the correct testingEntity type from the provided context.
+     *
+     * @param context The context to extract the value from.
+     * @return The requested entity type under test.
      */
-    private String authHeaderNoScope;
+    @Override
+    protected User getEntity(final EnvironmentBuilder context) {
+        return context.getUser();
+    }
+
+    /**
+     * Return a new, empty entity.
+     *
+     * @return The requested entity type under test.
+     */
+    @Override
+    protected User getNewEntity() {
+        return new User();
+    }
+
+    /**
+     * Create a new valid entity to test the creation endpoint.
+     *
+     * @param context The context within which to create the entity.
+     * @return A valid, but unsaved, entity.
+     */
+    @Override
+    protected User createValidEntity(final EnvironmentBuilder context) {
+        User newUser = new User();
+        newUser.setApplication(context.getApplication());
+        newUser.setRole(context.getRole());
+        return newUser;
+    }
 
     /**
      * Return the token scope required for admin access on this test.
@@ -75,144 +159,6 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
     }
 
     /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures(final EnvironmentBuilder adminApp)
-            throws Exception {
-        users.clear();
-
-        EnvironmentBuilder context =
-                new EnvironmentBuilder(getSession(), "Test Name")
-                        .owner(adminApp.getUser())
-                        .client(ClientType.Implicit)
-                        .authenticator("test");
-
-        // User 1
-        context.user()
-                .identity("remote_id_1")
-                .claim("name", "D Test User 1")
-                .claim("email", "noreply_1@example.com");
-        users.add(context.getUser());
-
-        // User 2
-        context.user()
-                .identity("remote_id_2")
-                .claim("name", "C Test User 2")
-                .claim("email", "noreply_2@example.com");
-        users.add(context.getUser());
-
-        // User 3
-        context.user()
-                .identity("remote_id_3")
-                .claim("name", "B Test User Search")
-                .claim("email", "noreply_3@example.com");
-        users.add(context.getUser());
-
-        // User 4
-        context.user()
-                .identity("remote_id_4")
-                .claim("name", "A Test User Single Search")
-                .claim("email", "noreply_4@example.com");
-        users.add(context.getUser());
-
-        // Build an auth header.
-        adminApp.bearerToken(Scope.USER);
-        authHeader = String.format("Bearer %s", adminApp.getToken().getId());
-
-        // Build an auth header with no valid scope.
-        adminApp.bearerToken((String) null);
-        authHeaderNoScope =
-                String.format("Bearer %s", adminApp.getToken().getId());
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        return fixtures;
-    }
-
-    /**
-     * Assert that you can read individual users.
-     */
-    @Test
-    public void testGetUser() {
-        String path = String.format("/user/%s", users.get(0).getId());
-        User responseUser = target(path)
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, authHeader)
-                .get(User.class);
-
-        Assert.assertEquals(users.get(0).getId(), responseUser.getId());
-    }
-
-    /**
-     * Make sure that an unknown user returns a 404.
-     */
-    @Test
-    public void testGetUnknownUser() {
-        String path = String.format("/user/%s", UUID.randomUUID());
-        Response response = target(path)
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, authHeader)
-                .get();
-
-        Assert.assertEquals(404, response.getStatus());
-    }
-
-    /**
-     * Make sure that an unknown user returns a 404.
-     */
-    @Test
-    public void testGetInvalidUUID() {
-        Response response = target("/user/00000000")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, authHeader)
-                .get();
-
-        Assert.assertEquals(404, response.getStatus());
-    }
-
-    /**
-     * Make sure that an unknown request returns a 404.
-     */
-    @Test
-    public void testGetImproperlyFormattedUser() {
-        Response response = target("/user/alskdfjasdf")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, authHeader)
-                .get();
-
-        Assert.assertEquals(404, response.getStatus());
-    }
-
-    /**
-     * Assert that the resource may only be accessed with a correctly scoped
-     * token.
-     */
-    @Test
-    public void testInvalidScopeToken() {
-        String path = String.format("/user/%s", users.get(0).getId());
-        Response response = target(path)
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, authHeaderNoScope)
-                .get();
-
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-    }
-
-    /**
-     * Cover the scope methods until we have real use of them.
-     */
-    @Test
-    public void testScopes() {
-        UserService u = new UserService();
-        Assert.assertEquals(Scope.USER, u.getAccessScope());
-        Assert.assertEquals(Scope.USER_ADMIN, u.getAdminScope());
-    }
-
-    /**
      * Construct the request URL for this test given a specific resource ID.
      *
      * @param id The ID to use.
@@ -224,5 +170,67 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
             return "/user/";
         }
         return String.format("/user/%s", id);
+    }
+
+    /**
+     * Assert that you cannot create a client without an application
+     * reference.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPostNoParent() throws Exception {
+        User testEntity = createValidEntity(getAdminContext());
+        testEntity.setApplication(null);
+
+        Response r = postEntity(testEntity, getAdminToken());
+        assertErrorResponse(r, Status.BAD_REQUEST);
+    }
+
+    /**
+     * Assert that we can modify a user.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPut() throws Exception {
+        User entity = getEntity(getAdminContext());
+        Role role = getAdminContext().getRole();
+        entity.setRole(role);
+        entity.setApplication(getAdminContext().getApplication());
+
+        // Issue the request.
+        Response r = putEntity(entity, getAdminToken());
+        if (shouldSucceed()) {
+            User response = r.readEntity(User.class);
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            Assert.assertEquals(entity, response);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Assert that a regular entity cannot have its parent changed.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutChangeParentEntity() throws Exception {
+        Application newParent = getAdminContext().getApplication();
+        User entity = getEntity(getSecondaryContext());
+
+        User user = new User();
+        user.setId(entity.getId());
+        user.setApplication(newParent);
+        user.setRole(entity.getRole());
+
+        // Issue the request.
+        Response r = putEntity(user, getAdminToken());
+        if (shouldSucceed()) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
     }
 }
