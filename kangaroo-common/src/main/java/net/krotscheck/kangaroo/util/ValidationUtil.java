@@ -13,9 +13,10 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package net.krotscheck.kangaroo.servlet.oauth2.util;
+package net.krotscheck.kangaroo.util;
 
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
@@ -28,6 +29,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
@@ -35,9 +39,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
 
 /**
  * A utility filled with validation tools.
@@ -74,6 +75,22 @@ public final class ValidationUtil {
     }
 
     /**
+     * Require that the provided string matches the set of redirection URL's.
+     *
+     * @param redirect  The URI to check.
+     * @param redirects A set of redirect url's to check against.
+     * @return The validated redirect URI, or null.
+     */
+    public static URI requireValidRedirect(final String redirect,
+                                           final Set<URI> redirects) {
+        URI validRedirect = validateRedirect(redirect, redirects);
+        if (validRedirect == null) {
+            throw new InvalidRequestException();
+        }
+        return validRedirect;
+    }
+
+    /**
      * This method assists in determining if a particular URI is valid for
      * the scope of this client.
      *
@@ -85,7 +102,7 @@ public final class ValidationUtil {
                                        final Set<URI> redirects) {
         // Quick exit
         if (redirects.size() == 0) {
-            throw new InvalidRequestException();
+            return null;
         }
 
         // Can we default?
@@ -95,7 +112,7 @@ public final class ValidationUtil {
                         redirects.toArray(new URI[redirects.size()]);
                 return redirectArray[0];
             } else {
-                throw new InvalidRequestException();
+                return null;
             }
         }
 
@@ -104,7 +121,7 @@ public final class ValidationUtil {
         try {
             redirectUri = UriBuilder.fromUri(redirect).build();
         } catch (Exception e) {
-            throw new InvalidRequestException();
+            return null;
         }
 
         // Convert the query parameters into a multivaluedMap
@@ -143,7 +160,7 @@ public final class ValidationUtil {
 
             return redirectUri; // NOPMD
         }
-        throw new InvalidRequestException();
+        return null;
     }
 
     /**
