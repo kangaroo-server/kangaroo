@@ -13,9 +13,10 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 /**
  * Unit tests for our utilities.
  */
-package net.krotscheck.kangaroo.servlet.oauth2.util;
+package net.krotscheck.kangaroo.util;
