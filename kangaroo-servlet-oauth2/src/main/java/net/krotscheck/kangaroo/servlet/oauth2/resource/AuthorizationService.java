@@ -31,7 +31,7 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory.Credentials;
-import net.krotscheck.kangaroo.servlet.oauth2.util.ValidationUtil;
+import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -135,7 +135,7 @@ public final class AuthorizationService {
         Client client = session.get(Client.class, credentials.getLogin());
 
         // Validate the redirect.
-        URI redirect = ValidationUtil.validateRedirect(redirectUrl,
+        URI redirect = ValidationUtil.requireValidRedirect(redirectUrl,
                 client.getRedirects());
 
         try {
