@@ -13,9 +13,10 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package net.krotscheck.kangaroo.servlet.oauth2.util;
+package net.krotscheck.kangaroo.util;
 
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
@@ -24,6 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,7 +93,8 @@ public final class ValidationUtilTest {
         testSet.add(new URI("http://one.example.com"));
         testSet.add(new URI("http://two.example.com"));
 
-        URI result = ValidationUtil.validateRedirect("http://one.example.com",
+        URI result =
+                ValidationUtil.requireValidRedirect("http://one.example.com",
                 testSet);
         Assert.assertEquals("http://one.example.com", result.toString());
     }
@@ -107,7 +110,8 @@ public final class ValidationUtilTest {
         testSet.add(new URI("http://one.example.com"));
         testSet.add(new URI("http://two.example.com"));
 
-        ValidationUtil.validateRedirect("http://three.example.com", testSet);
+        ValidationUtil.requireValidRedirect("http://three.example.com",
+                testSet);
     }
 
     /**
@@ -121,7 +125,8 @@ public final class ValidationUtilTest {
         testSet.add(new URI("http://one.example.com:800"));
         testSet.add(new URI("http://two.example.com:800"));
 
-        ValidationUtil.validateRedirect("http://one.example.com:900", testSet);
+        ValidationUtil.requireValidRedirect("http://one.example.com:900",
+                testSet);
     }
 
     /**
@@ -134,7 +139,8 @@ public final class ValidationUtilTest {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("https://one.example.com"));
 
-        ValidationUtil.validateRedirect("http://one.example.com", testSet);
+        ValidationUtil.requireValidRedirect("http://one.example.com",
+                testSet);
     }
 
     /**
@@ -147,7 +153,8 @@ public final class ValidationUtilTest {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://one.example.com/foo"));
 
-        ValidationUtil.validateRedirect("http://one.example.com/bar", testSet);
+        ValidationUtil.requireValidRedirect("http://one.example.com/bar",
+                testSet);
     }
 
     /**
@@ -160,7 +167,7 @@ public final class ValidationUtilTest {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://two.example.com"));
 
-        URI result = ValidationUtil.validateRedirect("", testSet);
+        URI result = ValidationUtil.requireValidRedirect("", testSet);
         Assert.assertEquals("http://two.example.com", result.toString());
     }
 
@@ -175,7 +182,7 @@ public final class ValidationUtilTest {
         testSet.add(new URI("http://one.example.com"));
         testSet.add(new URI("http://two.example.com"));
 
-        ValidationUtil.validateRedirect("", testSet);
+        ValidationUtil.requireValidRedirect("", testSet);
     }
 
     /**
@@ -185,7 +192,7 @@ public final class ValidationUtilTest {
      */
     @Test(expected = InvalidRequestException.class)
     public void testValidateRedirectNoOptions() throws Exception {
-        ValidationUtil.validateRedirect("http://two.example.com",
+        ValidationUtil.requireValidRedirect("http://two.example.com",
                 new HashSet<>());
     }
 
@@ -198,7 +205,7 @@ public final class ValidationUtilTest {
     public void testValidateRedirectMalformed() throws Exception {
         Set<URI> testSet = new HashSet<>();
         testSet.add(new URI("http://two.example.com"));
-        ValidationUtil.validateRedirect("http:\\", testSet);
+        ValidationUtil.requireValidRedirect("http:\\", testSet);
     }
 
     /**
@@ -214,7 +221,7 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://two.example.com/?foo=bar");
 
-        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        URI result = ValidationUtil.requireValidRedirect(test.toString(), testSet);
         Assert.assertEquals(test, result);
     }
 
@@ -230,7 +237,7 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=bar&lol=cat");
 
-        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        URI result = ValidationUtil.requireValidRedirect(test.toString(), testSet);
         Assert.assertEquals(test, result);
     }
 
@@ -247,7 +254,7 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=bar&foo=cat&lol=cat");
 
-        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        URI result = ValidationUtil.requireValidRedirect(test.toString(), testSet);
         Assert.assertEquals(test, result);
     }
 
@@ -265,7 +272,8 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=bar&foo=dice&lol=cat");
 
-        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        URI result = ValidationUtil.requireValidRedirect(test.toString(),
+                testSet);
         Assert.assertEquals(test, result);
     }
 
@@ -281,7 +289,7 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=cat");
 
-        ValidationUtil.validateRedirect(test.toString(), testSet);
+        ValidationUtil.requireValidRedirect(test.toString(), testSet);
     }
 
     /**
@@ -297,7 +305,8 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=bar");
 
-        URI result = ValidationUtil.validateRedirect(test.toString(), testSet);
+        URI result = ValidationUtil.requireValidRedirect(test.toString(),
+                testSet);
         Assert.assertEquals(test, result);
     }
 

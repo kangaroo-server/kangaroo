@@ -29,7 +29,7 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.servlet.oauth2.util.ValidationUtil;
+import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
