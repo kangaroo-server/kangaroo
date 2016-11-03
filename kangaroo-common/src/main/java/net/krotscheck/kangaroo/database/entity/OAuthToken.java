@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.SortNatural;
 
@@ -86,7 +87,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      */
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
-    private long expiresIn = 600;
+    private Long expiresIn = (long) 600;
 
     /**
      * Authorization Codes must keep track of the redirect they were issued
@@ -189,7 +190,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      *
      * @return The lifetime of the token, in seconds.
      */
-    public long getExpiresIn() {
+    public Long getExpiresIn() {
         return expiresIn;
     }
 
@@ -198,6 +199,25 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      *
      * @param expiresIn The time, in seconds.
      */
+    public void setExpiresIn(final Number expiresIn) {
+        this.expiresIn = expiresIn.longValue();
+    }
+
+    /**
+     * Set the expiration time, in seconds, from the creation date.
+     *
+     * @param expiresIn The time, in seconds.
+     */
+    public void setExpiresIn(final int expiresIn) {
+        this.expiresIn = (long) expiresIn;
+    }
+
+    /**
+     * Set the expiration time, in seconds, from the creation date.
+     *
+     * @param expiresIn The time, in seconds.
+     */
+    @JsonSetter
     public void setExpiresIn(final long expiresIn) {
         this.expiresIn = expiresIn;
     }
@@ -234,7 +254,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
 
         Calendar now = Calendar.getInstance();
         Calendar expireDate = (Calendar) getCreatedDate().clone();
-        expireDate.add(Calendar.SECOND, (int) getExpiresIn());
+        expireDate.add(Calendar.SECOND, getExpiresIn().intValue());
         return now.after(expireDate);
     }
 
