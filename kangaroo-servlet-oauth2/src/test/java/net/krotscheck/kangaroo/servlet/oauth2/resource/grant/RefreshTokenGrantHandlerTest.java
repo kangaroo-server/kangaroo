@@ -186,7 +186,7 @@ public final class RefreshTokenGrantHandlerTest
         OAuthToken newRefresh = session.get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
-                newRefresh.getExpiresIn());
+                newRefresh.getExpiresIn().longValue());
         Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
         Assert.assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
@@ -225,7 +225,7 @@ public final class RefreshTokenGrantHandlerTest
         OAuthToken newRefresh = session.get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
-                newRefresh.getExpiresIn());
+                newRefresh.getExpiresIn().longValue());
         Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
         Assert.assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
@@ -404,7 +404,7 @@ public final class RefreshTokenGrantHandlerTest
         OAuthToken newRefresh = session.get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
-                newRefresh.getExpiresIn());
+                newRefresh.getExpiresIn().longValue());
         Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
         Assert.assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
@@ -444,7 +444,7 @@ public final class RefreshTokenGrantHandlerTest
         OAuthToken newRefresh = session.get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
-                newRefresh.getExpiresIn());
+                newRefresh.getExpiresIn().longValue());
         Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
         Assert.assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());

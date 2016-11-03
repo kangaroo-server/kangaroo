@@ -96,9 +96,17 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertEquals(600, c.getExpiresIn());
+        Assert.assertEquals(600, c.getExpiresIn().longValue());
         c.setExpiresIn(100);
-        Assert.assertEquals(100, c.getExpiresIn());
+        Assert.assertEquals(100, c.getExpiresIn().longValue());
+        c.setExpiresIn((long) 200);
+        Assert.assertEquals(200, c.getExpiresIn().longValue());
+        c.setExpiresIn(Double.valueOf(2.222));
+        Assert.assertEquals(2, c.getExpiresIn().longValue());
+        c.setExpiresIn(Integer.valueOf(22));
+        Assert.assertEquals(22, c.getExpiresIn().longValue());
+        c.setExpiresIn(Long.valueOf(100));
+        Assert.assertEquals(100, c.getExpiresIn().longValue());
     }
 
     /**
@@ -203,20 +211,20 @@ public final class OAuthTokenTest {
 
         // Test UTC Non-Expired Token.
         token.setCreatedDate(recentUTC);
-        token.setExpiresIn(103);
+        token.setExpiresIn((long) 103);
         Assert.assertFalse(token.isExpired());
 
         // Expire the token.
-        token.setExpiresIn(99);
+        token.setExpiresIn((long) 99);
         Assert.assertTrue(token.isExpired());
 
         // Test Non-UTC Non-Expired Token.
         token.setCreatedDate(recentPDT);
-        token.setExpiresIn(103);
+        token.setExpiresIn((long) 103);
         Assert.assertFalse(token.isExpired());
 
         // Expire the token.
-        token.setExpiresIn(99);
+        token.setExpiresIn((long) 99);
         Assert.assertTrue(token.isExpired());
     }
 
@@ -265,7 +273,7 @@ public final class OAuthTokenTest {
                 token.getTokenType().toString(),
                 node.get("tokenType").asText());
         Assert.assertEquals(
-                token.getExpiresIn(),
+                token.getExpiresIn().longValue(),
                 node.get("expiresIn").asLong());
         Assert.assertEquals(
                 token.getRedirect().toString(),
@@ -320,7 +328,7 @@ public final class OAuthTokenTest {
                 c.getTokenType().toString(),
                 node.get("tokenType").asText());
         Assert.assertEquals(
-                c.getExpiresIn(),
+                c.getExpiresIn().longValue(),
                 node.get("expiresIn").asLong());
         Assert.assertEquals(
                 c.getRedirect().toString(),

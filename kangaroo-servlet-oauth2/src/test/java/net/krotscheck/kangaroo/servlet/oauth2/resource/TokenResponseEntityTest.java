@@ -55,7 +55,7 @@ public final class TokenResponseEntityTest {
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token, state);
         Assert.assertEquals(token.getId(), entity.getAccessToken());
-        Assert.assertEquals(token.getExpiresIn(),
+        Assert.assertEquals(token.getExpiresIn().longValue(),
                 (long) entity.getExpiresIn());
         Assert.assertEquals("Bearer", entity.getTokenType().toString());
         Assert.assertEquals("debug test", entity.getScope());
@@ -91,7 +91,7 @@ public final class TokenResponseEntityTest {
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
                 refresh, state);
         Assert.assertEquals(token.getId(), entity.getAccessToken());
-        Assert.assertEquals(token.getExpiresIn(),
+        Assert.assertEquals(token.getExpiresIn().longValue(),
                 (long) entity.getExpiresIn());
         Assert.assertEquals("Bearer", entity.getTokenType().toString());
         Assert.assertEquals("debug test", entity.getScope());
@@ -121,7 +121,7 @@ public final class TokenResponseEntityTest {
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
                 refresh, state);
         Assert.assertEquals(token.getId(), entity.getAccessToken());
-        Assert.assertEquals(token.getExpiresIn(),
+        Assert.assertEquals(token.getExpiresIn().longValue(),
                 (long) entity.getExpiresIn());
         Assert.assertEquals("Bearer", entity.getTokenType().toString());
         Assert.assertNull(entity.getScope());
