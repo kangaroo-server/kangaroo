@@ -584,12 +584,6 @@
       <!--<artifactId>jersey-container-servlet</artifactId>-->
     <!--</dependency>-->
 
-    <!--&lt;!&ndash; Jersey2 Toolkit &ndash;&gt;-->
-    <!--<dependency>-->
-      <!--<groupId>net.krotscheck.jersey2</groupId>-->
-      <!--<artifactId>jersey2-hibernate</artifactId>-->
-    <!--</dependency>-->
-
     <!-- H2 database, used for testing. -->
     <dependency>
       <groupId>com.h2database</groupId>
@@ -662,18 +656,6 @@
         <version>2.4</version>
       </dependency>
 
-      <!-- Jersey2 Toolkit -->
-      <dependency>
-        <groupId>net.krotscheck.jersey2</groupId>
-        <artifactId>jersey2-configuration</artifactId>
-        <version>${jersey2-toolkit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.krotscheck.jersey2</groupId>
-        <artifactId>jersey2-hibernate</artifactId>
-        <version>${jersey2-toolkit.version}</version>
-      </dependency>
-
       <!-- Hibernate -->
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -704,6 +686,11 @@
         <groupId>org.hibernate.javax.persistence</groupId>
         <artifactId>hibernate-jpa-2.1-api</artifactId>
         <version>1.0.0.Final</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.transaction</groupId>
+        <artifactId>jta</artifactId>
+        <version>1.1</version>
       </dependency>
 
       <!-- Hibernate validation annotations -->
