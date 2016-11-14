@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  ~ Copyright (c) 2016 Michael Krotscheck
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  ~ use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  ~ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
+
+  <display-name>Kangaroo Administration API</display-name>
+
+  <session-config>
+    <session-timeout>-1</session-timeout>
+  </session-config>
+
+  <servlet>
+    <servlet-name>admin</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+      <param-value>net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>admin</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- JDNI Database Resource -->
+  <resource-ref>
+    <description>Database Resource</description>
+    <res-ref-name>jdbc/OIDServerDB</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
+
+  <!-- Liquibase -->
+  <context-param>
+    <param-name>liquibase.changelog</param-name>
+    <param-value>liquibase/db.changelog-master.yaml</param-value>
+  </context-param>
+  <context-param>
+    <param-name>liquibase.datasource</param-name>
+    <param-value>java:comp/env/jdbc/OIDServerDB</param-value>
+  </context-param>
+  <context-param>
+    <param-name>liquibase.onerror.fail</param-name>
+    <param-value>true</param-value>
+  </context-param>
+  <context-param>
+    <param-name>liquibase.contexts</param-name>
+    <param-value>production</param-value>
+  </context-param>
+  <listener>
+    <listener-class>
+      liquibase.integration.servlet.LiquibaseServletListener
+    </listener-class>
+  </listener>
+
+  <!-- Hibernate Search Lucene Index Rebuild -->
+  <listener>
+    <listener-class>
+      net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener
+    </listener-class>
+  </listener>
+</web-app>
