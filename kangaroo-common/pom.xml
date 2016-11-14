@@ -142,6 +142,10 @@
       <groupId>org.hibernate.javax.persistence</groupId>
       <artifactId>hibernate-jpa-2.1-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta</artifactId>
+    </dependency>
 
     <!-- Hibernate Validation -->
     <dependency>
@@ -159,12 +163,6 @@
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>javax.el</artifactId>
-    </dependency>
-
-    <!-- Jersey2 Toolkit -->
-    <dependency>
-      <groupId>net.krotscheck.jersey2</groupId>
-      <artifactId>jersey2-hibernate</artifactId>
     </dependency>
 
     <!-- H2 database, used for testing. -->
@@ -197,6 +195,10 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
   </dependencies>
 </project>

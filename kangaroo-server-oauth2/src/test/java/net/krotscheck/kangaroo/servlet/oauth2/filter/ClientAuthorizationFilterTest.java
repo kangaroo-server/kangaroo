@@ -17,10 +17,10 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.filter;
 
-import net.krotscheck.jersey2.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.AccessDeniedException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
+import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
