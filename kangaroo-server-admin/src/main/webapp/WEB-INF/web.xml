@@ -74,7 +74,7 @@
   <!-- Hibernate Search Lucene Index Rebuild -->
   <listener>
     <listener-class>
-      net.krotscheck.jersey2.hibernate.context.SearchIndexContextListener
+      net.krotscheck.kangaroo.common.hibernate.context.SearchIndexContextListener
     </listener-class>
   </listener>
 </web-app>

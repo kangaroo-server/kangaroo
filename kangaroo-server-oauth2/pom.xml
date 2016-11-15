@@ -117,16 +117,6 @@
       <artifactId>httpcore</artifactId>
     </dependency>
 
-    <!-- Jersey2 Toolkit -->
-    <dependency>
-      <groupId>net.krotscheck.jersey2</groupId>
-      <artifactId>jersey2-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.krotscheck.jersey2</groupId>
-      <artifactId>jersey2-hibernate</artifactId>
-    </dependency>
-
     <!-- Hibernate -->
     <dependency>
       <groupId>org.hibernate</groupId>
