@@ -47,6 +47,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,6 +188,21 @@ public final class Role extends AbstractEntity {
      */
     public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
         this.scopes = new TreeMap<>(scopes);
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (application != null) {
+            return application.getOwner();
+        }
+        return null;
     }
 
     /**

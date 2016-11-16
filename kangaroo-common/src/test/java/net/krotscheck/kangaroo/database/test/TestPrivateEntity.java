@@ -17,7 +17,11 @@
 
 package net.krotscheck.kangaroo.database.test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
+import net.krotscheck.kangaroo.database.entity.User;
+
+import javax.persistence.Transient;
 
 /**
  * A child entity with a private constructor.
@@ -31,5 +35,17 @@ public final class TestPrivateEntity extends AbstractEntity {
      */
     private TestPrivateEntity() {
 
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        return null;
     }
 }

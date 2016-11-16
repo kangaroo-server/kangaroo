@@ -163,6 +163,15 @@ public final class AbstractEntityTest {
      */
     private static class TestEntity extends AbstractEntity {
 
+        /**
+         * The owner of this entity.
+         *
+         * @return This entity's owner, if it exists.
+         */
+        @Override
+        public User getOwner() {
+            return null;
+        }
     }
 
     /**
@@ -170,5 +179,14 @@ public final class AbstractEntityTest {
      */
     private static class TestEntity2 extends AbstractEntity {
 
+        /**
+         * The owner of this entity.
+         *
+         * @return This entity's owner, if it exists.
+         */
+        @Override
+        public User getOwner() {
+            return null;
+        }
     }
 }

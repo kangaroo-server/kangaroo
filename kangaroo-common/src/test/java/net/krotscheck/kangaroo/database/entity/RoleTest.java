@@ -29,6 +29,11 @@ import net.krotscheck.kangaroo.database.entity.Role.Deserializer;
 import net.krotscheck.kangaroo.database.util.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -46,6 +51,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
+@RunWith(PowerMockRunner.class)
 public final class RoleTest {
 
     /**
@@ -103,6 +109,24 @@ public final class RoleTest {
         role.setScopes(scopes);
         Assert.assertEquals(scopes, role.getScopes());
         Assert.assertNotSame(scopes, role.getScopes());
+    }
+
+    /**
+     * Assert that we retrieve the owner from the parent client.
+     */
+    @Test
+    @PrepareForTest(Application.class)
+    public void testGetOwner() {
+        Role role = new Role();
+        Application spy = PowerMockito.spy(new Application());
+
+        // Null check
+        Assert.assertNull(role.getOwner());
+
+        role.setApplication(spy);
+        role.getOwner();
+
+        Mockito.verify(spy).getOwner();
     }
 
     /**

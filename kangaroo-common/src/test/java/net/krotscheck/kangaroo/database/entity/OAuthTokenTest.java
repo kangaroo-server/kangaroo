@@ -28,6 +28,11 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken.Deserializer;
 import net.krotscheck.kangaroo.database.util.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URI;
 import java.text.DateFormat;
@@ -47,6 +52,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
+@RunWith(PowerMockRunner.class)
 public final class OAuthTokenTest {
 
     /**
@@ -228,6 +234,24 @@ public final class OAuthTokenTest {
         // Expire the token.
         token.setExpiresIn((long) 99);
         Assert.assertTrue(token.isExpired());
+    }
+
+    /**
+     * Assert that we retrieve the owner from the parent client.
+     */
+    @Test
+    @PrepareForTest(Client.class)
+    public void testGetOwner() {
+        OAuthToken token = new OAuthToken();
+        Client spy = PowerMockito.spy(new Client());
+
+        // Null check
+        Assert.assertNull(token.getOwner());
+
+        token.setClient(spy);
+        token.getOwner();
+
+        Mockito.verify(spy).getOwner();
     }
 
     /**

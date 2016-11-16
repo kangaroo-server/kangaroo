@@ -17,10 +17,13 @@
 
 package net.krotscheck.kangaroo.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * A configuration entity, containing key/value pairs sorted by group.
@@ -106,4 +109,15 @@ public final class ConfigurationEntry extends AbstractEntity {
         this.value = value;
     }
 
+    /**
+     * Configuration entries have no owners.
+     *
+     * @return Null
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        return null;
+    }
 }
