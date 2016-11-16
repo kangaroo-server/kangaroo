@@ -28,6 +28,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
+import org.hibernate.search.SearchFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,15 +38,18 @@ import org.junit.ClassRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.inject.Inject;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * A test suite sets up an entire application container to run our tests
@@ -54,6 +60,14 @@ import static org.junit.Assert.assertEquals;
 public abstract class ContainerTest
         extends JerseyTest
         implements IDatabaseTest {
+
+    /**
+     * A list of HTTP status codes that are valid for redirects.
+     */
+    private static final List<Integer> VALID_REDIRECT_CODES =
+            Arrays.asList(HttpStatus.SC_SEE_OTHER, HttpStatus.SC_CREATED,
+                    HttpStatus.SC_MOVED_PERMANENTLY,
+                    HttpStatus.SC_MOVED_TEMPORARILY);
 
     /**
      * The database management instance.
@@ -70,6 +84,16 @@ public abstract class ContainerTest
      * Session factory, injected by Jersey2.
      */
     private SessionFactory sessionFactory;
+
+    /**
+     * Search factory, injected by Jersey2.
+     */
+    private SearchFactory searchFactory;
+
+    /**
+     * Fulltext session, injected by jersey2.
+     */
+    private FullTextSession fullTextSession;
 
     /**
      * Session specifically for this test, cleaned up after each test.
@@ -115,6 +139,8 @@ public abstract class ContainerTest
     @Before
     public final void setupData() throws Exception {
         session = sessionFactory.openSession();
+        fullTextSession = Search.getFullTextSession(session);
+        searchFactory = fullTextSession.getSearchFactory();
 
         List<EnvironmentBuilder> newFixtures = fixtures();
         if (newFixtures != null) {
@@ -132,8 +158,9 @@ public abstract class ContainerTest
         reversed.forEach(EnvironmentBuilder::clear);
         fixtures.clear();
 
-        // Clear the session.
         session.close();
+        searchFactory = null;
+        fullTextSession = null;
         session = null;
     }
 
@@ -181,6 +208,24 @@ public abstract class ContainerTest
     }
 
     /**
+     * Retrieve the search factory for the test.
+     *
+     * @return The session factory
+     */
+    public final SearchFactory getSearchFactory() {
+        return searchFactory;
+    }
+
+    /**
+     * Retrieve the fulltext session for the test.
+     *
+     * @return The session factory
+     */
+    public final FullTextSession getFullTextSession() {
+        return fullTextSession;
+    }
+
+    /**
      * This is a convenience method which, presuming a response constitutes a
      * redirect, will follow that redirect and return the subsequent response.
      *
@@ -189,8 +234,22 @@ public abstract class ContainerTest
      * @return The response.
      */
     protected final Response followRedirect(final Response original) {
+        return followRedirect(original, null);
+    }
 
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, original.getStatus());
+    /**
+     * This is a convenience method which, presuming a response constitutes a
+     * redirect, will follow that redirect and return the subsequent response.
+     *
+     * @param original   The original response, which should constitute a
+     *                   redirect.
+     * @param authHeader An optional authorization header.
+     * @return The response.
+     */
+    protected final Response followRedirect(final Response original,
+                                            final String authHeader) {
+
+        assertTrue(VALID_REDIRECT_CODES.contains(original.getStatus()));
 
         URI uri = original.getLocation();
         WebTarget target = target().path(uri.getPath());
@@ -200,6 +259,10 @@ public abstract class ContainerTest
             target = target.queryParam(pair.getName(), pair.getValue());
         }
 
-        return target.request().get();
+        Builder b = target.request();
+        if (authHeader != null) {
+            b.header(HttpHeaders.AUTHORIZATION, authHeader);
+        }
+        return b.get();
     }
 }
