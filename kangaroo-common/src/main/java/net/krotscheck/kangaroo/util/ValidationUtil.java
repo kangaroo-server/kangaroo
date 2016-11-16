@@ -98,6 +98,22 @@ public final class ValidationUtil {
      * @param redirects A set of redirect url's to check against.
      * @return The validated redirect URI, or null.
      */
+    public static URI validateRedirect(final URI redirect,
+                                       final Set<URI> redirects) {
+        if (redirect == null) {
+            return null;
+        }
+        return validateRedirect(redirect.toString(), redirects);
+    }
+
+    /**
+     * This method assists in determining if a particular URI is valid for
+     * the scope of this client.
+     *
+     * @param redirect  The URI to check.
+     * @param redirects A set of redirect url's to check against.
+     * @return The validated redirect URI, or null.
+     */
     public static URI validateRedirect(final String redirect,
                                        final Set<URI> redirects) {
         // Quick exit
