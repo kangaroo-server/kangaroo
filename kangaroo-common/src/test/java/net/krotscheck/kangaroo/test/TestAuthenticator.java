@@ -19,7 +19,9 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import org.apache.http.HttpStatus;
@@ -96,7 +98,6 @@ public final class TestAuthenticator
     public UserIdentity authenticate(final Authenticator authenticator,
                                      final MultivaluedMap<String, String>
                                              parameters) {
-
         Criteria searchCriteria = session.createCriteria(UserIdentity.class);
 
         searchCriteria.add(Restrictions.eq("authenticator", authenticator));
@@ -108,8 +109,12 @@ public final class TestAuthenticator
 
         // Do we need to create a new user?
         if (results.size() == 0) {
+            Role testRole = getTestAuthenticatorRole(
+                    authenticator.getClient().getApplication());
+
             User devUser = new User();
             devUser.setApplication(authenticator.getClient().getApplication());
+            devUser.setRole(testRole);
 
             UserIdentity identity = new UserIdentity();
             identity.setAuthenticator(authenticator);
@@ -125,6 +130,22 @@ public final class TestAuthenticator
         }
 
         return results.get(0);
+    }
+
+    /**
+     * Get the "test" role from the passed application, assuming it exists.
+     * If it does not exist, it will not be created.
+     *
+     * @param application The passed application.
+     * @return A role, or null.
+     */
+    private Role getTestAuthenticatorRole(final Application application) {
+        for (Role r : application.getRoles()) {
+            if (r.getName().equals("test")) {
+                return r;
+            }
+        }
+        return null;
     }
 
     /**

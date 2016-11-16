@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.Role;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -448,6 +449,167 @@ public final class ValidationUtilTest {
     }
 
     /**
+     * Assert that null role fails.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testValidateScopeStringNullRole() throws Exception {
+        ValidationUtil.validateScope("debug1", (Role) null);
+    }
+
+    /**
+     * Assert that a role with no scopes passes.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test
+    public void testValidateScopeStringNoScopeRole() throws Exception {
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+
+        Role r = new Role();
+        r.setScopes(roleScopes);
+
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope("", r);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a role with valid scopes passes.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test
+    public void testValidateScopeStringValidScopesInRole() throws Exception {
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+
+        ApplicationScope debug1Scope = new ApplicationScope();
+        debug1Scope.setName("debug1");
+        roleScopes.put(debug1Scope.getName(), debug1Scope);
+
+        ApplicationScope debug2Scope = new ApplicationScope();
+        debug2Scope.setName("debug2");
+        roleScopes.put(debug2Scope.getName(), debug2Scope);
+
+        Role r = new Role();
+        r.setScopes(roleScopes);
+
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope("debug2", r);
+        Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that a role with mismatching scopes fails.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testValidateScopeStringMismatchScopesInRole() throws Exception {
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+
+        ApplicationScope debug1Scope = new ApplicationScope();
+        debug1Scope.setName("debug1");
+        roleScopes.put(debug1Scope.getName(), debug1Scope);
+
+        ApplicationScope debug2Scope = new ApplicationScope();
+        debug2Scope.setName("debug2");
+        roleScopes.put(debug2Scope.getName(), debug2Scope);
+
+        Role r = new Role();
+        r.setScopes(roleScopes);
+
+        ValidationUtil.validateScope("debug1 debug3", r);
+    }
+
+    /**
+     * Assert that null role fails.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testValidateScopeMapNullRole() throws Exception {
+        ValidationUtil.validateScope(new TreeMap<>(),
+                (Role) null);
+    }
+
+    /**
+     * Assert that a role with no scopes passes.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test
+    public void testValidateScopeMapNoScopeRole() throws Exception {
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+
+        Role r = new Role();
+        r.setScopes(roleScopes);
+
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope(new TreeMap<>(), r);
+        Assert.assertEquals(0, scopes.size());
+    }
+
+    /**
+     * Assert that a role with valid scopes passes.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test
+    public void testValidateScopeMapValidScopesInRole() throws Exception {
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+
+        ApplicationScope debug1Scope = new ApplicationScope();
+        debug1Scope.setName("debug1");
+        roleScopes.put(debug1Scope.getName(), debug1Scope);
+
+        ApplicationScope debug2Scope = new ApplicationScope();
+        debug2Scope.setName("debug2");
+        roleScopes.put(debug2Scope.getName(), debug2Scope);
+
+        SortedMap<String, ApplicationScope> requestedScopes = new TreeMap<>();
+        requestedScopes.put(debug2Scope.getName(), debug2Scope);
+
+        Role r = new Role();
+        r.setScopes(roleScopes);
+
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope(requestedScopes, r);
+        Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that a role with mismatching scopes fails.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testValidateScopeMapMismatchScopesInRole() throws Exception {
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+
+        ApplicationScope debug1Scope = new ApplicationScope();
+        debug1Scope.setName("debug1");
+        roleScopes.put(debug1Scope.getName(), debug1Scope);
+
+        ApplicationScope debug2Scope = new ApplicationScope();
+        debug2Scope.setName("debug2");
+        roleScopes.put(debug2Scope.getName(), debug2Scope);
+
+        ApplicationScope debug3Scope = new ApplicationScope();
+        debug3Scope.setName("debug3");
+
+        SortedMap<String, ApplicationScope> requestedScopes = new TreeMap<>();
+        requestedScopes.put(debug2Scope.getName(), debug2Scope);
+        requestedScopes.put(debug3Scope.getName(), debug3Scope);
+
+        Role r = new Role();
+        r.setScopes(roleScopes);
+
+        ValidationUtil.validateScope(requestedScopes, r);
+    }
+
+    /**
      * Assert that a basic test passes using a request array.
      *
      * @throws Exception Should only be thrown when the validation fails.
@@ -471,6 +633,32 @@ public final class ValidationUtilTest {
                 ValidationUtil.revalidateScope(
                         "debug1", validScopes, validScopes);
         Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that a basic test passes using a request role.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test
+    public void testRevalidateRequestRole() throws Exception {
+        Role r = new Role();
+        r.setScopes(validScopes);
+
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.revalidateScope(
+                        "debug1", validScopes, r);
+        Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that passing a null role fails.
+     *
+     * @throws Exception Should only be thrown when the validation fails.
+     */
+    @Test(expected = InvalidScopeException.class)
+    public void testRevalidateNullRole() throws Exception {
+        ValidationUtil.revalidateScope("debug1", validScopes, (Role) null);
     }
 
     /**

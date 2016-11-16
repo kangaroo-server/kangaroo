@@ -83,12 +83,14 @@ public final class Section430OwnerPasswordTest
     public List<EnvironmentBuilder> fixtures() throws Exception {
         builder = new EnvironmentBuilder(getSession())
                 .scope("debug")
+                .role("debug", new String[]{"debug"})
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .user()
                 .login(username, password);
         authBuilder = new EnvironmentBuilder(getSession())
                 .scope("debug")
+                .role("debug", new String[]{"debug"})
                 .client(ClientType.OwnerCredentials, true)
                 .authenticator("password")
                 .user()
