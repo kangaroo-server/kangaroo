@@ -38,6 +38,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -178,6 +179,21 @@ public final class User extends AbstractEntity {
      */
     public void setApplications(final List<Application> applications) {
         this.applications = new ArrayList<>(applications);
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (application != null) {
+            return application.getOwner();
+        }
+        return null;
     }
 
     /**

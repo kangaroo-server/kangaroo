@@ -350,6 +350,21 @@ public final class OAuthToken extends AbstractEntity implements Principal {
     }
 
     /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (client != null) {
+            return client.getOwner();
+        }
+        return null;
+    }
+
+    /**
      * Deserialize a reference to an OAuthToken.
      *
      * @author Michael Krotschecks

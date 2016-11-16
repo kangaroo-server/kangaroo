@@ -20,6 +20,11 @@ package net.krotscheck.kangaroo.database.entity;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -31,6 +36,7 @@ import java.util.TreeMap;
  *
  * @author Michael Krotscheck
  */
+@RunWith(PowerMockRunner.class)
 public final class AuthenticatorStateTest {
 
     /**
@@ -99,5 +105,23 @@ public final class AuthenticatorStateTest {
         state.setClientScopes(scopes);
         Assert.assertEquals(scopes, state.getClientScopes());
         Assert.assertNotSame(scopes, state.getClientScopes());
+    }
+
+    /**
+     * Assert that we retrieve the owner from the parent authenticator.
+     */
+    @Test
+    @PrepareForTest(Authenticator.class)
+    public void testGetOwner() {
+        AuthenticatorState state = new AuthenticatorState();
+        Authenticator spy = PowerMockito.spy(new Authenticator());
+
+        // Null check
+        Assert.assertNull(state.getOwner());
+
+        state.setAuthenticator(spy);
+        state.getOwner();
+
+        Mockito.verify(spy).getOwner();
     }
 }

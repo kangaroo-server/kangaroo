@@ -51,6 +51,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.net.URI;
@@ -422,6 +423,21 @@ public final class Client extends AbstractEntity {
         } catch (Exception e) {
             return ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT;
         }
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (application != null) {
+            return application.getOwner();
+        }
+        return null;
     }
 
     /**

@@ -48,6 +48,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -216,6 +217,21 @@ public final class Authenticator extends AbstractEntity {
      */
     public void setStates(final List<AuthenticatorState> states) {
         this.states = new ArrayList<>(states);
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (client != null) {
+            return client.getOwner();
+        }
+        return null;
     }
 
     /**
