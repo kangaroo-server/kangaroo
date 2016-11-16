@@ -18,12 +18,29 @@
 
 package net.krotscheck.kangaroo.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.SortNatural;
+import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -35,6 +52,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Calendar;
@@ -49,14 +67,35 @@ import java.util.TreeMap;
  */
 @Entity
 @Table(name = "oauth_tokens")
+@Indexed(index = "oauth_tokens")
+@Analyzer(definition = "entity_analyzer")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_token_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_token_client",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_token_user",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_token_identity",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class OAuthToken extends AbstractEntity implements Principal {
 
     /**
      * The authenticated user identity.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "identity", nullable = true, updatable = false)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE}
+    )
+    @JoinColumn(name = "identity", updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = UserIdentity.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id", "user.id"})
     private UserIdentity identity;
 
     /**
@@ -64,15 +103,22 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client", nullable = false, updatable = false)
-    @JsonIgnore
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = Client.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id", "application.owner.id"})
     private Client client;
 
     /**
      * The parent auth token (used for refresh tokens only).
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE}
+    )
     @JoinColumn(name = "authToken", nullable = true, updatable = false)
-    @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = OAuthToken.Deserializer.class)
     private OAuthToken authToken;
 
     /**
@@ -80,14 +126,15 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "tokenType", nullable = false)
-    private OAuthTokenType tokenType = OAuthTokenType.Bearer;
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    private OAuthTokenType tokenType;
 
     /**
      * Expires in how many seconds?
      */
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
-    private Long expiresIn = (long) 600;
+    private Long expiresIn;
 
     /**
      * Authorization Codes must keep track of the redirect they were issued
@@ -95,6 +142,8 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      */
     @Basic
     @Column(name = "redirect", nullable = true)
+    @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     private URI redirect;
 
     /**
@@ -108,10 +157,9 @@ public final class OAuthToken extends AbstractEntity implements Principal {
             inverseJoinColumns = {
                     @JoinColumn(name = "scope",
                             nullable = false, updatable = false)})
-    @JsonIgnore
     @MapKey(name = "name")
     @SortNatural
-    private SortedMap<String, ApplicationScope> scopes;
+    private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
 
     /**
      * Get the user identity to which this token was issued.
@@ -200,7 +248,11 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      * @param expiresIn The time, in seconds.
      */
     public void setExpiresIn(final Number expiresIn) {
-        this.expiresIn = expiresIn.longValue();
+        if (expiresIn == null) {
+            this.expiresIn = null;
+        } else {
+            this.expiresIn = expiresIn.longValue();
+        }
     }
 
     /**
@@ -227,6 +279,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      *
      * @return A map of scopes.
      */
+    @JsonIgnore
     public SortedMap<String, ApplicationScope> getScopes() {
         return scopes;
     }
@@ -236,6 +289,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      *
      * @param scopes A new map of scopes.
      */
+    @JsonIgnore
     public void setScopes(final SortedMap<String, ApplicationScope> scopes) {
         this.scopes = new TreeMap<>(scopes);
     }
@@ -246,6 +300,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      *
      * @return True of this token is expired, otherwise false.
      */
+    @Transient
     @JsonIgnore
     public boolean isExpired() {
         if (getCreatedDate() == null) {
@@ -284,6 +339,8 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      * @return the name of this principal.
      */
     @Override
+    @Transient
+    @JsonIgnore
     public String getName() {
         if (getClient().getType().equals(ClientType.ClientCredentials)) {
             return getClient().getName();

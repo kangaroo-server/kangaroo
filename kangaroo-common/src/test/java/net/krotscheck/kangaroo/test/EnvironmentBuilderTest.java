@@ -149,7 +149,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals(b.getClient(), b.getAuthenticator().getClient());
 
         // Add a redirect for this client.
-        Assert.assertNull(b.getClient().getRedirects());
+        Assert.assertEquals(0, b.getClient().getRedirects().size());
         b.redirect("http://example.com");
         Assert.assertNotNull(b.getClient().getRedirects());
         Assert.assertTrue(b.getClient().getRedirects()
@@ -161,7 +161,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals(2, b.getClient().getRedirects().size());
 
         // Add a referrer for this client.
-        Assert.assertNull(b.getClient().getReferrers());
+        Assert.assertEquals(0, b.getClient().getReferrers().size());
         b.referrer("http://example.com");
         Assert.assertNotNull(b.getClient().getReferrers());
         Assert.assertTrue(b.getClient().getReferrers()
@@ -194,7 +194,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
                 b.getUserIdentity().getAuthenticator());
 
         // Add some claims to the user identity
-        Assert.assertNull(b.getUserIdentity().getClaims());
+        Assert.assertEquals(0, b.getUserIdentity().getClaims().size());
         b.claim("foo", "bar");
         b.claim("lol", "cat");
         Assert.assertEquals("bar", b.getUserIdentity().getClaims().get("foo"));

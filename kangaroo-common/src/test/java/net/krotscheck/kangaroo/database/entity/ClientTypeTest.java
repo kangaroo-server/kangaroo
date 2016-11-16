@@ -77,4 +77,32 @@ public final class ClientTypeTest {
                 m.readValue("\"ClientCredentials\"", ClientType.class);
         Assert.assertSame(client, ClientType.ClientCredentials);
     }
+
+    /**
+     * Assert that the in() method works with various input types.
+     */
+    @Test
+    public void testInWithValues() {
+        Assert.assertFalse(ClientType.AuthorizationGrant.in());
+        Assert.assertFalse(ClientType.AuthorizationGrant.in(null));
+        Assert.assertTrue(ClientType.AuthorizationGrant.in(
+                ClientType.ClientCredentials,
+                ClientType.AuthorizationGrant
+        ));
+        Assert.assertTrue(ClientType.AuthorizationGrant.in(
+                ClientType.AuthorizationGrant
+        ));
+        Assert.assertTrue(ClientType.AuthorizationGrant.in(
+                ClientType.AuthorizationGrant,
+                ClientType.AuthorizationGrant,
+                ClientType.AuthorizationGrant
+        ));
+        Assert.assertFalse(ClientType.AuthorizationGrant.in(
+                ClientType.Implicit,
+                ClientType.ClientCredentials,
+                ClientType.OwnerCredentials
+        ));
+    }
+
+
 }

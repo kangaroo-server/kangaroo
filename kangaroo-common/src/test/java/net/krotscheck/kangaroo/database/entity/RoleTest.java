@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -94,10 +96,10 @@ public final class RoleTest {
     @Test
     public void testGetSetScopes() {
         Role role = new Role();
-        List<ApplicationScope> scopes = new ArrayList<>();
-        scopes.add(new ApplicationScope());
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        scopes.put("foo", new ApplicationScope());
 
-        Assert.assertNull(role.getScopes());
+        Assert.assertEquals(0, role.getScopes().size());
         role.setScopes(scopes);
         Assert.assertEquals(scopes, role.getScopes());
         Assert.assertNotSame(scopes, role.getScopes());

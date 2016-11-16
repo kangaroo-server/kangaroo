@@ -22,14 +22,23 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.SortNatural;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,6 +47,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
@@ -52,45 +62,78 @@ import java.util.TreeMap;
 @Entity
 @Table(name = "applications")
 @Indexed(index = "applications")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_application_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class Application extends AbstractEntity {
 
     /**
      * List of the users in this application.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "application",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ContainedIn
     private List<User> users;
 
     /**
      * List of the application's clients.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "application",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ContainedIn
     private List<Client> clients;
 
     /**
      * List of the application's roles.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "application",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Role> roles;
 
     /**
      * List of the application's scopes.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application")
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "application",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     @JsonIgnore
     @MapKey(name = "name")
     @SortNatural
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ContainedIn
     private SortedMap<String, ApplicationScope> scopes;
 
     /**
      * The owner of the application.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner", nullable = true, updatable = false)
+    @JoinColumn(name = "owner", nullable = true, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = User.Deserializer.class)
+    @IndexedEmbedded(includePaths = "id")
     private User owner;
 
     /**
@@ -99,6 +142,8 @@ public final class Application extends AbstractEntity {
     @Basic(optional = false)
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @Column(name = "name", nullable = false)
+    @Size(min = 3, max = 255, message = "Application name must be between 3 "
+            + "and 255 characters.")
     private String name;
 
     /**
