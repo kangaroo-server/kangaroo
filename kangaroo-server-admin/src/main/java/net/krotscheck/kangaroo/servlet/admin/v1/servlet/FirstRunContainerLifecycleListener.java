@@ -111,24 +111,31 @@ public final class FirstRunContainerLifecycleListener
         passwordAuth.setClient(servletClient);
 
         // Create the scopes
-        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
-        for (String scopeName : Scope.allScopes()) {
+        SortedMap<String, ApplicationScope> userScopes = new TreeMap<>();
+        for (String scopeName : Scope.userScopes()) {
             ApplicationScope newScope = new ApplicationScope();
             newScope.setApplication(servletApp);
             newScope.setName(scopeName);
-            scopes.put(scopeName, newScope);
+            userScopes.put(scopeName, newScope);
+        }
+        SortedMap<String, ApplicationScope> adminScopes = new TreeMap<>();
+        for (String scopeName : Scope.adminScopes()) {
+            ApplicationScope newScope = new ApplicationScope();
+            newScope.setApplication(servletApp);
+            newScope.setName(scopeName);
+            adminScopes.put(scopeName, newScope);
         }
 
         // Create the roles.
         Role adminRole = new Role();
         adminRole.setName("admin");
         adminRole.setApplication(servletApp);
-        adminRole.setScopes(scopes);
+        adminRole.setScopes(adminScopes);
 
         Role memberRole = new Role();
         memberRole.setName("member");
         memberRole.setApplication(servletApp);
-        memberRole.setScopes(scopes);
+        memberRole.setScopes(userScopes);
 
         // Create the first admin
         User adminUser = new User();
@@ -151,7 +158,8 @@ public final class FirstRunContainerLifecycleListener
         s.save(servletApp);
         s.save(servletClient);
         s.save(passwordAuth);
-        scopes.forEach(s::save);
+        adminScopes.forEach(s::save);
+        userScopes.forEach(s::save);
         s.save(adminRole);
         s.save(memberRole);
         s.save(adminUser);
