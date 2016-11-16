@@ -21,6 +21,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,12 +55,34 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
     private String authHeaderNoScope;
 
     /**
+     * Return the token scope required for admin access on this test.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getAdminScope() {
+        return Scope.USER_ADMIN;
+    }
+
+    /**
+     * Return the token scope required for generic user access.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getRegularScope() {
+        return Scope.USER;
+    }
+
+    /**
      * Load data fixtures for each test.
      *
      * @return A list of fixtures, which will be cleared after the test.
+     * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures(final EnvironmentBuilder adminApp)
+            throws Exception {
         users.clear();
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
@@ -107,6 +130,20 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
         return fixtures;
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param id The ID to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected String getUrlForId(final String id) {
+        if (StringUtils.isEmpty(id)) {
+            return "/user/";
+        }
+        return String.format("/user/%s", id);
     }
 
     /**
