@@ -181,7 +181,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         Assert.assertEquals(RequestScoped.class.getCanonicalName(),
                 descriptor.getScope());
 
-        // ... with no name.
-        Assert.assertNull(descriptor.getName());
+        // ... with the 'password' name.
+        Assert.assertEquals("password", descriptor.getName());
     }
 }
