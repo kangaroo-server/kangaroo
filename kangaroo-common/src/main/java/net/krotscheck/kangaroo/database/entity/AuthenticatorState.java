@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.SortNatural;
 import org.hibernate.annotations.Type;
 
@@ -31,6 +32,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.net.URI;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -170,6 +172,21 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     public String getClientState() {
         return clientState;
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (authenticator != null) {
+            return authenticator.getOwner();
+        }
+        return null;
     }
 
     /**

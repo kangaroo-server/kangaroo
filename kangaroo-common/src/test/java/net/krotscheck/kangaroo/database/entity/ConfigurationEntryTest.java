@@ -62,4 +62,13 @@ public final class ConfigurationEntryTest {
         entry.setValue("value");
         Assert.assertEquals("value", entry.getValue());
     }
+
+    /**
+     * Assert that the owner is null.
+     */
+    @Test
+    public void testGetOwner() {
+        ConfigurationEntry e = new ConfigurationEntry();
+        Assert.assertNull(e.getOwner());
+    }
 }

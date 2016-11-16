@@ -29,6 +29,11 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope.Deserializer;
 import net.krotscheck.kangaroo.database.util.JacksonUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -44,6 +49,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
+@RunWith(PowerMockRunner.class)
 public final class ApplicationScopeTest {
 
     /**
@@ -99,6 +105,24 @@ public final class ApplicationScopeTest {
         scope.setTokens(tokens);
         Assert.assertEquals(tokens, scope.getTokens());
         Assert.assertNotSame(tokens, scope.getTokens());
+    }
+
+    /**
+     * Assert that we retrieve the owner from the scope's application.
+     */
+    @Test
+    @PrepareForTest(Application.class)
+    public void testGetOwner() {
+        ApplicationScope scope = new ApplicationScope();
+        Application spy = PowerMockito.spy(new Application());
+
+        // Null check
+        Assert.assertNull(scope.getOwner());
+
+        scope.setApplication(spy);
+        scope.getOwner();
+
+        Mockito.verify(spy).getOwner();
     }
 
     /**

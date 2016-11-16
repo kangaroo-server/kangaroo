@@ -42,6 +42,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +170,21 @@ public final class ApplicationScope extends AbstractEntity {
      */
     public void setName(final String name) {
         this.name = name;
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Override
+    @Transient
+    @JsonIgnore
+    public User getOwner() {
+        if (application != null) {
+            return application.getOwner();
+        }
+        return null;
     }
 
     /**
