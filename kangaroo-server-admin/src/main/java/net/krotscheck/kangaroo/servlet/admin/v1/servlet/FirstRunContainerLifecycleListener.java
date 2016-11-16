@@ -135,6 +135,9 @@ public final class FirstRunContainerLifecycleListener
         adminUser.setApplication(servletApp);
         adminUser.setRole(adminRole);
 
+        // Ensure the new user is the owner of the admin app
+        servletApp.setOwner(adminUser);
+
         // Create the admin's login identity.
         UserIdentity adminIdentity = new UserIdentity();
         adminIdentity.setAuthenticator(passwordAuth);
