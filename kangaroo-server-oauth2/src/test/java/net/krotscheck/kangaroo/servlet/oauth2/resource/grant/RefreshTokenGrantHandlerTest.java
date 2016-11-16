@@ -103,8 +103,12 @@ public final class RefreshTokenGrantHandlerTest
 
         authGrantContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.AuthorizationGrant, true)
+                .authenticator("test")
                 .scope("debug")
                 .scope("debug1")
+                .role("test", new String[]{"debug", "debug1"})
+                .user()
+                .identity("remote_identity")
                 .bearerToken();
         authToken = authGrantContext.getToken();
         authGrantContext
@@ -113,8 +117,12 @@ public final class RefreshTokenGrantHandlerTest
 
         ownerCredsContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
+                .authenticator("test")
                 .scope("debug")
                 .scope("debug1")
+                .role("test", new String[]{"debug", "debug1"})
+                .user()
+                .identity("remote_identity")
                 .bearerToken();
         authToken = ownerCredsContext.getToken();
         ownerCredsContext
@@ -123,7 +131,11 @@ public final class RefreshTokenGrantHandlerTest
 
         expiredContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
+                .authenticator("test")
                 .scope("debug")
+                .role("test", new String[]{"debug"})
+                .user()
+                .identity("remote_identity")
                 .bearerToken();
         authToken = expiredContext.getToken();
         expiredContext
@@ -132,13 +144,18 @@ public final class RefreshTokenGrantHandlerTest
 
         zombieRefreshContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.OwnerCredentials, true)
+                .authenticator("test")
                 .scope("debug")
+                .role("test", new String[]{"debug"})
+                .user()
+                .identity("remote_identity")
                 .refreshToken();
-
 
         implicitContext = new EnvironmentBuilder(getSession())
                 .client(ClientType.Implicit, true)
+                .authenticator("test")
                 .scope("debug")
+                .role("test", new String[]{"debug"})
                 .bearerToken();
         authToken = implicitContext.getToken();
         implicitContext

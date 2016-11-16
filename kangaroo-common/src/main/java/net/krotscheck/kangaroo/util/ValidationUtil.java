@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.entity.Role;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -33,6 +34,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -244,6 +246,46 @@ public final class ValidationUtil {
     }
 
     /**
+     * Ensure that a requested list of scopes is permitted for a specific role.
+     *
+     * @param requestedScopes The requested client scopes.
+     * @param role            The role.
+     * @return A valid map of scopes.
+     */
+    public static SortedMap<String, ApplicationScope> validateScope(
+            final SortedMap<String, ApplicationScope> requestedScopes,
+            final Role role) {
+        if (role == null) {
+            throw new InvalidScopeException();
+        }
+
+        // All requested client scopes MUST exit in the user role.
+        Collection<ApplicationScope> roleScope = role.getScopes().values();
+        for (ApplicationScope s : requestedScopes.values()) {
+            if (!roleScope.contains(s)) {
+                throw new InvalidScopeException();
+            }
+        }
+
+        return requestedScopes;
+    }
+
+    /**
+     * Validate a list of scopes against a role.
+     *
+     * @param requestedScopes An array of requested scopes.
+     * @param role            The role.
+     * @return A list of the requested scopes, as database instances.
+     */
+    public static SortedMap<String, ApplicationScope> validateScope(
+            final String requestedScopes, final Role role) {
+        if (role == null) {
+            throw new InvalidScopeException();
+        }
+        return validateScope(requestedScopes, role.getScopes());
+    }
+
+    /**
      * Revalidates a list of provided scopes against the originally granted
      * scopes, as well as the current list of valid scopes. If the list of
      * valid scopes has changed since the original grant list, any missing
@@ -301,6 +343,29 @@ public final class ValidationUtil {
         return revalidateScope(requestedScopes.split(" "),
                 originalScopes,
                 validScopes);
+    }
+
+    /**
+     * Revalidate a list of scopes against an originally granted list, as
+     * well as the current list of valid scopes from a user's role.
+     *
+     * @param requestedScopes A space-separated list of scopes.
+     * @param originalScopes  The original set of scopes.
+     * @param role            The user's role to check for a scope list.
+     * @return A list of the requested scopes, as database instances.
+     */
+    public static SortedMap<String, ApplicationScope> revalidateScope(
+            final String requestedScopes,
+            final SortedMap<String, ApplicationScope> originalScopes,
+            final Role role) {
+        if (role == null) {
+            throw new InvalidScopeException();
+        }
+
+        // Convert the role scope list into a storted map.
+
+        return revalidateScope(requestedScopes, originalScopes,
+                role.getScopes());
     }
 
     /**

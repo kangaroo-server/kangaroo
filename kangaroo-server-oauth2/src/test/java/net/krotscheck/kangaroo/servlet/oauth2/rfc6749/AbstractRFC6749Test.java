@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthTestApp;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.TestProperties;
 
 /**
  * Abstract testing class that bootstraps a full OAuthAPI that's ready for
@@ -37,6 +38,8 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      */
     @Override
     protected final ResourceConfig createApplication() {
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
         return new OAuthTestApp();
     }
 }
