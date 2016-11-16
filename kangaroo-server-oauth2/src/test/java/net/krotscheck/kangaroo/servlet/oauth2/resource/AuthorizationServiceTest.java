@@ -175,6 +175,8 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testCallbackUnimplementedAuthenticator() throws Exception {
+
+
         AuthenticatorState state = new AuthenticatorState();
         state.setClient(context.getClient());
         state.setAuthenticator(context.getAuthenticator());
@@ -208,19 +210,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testCallbackStateWithInvalidClientType() throws Exception {
-
-        AuthenticatorState state = new AuthenticatorState();
-        state.setClient(ownerContext.getClient());
-        state.setAuthenticator(ownerContext.getAuthenticator());
-        state.setClientRedirect(new URI("http://valid.example.com/redirect"));
-
-        Session s = getSession();
-        Transaction t = s.beginTransaction();
-        s.save(state);
-        t.commit();
+        ownerContext.authenticatorState();
 
         Response r = target("/authorize/callback")
-                .queryParam("state", state.getId().toString())
+                .queryParam("state", ownerContext.getAuthenticatorState()
+                        .getId().toString())
                 .request()
                 .get();
 

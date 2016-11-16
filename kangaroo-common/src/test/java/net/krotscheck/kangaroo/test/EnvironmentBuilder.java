@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
+import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
@@ -37,9 +38,9 @@ import org.hibernate.Transaction;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TimeZone;
@@ -86,22 +87,9 @@ public final class EnvironmentBuilder {
     private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
 
     /**
-     * Get the list of tracked entities.
-     *
-     * @return The current list of tracked entities.
+     * An authenticator state.
      */
-    public List<AbstractEntity> getTrackedEntities() {
-        return Collections.unmodifiableList(trackedEntities);
-    }
-
-    /**
-     * Return the current list of active scopes.
-     *
-     * @return The list of scopes.
-     */
-    public SortedMap<String, ApplicationScope> getScopes() {
-        return Collections.unmodifiableSortedMap(scopes);
-    }
+    private AuthenticatorState authenticatorState;
 
     /**
      * The current role context.
@@ -134,12 +122,27 @@ public final class EnvironmentBuilder {
     private OAuthToken token;
 
     /**
+     * The last redirect created.
+     */
+    private URI redirectUri;
+
+    /**
+     * The last referrer created.
+     */
+    private URI referrerUri;
+
+    /**
+     * The list of entities that are under management by this builder.
+     */
+    private final List<AbstractEntity> trackedEntities = new ArrayList<>();
+
+    /**
      * Get the current application.
      *
      * @return The current application.
      */
     public Application getApplication() {
-        return application;
+        return getRefreshed(application);
     }
 
     /**
@@ -148,7 +151,25 @@ public final class EnvironmentBuilder {
      * @return The current role.
      */
     public Role getRole() {
-        return role;
+        return getRefreshed(role);
+    }
+
+    /**
+     * Get the list of tracked entities.
+     *
+     * @return The current list of tracked entities.
+     */
+    public List<AbstractEntity> getTrackedEntities() {
+        return Collections.unmodifiableList(getRefreshed(trackedEntities));
+    }
+
+    /**
+     * Return the current list of active scopes.
+     *
+     * @return The list of scopes.
+     */
+    public SortedMap<String, ApplicationScope> getScopes() {
+        return Collections.unmodifiableSortedMap(getRefreshed(scopes));
     }
 
     /**
@@ -157,7 +178,7 @@ public final class EnvironmentBuilder {
      * @return The current client.
      */
     public Client getClient() {
-        return client;
+        return getRefreshed(client);
     }
 
     /**
@@ -166,7 +187,7 @@ public final class EnvironmentBuilder {
      * @return The current authenticator.
      */
     public Authenticator getAuthenticator() {
-        return authenticator;
+        return getRefreshed(authenticator);
     }
 
     /**
@@ -175,7 +196,7 @@ public final class EnvironmentBuilder {
      * @return The current user.
      */
     public User getUser() {
-        return user;
+        return getRefreshed(user);
     }
 
     /**
@@ -184,7 +205,7 @@ public final class EnvironmentBuilder {
      * @return The current user identity.
      */
     public UserIdentity getUserIdentity() {
-        return userIdentity;
+        return getRefreshed(userIdentity);
     }
 
     /**
@@ -193,7 +214,7 @@ public final class EnvironmentBuilder {
      * @return The current token.
      */
     public OAuthToken getToken() {
-        return token;
+        return getRefreshed(token);
     }
 
     /**
@@ -202,13 +223,26 @@ public final class EnvironmentBuilder {
      * @return The current scope.
      */
     public ApplicationScope getScope() {
-        return scope;
+        return getRefreshed(scope);
     }
 
     /**
-     * The list of entities that are under management by this builder.
+     * Get the owner of this app.
+     *
+     * @return The application owner.
      */
-    private final List<AbstractEntity> trackedEntities = new ArrayList<>();
+    public User getOwner() {
+        return getApplication().getOwner();
+    }
+
+    /**
+     * Return the current authenticator state.
+     *
+     * @return The authenticator state.
+     */
+    public AuthenticatorState getAuthenticatorState() {
+        return getRefreshed(authenticatorState);
+    }
 
     /**
      * Create a new builder.
@@ -242,14 +276,16 @@ public final class EnvironmentBuilder {
         // Load this entity from the provided session.
         this.application = session.get(Application.class, app.getId());
         this.scopes.putAll(this.application.getScopes());
+        this.scope = this.scopes.values().iterator().next();
         this.client = this.application.getClients().get(0);
         this.authenticator = this.client.getAuthenticators().get(0);
         this.user = this.application.getUsers().get(0);
         if (this.application.getRoles().size() > 0) {
             this.role = this.application.getRoles().get(0);
         }
-
-        session.clear();
+        if (this.user.getIdentities().size() > 0) {
+            this.userIdentity = this.user.getIdentities().get(0);
+        }
     }
 
     /**
@@ -268,10 +304,54 @@ public final class EnvironmentBuilder {
      * @return This environment builder.
      */
     public EnvironmentBuilder role(final String name) {
+
         role = new Role();
-        role.setApplication(application);
+        role.setApplication(getApplication());
         role.setName(name);
+
         persist(role);
+
+        return this;
+    }
+
+    /**
+     * Add a role to this application that is permitted a specific list of
+     * scopes.
+     *
+     * @param name   The name of the role.
+     * @param scopes The scopes to grant (must already exist).
+     * @return This environment builder.
+     */
+    public EnvironmentBuilder role(final String name, final String[] scopes) {
+        return role(name, new ArrayList<String>(Arrays.asList(scopes)));
+    }
+
+    /**
+     * Add a role to this application that is permitted a specific list of
+     * scopes.
+     *
+     * @param name   The name of the role.
+     * @param scopes The scopes to grant (must already exist).
+     * @return This environment builder.
+     */
+    public EnvironmentBuilder role(final String name,
+                                   final List<String> scopes) {
+        Application a = getApplication();
+        role = new Role();
+        role.setApplication(a);
+        role.setName(name);
+
+        SortedMap<String, ApplicationScope> appScopes = a.getScopes();
+        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
+        for (String scopeName : scopes) {
+            if (appScopes.containsKey(scopeName)) {
+                roleScopes.put(scopeName, appScopes.get(scopeName));
+            }
+        }
+        role.setScopes(roleScopes);
+
+        persist(role);
+
         return this;
     }
 
@@ -284,8 +364,9 @@ public final class EnvironmentBuilder {
     public EnvironmentBuilder scope(final String name) {
         scope = new ApplicationScope();
         scope.setName(name);
-        scope.setApplication(application);
+        scope.setApplication(getApplication());
         scopes.put(name, scope);
+
         persist(scope);
         return this;
     }
@@ -348,10 +429,11 @@ public final class EnvironmentBuilder {
     public EnvironmentBuilder client(final ClientType type,
                                      final String name,
                                      final Boolean isPrivate) {
+
         client = new Client();
         client.setName(name);
         client.setType(type);
-        client.setApplication(application);
+        client.setApplication(getApplication());
 
         if (isPrivate) {
             client.setClientSecret(UUID.randomUUID().toString());
@@ -369,14 +451,12 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder redirect(final String redirect) {
-        if (client.getRedirects() == null) {
-            client.setRedirects(new HashSet<>());
-        }
+        Client c = getClient();
 
-        URI redirectUri = UriBuilder.fromUri(redirect).build();
-        client.getRedirects().add(redirectUri);
+        redirectUri = UriBuilder.fromUri(redirect).build();
+        c.getRedirects().add(redirectUri);
 
-        persist(client);
+        persist(c);
 
         return this;
     }
@@ -388,14 +468,12 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder referrer(final String referrer) {
-        if (client.getReferrers() == null) {
-            client.setReferrers(new HashSet<>());
-        }
+        Client c = getClient();
 
-        URI referrerUri = UriBuilder.fromUri(referrer).build();
-        client.getReferrers().add(referrerUri);
+        referrerUri = UriBuilder.fromUri(referrer).build();
+        c.getReferrers().add(referrerUri);
 
-        persist(client);
+        persist(c);
 
         return this;
     }
@@ -407,10 +485,13 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder authenticator(final String name) {
+
         authenticator = new Authenticator();
-        authenticator.setClient(client);
+        authenticator.setClient(getClient());
         authenticator.setType(name);
+
         persist(authenticator);
+
         return this;
     }
 
@@ -420,9 +501,21 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder user() {
+        return user(role);
+    }
+
+    /**
+     * Create a new user with a specific role.
+     *
+     * @param role The role.
+     * @return This builder.
+     */
+    public EnvironmentBuilder user(final Role role) {
+
         user = new User();
-        user.setApplication(client.getApplication());
+        user.setApplication(getApplication());
         user.setRole(role);
+
         persist(user);
 
         return this;
@@ -433,18 +526,17 @@ public final class EnvironmentBuilder {
      *
      * @param e The entity to persist.
      */
-    private void persist(final AbstractEntity e) {
+    public void persist(final AbstractEntity e) {
 
         // Set created/updated dates for all entities.
-        e.setCreatedDate(Calendar.getInstance(UTC));
+        if (e.getCreatedDate() == null) {
+            e.setCreatedDate(Calendar.getInstance(UTC));
+        }
         e.setModifiedDate(Calendar.getInstance(UTC));
 
         Transaction t = session.beginTransaction();
         session.saveOrUpdate(e);
         t.commit();
-
-        // Evict the entity, so that it's freshly loaded later.
-        session.evict(e);
 
         if (!trackedEntities.contains(e)) {
             trackedEntities.add(e);
@@ -452,9 +544,6 @@ public final class EnvironmentBuilder {
 
         // Persist all changes.
         session.flush();
-
-        // Make sure everything's evicted, so we can load it cleanly later.
-        session.clear();
     }
 
     /**
@@ -463,33 +552,42 @@ public final class EnvironmentBuilder {
      * @param login    The user login.
      * @param password The user password.
      * @return This builder.
-     * @throws Exception Thrown if the security algorithm isn't present.
      */
     public EnvironmentBuilder login(final String login, final String password) {
         userIdentity = new UserIdentity();
-        userIdentity.setUser(user);
+        userIdentity.setUser(getUser());
         userIdentity.setRemoteId(login);
         userIdentity.setSalt(PasswordUtil.createSalt());
         userIdentity.setPassword(PasswordUtil.hash(password,
                 userIdentity.getSalt()));
-        userIdentity.setAuthenticator(authenticator);
+        userIdentity.setAuthenticator(getAuthenticator());
         persist(userIdentity);
+
         return this;
     }
 
     /**
-     * Add a unique identity to the current user context.
+     * Add an identity with a specific name to the current user context.
      *
      * @param remoteIdentity The unique identity.
      * @return This builder.
      */
     public EnvironmentBuilder identity(final String remoteIdentity) {
         userIdentity = new UserIdentity();
-        userIdentity.setUser(user);
+        userIdentity.setUser(getUser());
         userIdentity.setRemoteId(remoteIdentity);
-        userIdentity.setAuthenticator(authenticator);
+        userIdentity.setAuthenticator(getAuthenticator());
         persist(userIdentity);
         return this;
+    }
+
+    /**
+     * Add an identity to the current user context.
+     *
+     * @return This builder.
+     */
+    public EnvironmentBuilder identity() {
+        return identity(UUID.randomUUID().toString());
     }
 
     /**
@@ -498,10 +596,9 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder authToken() {
-        String redirect =
-                getClient().getRedirects().iterator().next().toString();
-
-        return token(OAuthTokenType.Authorization, false, null, redirect, null);
+        return token(OAuthTokenType.Authorization, false, null,
+                redirectUri.toString(),
+                null);
     }
 
     /**
@@ -510,7 +607,7 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder bearerToken() {
-        return bearerToken(null);
+        return bearerToken((String[]) null);
     }
 
     /**
@@ -521,6 +618,36 @@ public final class EnvironmentBuilder {
      */
     public EnvironmentBuilder bearerToken(final String scopes) {
         return token(OAuthTokenType.Bearer, false, scopes, null, null);
+    }
+
+    /**
+     * Add a scoped bearer token to this user.
+     *
+     * @param scopes The scopes to assign to this token.
+     * @return This builder.
+     */
+    public EnvironmentBuilder bearerToken(final String... scopes) {
+        return token(OAuthTokenType.Bearer,
+                false,
+                scopes != null
+                        ? String.join(" ", (CharSequence[]) scopes)
+                        : null,
+                null, null);
+    }
+
+    /**
+     * Add a scoped bearer token to this user.
+     *
+     * @param client The client for which to create this token.
+     * @param scopes The scopes to assign to this token.
+     * @return This builder.
+     */
+    public EnvironmentBuilder bearerToken(final Client client,
+                                          final String... scopes) {
+        return token(client, OAuthTokenType.Bearer,
+                false,
+                String.join(" ", (CharSequence[]) scopes),
+                null, null);
     }
 
     /**
@@ -547,11 +674,36 @@ public final class EnvironmentBuilder {
                                     final String scopeString,
                                     final String redirect,
                                     final OAuthToken authToken) {
+        return token(getClient(), type, expired, scopeString, redirect,
+                authToken);
+    }
+
+    /**
+     * Customize a token.
+     *
+     * @param client      The client for which this token should be created.
+     * @param type        The token type.
+     * @param expired     Whether it's expired.
+     * @param scopeString The requested scope.
+     * @param redirect    The redirect URL.
+     * @param authToken   An optional auth token.
+     * @return This builder.
+     */
+    public EnvironmentBuilder token(final Client client,
+                                    final OAuthTokenType type,
+                                    final Boolean expired,
+                                    final String scopeString,
+                                    final String redirect,
+                                    final OAuthToken authToken) {
         token = new OAuthToken();
         token.setTokenType(type);
         token.setClient(client);
-        token.setIdentity(userIdentity);
-        token.setAuthToken(authToken);
+        token.setAuthToken(getRefreshed(authToken));
+
+        // Only non-client-credentials clients are associated with users.
+        if (!token.getClient().getType().equals(ClientType.ClientCredentials)) {
+            token.setIdentity(getUserIdentity());
+        }
 
         if (!StringUtils.isEmpty(redirect)) {
             URI redirectUri = UriBuilder.fromUri(redirect).build();
@@ -567,9 +719,10 @@ public final class EnvironmentBuilder {
 
         // Split and attach the scopes.
         SortedMap<String, ApplicationScope> newScopes = new TreeMap<>();
+        SortedMap<String, ApplicationScope> currentScopes = getScopes();
         if (!StringUtils.isEmpty(scopeString)) {
             for (String scope : scopeString.split(" ")) {
-                newScopes.put(scope, scopes.get(scope));
+                newScopes.put(scope, currentScopes.get(scope));
             }
         }
         token.setScopes(newScopes);
@@ -588,9 +741,23 @@ public final class EnvironmentBuilder {
     public EnvironmentBuilder claim(final String name, final String value) {
         // User identity has to be separately hydrated and persisted, in
         // order to make sure we get the latest entity.
-        session.refresh(userIdentity);
-        userIdentity.getClaims().putIfAbsent(name, value);
-        persist(userIdentity);
+        UserIdentity i = getUserIdentity();
+        i.getClaims().putIfAbsent(name, value);
+        persist(i);
+        return this;
+    }
+
+    /**
+     * Create an authenticator state on the present client.
+     *
+     * @return This builder.
+     */
+    public EnvironmentBuilder authenticatorState() {
+        authenticatorState = new AuthenticatorState();
+        authenticatorState.setClient(getClient());
+        authenticatorState.setAuthenticator(getAuthenticator());
+        authenticatorState.setClientRedirect(redirectUri);
+        persist(authenticatorState);
         return this;
     }
 
@@ -601,36 +768,43 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder owner(final User user) {
+        Application a = getApplication();
         // Reload the owner from the current session.
         User sessionUser = session.get(User.class, user.getId());
-        application.setOwner(sessionUser);
-        persist(application);
-        return this;
-    }
+        a.setOwner(sessionUser);
 
-    /**
-     * Get the owner of this app.
-     *
-     * @return The application owner.
-     */
-    public User getOwner() {
-        return application.getOwner();
+        // Since the session user may not be tracked by this environment
+        // builder, we manually persist it.
+        persist(a);
+//        Transaction t = session.beginTransaction();
+//        session.update(sessionUser);
+//        session.update(a);
+//        t.commit();
+
+        return this;
     }
 
     /**
      * Clear all created entities from the database.
      */
     public void clear() {
-        Transaction t = session.beginTransaction();
+        // Delete the entities in reverse order.
         for (int i = trackedEntities.size() - 1; i >= 0; i--) {
             AbstractEntity e = trackedEntities.get(i);
 
+            // First, evict the entity.
+            session.evict(e);
+
+            // Now, reload it.
             e = session.get(e.getClass(), e.getId());
+
+            // Is it still in the database?
             if (e != null) {
+                Transaction t = session.beginTransaction();
                 session.delete(e);
+                t.commit();
             }
         }
-        t.commit();
         trackedEntities.clear();
 
         application = null;
@@ -642,5 +816,53 @@ public final class EnvironmentBuilder {
         user = null;
         userIdentity = null;
         token = null;
+        redirectUri = null;
+        referrerUri = null;
+        authenticatorState = null;
+    }
+
+    /**
+     * Null-safe refresh of the passed entity.
+     *
+     * @param e   Entity to refresh.
+     * @param <T> An AbstractEntity.
+     * @return The entity, refreshed, or null.
+     */
+    private <T extends AbstractEntity> T getRefreshed(final T e) {
+        if (e != null) {
+            session.refresh(e);
+        }
+        return e;
+    }
+
+    /**
+     * Null-safe refresh of the passed entity list.
+     *
+     * @param entities Entity list to refresh.
+     * @param <T>      An AbstractEntity.
+     * @return The entity, refreshed, or null.
+     */
+    private <T extends AbstractEntity> List<T> getRefreshed(
+            final List<T> entities) {
+        for (AbstractEntity e : entities) {
+            session.refresh(e);
+        }
+
+        return entities;
+    }
+
+    /**
+     * Null-safe refresh of the passed Map.
+     *
+     * @param entities Entity list to refresh.
+     * @param <T>      An AbstractEntity.
+     * @return The entity, refreshed, or null.
+     */
+    private <T extends AbstractEntity> SortedMap<String, T> getRefreshed(
+            final SortedMap<String, T> entities) {
+        for (AbstractEntity e : entities.values()) {
+            session.refresh(e);
+        }
+        return entities;
     }
 }
