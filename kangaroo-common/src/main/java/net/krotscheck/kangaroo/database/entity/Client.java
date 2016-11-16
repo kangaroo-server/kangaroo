@@ -20,12 +20,25 @@ package net.krotscheck.kangaroo.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -38,12 +51,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * This represents a registered client, as well as it's connection metadata,
@@ -55,6 +72,15 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "clients")
+@Indexed(index = "clients")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_client_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_client_application",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class Client extends AbstractEntity {
 
     /**
@@ -63,29 +89,48 @@ public final class Client extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = Application.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id", "owner.id"})
     private Application application;
 
     /**
      * List of the application's authenticators.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Authenticator> authenticators;
 
     /**
      * OAuth tokens issued to this client.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
-    @Cascade(CascadeType.ALL)
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client",
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ContainedIn
     private List<OAuthToken> tokens;
 
     /**
      * List of all authenticator states currently active.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
-    @Cascade(CascadeType.ALL)
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<AuthenticatorState> states;
 
     /**
@@ -93,6 +138,9 @@ public final class Client extends AbstractEntity {
      */
     @Basic(optional = false)
     @Column(name = "name", nullable = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Size(min = 3, max = 255, message = "Client name must be between 3 "
+            + "and 255 characters.")
     private String name;
 
     /**
@@ -100,7 +148,8 @@ public final class Client extends AbstractEntity {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private ClientType type = ClientType.AuthorizationGrant;
+    @NotNull
+    private ClientType type;
 
     /**
      * A client secret, indicating a password which must be provided to the
@@ -118,7 +167,7 @@ public final class Client extends AbstractEntity {
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "referrer")
     @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
-    private Set<URI> referrers;
+    private Set<URI> referrers = new TreeSet<>();
 
     /**
      * A list of redirect URL's, used for redirection-based flows.
@@ -128,7 +177,7 @@ public final class Client extends AbstractEntity {
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "redirect")
     @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
-    private Set<URI> redirects;
+    private Set<URI> redirects = new TreeSet<>();
 
     /**
      * The configuration settings for this application.
@@ -136,10 +185,9 @@ public final class Client extends AbstractEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "client_configs",
             joinColumns = @JoinColumn(name = "client"))
-    @MapKeyColumn(name = "key")
-    @Column(name = "value")
-    @Cascade(CascadeType.ALL)
-    private Map<String, String> configuration;
+    @MapKeyColumn(name = "configKey")
+    @Column(name = "configValue")
+    private Map<String, String> configuration = new TreeMap<>();
 
     /**
      * Get the application this client belongs to.

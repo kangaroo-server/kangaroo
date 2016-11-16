@@ -22,12 +22,16 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.search.annotations.Analyzer;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -45,7 +49,17 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Indexed(index = "users")
-@Analyzer(definition = "entity_analyzer")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_user_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_user_application",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_user_role",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class User extends AbstractEntity {
 
     /**
@@ -55,7 +69,20 @@ public final class User extends AbstractEntity {
     @JoinColumn(name = "application", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = Application.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id", "owner.id"})
     private Application application;
+
+    /**
+     * The Applications which this user owns (admin app only).
+     */
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "owner",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true
+    )
+    @JsonIgnore
+    private List<Application> applications;
 
     /**
      * The user's role in this application.
@@ -64,15 +91,21 @@ public final class User extends AbstractEntity {
     @JoinColumn(name = "role", nullable = true, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = Role.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id"})
     private Role role;
 
     /**
      * List of this user's identities.
      */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    @Cascade(CascadeType.ALL)
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "user",
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @JsonIgnore
-    @IndexedEmbedded(includePaths = {"claims"})
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @IndexedEmbedded(includePaths = {"claims", "remoteId"})
     private List<UserIdentity> identities;
 
     /**
@@ -127,6 +160,24 @@ public final class User extends AbstractEntity {
      */
     public void setIdentities(final List<UserIdentity> identities) {
         this.identities = new ArrayList<>(identities);
+    }
+
+    /**
+     * Get the list of owned applications.
+     *
+     * @return A list of owned applications.
+     */
+    public List<Application> getApplications() {
+        return applications;
+    }
+
+    /**
+     * Set the list of owned applications.
+     *
+     * @param applications A new list of applications.
+     */
+    public void setApplications(final List<Application> applications) {
+        this.applications = new ArrayList<>(applications);
     }
 
     /**

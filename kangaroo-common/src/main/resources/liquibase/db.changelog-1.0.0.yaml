@@ -27,12 +27,12 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: key
+                name: configKey
                 type: varchar(255)
                 constraints:
                   nullable: false
             - column:
-                name: value
+                name: configValue
                 type: varchar(255)
                 constraints:
                   nullable: false
@@ -46,13 +46,13 @@ databaseChangeLog:
       - createIndex:
           columns:
           - column:
-              name: key
+              name: configKey
               type: varchar(255)
-          indexName: idx_configuration_key
+          indexName: idx_configuration_configKey
           tableName: configuration
       - addUniqueConstraint:
-          columnNames: section, key
-          constraintName: uq_configuration_section_key
+          columnNames: section, configKey
+          constraintName: uq_configuration_section_configKey
           tableName: configuration
 
       # The Application table, the root resource from which everything else
@@ -266,7 +266,7 @@ databaseChangeLog:
           baseColumnNames: role
           baseTableName: users
           constraintName: fk_users_roles
-          onDelete: CASCADE
+          onDelete: SET NULL
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: roles
@@ -411,12 +411,12 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: key
+                name: configKey
                 type: varchar(255)
                 constraints:
                   nullable: false
             - column:
-                name: value
+                name: configValue
                 type: varchar(255)
                 constraints:
                   nullable: true
@@ -430,12 +430,12 @@ databaseChangeLog:
       - createIndex:
           columns:
           - column:
-              name: key
+              name: configKey
               type: varchar(255)
           indexName: idx_client_configs_name
           tableName: client_configs
       - addUniqueConstraint:
-          columnNames: client, key
+          columnNames: client, configKey
           constraintName: uq_client_configs_client_key
           tableName: client_configs
       - addForeignKeyConstraint:
@@ -732,12 +732,12 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: key
+                name: claimKey
                 type: varchar(255)
                 constraints:
                   nullable: false
             - column:
-                name: value
+                name: claimValue
                 type: varchar(255)
                 constraints:
                   nullable: true
@@ -751,12 +751,12 @@ databaseChangeLog:
       - createIndex:
           columns:
           - column:
-              name: key
+              name: claimKey
               type: varchar(255)
           indexName: idx_user_identity_claims_name
           tableName: user_identity_claims
       - addUniqueConstraint:
-          columnNames: user_identity, key
+          columnNames: user_identity, claimKey
           constraintName: uq_user_identity_claims_user_identity_name
           tableName: user_identity_claims
       - addForeignKeyConstraint:
@@ -916,6 +916,9 @@ databaseChangeLog:
             tableName: client_referrers
         - dropTable:
             tableName: clients
+        - dropForeignKeyConstraint:
+            constraintName: fk_applications_owner
+            baseTableName: applications
         - dropTable:
             tableName: users
         - dropTable:

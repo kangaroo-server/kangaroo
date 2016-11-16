@@ -145,6 +145,20 @@ public final class AbstractEntityTest {
     }
 
     /**
+     * Test cloneable.
+     *
+     * @throws CloneNotSupportedException Should not be thrown.
+     */
+    @Test
+    public void testCloneable() throws CloneNotSupportedException {
+        AbstractEntity a = new TestEntity();
+        a.setId(UUID.randomUUID());
+        AbstractEntity b = (AbstractEntity) a.clone();
+
+        Assert.assertEquals(a.getId(), b.getId());
+    }
+
+    /**
      * Test entity, used for testing!
      */
     private static class TestEntity extends AbstractEntity {

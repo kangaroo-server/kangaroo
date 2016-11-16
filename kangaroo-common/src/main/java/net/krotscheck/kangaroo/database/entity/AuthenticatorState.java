@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.database.entity;
 
 import org.hibernate.annotations.SortNatural;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -71,6 +72,7 @@ public final class AuthenticatorState extends AbstractEntity {
      */
     @Basic(optional = false)
     @Column(name = "clientRedirect", unique = false)
+    @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
     private URI clientRedirect;
 
     /**
