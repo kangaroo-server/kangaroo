@@ -76,18 +76,6 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
-    <dependency>
-      <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-authenticator-core</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>net.krotscheck</groupId>
-      <artifactId>kangaroo-authenticator-password</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
 
     <!-- The servlet API -->
     <dependency>
