@@ -25,7 +25,6 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
-import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,8 +94,39 @@ public final class ValidationUtilTest {
 
         URI result =
                 ValidationUtil.requireValidRedirect("http://one.example.com",
-                testSet);
+                        testSet);
         Assert.assertEquals("http://one.example.com", result.toString());
+    }
+
+    /**
+     * Check simple valid redirect by URI
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateUriRedirect() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com"));
+        testSet.add(new URI("http://two.example.com"));
+
+        URI result = ValidationUtil.validateRedirect(
+                new URI("http://one.example.com"), testSet);
+        Assert.assertEquals("http://one.example.com", result.toString());
+    }
+
+    /**
+     * Check simple valid redirect by null URI
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateNullUriRedirect() throws Exception {
+        Set<URI> testSet = new HashSet<>();
+        testSet.add(new URI("http://one.example.com"));
+        testSet.add(new URI("http://two.example.com"));
+
+        URI result = ValidationUtil.validateRedirect((URI) null, testSet);
+        Assert.assertNull(result);
     }
 
     /**
