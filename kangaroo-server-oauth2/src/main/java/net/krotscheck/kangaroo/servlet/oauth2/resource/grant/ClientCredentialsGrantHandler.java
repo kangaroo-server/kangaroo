@@ -84,7 +84,8 @@ public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
             throw new UnauthorizedClientException();
         }
 
-        // Make sure all requested scopes are in the map.
+        // This flow permits requesting any of the available scopes from the
+        // application, without filtering by Roles.
         SortedMap<String, ApplicationScope> requestedScopes =
                 ValidationUtil.validateScope(formData.getFirst("scope"),
                         client.getApplication().getScopes());

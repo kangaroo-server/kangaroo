@@ -251,7 +251,8 @@ public final class AuthorizationService {
         OAuthToken t = new OAuthToken();
         t.setClient(s.getClient());
         t.setIdentity(i);
-        t.setScopes(s.getClientScopes());
+        t.setScopes(ValidationUtil
+                .validateScope(s.getClientScopes(), i.getUser().getRole()));
         t.setTokenType(OAuthTokenType.Bearer);
         t.setExpiresIn(s.getClient().getAccessTokenExpireIn());
 
@@ -302,7 +303,8 @@ public final class AuthorizationService {
         OAuthToken t = new OAuthToken();
         t.setClient(s.getClient());
         t.setIdentity(i);
-        t.setScopes(s.getClientScopes());
+        t.setScopes(ValidationUtil
+                .validateScope(s.getClientScopes(), i.getUser().getRole()));
         t.setTokenType(OAuthTokenType.Authorization);
         t.setExpiresIn(s.getClient().getAuthorizationCodeExpiresIn());
         t.setRedirect(s.getClientRedirect());

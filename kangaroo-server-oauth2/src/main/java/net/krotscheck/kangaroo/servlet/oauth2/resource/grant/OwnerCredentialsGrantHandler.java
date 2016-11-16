@@ -104,10 +104,10 @@ public final class OwnerCredentialsGrantHandler implements IGrantTypeHandler {
             throw new HttpStatusException(HttpStatus.SC_UNAUTHORIZED);
         }
 
-        // Make sure all requested scopes are in the map.
+        // Make sure all requested scopes are permitted for this user.
         SortedMap<String, ApplicationScope> requestedScopes =
                 ValidationUtil.validateScope(formData.getFirst("scope"),
-                        client.getApplication().getScopes());
+                        identity.getUser().getRole());
 
         // Ensure that we retrieve a state, if it exists.
         String state = formData.getFirst("state");
