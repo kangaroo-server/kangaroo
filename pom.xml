@@ -14,8 +14,6 @@
 
   <modules>
     <module>kangaroo-common</module>
-    <module>kangaroo-authenticator-core</module>
-    <module>kangaroo-authenticator-password</module>
     <module>kangaroo-server-oauth2</module>
     <module>kangaroo-server-admin</module>
   </modules>
