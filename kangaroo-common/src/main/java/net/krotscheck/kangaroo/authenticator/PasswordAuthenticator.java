@@ -126,6 +126,8 @@ public final class PasswordAuthenticator
         protected void configure() {
             bind(PasswordAuthenticator.class)
                     .to(PasswordAuthenticator.class)
+                    .to(IAuthenticator.class)
+                    .named("password")
                     .in(RequestScoped.class);
         }
     }
