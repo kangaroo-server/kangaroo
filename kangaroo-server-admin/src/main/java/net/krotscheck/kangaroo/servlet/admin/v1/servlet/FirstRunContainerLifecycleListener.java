@@ -37,8 +37,8 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -111,12 +111,12 @@ public final class FirstRunContainerLifecycleListener
         passwordAuth.setClient(servletClient);
 
         // Create the scopes
-        List<ApplicationScope> scopes = new ArrayList<>();
-        for (String scope : Scope.allScopes()) {
+        SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        for (String scopeName : Scope.allScopes()) {
             ApplicationScope newScope = new ApplicationScope();
             newScope.setApplication(servletApp);
-            newScope.setName(scope);
-            scopes.add(newScope);
+            newScope.setName(scopeName);
+            scopes.put(scopeName, newScope);
         }
 
         // Create the roles.

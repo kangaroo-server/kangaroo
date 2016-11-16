@@ -83,7 +83,7 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertEquals(OAuthTokenType.Bearer, c.getTokenType());
+        Assert.assertNull(c.getTokenType());
         c.setTokenType(OAuthTokenType.Authorization);
         Assert.assertEquals(OAuthTokenType.Authorization, c.getTokenType());
     }
@@ -96,7 +96,7 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertEquals(600, c.getExpiresIn().longValue());
+        Assert.assertNull(c.getExpiresIn());
         c.setExpiresIn(100);
         Assert.assertEquals(100, c.getExpiresIn().longValue());
         c.setExpiresIn((long) 200);
@@ -107,6 +107,8 @@ public final class OAuthTokenTest {
         Assert.assertEquals(22, c.getExpiresIn().longValue());
         c.setExpiresIn(Long.valueOf(100));
         Assert.assertEquals(100, c.getExpiresIn().longValue());
+        c.setExpiresIn((Long) null);
+        Assert.assertNull(c.getExpiresIn());
     }
 
     /**
@@ -185,7 +187,7 @@ public final class OAuthTokenTest {
         SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         scopes.put("test", new ApplicationScope());
 
-        Assert.assertNull(token.getScopes());
+        Assert.assertEquals(0, token.getScopes().size());
         token.setScopes(scopes);
         Assert.assertEquals(scopes, token.getScopes());
         Assert.assertNotSame(scopes, token.getScopes());
@@ -241,6 +243,7 @@ public final class OAuthTokenTest {
         identity.setId(UUID.randomUUID());
 
         Client client = new Client();
+        client.setType(ClientType.ClientCredentials);
         client.setId(UUID.randomUUID());
 
         OAuthToken token = new OAuthToken();
@@ -278,9 +281,12 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 token.getRedirect().toString(),
                 node.get("redirect").asText());
-
-        Assert.assertFalse(node.has("client"));
-        Assert.assertFalse(node.has("identity"));
+        Assert.assertEquals(
+                token.getClient().getId().toString(),
+                node.get("client").asText());
+        Assert.assertEquals(
+                token.getIdentity().getId().toString(),
+                node.get("identity").asText());
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -288,7 +294,7 @@ public final class OAuthTokenTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(6, names.size());
+        Assert.assertEquals(8, names.size());
     }
 
     /**

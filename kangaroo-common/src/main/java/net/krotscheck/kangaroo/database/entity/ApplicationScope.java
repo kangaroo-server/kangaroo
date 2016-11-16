@@ -20,7 +20,19 @@ package net.krotscheck.kangaroo.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
+import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FilterCacheModeType;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -30,6 +42,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +53,16 @@ import java.util.List;
  */
 @Entity
 @Table(name = "application_scopes")
+@Indexed(index = "application_scopes")
+@Analyzer(definition = "entity_analyzer")
+@FullTextFilterDefs({
+        @FullTextFilterDef(name = "uuid_scope_owner",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY),
+        @FullTextFilterDef(name = "uuid_scope_application",
+                impl = UUIDFilter.class,
+                cache = FilterCacheModeType.INSTANCE_ONLY)
+})
 public final class ApplicationScope extends AbstractEntity {
 
     /**
@@ -48,6 +71,8 @@ public final class ApplicationScope extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = Application.Deserializer.class)
+    @IndexedEmbedded(includePaths = {"id", "owner.id"})
     private Application application;
 
     /**
@@ -55,20 +80,23 @@ public final class ApplicationScope extends AbstractEntity {
      */
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "scopes")
     @JsonIgnore
-    private List<Role> roles;
+    private List<Role> roles = new ArrayList<>();
 
     /**
      * All tokens that have access to this scope.
      */
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "scopes")
     @JsonIgnore
-    private List<OAuthToken> tokens;
+    private List<OAuthToken> tokens = new ArrayList<>();
 
     /**
      * The string for this scope (used in OAuth exchange).
      */
     @Basic(optional = false)
     @Column(name = "name", nullable = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Size(min = 3, max = 255, message = "Scope name must be between 3 "
+            + "and 255 characters.")
     private String name;
 
     /**
@@ -142,7 +170,6 @@ public final class ApplicationScope extends AbstractEntity {
     public void setName(final String name) {
         this.name = name;
     }
-
 
     /**
      * Deserialize a reference to an Application.

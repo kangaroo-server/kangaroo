@@ -81,7 +81,7 @@ public final class AuthenticatorTest {
         Authenticator auth = new Authenticator();
         Map<String, String> config = new HashMap<>();
 
-        Assert.assertNull(auth.getConfiguration());
+        Assert.assertEquals(0, auth.getConfiguration().size());
         auth.setConfiguration(config);
         Assert.assertEquals(config, auth.getConfiguration());
     }

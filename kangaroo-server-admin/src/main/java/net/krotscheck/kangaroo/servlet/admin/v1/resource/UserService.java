@@ -97,7 +97,7 @@ public final class UserService extends AbstractService {
         org.apache.lucene.search.Query luceneQuery = builder
                 .keyword()
                 .fuzzy()
-                .onFields("identities.claims")
+                .onFields("identities.claims", "identities.remoteId")
                 .matching(queryString)
                 .createQuery();
 
