@@ -17,13 +17,7 @@
 
 package net.krotscheck.kangaroo.authz.oauth2;
 
-import net.krotscheck.kangaroo.authz.common.authenticator.PasswordAuthenticator;
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
-import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
-import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
-import net.krotscheck.kangaroo.common.logging.LoggingFeature;
-import net.krotscheck.kangaroo.common.status.StatusFeature;
-import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
+import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory;
 import net.krotscheck.kangaroo.authz.oauth2.filter.ClientAuthorizationFilter;
@@ -34,6 +28,12 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.grant.ClientCredentialsGran
 import net.krotscheck.kangaroo.authz.oauth2.resource.grant.OwnerCredentialsGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.grant.RefreshTokenGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.tasks.TokenCleanupTask;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
+import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.common.logging.LoggingFeature;
+import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -59,15 +59,13 @@ public class OAuthAPI extends ResourceConfig {
         register(DatabaseFeature.class);         // Database Feature.
         register(StatusFeature.class);           // Heartbeat service.
         register(TimedTasksFeature.class);       // Timed tasks service.
+        register(AuthenticatorFeature.class);    // OAuth2 Authenticators
 
         // Asset factories
         register(new CredentialsFactory.Binder());
 
         // Service filters
         register(new ClientAuthorizationFilter.Binder());
-
-        // The password authenticator.
-        register(new PasswordAuthenticator.Binder());
 
         // ResponseType and GrantType handlers
         register(new ClientCredentialsGrantHandler.Binder());

@@ -19,14 +19,6 @@
 package net.krotscheck.kangaroo.authz.admin;
 
 
-import net.krotscheck.kangaroo.authz.common.authenticator.PasswordAuthenticator;
-import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
-import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
-import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
-import net.krotscheck.kangaroo.common.logging.LoggingFeature;
-import net.krotscheck.kangaroo.common.status.StatusFeature;
-import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.ApplicationService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.AuthenticatorService;
@@ -39,6 +31,14 @@ import net.krotscheck.kangaroo.authz.admin.v1.resource.UserIdentityService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.UserService;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.FirstRunContainerLifecycleListener;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory;
+import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
+import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
+import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
+import net.krotscheck.kangaroo.common.logging.LoggingFeature;
+import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -70,9 +70,7 @@ public final class AdminV1API extends ResourceConfig {
         register(DatabaseFeature.class);         // Database Feature.
         register(StatusFeature.class);           // Heartbeat service.
         register(TimedTasksFeature.class);       // Timed tasks service.
-
-        // Authenticators, for validation
-        register(new PasswordAuthenticator.Binder());
+        register(AuthenticatorFeature.class);    // OAuth2 Authenticators
 
         // Internal components
         register(new ServletConfigFactory.Binder());
