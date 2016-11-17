@@ -86,7 +86,6 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         users.clear();
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
-                        .scope(Scope.USER)
                         .client(ClientType.Implicit, "Test Client")
                         .authenticator("test");
 
@@ -119,13 +118,13 @@ public final class UserServiceSearchTest extends AbstractResourceTest {
         users.add(context.getUser());
 
         // Build an auth header.
-        context.bearerToken(Scope.USER);
-        authHeader = String.format("Bearer %s", context.getToken().getId());
+        adminApp.bearerToken(Scope.USER);
+        authHeader = String.format("Bearer %s", adminApp.getToken().getId());
 
         // Build an auth header with no valid scope.
-        context.bearerToken();
+        adminApp.bearerToken();
         authHeaderNoScope =
-                String.format("Bearer %s", context.getToken().getId());
+                String.format("Bearer %s", adminApp.getToken().getId());
 
         List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
