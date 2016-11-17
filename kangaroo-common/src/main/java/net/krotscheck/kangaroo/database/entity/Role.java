@@ -48,6 +48,7 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +101,7 @@ public final class Role extends AbstractEntity {
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @Size(min = 3, max = 255, message = "Role name must be between 3 "
             + "and 255 characters.")
+    @NotNull(message = "A Role name is required")
     private String name;
 
     /**
