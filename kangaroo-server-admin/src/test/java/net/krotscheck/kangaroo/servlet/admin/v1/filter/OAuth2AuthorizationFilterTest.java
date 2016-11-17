@@ -17,15 +17,12 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.filter;
 
-import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.Binder;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.OAuthTokenContext;
-import net.krotscheck.kangaroo.test.ContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.AbstractResourceTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -33,7 +30,6 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +46,8 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class OAuth2AuthorizationFilterTest extends ContainerTest {
+public final class OAuth2AuthorizationFilterTest
+        extends AbstractResourceTest {
 
     /**
      * A valid, non-expired, bearer token.
@@ -73,51 +70,61 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
     private OAuthToken authToken;
 
     /**
-     * The application under test.
+     * Return the token scope required for admin access on this test.
      *
-     * @return An instance of the Admin servlet.
+     * @return The correct scope string.
      */
     @Override
-    protected ResourceConfig createApplication() {
-        return new AdminV1API();
+    protected String getAdminScope() {
+        return null;
     }
 
     /**
-     * Load data fixtures for each test.
+     * Return the token scope required for generic user access.
      *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
+     * @return The correct scope string.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        EnvironmentBuilder context = new EnvironmentBuilder(getSession())
-                .client(ClientType.Implicit)
-                .scope(Scope.USER)
-                .redirect("http://example.com/redirect")
-                .referrer("http://example.com/redirect")
-                .authenticator("test")
-                .user()
+    protected String getRegularScope() {
+        return null;
+    }
+
+    /**
+     * Provided the admin context, build a list of all additional
+     * applications required for this test.
+     *
+     * @param adminContext The admin context
+     * @return A list of fixtures.
+     * @throws Exception Thrown if something untoward happens.
+     */
+    @Override
+    public List<EnvironmentBuilder> fixtures(
+            final EnvironmentBuilder adminContext)
+            throws Exception {
+        // Create a new user.
+        adminContext
+                .user(null)
                 .identity("remote_identity");
 
         // Valid token
-        context.token(OAuthTokenType.Bearer, false, Scope.USER, null, null);
-        validBearerToken = context.getToken();
+        adminContext
+                .token(OAuthTokenType.Bearer, false, Scope.USER, null, null);
+        validBearerToken = adminContext.getToken();
 
-        // Valid token
-        context.token(OAuthTokenType.Bearer, true, null, null, null);
-        noScopeBearerToken = context.getToken();
+        // Valid token, no scope.
+        adminContext.token(OAuthTokenType.Bearer, false, null, null, null);
+        noScopeBearerToken = adminContext.getToken();
 
         // Expired token.
-        context.token(OAuthTokenType.Bearer, true, Scope.USER, null, null);
-        expiredBearerToken = context.getToken();
+        adminContext.token(OAuthTokenType.Bearer, true, Scope.USER, null, null);
+        expiredBearerToken = adminContext.getToken();
 
-        // Auth token
-        context.authToken();
-        authToken = context.getToken();
+        // Auth token.
+        adminContext.token(OAuthTokenType.Authorization, false, Scope.USER,
+                null, null);
+        authToken = adminContext.getToken();
 
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        return fixtures;
+        return new ArrayList<>();
     }
 
     /**
@@ -275,5 +282,16 @@ public final class OAuth2AuthorizationFilterTest extends ContainerTest {
 
         Assert.assertFalse(context.isSecure());
         Assert.assertEquals("OAuth2", context.getAuthenticationScheme());
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param id The ID to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected String getUrlForId(final String id) {
+        return null;
     }
 }
