@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.test.rule;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
@@ -193,21 +194,21 @@ public final class TestDataResource
 
         builder.client(ClientType.ClientCredentials,
                 "Single client")
-                .authenticator("Single authenticator");
+                .authenticator(AuthenticatorType.Test);
 
         builder.client(ClientType.OwnerCredentials,
                 "Second client - many")
-                .authenticator("password");
+                .authenticator(AuthenticatorType.Password);
         applyUsersToClient(builder);
 
         builder.client(ClientType.Implicit,
                 "Third client - many")
-                .authenticator("Third authenticator - many");
+                .authenticator(AuthenticatorType.Password);
         applyUsersToClient(builder);
 
         builder.client(ClientType.AuthorizationGrant,
                 "Fourth client - many")
-                .authenticator("Fourth authenticator - many");
+                .authenticator(AuthenticatorType.Password);
         applyUsersToClient(builder);
     }
 

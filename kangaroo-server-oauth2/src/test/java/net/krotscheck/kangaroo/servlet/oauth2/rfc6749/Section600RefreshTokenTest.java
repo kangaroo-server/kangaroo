@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientConfig;
@@ -66,7 +67,7 @@ public final class Section600RefreshTokenTest
                             .scope("debug2")
                             .role("test", new String[]{"debug", "debug2"})
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator("debug")
+                            .authenticator(AuthenticatorType.Test)
                             .user()
                             .identity("test_identity_1")
                             .build();
@@ -76,7 +77,7 @@ public final class Section600RefreshTokenTest
                             .scope("debug2")
                             .role("test", new String[]{"debug", "debug2"})
                             .client(ClientType.OwnerCredentials, true)
-                            .authenticator("debug")
+                            .authenticator(AuthenticatorType.Test)
                             .user()
                             .identity("test_identity_2")
                             .build();

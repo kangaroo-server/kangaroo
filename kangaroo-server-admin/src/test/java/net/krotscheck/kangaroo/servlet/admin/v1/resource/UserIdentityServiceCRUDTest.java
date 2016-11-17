@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -199,11 +200,11 @@ public final class UserIdentityServiceCRUDTest
                 .getClients()
                 .stream()
                 .flatMap((c) -> c.getAuthenticators().stream())
-                .filter((a -> a.getType().equals("password")))
+                .filter((a -> a.getType().equals(AuthenticatorType.Password)))
                 .collect(Collectors.toList())
                 .get(0);
 
-        identity.setAuthenticator(authenticator);
+        identity.setType(authenticator.getType());
         return identity;
     }
 
@@ -316,29 +317,10 @@ public final class UserIdentityServiceCRUDTest
     public void testPostWrongAuthenticator() throws Exception {
         ApplicationContext context = getAdminContext()
                 .getBuilder()
-                .authenticator("not_password")
+                .authenticator(AuthenticatorType.Test)
                 .build();
         UserIdentity testEntity = createValidEntity(context);
-        testEntity.setAuthenticator(context.getAuthenticator());
-
-        // Issue the request.
-        Response r = postEntity(testEntity, getAdminToken());
-
-        assertErrorResponse(r, Status.BAD_REQUEST);
-    }
-
-    /**
-     * Assert that we cannot create an identity with an invalid
-     * authenticator.
-     *
-     * @throws Exception Exception encountered during test.
-     */
-    @Test
-    public void testPostInvalidAuthenticator() throws Exception {
-        UserIdentity testEntity = createValidEntity(getAdminContext());
-        Authenticator invalid = new Authenticator();
-        invalid.setId(UUID.randomUUID());
-        testEntity.setAuthenticator(invalid);
+        testEntity.setType(context.getAuthenticator().getType());
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
@@ -354,7 +336,7 @@ public final class UserIdentityServiceCRUDTest
     @Test
     public void testPostNoAuthenticator() throws Exception {
         UserIdentity testEntity = createValidEntity(getAdminContext());
-        testEntity.setAuthenticator(null);
+        testEntity.setType(null);
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
@@ -459,22 +441,21 @@ public final class UserIdentityServiceCRUDTest
     }
 
     /**
-     * Assert that we cannot change the authenticator for an identity.
+     * Assert that we cannot change the type of an identity.
      *
      * @throws Exception Exception encountered during test.
      */
     @Test
-    public void testPutChangeAuthenticator() throws Exception {
+    public void testPutChangeType() throws Exception {
         ApplicationContext context = getSecondaryContext()
                 .getBuilder()
+                .authenticator(AuthenticatorType.Test)
                 .user()
                 .login("test", "password")
-                .authenticator("new")
                 .build();
         UserIdentity testEntity = context.getUserIdentity();
-        Authenticator newAuthenticator = context.getAuthenticator();
 
-        testEntity.setAuthenticator(newAuthenticator);
+        testEntity.setType(AuthenticatorType.Password);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());

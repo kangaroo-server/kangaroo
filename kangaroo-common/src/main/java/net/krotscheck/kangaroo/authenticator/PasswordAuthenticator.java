@@ -28,11 +28,11 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-import java.net.URI;
-import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.List;
 
 /**
  * The PasswordAuthenticator is a specific implementation of the
@@ -78,17 +78,17 @@ public final class PasswordAuthenticator
      * Resolve and/or create a user identity for a specific client, given the
      * returned URI.
      *
-     * @param configuration The authenticator configuration.
+     * @param authenticator The authenticator configuration.
      * @param parameters    Parameters for the authenticator, retrieved from
      *                      an appropriate source.
      * @return A user identity.
      */
     @Override
-    public UserIdentity authenticate(final Authenticator configuration,
+    public UserIdentity authenticate(final Authenticator authenticator,
                                      final MultivaluedMap<String, String>
                                              parameters) {
         // Validate the input
-        if (configuration == null || parameters == null) {
+        if (authenticator == null || parameters == null) {
             throw new InvalidRequestException();
         }
 
@@ -99,7 +99,11 @@ public final class PasswordAuthenticator
         // Try to find this user.
         Criteria c = session.createCriteria(UserIdentity.class);
         c.add(Restrictions.eq("remoteId", login));
-        c.add(Restrictions.eq("authenticator", configuration));
+        c.add(Restrictions.eq("type", authenticator.getType()));
+        c.createAlias("user", "u");
+        c.add(Restrictions.eq("u.application",
+                authenticator.getClient().getApplication()));
+
         c.setFirstResult(0);
         c.setMaxResults(1);
         List<UserIdentity> results = c.list();
@@ -127,7 +131,7 @@ public final class PasswordAuthenticator
             bind(PasswordAuthenticator.class)
                     .to(PasswordAuthenticator.class)
                     .to(IAuthenticator.class)
-                    .named("password")
+                    .named(AuthenticatorType.Password.name())
                     .in(RequestScoped.class);
         }
     }

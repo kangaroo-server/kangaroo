@@ -19,13 +19,13 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
 import net.krotscheck.kangaroo.database.entity.Application;
-import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.database.jackson.Views;
@@ -33,11 +33,14 @@ import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.util.PasswordUtil;
+import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -71,12 +74,12 @@ public final class UserIdentityService extends AbstractService {
     /**
      * Search the identities in the system.
      *
-     * @param offset          The offset of the first entity to fetch.
-     * @param limit           The number of entities to fetch.
-     * @param queryString     The search term for the query.
-     * @param ownerId         An optional user ID to filter by.
-     * @param userId          An optional user ID to filter by.
-     * @param authenticatorId An optional authenticator id to filter by.
+     * @param offset      The offset of the first entity to fetch.
+     * @param limit       The number of entities to fetch.
+     * @param queryString The search term for the query.
+     * @param ownerId     An optional user ID to filter by.
+     * @param userId      An optional user ID to filter by.
+     * @param type        The identity type to search by.
      * @return A list of search results.
      */
     @GET
@@ -89,39 +92,56 @@ public final class UserIdentityService extends AbstractService {
             @DefaultValue("") @QueryParam("q") final String queryString,
             @Optional @QueryParam("owner") final UUID ownerId,
             @Optional @QueryParam("user") final UUID userId,
-            @Optional @QueryParam("authenticator") final UUID authenticatorId) {
+            @Optional @QueryParam("type") final AuthenticatorType type) {
 
-        FullTextQuery query = buildQuery(UserIdentity.class,
-                new String[]{"claims", "remoteId"},
-                queryString);
+        // Start a query builder...
+        QueryBuilder builder = getSearchFactory()
+                .buildQueryBuilder()
+                .forEntity(UserIdentity.class)
+                .get();
+        BooleanJunction junction = builder.bool();
+
+        Query fuzzy = builder.keyword()
+                .fuzzy()
+                .onFields(new String[]{"claims", "remoteId"})
+                .matching(queryString)
+                .createQuery();
+        junction = junction.must(fuzzy);
 
         // Attach an ownership filter.
         User owner = resolveOwnershipFilter(ownerId);
         if (owner != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_identity_owner")
-                    .setParameter("indexPath", "user.application.owner.id")
-                    .setParameter("uuid", owner.getId());
+            Query ownerQuery = builder
+                    .keyword()
+                    .onField("user.application.owner.id")
+                    .matching(owner.getId())
+                    .createQuery();
+            junction.must(ownerQuery);
         }
 
         // Attach an user filter.
-        User filterByUser =
-                resolveFilterEntity(User.class, userId);
+        User filterByUser = resolveFilterEntity(User.class, userId);
         if (filterByUser != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_identity_user")
-                    .setParameter("indexPath", "user.id")
-                    .setParameter("uuid", filterByUser.getId());
+            Query userQuery = builder
+                    .keyword()
+                    .onField("user.id")
+                    .matching(filterByUser.getId())
+                    .createQuery();
+            junction.must(userQuery);
         }
 
-        // Attach an authentication filter.
-        Authenticator filterByAuthenticator =
-                resolveFilterEntity(Authenticator.class, authenticatorId);
-        if (filterByAuthenticator != null) {
-            query.enableFullTextFilter("uuid_identity_authenticator")
-                    .setParameter("indexPath", "authenticator.id")
-                    .setParameter("uuid", filterByAuthenticator.getId());
+        // Attach a type filter.
+        if (type != null) {
+            Query typeQuery = builder.keyword()
+                    .onField("type")
+                    .matching(type)
+                    .createQuery();
+            junction.must(typeQuery);
         }
+
+        FullTextQuery query = getFullTextSession()
+                .createFullTextQuery(junction.createQuery(),
+                        UserIdentity.class);
 
         return executeQuery(query, offset, limit);
     }
@@ -129,13 +149,13 @@ public final class UserIdentityService extends AbstractService {
     /**
      * Browse the identities in the system.
      *
-     * @param offset          The offset of the first entity to fetch.
-     * @param limit           The number of entities to fetch.
-     * @param sort            The field on which the entities should be sorted.
-     * @param order           The sort order, ASC or DESC.
-     * @param ownerId         An optional owner ID to filter by.
-     * @param userId          An optional user ID to filter by.
-     * @param authenticatorId An optional authenticator id to filter by.
+     * @param offset  The offset of the first entity to fetch.
+     * @param limit   The number of entities to fetch.
+     * @param sort    The field on which the entities should be sorted.
+     * @param order   The sort order, ASC or DESC.
+     * @param ownerId An optional owner ID to filter by.
+     * @param userId  An optional user ID to filter by.
+     * @param type    An optional authenticator type to filter by.
      * @return A list of search results.
      */
     @GET
@@ -153,15 +173,13 @@ public final class UserIdentityService extends AbstractService {
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
             @Optional @QueryParam("owner") final UUID ownerId,
             @Optional @QueryParam("user") final UUID userId,
-            @Optional @QueryParam("authenticator") final UUID authenticatorId) {
+            @Optional @QueryParam("type") final AuthenticatorType type) {
 
         // Validate the incoming filters.
         User filterByOwner =
                 resolveOwnershipFilter(ownerId);
         User filterByUser =
                 resolveFilterEntity(User.class, userId);
-        Authenticator filterByAuthenticator =
-                resolveFilterEntity(Authenticator.class, authenticatorId);
 
         // Assert that the sort is on a valid column
         Criteria countCriteria = getSession()
@@ -183,15 +201,9 @@ public final class UserIdentityService extends AbstractService {
                     .add(Restrictions.eq("u.id", filterByUser.getId()));
         }
 
-        if (filterByAuthenticator != null) {
-            browseCriteria
-                    .createAlias("authenticator", "auth")
-                    .add(Restrictions.eq("auth.id",
-                            filterByAuthenticator.getId()));
-            countCriteria
-                    .createAlias("authenticator", "auth")
-                    .add(Restrictions.eq("auth.id",
-                            filterByAuthenticator.getId()));
+        if (type != null) {
+            browseCriteria.add(Restrictions.eq("type", type));
+            countCriteria.add(Restrictions.eq("type", type));
         }
 
         if (filterByOwner != null) {
@@ -251,7 +263,7 @@ public final class UserIdentityService extends AbstractService {
         if (identity.getId() != null) {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
-        if (identity.getAuthenticator() == null) {
+        if (identity.getType() == null) {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (identity.getUser() == null) {
@@ -279,16 +291,8 @@ public final class UserIdentityService extends AbstractService {
             }
         }
 
-        // Resolve the authenticator
-        Authenticator authenticator =
-                getSession().get(Authenticator.class,
-                        identity.getAuthenticator().getId());
-        if (authenticator == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
-        }
-
-        // Now make sure that we're creating a password
-        if (!authenticator.getType().equals("password")) {
+        // Ensure that the type is 'Password'
+        if (!identity.getType().equals(AuthenticatorType.Password)) {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
@@ -342,8 +346,8 @@ public final class UserIdentityService extends AbstractService {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
-        // Make sure we're not trying to change the authenticator.
-        if (!current.getAuthenticator().equals(identity.getAuthenticator())) {
+        // Make sure we're not trying to change the type.
+        if (!current.getType().equals(identity.getType())) {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
 

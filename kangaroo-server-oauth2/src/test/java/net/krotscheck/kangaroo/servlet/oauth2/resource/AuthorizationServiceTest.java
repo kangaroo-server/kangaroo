@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -61,13 +62,13 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 protected void loadTestData(final Session session) {
                     context = ApplicationBuilder.newApplication(session)
                             .client(ClientType.Implicit)
-                            .authenticator("foo")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .build();
 
                     ownerContext = ApplicationBuilder.newApplication(session)
                             .client(ClientType.OwnerCredentials)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .authenticatorState()
                             .build();
@@ -170,38 +171,6 @@ public final class AuthorizationServiceTest extends ContainerTest {
         ErrorResponse e = r.readEntity(ErrorResponse.class);
         Assert.assertEquals("invalid_request", e.getError());
         Assert.assertNotNull(e.getErrorDescription());
-    }
-
-    /**
-     * Test against an unimplemented authenticator. This test should
-     * technically never be triggered, but we're checking it anyway.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testCallbackUnimplementedAuthenticator() throws Exception {
-
-        AuthenticatorState state = new AuthenticatorState();
-        state.setAuthenticator(context.getAuthenticator());
-        state.setClientRedirect(new URI("http://valid.example.com/redirect"));
-
-        Session s = getSession();
-        s.getTransaction().begin();
-        s.save(state);
-        s.getTransaction().commit();
-
-        Response r = target("/authorize/callback")
-                .queryParam("state", state.getId().toString())
-                .request()
-                .get();
-
-        URI location = r.getLocation();
-        MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getFragment());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("invalid_request", params.getFirst("error"));
-        Assert.assertNotNull(params.get("error_description"));
     }
 
     /**

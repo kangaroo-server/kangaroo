@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
@@ -411,13 +412,13 @@ public final class ApplicationBuilder {
     /**
      * Enable an authenticator for the current client context.
      *
-     * @param name The authenticator to enable.
+     * @param type The authenticator type to use.
      * @return This builder.
      */
-    public ApplicationBuilder authenticator(final String name) {
+    public ApplicationBuilder authenticator(final AuthenticatorType type) {
 
         context.authenticator = new Authenticator();
-        context.authenticator.setType(name);
+        context.authenticator.setType(type);
         context.authenticator.setClient(context.client);
 
         persist(context.authenticator);
@@ -464,7 +465,7 @@ public final class ApplicationBuilder {
         context.userIdentity.setPassword(PasswordUtil.hash(password,
                 context.userIdentity.getSalt()));
         context.userIdentity.setUser(context.user);
-        context.userIdentity.setAuthenticator(context.authenticator);
+        context.userIdentity.setType(context.authenticator.getType());
 
         context.user.getIdentities().add(context.userIdentity);
 
@@ -484,7 +485,7 @@ public final class ApplicationBuilder {
         context.userIdentity = new UserIdentity();
         context.userIdentity.setRemoteId(remoteIdentity);
         context.userIdentity.setUser(context.user);
-        context.userIdentity.setAuthenticator(context.authenticator);
+        context.userIdentity.setType(context.authenticator.getType());
 
         context.user.getIdentities().add(context.userIdentity);
 

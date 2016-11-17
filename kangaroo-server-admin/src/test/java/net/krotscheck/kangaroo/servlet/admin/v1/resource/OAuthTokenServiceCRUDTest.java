@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -293,15 +294,22 @@ public final class OAuthTokenServiceCRUDTest
         Application a = getAttached(context.getApplication());
 
         // Get all matching clients in this context.
-        List<Client> clients = a.getClients().stream()
+        List<Client> clients = a.getClients()
+                .stream()
                 .filter(c -> c.getType().equals(getClientType()))
+                .collect(Collectors.toList());
+
+        // Grab all the represented authenticator types.
+        List<AuthenticatorType> authTypes = clients.stream()
+                .flatMap(c -> c.getAuthenticators().stream())
+                .map(Authenticator::getType)
+                .distinct()
                 .collect(Collectors.toList());
 
         // Get any clients from the above list that have identities.
         List<Client> identityClients = clients.stream()
                 .flatMap(c -> c.getAuthenticators().stream())
-                .flatMap(auth -> auth.getIdentities().stream())
-                .map(UserIdentity::getAuthenticator)
+                .filter(atx -> authTypes.contains(atx.getType()))
                 .map(Authenticator::getClient)
                 .distinct()
                 .collect(Collectors.toList());
@@ -311,8 +319,14 @@ public final class OAuthTokenServiceCRUDTest
                 : clients.get(0);
 
         // Get an identity from the client authenticator, if available.
-        List<UserIdentity> identities = client.getAuthenticators().stream()
-                .flatMap(ate -> ate.getIdentities().stream())
+        List<AuthenticatorType> cAuthTypes = client.getAuthenticators().stream()
+                .map(Authenticator::getType)
+                .distinct()
+                .collect(Collectors.toList());
+        List<UserIdentity> identities = a.getUsers().stream()
+                .flatMap(u -> u.getIdentities().stream())
+                .filter(id -> cAuthTypes.contains(id.getType()))
+                .distinct()
                 .collect(Collectors.toList());
 
         // If there are redirects available...
@@ -362,29 +376,25 @@ public final class OAuthTokenServiceCRUDTest
      * @return A valid bearer token in the present context.
      */
     private OAuthToken createBearerToken(final ApplicationContext context) {
+        Application a = getAttached(context.getApplication());
         // Get all clients of the correct type.
-        List<Client> clients = getAttached(context.getApplication())
-                .getClients()
-                .stream()
+        List<Client> clients = a.getClients().stream()
                 .filter(c -> c.getType().equals(getClientType()))
+                .filter(c -> c.getAuthenticators().size() > 0)
                 .collect(Collectors.toList());
-
-        // If we need an identity, further filter it down to a client that
-        // has a user with an identity.
-        if (!getClientType().equals(ClientType.ClientCredentials)) {
-            clients = clients.stream()
-                    .flatMap(c -> c.getAuthenticators().stream())
-                    .flatMap(a -> a.getIdentities().stream())
-                    .map(i -> i.getAuthenticator().getClient())
-                    .collect(Collectors.toList());
-        }
 
         // Grab the client.
         Client client = clients.get(0);
 
-        // Get an identity from the client authenticator, if available.
-        List<UserIdentity> identities = client.getAuthenticators().stream()
-                .flatMap(ate -> ate.getIdentities().stream())
+        // Get an identity of the appropriate authenticator, if available.
+        List<AuthenticatorType> types = client.getAuthenticators().stream()
+                .map(Authenticator::getType)
+                .distinct()
+                .collect(Collectors.toList());
+        List<UserIdentity> identities = a.getUsers().stream()
+                .flatMap(u -> u.getIdentities().stream())
+                .distinct()
+                .filter(uid -> types.contains(uid.getType()))
                 .collect(Collectors.toList());
 
         OAuthToken token = new OAuthToken();

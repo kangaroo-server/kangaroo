@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -67,7 +68,7 @@ public final class Section420ImplicitGrantTest
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.Implicit)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                     twoRedirectContext = ApplicationBuilder
@@ -75,25 +76,25 @@ public final class Section420ImplicitGrantTest
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.Implicit)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .redirect("http://other.example.com/redirect")
                             .build();
                     bareContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.Implicit)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .build();
                     noRoleContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.Implicit)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                     roleNoScopeContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.Implicit)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .scope("debug")
                             .redirect("http://valid.example.com/redirect")
                             .role("test", new String[]{})
