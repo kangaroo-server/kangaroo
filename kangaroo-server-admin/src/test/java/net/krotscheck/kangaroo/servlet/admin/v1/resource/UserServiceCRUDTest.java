@@ -88,8 +88,7 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
         EnvironmentBuilder context =
                 new EnvironmentBuilder(getSession(), "Test Name")
                         .owner(adminApp.getUser())
-                        .scope(Scope.USER)
-                        .client(ClientType.Implicit, "Test Client")
+                        .client(ClientType.Implicit)
                         .authenticator("test");
 
         // User 1
@@ -121,13 +120,13 @@ public final class UserServiceCRUDTest extends AbstractResourceTest {
         users.add(context.getUser());
 
         // Build an auth header.
-        context.bearerToken(Scope.USER);
-        authHeader = String.format("Bearer %s", context.getToken().getId());
+        adminApp.bearerToken(Scope.USER);
+        authHeader = String.format("Bearer %s", adminApp.getToken().getId());
 
         // Build an auth header with no valid scope.
-        context.bearerToken();
+        adminApp.bearerToken((String) null);
         authHeaderNoScope =
-                String.format("Bearer %s", context.getToken().getId());
+                String.format("Bearer %s", adminApp.getToken().getId());
 
         List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(context);
