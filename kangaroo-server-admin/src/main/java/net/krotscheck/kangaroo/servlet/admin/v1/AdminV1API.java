@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ApplicationService;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.ClientService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ScopeService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener;
@@ -73,6 +74,7 @@ public final class AdminV1API extends ResourceConfig {
         // API Services
         register(ApplicationService.class);
         register(ScopeService.class);
+        register(ClientService.class);
         register(UserService.class);
     }
 }
