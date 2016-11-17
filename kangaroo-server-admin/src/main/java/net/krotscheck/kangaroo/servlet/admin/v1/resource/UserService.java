@@ -26,17 +26,11 @@ import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.search.FullTextQuery;
-import org.hibernate.search.FullTextSession;
-import org.hibernate.search.SearchFactory;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
-import java.util.List;
-import java.util.UUID;
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -45,6 +39,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * A RESTful API that permits the management of user resources.
@@ -52,23 +48,9 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 @Path("/user")
-@RolesAllowed(Scope.USER)
+@RolesAllowed({Scope.USER, Scope.USER_ADMIN})
 @OAuth2
 public final class UserService extends AbstractService {
-
-    /**
-     * Create a new instance of the user service.
-     *
-     * @param session         The Hibernate session.
-     * @param searchFactory   The FT Search factory.
-     * @param fullTextSession The fulltext search factory.
-     */
-    @Inject
-    public UserService(final Session session,
-                       final SearchFactory searchFactory,
-                       final FullTextSession fullTextSession) {
-        super(session, searchFactory, fullTextSession);
-    }
 
     /**
      * Search the users in the system.
@@ -178,5 +160,25 @@ public final class UserService extends AbstractService {
             throw new HttpNotFoundException();
         }
         return Response.ok(user).build();
+    }
+
+    /**
+     * The access scope required as an admin.
+     *
+     * @return The scope.
+     */
+    @Override
+    protected String getAdminScope() {
+        return Scope.USER_ADMIN;
+    }
+
+    /**
+     * The access scope required as a regular user.
+     *
+     * @return The scope.
+     */
+    @Override
+    protected String getAccessScope() {
+        return Scope.USER;
     }
 }
