@@ -18,6 +18,7 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import com.carrotsearch.ant.tasks.junit4.dependencies.com.google.common.base.Strings;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
@@ -32,26 +33,35 @@ import net.krotscheck.kangaroo.test.TestAuthenticator;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.TestProperties;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
 
+import javax.persistence.Transient;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Abstract test harness for the administration API. Handles all of our data
@@ -124,9 +134,17 @@ public abstract class AbstractResourceTest extends ContainerTest {
         // Manually delete the admin application, so it can be recreated in a
         // clean state.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
-        s.delete(getAdminContext().getApplication());
-        t.commit();
+
+        // Clear out any ownership references, so we don't have any cyclic
+        // dependencies.
+        Query removeOwners =
+                s.createQuery("update Application set owner = null");
+        removeOwners.executeUpdate();
+
+        // Delete all the applications. This should cascade to delete all
+        // other database records.
+        Query remove = s.createQuery("delete Application");
+        remove.executeUpdate();
 
         systemConfig.clear();
     }
@@ -358,6 +376,48 @@ public abstract class AbstractResourceTest extends ContainerTest {
     }
 
     /**
+     * Execute a browse request.
+     *
+     * @param params The query parameters.
+     * @param token  The auth token.
+     * @return The received response.
+     */
+    protected final Response browse(final Map<String, String> params,
+                                    final OAuthToken token) {
+        WebTarget t = target(getUrlForId(null));
+        for (Entry<String, String> e : params.entrySet()) {
+            t = t.queryParam(e.getKey(), e.getValue());
+        }
+        Builder b = t.request();
+        if (token != null) {
+            b = b.header(HttpHeaders.AUTHORIZATION,
+                    HttpUtil.authHeaderBearer(token.getId()));
+        }
+        return b.get();
+    }
+
+    /**
+     * Execute a search request.
+     *
+     * @param params The query parameters.
+     * @param token  The auth token.
+     * @return The received response.
+     */
+    protected final Response search(final Map<String, String> params,
+                                    final OAuthToken token) {
+        WebTarget t = target(getUrlForId("search"));
+        for (Entry<String, String> e : params.entrySet()) {
+            t = t.queryParam(e.getKey(), e.getValue());
+        }
+        Builder b = t.request();
+        if (token != null) {
+            b = b.header(HttpHeaders.AUTHORIZATION,
+                    HttpUtil.authHeaderBearer(token.getId()));
+        }
+        return b.get();
+    }
+
+    /**
      * Construct the request URL for this test given a specific resource ID.
      *
      * @param id The ID to use.
@@ -365,6 +425,39 @@ public abstract class AbstractResourceTest extends ContainerTest {
      */
     protected abstract String getUrlForId(String id);
 
+    /**
+     * Helper method, determines if a given token has read access, or
+     * ownership of, an entity.
+     *
+     * @param entity The entity to check.
+     * @param token  The token with the appropriate credentials.
+     * @return True if the entity is owned, otherwise false.
+     */
+    protected final boolean isAccessible(final AbstractEntity entity,
+                                         final OAuthToken token) {
+        return isAccessible(entity, token, getAdminScope());
+    }
+
+    /**
+     * Helper method, determines if a given token has read access, or
+     * ownership of, an entity.
+     *
+     * @param entity     The entity to check.
+     * @param token      The token with the appropriate credentials.
+     * @param adminScope The required admin scope.
+     * @return True if the entity is owned, otherwise false.
+     */
+    protected final boolean isAccessible(final AbstractEntity entity,
+                                         final OAuthToken token,
+                                         final String adminScope) {
+        if (token.getScopes().containsKey(adminScope)) {
+            return true;
+        }
+        if (token.getIdentity() == null) {
+            return false;
+        }
+        return token.getIdentity().getUser().equals(entity.getOwner());
+    }
 
     /**
      * Assert that two entities - using reflection - are exactly the same.
@@ -397,10 +490,22 @@ public abstract class AbstractResourceTest extends ContainerTest {
                     continue;
                 }
 
-                Object leftValue =
-                        descriptor.getReadMethod().invoke(left);
-                Object rightValue =
-                        descriptor.getReadMethod().invoke(right);
+                Method readMethod = descriptor.getReadMethod();
+                // Filter out anything that's transient, as that's usually a
+                // computed property.
+                List<Annotation> annotations = Arrays.asList(
+                        readMethod.getDeclaredAnnotations())
+                        .stream()
+                        .filter(a -> a.annotationType().equals(Transient.class)
+                                || a.annotationType().equals(JsonIgnore.class))
+                        .collect(Collectors.toList());
+                if (annotations.size() > 0) {
+                    continue;
+                }
+
+
+                Object leftValue = readMethod.invoke(left);
+                Object rightValue = readMethod.invoke(right);
 
                 Assert.assertEquals(leftValue, rightValue);
             }
@@ -420,8 +525,20 @@ public abstract class AbstractResourceTest extends ContainerTest {
                                              final Status expectedHttpStatus) {
         String expectedMessage = expectedHttpStatus.getReasonPhrase()
                 .toLowerCase().replace(" ", "_");
-        assertErrorResponse(r, expectedHttpStatus.getStatusCode(),
-                expectedMessage);
+        assertErrorResponse(r, expectedHttpStatus, expectedMessage);
+    }
+
+    /**
+     * Test for a specific error response.
+     *
+     * @param r                  The error response.
+     * @param expectedHttpStatus The expected http status.
+     * @param message            The expected message.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final Status expectedHttpStatus,
+                                             final String message) {
+        assertErrorResponse(r, expectedHttpStatus.getStatusCode(), message);
     }
 
     /**
@@ -431,9 +548,12 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * @param statusCode      The expected status code.
      * @param expectedMessage The expected message.
      */
-    protected void assertErrorResponse(final Response r,
-                                     final int statusCode,
-                                     final String expectedMessage) {
+    protected final void assertErrorResponse(final Response r,
+                                             final int statusCode,
+                                             final String expectedMessage) {
+        Assert.assertFalse(
+                String.format("%s must not be a success code", r.getStatus()),
+                r.getStatus() < 400);
         ErrorResponse response = r.readEntity(ErrorResponse.class);
         Assert.assertEquals(statusCode, r.getStatus());
         Assert.assertEquals(expectedMessage, response.getError());
