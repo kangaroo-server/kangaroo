@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -157,7 +158,7 @@ public final class TestAuthenticator
         protected void configure() {
             bind(TestAuthenticator.class)
                     .to(IAuthenticator.class)
-                    .named("test")
+                    .named(AuthenticatorType.Test.name())
                     .in(RequestScoped.class);
         }
     }

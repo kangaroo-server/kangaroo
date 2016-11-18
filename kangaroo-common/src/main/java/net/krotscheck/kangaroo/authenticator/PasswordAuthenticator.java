@@ -127,7 +127,7 @@ public final class PasswordAuthenticator
             bind(PasswordAuthenticator.class)
                     .to(PasswordAuthenticator.class)
                     .to(IAuthenticator.class)
-                    .named("password")
+                    .named(AuthenticatorType.Password.name())
                     .in(RequestScoped.class);
         }
     }
