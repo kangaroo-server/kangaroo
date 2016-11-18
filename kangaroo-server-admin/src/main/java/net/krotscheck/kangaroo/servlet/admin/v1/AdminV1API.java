@@ -18,6 +18,7 @@
 package net.krotscheck.kangaroo.servlet.admin.v1;
 
 
+import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
@@ -31,6 +32,7 @@ import net.krotscheck.kangaroo.servlet.admin.v1.resource.ClientService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.RoleScopeService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.RoleService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ScopeService;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserIdentityService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.UserService;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
@@ -66,6 +68,9 @@ public final class AdminV1API extends ResourceConfig {
         register(VersionFeature.class);          // Version response attachment.
         register(StatusFeature.class);           // Heartbeat service.
 
+        // Authenticators, for validation
+        register(new PasswordAuthenticator.Binder());
+
         // Internal components
         register(new ServletConfigFactory.Binder());
         register(new FirstRunContainerLifecycleListener.Binder());
@@ -79,6 +84,7 @@ public final class AdminV1API extends ResourceConfig {
         register(ClientService.class);
         register(RoleService.class);
         register(UserService.class);
+        register(UserIdentityService.class);
 
         // API Subresources
         register(new RoleScopeService.Binder());
