@@ -13,6 +13,7 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
@@ -27,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.GenericType;
@@ -41,15 +43,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Tests for the UserService API.
+ * Test the list and filter methods of the user service.
  *
  * @author Michael Krotscheck
  */
-public final class UserServiceSearchTest
-        extends AbstractServiceSearchTest<User> {
+@RunWith(Parameterized.class)
+public final class UserServiceBrowseTest
+        extends AbstractServiceBrowseTest<User> {
 
     /**
-     * Convenience generic type for response decoding.
+     * Generic type declaration for list decoding.
      */
     private static final GenericType<List<User>> LIST_TYPE =
             new GenericType<List<User>>() {
@@ -59,20 +62,93 @@ public final class UserServiceSearchTest
     /**
      * Create a new instance of this parameterized test.
      *
-     * @param clientType The type of  client.
+     * @param clientType The type of client.
      * @param tokenScope The client scope to issue.
      * @param createUser Whether to create a new user.
      */
-    public UserServiceSearchTest(final ClientType clientType,
+    public UserServiceBrowseTest(final ClientType clientType,
                                  final String tokenScope,
                                  final Boolean createUser) {
-        super(User.class, clientType, tokenScope, createUser);
+        super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Return the token scope required for admin access on this test.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getAdminScope() {
+        return Scope.USER_ADMIN;
+    }
+
+    /**
+     * Return the token scope required for generic user access.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getRegularScope() {
+        return Scope.USER;
+    }
+
+    /**
+     * Return the list type used to decode browse results.
+     *
+     * @return The list type.
+     */
+    @Override
+    protected GenericType<List<User>> getListType() {
+        return LIST_TYPE;
+    }
+
+    /**
+     * Return the list of entities which should be accessible given a
+     * specific token.
+     *
+     * @param token The oauth token to test against.
+     * @return A list of entities (could be empty).
+     */
+    @Override
+    protected List<User> getAccessibleEntities(final OAuthToken token) {
+        // If you're an admin, you get to see everything. If you're not, you
+        // only get to see what you own.
+        if (!token.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(token);
+        }
+
+        // We know you're an admin. Get all applications in the system.
+        Criteria c = getSession().createCriteria(Application.class);
+
+        // Get all the owned clients.
+        return ((List<Application>) c.list())
+                .stream()
+                .flatMap(a -> a.getUsers().stream())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Return the list of entities which are owned by the given oauth token.
+     *
+     * @param owner The owner of these entities.
+     * @return A list of entities (could be empty).
+     */
+    @Override
+    protected List<User> getOwnedEntities(final User owner) {
+
+        // Get all the owned clients.
+        return owner.getApplications()
+                .stream()
+                .flatMap(a -> a.getUsers().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**
      * Test parameters.
      *
-     * @return The parameters passed to this test during every run.
+     * @return The list of parameters.
      */
     @Parameterized.Parameters
     public static Collection parameters() {
@@ -109,90 +185,6 @@ public final class UserServiceSearchTest
                 });
     }
 
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    @Override
-    protected GenericType<List<User>> getListType() {
-        return LIST_TYPE;
-    }
-
-    /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<User> getAccessibleEntities(final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned roles.
-        return ((List<Application>) c.list())
-                .stream()
-                .flatMap(a -> a.getUsers().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Return the list of entities which are owned by the given oauth token.
-     *
-     * @param owner The owner of these entities.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<User> getOwnedEntities(final User owner) {
-        // Get all the owned clients.
-        return owner.getApplications()
-                .stream()
-                .flatMap(a -> a.getUsers().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Return the list of field names on which this particular entity type
-     * has build a search index.
-     *
-     * @return An array of field names.
-     */
-    @Override
-    protected String[] getSearchIndexFields() {
-        return new String[]{"identities.claims", "identities.remoteId"};
-    }
-
-    /**
-     * Return the token scope required for admin access on this test.
-     *
-     * @return The correct scope string.
-     */
-    @Override
-    protected String getAdminScope() {
-        return Scope.USER_ADMIN;
-    }
-
-    /**
-     * Return the token scope required for generic user access.
-     *
-     * @return The correct scope string.
-     */
-    @Override
-    protected String getRegularScope() {
-        return Scope.USER;
-    }
-
     /**
      * Construct the request URL for this test given a specific resource ID.
      *
@@ -208,29 +200,24 @@ public final class UserServiceSearchTest
     }
 
     /**
-     * Test that we can filter a search by an application ID.
+     * Ensure that we can filter by the user's application.
      */
     @Test
-    public void testSearchByApplication() {
-        String query = "many";
-        Application a = getSecondaryContext()
+    public void testBrowseFilterByApplication() {
+        Application filtered = getAdminContext()
                 .getApplication();
 
-        OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
-        params.put("q", query);
-        params.put("application", a.getId().toString());
-        Response r = search(params, token);
+        params.put("application", filtered.getId().toString());
+        Response r = browse(params, getAdminToken());
 
-        // Determine result set.
-        List<User> searchResults = getSearchResults(query);
-        List<User> accessibleEntities = getAccessibleEntities(token);
-
-        List<User> expectedResults = searchResults
-                .stream()
-                .filter((item) -> accessibleEntities.indexOf(item) > -1)
-                .filter((item) -> item.getApplication().equals(a))
-                .collect(Collectors.toList());
+        List<User> expectedResults =
+                getAccessibleEntities(getAdminToken())
+                        .stream()
+                        .filter((user) ->
+                                user.getApplication().equals(filtered))
+                        .distinct()
+                        .collect(Collectors.toList());
 
         Integer expectedTotal = expectedResults.size();
         int expectedResultSize = Math.min(10, expectedTotal);
@@ -240,9 +227,7 @@ public final class UserServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
-        } else {
-            Assert.assertTrue(expectedTotal > 1);
-
+        } else if (isAccessible(filtered, getAdminToken())) {
             List<User> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
                     r.getHeaderString("Offset"));
@@ -251,20 +236,20 @@ public final class UserServiceSearchTest
             Assert.assertEquals(expectedTotal.toString(),
                     r.getHeaderString("Total"));
             Assert.assertEquals(expectedResultSize, results.size());
+        } else {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         }
     }
 
     /**
-     * Test that an invalid application throws an error.
+     * Ensure that we cannot filter by an invalid application.
      */
     @Test
-    public void testSearchByInvalidApplication() {
-        OAuthToken token = getAdminToken();
+    public void testBrowseFilterByInvalidApplication() {
         Map<String, String> params = new HashMap<>();
-        params.put("q", "many");
         params.put("application", UUID.randomUUID().toString());
+        Response r = browse(params, getAdminToken());
 
-        Response r = search(params, token);
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
@@ -274,50 +259,28 @@ public final class UserServiceSearchTest
     }
 
     /**
-     * Test that an malformed application throws an error.
-     */
-    // TODO(krotscheck): This should return a 400.
-    @Test
-    public void testSearchByMalformedApplication() {
-        Map<String, String> params = new HashMap<>();
-        params.put("q", "many");
-        params.put("application", "malformed");
-
-        Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
-    }
-
-    /**
-     * Test that we can filter a search by an role ID.
+     * Ensure that we can filter by the user's application.
      */
     @Test
-    public void testSearchByRole() {
-        String query = "many";
-        Role role = getSecondaryContext()
+    public void testBrowseFilterByRole() {
+        Role filtered = getAdminContext()
                 .getApplication()
-                .getUsers()
-                .stream()
-                .filter(user -> user.getRole() != null)
+                .getRoles().stream()
+                .filter((role) -> role.getName().equals("admin"))
                 .collect(Collectors.toList())
-                .get(0)
-                .getRole();
+                .get(0);
 
-        OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
-        params.put("q", query);
-        params.put("role", role.getId().toString());
-        Response r = search(params, token);
+        params.put("role", filtered.getId().toString());
+        Response r = browse(params, getAdminToken());
 
-        // Determine result set.
-        List<User> searchResults = getSearchResults(query);
-        List<User> accessibleEntities = getAccessibleEntities(token);
-
-        List<User> expectedResults = searchResults
-                .stream()
-                .filter((item) -> accessibleEntities.indexOf(item) > -1)
-                .filter(item -> item.getRole() != null)
-                .filter((item) -> item.getRole().equals(role))
-                .collect(Collectors.toList());
+        List<User> expectedResults =
+                getAccessibleEntities(getAdminToken())
+                        .stream()
+                        .filter((user) -> user.getRole() != null)
+                        .filter((user) -> user.getRole().equals(filtered))
+                        .distinct()
+                        .collect(Collectors.toList());
 
         Integer expectedTotal = expectedResults.size();
         int expectedResultSize = Math.min(10, expectedTotal);
@@ -327,9 +290,7 @@ public final class UserServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
-        } else {
-            Assert.assertTrue(expectedTotal > 1);
-
+        } else if (isAccessible(filtered, getAdminToken())) {
             List<User> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
                     r.getHeaderString("Offset"));
@@ -338,39 +299,25 @@ public final class UserServiceSearchTest
             Assert.assertEquals(expectedTotal.toString(),
                     r.getHeaderString("Total"));
             Assert.assertEquals(expectedResultSize, results.size());
-        }
-    }
-
-    /**
-     * Test that an invalid role throws an error.
-     */
-    @Test
-    public void testSearchByInvalidRole() {
-        OAuthToken token = getAdminToken();
-        Map<String, String> params = new HashMap<>();
-        params.put("q", "many");
-        params.put("role", UUID.randomUUID().toString());
-
-        Response r = search(params, token);
-        if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
     }
 
     /**
-     * Test that an malformed role throws an error.
+     * Ensure that we cannot filter by an invalid application.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
-    public void testSearchByMalformedRole() {
+    public void testBrowseFilterByInvalidRole() {
         Map<String, String> params = new HashMap<>();
-        params.put("q", "many");
-        params.put("role", "malformed");
+        params.put("role", UUID.randomUUID().toString());
+        Response r = browse(params, getAdminToken());
 
-        Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
+        if (isLimitedByClientCredentials()) {
+            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
+                    "invalid_scope");
+        } else {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        }
     }
 }
