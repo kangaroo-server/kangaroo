@@ -20,11 +20,10 @@ package net.krotscheck.kangaroo.common.status;
 
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
@@ -32,7 +31,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class StatusFeatureTest extends JerseyTest {
+public final class StatusFeatureTest extends KangarooJerseyTest {
 
     /**
      * Configure the test application.
@@ -40,7 +39,7 @@ public final class StatusFeatureTest extends JerseyTest {
      * @return A configured app.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(StatusFeature.class);
         return a;

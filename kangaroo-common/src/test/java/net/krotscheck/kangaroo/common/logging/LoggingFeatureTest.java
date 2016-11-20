@@ -17,9 +17,9 @@
 
 package net.krotscheck.kangaroo.common.logging;
 
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -27,7 +27,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -37,7 +36,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class LoggingFeatureTest extends JerseyTest {
+public final class LoggingFeatureTest extends KangarooJerseyTest {
 
     /**
      * Build the configured application.
@@ -45,7 +44,7 @@ public final class LoggingFeatureTest extends JerseyTest {
      * @return The configured application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(LoggingFeature.class);
         a.register(MockService.class);

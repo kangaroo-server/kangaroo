@@ -19,11 +19,10 @@ package net.krotscheck.kangaroo.common.version;
 
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 /**
@@ -32,7 +31,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class VersionFilterTest extends JerseyTest {
+public final class VersionFilterTest extends KangarooJerseyTest {
 
     /**
      * Build a test application.
@@ -40,7 +39,7 @@ public final class VersionFilterTest extends JerseyTest {
      * @return Configured version filter app.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(ConfigurationFeature.class);
         a.register(VersionFeature.class);
