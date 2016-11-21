@@ -67,4 +67,23 @@ public final class OAuthTokenTypeTest {
                 m.readValue("\"Refresh\"", OAuthTokenType.class);
         Assert.assertSame(refreshOutput, OAuthTokenType.Refresh);
     }
+
+    /**
+     * Assert that valueOf conversions work
+     */
+    @Test
+    public void testValueOf() {
+        Assert.assertEquals(
+                OAuthTokenType.Bearer,
+                OAuthTokenType.valueOf("Bearer")
+        );
+        Assert.assertEquals(
+                OAuthTokenType.Authorization,
+                OAuthTokenType.valueOf("Authorization")
+        );
+        Assert.assertEquals(
+                OAuthTokenType.Refresh,
+                OAuthTokenType.valueOf("Refresh")
+        );
+    }
 }
