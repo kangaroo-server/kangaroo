@@ -30,6 +30,7 @@ import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ApplicationService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.AuthenticatorService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ClientService;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.OAuthTokenService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.RoleScopeService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.RoleService;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ScopeService;
@@ -87,6 +88,7 @@ public final class AdminV1API extends ResourceConfig {
         register(RoleService.class);
         register(UserService.class);
         register(UserIdentityService.class);
+        register(OAuthTokenService.class);
 
         // API Subresources
         register(new RoleScopeService.Binder());
