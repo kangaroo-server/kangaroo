@@ -88,7 +88,9 @@ public final class URITypeDescriptor extends AbstractTypeDescriptor<URI> {
         if (String.class.isAssignableFrom(type)) {
             return (X) toString(value);
         }
-        throw unknownUnwrap(type);
+        throw new HibernateException(
+                "Unknown unwrap conversion requested: URI to " + type.getName()
+        );
     }
 
     /**
@@ -106,6 +108,7 @@ public final class URITypeDescriptor extends AbstractTypeDescriptor<URI> {
         if (String.class.isInstance(value)) {
             return fromString((String) value);
         }
-        throw unknownWrap(value.getClass());
+        throw new HibernateException("Unknown wrap conversion requested: "
+                + value.getClass().getName() + " to URI");
     }
 }

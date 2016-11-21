@@ -34,6 +34,7 @@ public final class SortOrderTest {
     public void testAllVariablesPresent() {
         Assert.assertNotNull(SortOrder.ASC);
         Assert.assertNotNull(SortOrder.DESC);
+        Assert.assertEquals(2, SortOrder.values().length);
     }
 
     /**
@@ -61,5 +62,20 @@ public final class SortOrderTest {
         Assert.assertEquals(SortOrder.DESC, lowerCaseOrder);
         Assert.assertEquals("DESC", SortOrder.DESC.toString());
 
+    }
+
+    /**
+     * Assert that valueOf conversions work
+     */
+    @Test
+    public void testValueOf() {
+        Assert.assertEquals(
+                SortOrder.DESC,
+                SortOrder.valueOf("DESC")
+        );
+        Assert.assertEquals(
+                SortOrder.ASC,
+                SortOrder.valueOf("ASC")
+        );
     }
 }
