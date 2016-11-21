@@ -217,13 +217,12 @@ public final class AuthorizationService {
 
             // Since this code won't execute without a valid state, we should be
             // safe to do a simple if/else here. Except we're paranoid.
-            switch (s.getClient().getType()) {
-                case AuthorizationGrant:
-                    return handleGrantResponse(s, i);
-                case Implicit:
-                    return handleImplicitResponse(s, i);
-                default:
-                    throw new InvalidRequestException();
+            if (s.getClient().getType() == ClientType.AuthorizationGrant) {
+                return handleGrantResponse(s, i);
+            } else if (s.getClient().getType() == ClientType.Implicit) {
+                return handleImplicitResponse(s, i);
+            } else {
+                throw new InvalidRequestException();
             }
         } catch (HttpStatusException e) {
             // Any caught exceptions here should be redirected to the

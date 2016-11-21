@@ -23,9 +23,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.ServletContextEvent;
@@ -47,7 +48,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
  * @author Michael Krotscheck
  */
 @RunWith(PowerMockRunner.class)
-public final class SearchIndexContextListenerITest {
+public final class SearchIndexContextListenerIntegrationTest {
 
     /**
      * Assert that the index is created on startup.
@@ -55,7 +56,7 @@ public final class SearchIndexContextListenerITest {
      * @throws Exception Any unexpected exceptions.
      */
     @Test
-    @PrepareForTest({Search.class, SearchIndexContextListener.class})
+    @PrepareOnlyThisForTest({Search.class, SearchIndexContextListener.class})
     public void testOnStartup() throws Exception {
         // Set up a fake session factory
         SessionFactory mockFactory = mock(SessionFactory.class);
@@ -89,6 +90,7 @@ public final class SearchIndexContextListenerITest {
 
         // Verify that the session was closed.
         verify(mockSession).close();
+        verify(mockFactory).close();
     }
 
     /**
@@ -97,7 +99,7 @@ public final class SearchIndexContextListenerITest {
      * @throws Exception An exception that might be thrown.
      */
     @Test
-    @PrepareForTest({Search.class, SearchIndexContextListener.class})
+    @PrepareOnlyThisForTest({Search.class, SearchIndexContextListener.class})
     public void testInterruptedIndex() throws Exception {
         // Set up a fake session factory
         SessionFactory mockFactory = mock(SessionFactory.class);
@@ -128,6 +130,53 @@ public final class SearchIndexContextListenerITest {
 
         // Run the test
         listener.contextInitialized(mock(ServletContextEvent.class));
+
+        // Verify that the session was closed.
+        verify(mockSession).close();
+        verify(mockFactory).close();
+    }
+
+    /**
+     * Assert that an interrupted exception exits cleanly.
+     *
+     * @throws Exception An exception that might be thrown.
+     */
+    @Test
+    @PrepareOnlyThisForTest({Search.class, SearchIndexContextListener.class})
+    public void testRandomException() throws Exception {
+        // Set up a fake session factory
+        SessionFactory mockFactory = mock(SessionFactory.class);
+        Session mockSession = mock(Session.class);
+        when(mockFactory.openSession()).thenReturn(mockSession);
+
+        // Set up a fake indexer
+        MassIndexer mockIndexer = mock(MassIndexer.class);
+
+        // Set up our fulltext session.
+        FullTextSession mockFtSession = mock(FullTextSession.class);
+        when(mockFtSession.createIndexer())
+                .thenReturn(mockIndexer);
+        doThrow(new RuntimeException())
+                .when(mockIndexer)
+                .startAndWait();
+
+        // This is the way to tell PowerMock to mock all static methods of a
+        // given class
+        mockStatic(Search.class);
+        when(Search.getFullTextSession(mockSession))
+                .thenReturn(mockFtSession);
+
+        SearchIndexContextListener listener =
+                mock(SearchIndexContextListener.class);
+        doReturn(mockFactory).when(listener).createSessionFactory();
+        doCallRealMethod().when(listener).contextInitialized(any());
+
+        try {
+            listener.contextInitialized(mock(ServletContextEvent.class));
+            Assert.fail();
+        } catch (RuntimeException e) {
+            Assert.assertNotNull(e);
+        }
 
         // Verify that the session was closed.
         verify(mockSession).close();

@@ -29,7 +29,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
- * Unit tests for the java.util.logging -> slf4j redirect.
+ * Unit tests for the java.util.logging to slf4j redirect.
  *
  * @author Michael Krotscheck
  */
