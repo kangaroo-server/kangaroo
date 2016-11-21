@@ -104,5 +104,26 @@ public final class ClientTypeTest {
         ));
     }
 
-
+    /**
+     * Assert that valueOf conversions work
+     */
+    @Test
+    public void testValueOf() {
+        Assert.assertEquals(
+                ClientType.AuthorizationGrant,
+                ClientType.valueOf("AuthorizationGrant")
+        );
+        Assert.assertEquals(
+                ClientType.Implicit,
+                ClientType.valueOf("Implicit")
+        );
+        Assert.assertEquals(
+                ClientType.ClientCredentials,
+                ClientType.valueOf("ClientCredentials")
+        );
+        Assert.assertEquals(
+                ClientType.OwnerCredentials,
+                ClientType.valueOf("OwnerCredentials")
+        );
+    }
 }

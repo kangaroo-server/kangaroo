@@ -8,13 +8,7 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
-before_script:
-  - mvn clean -Ptravis
 script:
-  - mvn checkstyle:check -Ptravis
-  - mvn pmd:check -Ptravis
-  - mvn pmd:cpd-check -Ptravis
-  - mvn install -Ptravis
-  - mvn cobertura:check -Ptravis
+  - mvn clean install -Ptravis
 after_success:
-  - mvn cobertura:cobertura coveralls:report -DskipTests -Ptravis
+  - mvn coveralls:report -Ptravis
