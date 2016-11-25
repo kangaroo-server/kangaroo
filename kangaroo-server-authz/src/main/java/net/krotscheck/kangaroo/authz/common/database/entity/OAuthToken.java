@@ -18,10 +18,13 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.annotations.ApiModelProperty;
 import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -75,8 +78,16 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "identity", updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = UserIdentity.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id", "user.id", "remoteId", "claims"})
+    @ApiModelProperty(
+            required = true,
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private UserIdentity identity;
 
     /**
@@ -85,8 +96,16 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = Client.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id", "application.owner.id"})
+    @ApiModelProperty(
+            required = true,
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private Client client;
 
     /**
@@ -99,7 +118,14 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     @JoinColumn(name = "authToken", nullable = true, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = OAuthToken.Deserializer.class)
+    @ApiModelProperty(
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private OAuthToken authToken;
 
     /**
@@ -118,6 +144,7 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     @Column(name = "tokenType", nullable = false)
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
             bridge = @FieldBridge(impl = EnumBridge.class))
+    @ApiModelProperty(required = true)
     private OAuthTokenType tokenType;
 
     /**
@@ -125,6 +152,7 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
      */
     @Basic(optional = false)
     @Column(name = "expiresIn", nullable = false)
+    @ApiModelProperty(required = true)
     private Long expiresIn;
 
     /**
@@ -255,6 +283,16 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
      *
      * @param expiresIn The time, in seconds.
      */
+    @JsonSetter
+    public void setExpiresIn(final long expiresIn) {
+        this.expiresIn = expiresIn;
+    }
+
+    /**
+     * Set the expiration time, in seconds, from the creation date.
+     *
+     * @param expiresIn The time, in seconds.
+     */
     public void setExpiresIn(final Number expiresIn) {
         if (expiresIn == null) {
             this.expiresIn = null;
@@ -270,16 +308,6 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
      */
     public void setExpiresIn(final int expiresIn) {
         this.expiresIn = (long) expiresIn;
-    }
-
-    /**
-     * Set the expiration time, in seconds, from the creation date.
-     *
-     * @param expiresIn The time, in seconds.
-     */
-    @JsonSetter
-    public void setExpiresIn(final long expiresIn) {
-        this.expiresIn = expiresIn;
     }
 
     /**

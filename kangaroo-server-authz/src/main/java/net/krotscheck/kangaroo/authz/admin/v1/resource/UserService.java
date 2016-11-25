@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -64,6 +68,19 @@ import java.net.URI;
 @Path("/user")
 @ScopesAllowed({Scope.USER, Scope.USER_ADMIN})
 @Transactional
+@Api(tags = "User",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.USER,
+                                description = "Modify users in one"
+                                        + " application."),
+                        @AuthorizationScope(
+                                scope = Scope.USER_ADMIN,
+                                description = "Modify users in all"
+                                        + " applications.")
+                })
+        })
 public final class UserService extends AbstractService {
 
     /**
@@ -80,13 +97,17 @@ public final class UserService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Search users")
     @SuppressWarnings({"CPD-START"})
     public Response searchUsers(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("application") final BigInteger applicationId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("role") final BigInteger roleId) {
 
         // Start a query builder...
@@ -162,6 +183,7 @@ public final class UserService extends AbstractService {
     @SuppressWarnings({"CPD-END"})
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse users")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
@@ -171,8 +193,11 @@ public final class UserService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("application") final BigInteger applicationId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("role") final BigInteger roleId) {
 
         // Validate the incoming filters.
@@ -239,7 +264,10 @@ public final class UserService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read user")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         User scope = getSession().get(User.class, id);
         assertCanAccess(scope, getAdminScope());
         return Response.ok(scope).build();
@@ -253,6 +281,7 @@ public final class UserService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create user")
     public Response createResource(final User user) {
 
         // Input value checks.
@@ -300,8 +329,11 @@ public final class UserService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final User user) {
+    @ApiOperation(value = "Update user")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final User user) {
         Session s = getSession();
 
         // Load the old instance.
@@ -335,7 +367,10 @@ public final class UserService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
-    public Response deleteResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Delete user")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         User user = s.get(User.class, id);
 

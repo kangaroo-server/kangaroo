@@ -18,10 +18,13 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.annotations.ApiModelProperty;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.jackson.Views;
 import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
@@ -75,8 +78,16 @@ public final class Authenticator extends AbstractAuthzEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = Client.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id", "application.owner.id", "name"})
+    @ApiModelProperty(
+            required = true,
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private Client client;
 
     /**

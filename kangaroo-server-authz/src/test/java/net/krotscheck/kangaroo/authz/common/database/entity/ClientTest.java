@@ -415,6 +415,7 @@ public final class ClientTest {
         node.put("name", "name");
         node.put("type", "Implicit");
         node.put("clientSecret", "clientSecret");
+        node.put("application", IdUtil.toString(IdUtil.next()));
 
         ObjectNode configurationNode = m.createObjectNode();
         configurationNode.put("one", "value");

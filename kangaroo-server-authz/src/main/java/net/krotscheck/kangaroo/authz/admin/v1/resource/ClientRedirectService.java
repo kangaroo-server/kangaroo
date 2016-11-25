@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractClientUri;
@@ -63,6 +67,19 @@ import java.net.URI;
  */
 @ScopesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
 @Transactional
+@Api(tags = "Client",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.CLIENT,
+                                description = "Modify redirects in"
+                                        + " one application."),
+                        @AuthorizationScope(
+                                scope = Scope.CLIENT_ADMIN,
+                                description = "Modify redirects in"
+                                        + " all applications.")
+                })
+        })
 public final class ClientRedirectService extends AbstractService {
 
     /**
@@ -77,6 +94,7 @@ public final class ClientRedirectService extends AbstractService {
      */
     @Inject
     public ClientRedirectService(
+            @io.swagger.annotations.ApiParam(type = "string")
             @PathParam("clientId") final BigInteger clientId) {
         this.clientId = clientId;
     }
@@ -88,10 +106,11 @@ public final class ClientRedirectService extends AbstractService {
      * @param limit  The number of data sets to fetch.
      * @param sort   The field on which the records should be sorted.
      * @param order  The sort order, ASC or DESC.
-     * @return A list of search results.
+     * @return A list of browse results.
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse client redirects")
     @SuppressWarnings("CPD-START")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
@@ -148,7 +167,10 @@ public final class ClientRedirectService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read client redirect")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         Client client = s.get(Client.class, clientId);
         assertCanAccess(client, getAdminScope());
@@ -169,6 +191,7 @@ public final class ClientRedirectService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create client redirect")
     public Response createResource(final ClientRedirect redirect) {
         Session s = getSession();
 
@@ -221,8 +244,11 @@ public final class ClientRedirectService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final ClientRedirect redirect) {
+    @ApiOperation(value = "Update client redirect")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final ClientRedirect redirect) {
         Session s = getSession();
 
         // Make sure we're allowed to access the client.
@@ -272,7 +298,9 @@ public final class ClientRedirectService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
+    @ApiOperation(value = "Delete client redirect")
     public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
             @PathParam("id") final BigInteger redirectId) {
         Session s = getSession();
 

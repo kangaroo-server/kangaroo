@@ -202,6 +202,7 @@ public final class UserTest {
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
+        node.put("application", IdUtil.toString(IdUtil.next()));
 
         String output = m.writeValueAsString(node);
         User user = m.readValue(output, User.class);
@@ -215,6 +216,9 @@ public final class UserTest {
         Assert.assertEquals(
                 format.format(user.getModifiedDate().getTime()),
                 node.get("modifiedDate").asText());
+        Assert.assertEquals(
+                IdUtil.toString(user.getApplication().getId()),
+                node.get("application").asText());
     }
 
 

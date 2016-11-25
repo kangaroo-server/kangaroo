@@ -239,6 +239,7 @@ public final class ServerFactory {
             WebappContext context = new WebappContext(name, path);
             ServletRegistration registration =
                     context.addServlet(name, new ServletContainer(rc));
+            registration.setInitParameter("swagger.context.id", name);
             registration.addMapping(String.format("%s/*", path));
 
             context.deploy(server);

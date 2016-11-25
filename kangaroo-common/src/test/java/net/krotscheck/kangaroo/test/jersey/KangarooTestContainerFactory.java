@@ -271,10 +271,9 @@ public final class KangarooTestContainerFactory
                 final ServletRegistration registration;
                 if (servletInstance != null) {
                     registration = context
-                            .addServlet(servletInstance.getClass().getName(),
-                                    servletInstance);
+                            .addServlet("TestContext", servletInstance);
                 } else {
-                    registration = context.addServlet(servletClass.getName(),
+                    registration = context.addServlet("TestContext",
                             servletClass);
                 }
                 registration.setInitParameters(

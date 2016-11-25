@@ -241,6 +241,7 @@ public final class AuthenticatorTest {
         Assert.assertEquals(
                 a.getType().toString(),
                 node.get("type").asText());
+        Assert.assertNull(a.getClient());
 
         Map<String, String> config = a.getConfiguration();
 

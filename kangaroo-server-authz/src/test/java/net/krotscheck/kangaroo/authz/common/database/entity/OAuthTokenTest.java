@@ -361,6 +361,9 @@ public final class OAuthTokenTest {
         node.put("tokenType", "Authorization");
         node.put("expiresIn", 300);
         node.put("redirect", "http://example.com");
+        node.put("identity", IdUtil.toString(IdUtil.next()));
+        node.put("client", IdUtil.toString(IdUtil.next()));
+        node.put("authToken", IdUtil.toString(IdUtil.next()));
 
         String output = m.writeValueAsString(node);
         OAuthToken c = m.readValue(output, OAuthToken.class);
@@ -384,6 +387,15 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 c.getRedirect().toString(),
                 node.get("redirect").asText());
+        Assert.assertEquals(
+                IdUtil.toString(c.getIdentity().getId()),
+                node.get("identity").asText());
+        Assert.assertEquals(
+                IdUtil.toString(c.getClient().getId()),
+                node.get("client").asText());
+        Assert.assertEquals(
+                IdUtil.toString(c.getAuthToken().getId()),
+                node.get("authToken").asText());
     }
 
     /**

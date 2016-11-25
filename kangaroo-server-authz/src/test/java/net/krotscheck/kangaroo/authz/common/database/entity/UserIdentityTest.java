@@ -263,6 +263,8 @@ public final class UserIdentityTest {
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("remoteId", "remoteId");
+        node.put("authenticator", IdUtil.toString(IdUtil.next()));
+        node.put("user", IdUtil.toString(IdUtil.next()));
 
         ObjectNode claimNode = m.createObjectNode();
         claimNode.put("one", "value");
@@ -285,6 +287,9 @@ public final class UserIdentityTest {
         Assert.assertEquals(
                 a.getRemoteId(),
                 node.get("remoteId").asText());
+        Assert.assertEquals(
+                IdUtil.toString(a.getUser().getId()),
+                node.get("user").asText());
 
         Map<String, String> claims = a.getClaims();
 
