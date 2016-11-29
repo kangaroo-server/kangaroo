@@ -132,11 +132,6 @@ public final class EnvironmentBuilder {
     private URI referrerUri;
 
     /**
-     * The list of entities that are under management by this builder.
-     */
-    private final List<AbstractEntity> trackedEntities = new ArrayList<>();
-
-    /**
      * Get the current application.
      *
      * @return The current application.
@@ -152,15 +147,6 @@ public final class EnvironmentBuilder {
      */
     public Role getRole() {
         return getRefreshed(role);
-    }
-
-    /**
-     * Get the list of tracked entities.
-     *
-     * @return The current list of tracked entities.
-     */
-    public List<AbstractEntity> getTrackedEntities() {
-        return Collections.unmodifiableList(getRefreshed(trackedEntities));
     }
 
     /**
@@ -538,10 +524,6 @@ public final class EnvironmentBuilder {
         session.saveOrUpdate(e);
         t.commit();
 
-        if (!trackedEntities.contains(e)) {
-            trackedEntities.add(e);
-        }
-
         // Persist all changes.
         session.flush();
     }
@@ -776,49 +758,8 @@ public final class EnvironmentBuilder {
         // Since the session user may not be tracked by this environment
         // builder, we manually persist it.
         persist(a);
-//        Transaction t = session.beginTransaction();
-//        session.update(sessionUser);
-//        session.update(a);
-//        t.commit();
 
         return this;
-    }
-
-    /**
-     * Clear all created entities from the database.
-     */
-    public void clear() {
-        // Delete the entities in reverse order.
-        for (int i = trackedEntities.size() - 1; i >= 0; i--) {
-            AbstractEntity e = trackedEntities.get(i);
-
-            // First, evict the entity.
-            session.evict(e);
-
-            // Now, reload it.
-            e = session.get(e.getClass(), e.getId());
-
-            // Is it still in the database?
-            if (e != null) {
-                Transaction t = session.beginTransaction();
-                session.delete(e);
-                t.commit();
-            }
-        }
-        trackedEntities.clear();
-
-        application = null;
-        scopes.clear();
-        scope = null;
-        role = null;
-        client = null;
-        authenticator = null;
-        user = null;
-        userIdentity = null;
-        token = null;
-        redirectUri = null;
-        referrerUri = null;
-        authenticatorState = null;
     }
 
     /**

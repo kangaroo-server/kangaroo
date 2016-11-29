@@ -494,7 +494,6 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
-        thirdApp.clear();
     }
 
 

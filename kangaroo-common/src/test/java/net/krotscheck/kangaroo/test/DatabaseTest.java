@@ -19,8 +19,10 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
@@ -93,9 +95,18 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @After
     public final void clearData() throws Exception {
-        List<EnvironmentBuilder> reversed = new ArrayList<>(fixtures);
-        Collections.reverse(reversed);
-        reversed.forEach(EnvironmentBuilder::clear);
+        Query clearOwners = session.createQuery("UPDATE Application SET " +
+                "owner=null");
+        Query clearApplications = session.createQuery("DELETE from " +
+                "Application");
+
+        // Delete everything, making sure to remove the cyclic reference on
+        // owners first.
+        Transaction t = session.beginTransaction();
+        clearOwners.executeUpdate();
+        clearApplications.executeUpdate();
+        t.commit();
+
         fixtures.clear();
 
         // Clean any outstanding sessions.
