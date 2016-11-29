@@ -81,10 +81,11 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
+    public List<EnvironmentBuilder> fixtures(final Session session) {
         return null;
     }
 

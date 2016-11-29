@@ -19,8 +19,10 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
@@ -29,7 +31,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -80,7 +81,7 @@ public abstract class DatabaseTest implements IDatabaseTest {
         // Create the session
         session = sessionFactory.openSession();
 
-        List<EnvironmentBuilder> newFixtures = fixtures();
+        List<EnvironmentBuilder> newFixtures = fixtures(session);
         if (newFixtures != null) {
             fixtures.addAll(newFixtures);
         }
@@ -93,10 +94,20 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @After
     public final void clearData() throws Exception {
-        List<EnvironmentBuilder> reversed = new ArrayList<>(fixtures);
-        Collections.reverse(reversed);
-        reversed.forEach(EnvironmentBuilder::clear);
-        fixtures.clear();
+        // First, clear the session so we're operating against no data.
+        session.clear();
+
+        Query clearOwners = session.createQuery("UPDATE Application SET " +
+                "owner=null");
+        Query clearApplications = session.createQuery("DELETE from " +
+                "Application");
+
+        // Delete everything, making sure to remove the cyclic reference on
+        // owners first.
+        Transaction t = session.beginTransaction();
+        clearOwners.executeUpdate();
+        clearApplications.executeUpdate();
+        t.commit();
 
         // Clean any outstanding sessions.
         session.close();

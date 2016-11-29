@@ -1,6 +1,18 @@
+dist: trusty
 language: java
+sudo: required
 jdk:
 - oraclejdk8
+env:
+  matrix:
+    - DB_PROFILE=h2
+    - DB_PROFILE=mysql
+addons:
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
 branches:
   only:
   - master
@@ -8,7 +20,11 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
+before_install:
+  - mysql -u root -e 'create database oid;'
+  - mysql -u root -e 'grant all on oid.* to oid@localhost identified by "oid";'
+  - mysql -u root -e 'grant all on oid.* to oid@127.0.0.1 identified by "oid";'
 script:
-  - mvn clean install -Ptravis
+  - mvn clean install -P$DB_PROFILE
 after_success:
   - mvn coveralls:report -Ptravis

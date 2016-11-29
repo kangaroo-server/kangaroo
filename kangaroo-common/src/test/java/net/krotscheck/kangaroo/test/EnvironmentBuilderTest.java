@@ -50,14 +50,15 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to wra
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
+    public List<EnvironmentBuilder> fixtures(final Session session) {
         // Create an independent session.
         SessionFactory f = getSessionFactory();
 
-        context = new EnvironmentBuilder(f.openSession(), "Test App")
+        context = new EnvironmentBuilder(session, "Test App")
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .scopes(Arrays.asList("one", "two", "three"))
@@ -281,10 +282,6 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals(b.getClient(), aState.getClient());
         Assert.assertEquals(b.getAuthenticator(), aState.getAuthenticator());
 
-        // Test getting all entities.
-        List<AbstractEntity> e = b.getTrackedEntities();
-        Assert.assertEquals(22, e.size());
-
         // Delete one of our entities to make sure it's skipped during clearing.
         Transaction t = getSession().beginTransaction();
         getSession().delete(b.getToken());
@@ -301,7 +298,6 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals(0, b.getScopes().size());
         Assert.assertNull(b.getAuthenticator());
         Assert.assertNull(b.getToken());
-        Assert.assertEquals(0, b.getTrackedEntities().size());
     }
 
     /**
@@ -321,12 +317,12 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         b.user();
         User createdUser = b.getUser();
 
-        // Ensure that clearing does not delete the app, but does delete the
-        // user.
         b.clear();
 
+        // Assert that entities are still persisted, even though the context
+        // builder's been cleared.
         User oldUser = session.get(User.class, createdUser.getId());
-        Assert.assertNull(oldUser);
+        Assert.assertNotNull(oldUser);
 
         adminApp = session.get(Application.class, adminApp.getId());
         Assert.assertNotNull(adminApp);

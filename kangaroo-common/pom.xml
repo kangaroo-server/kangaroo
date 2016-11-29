@@ -170,7 +170,7 @@
       <artifactId>javax.el</artifactId>
     </dependency>
 
-    <!-- H2 database, used for testing. -->
+    <!-- Databases, used for testing. -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>

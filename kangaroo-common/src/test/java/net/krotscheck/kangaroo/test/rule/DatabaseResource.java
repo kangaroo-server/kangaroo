@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
+import com.mysql.jdbc.MySQLConnection;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -47,33 +48,55 @@ import java.util.TimeZone;
 public final class DatabaseResource implements TestRule {
 
     /**
-     * JDBC Connection string.
+     * Evaluate the Test Database JDBC Address.
+     *
+     * @return The test database address.
      */
-//    public static final String JDBC =
-//            "jdbc:mysql://localhost:3306/oid?useUnicode=yes";
-    public static final String JDBC =
-            "jdbc:h2:mem:target/test/db/h2/hibernate";
+    private static String getDbJdbcPath() {
+        return System.getProperty("test.db.jdbc",
+                "jdbc:h2:mem:target/test/db/h2/hibernate");
+//        return System.getProperty("test.db.jdbc",
+//                "jdbc:mysql://localhost:3306/oid?useUnicode=yes");
+    }
 
     /**
-     * JDBC Connection string.
+     * Evaluate the Test Database Driver.
+     *
+     * @return The test database driver class as a string.
      */
-//    public static final String DRIVER = "com.mysql.jdbc.Driver";
-    public static final String DRIVER = "org.h2.Driver";
+    private static String getDbDriver() {
+        return System.getProperty("test.db.driver", "org.h2.Driver");
+//        return System.getProperty("test.db.driver", "com.mysql.jdbc.Driver");
+    }
 
     /**
-     * JDBC Connection string.
+     * Evaluate the Test Database Login.
+     *
+     * @return The test database login.
      */
-    public static final String USER = "oid";
+    private static String getDbLogin() {
+        return System.getProperty("test.db.user", "oid");
+    }
 
     /**
-     * JDBC Connection string.
+     * Evaluate the Test Database Password.
+     *
+     * @return The test database password.
      */
-    public static final String PASSWORD = "oid";
+    private static String getDbPassword() {
+        return System.getProperty("test.db.password", "oid");
+    }
 
     /**
-     * The JNDI Identity.
+     * Evaluate the JNDI Identity.
+     *
+     * @return The JNDI Identity path.
      */
-    private static final String JNDI = "java:/comp/env/jdbc/OIDServerDB";
+    private static String getJndiAddress() {
+        String jndiName = System.getProperty("test.db.jndiName",
+                "OIDServerDB");
+        return String.format("java:/comp/env/jdbc/%s", jndiName);
+    }
 
     /**
      * Logger instance.
@@ -102,6 +125,9 @@ public final class DatabaseResource implements TestRule {
         System.setProperty(Context.URL_PKG_PREFIXES,
                 "org.eclipse.jetty.jndi");
 
+        logger.info(String.format("Setting up [%s] database at [%s]",
+                getDbDriver(), getDbJdbcPath()));
+
         try {
             InitialContext ic = new InitialContext();
 
@@ -109,12 +135,11 @@ public final class DatabaseResource implements TestRule {
             ic.createSubcontext("java:/comp/env/jdbc");
 
             BasicDataSource bds = new BasicDataSource();
-            bds.setDriverClassName(
-                    System.getProperty("test.db.driver", DRIVER));
-            bds.setUrl(System.getProperty("test.db.jdbc", JDBC));
-            bds.setUsername(System.getProperty("test.db.user", USER));
-            bds.setPassword(System.getProperty("test.db.password", PASSWORD));
-            ic.bind(JNDI, bds);
+            bds.setDriverClassName(getDbDriver());
+            bds.setUrl(getDbJdbcPath());
+            bds.setUsername(getDbLogin());
+            bds.setPassword(getDbPassword());
+            ic.bind(getJndiAddress(), bds);
         } catch (NamingException e) {
             // Do nothing, this is only thrown if the context already exists,
             // which will happen in a second test run.
@@ -136,11 +161,22 @@ public final class DatabaseResource implements TestRule {
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-        Class.forName(System.getProperty("test.db.driver", DRIVER));
+        // We need to persist this connection so that the in-memory database
+        // is not destroyed when the connection drops.
+        Class.forName(getDbDriver());
         conn = DriverManager.getConnection(
-                System.getProperty("test.db.jdbc", JDBC),
-                System.getProperty("test.db.user", USER),
-                System.getProperty("test.db.password", PASSWORD));
+                getDbJdbcPath(),
+                getDbLogin(),
+                getDbPassword());
+
+        // Flush the database if necessary
+        if (conn instanceof MySQLConnection) {
+            java.sql.Statement s = conn.createStatement();
+            s.addBatch("DROP DATABASE IF EXISTS oid");
+            s.addBatch("CREATE DATABASE IF NOT EXISTS oid;");
+            s.executeBatch();
+            s.close();
+        }
 
         Database database = DatabaseFactory.getInstance()
                 .findCorrectDatabaseImplementation(new JdbcConnection(conn));
@@ -176,8 +212,9 @@ public final class DatabaseResource implements TestRule {
      * a wrapper around {@code base}, or a completely new Statement.
      */
     @Override
-    public Statement apply(final Statement base,
-                           final Description description) {
+    public Statement apply(
+            final Statement base,
+            final Description description) {
         return new Statement() {
 
             @Override

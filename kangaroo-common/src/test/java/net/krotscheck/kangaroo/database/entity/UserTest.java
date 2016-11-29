@@ -104,7 +104,7 @@ public final class UserTest {
         identities.add(new UserIdentity());
         User user = new User();
 
-        Assert.assertNull(user.getIdentities());
+        Assert.assertEquals(0, user.getIdentities().size());
         user.setIdentities(identities);
         Assert.assertEquals(identities, user.getIdentities());
         Assert.assertNotSame(identities, user.getIdentities());

@@ -166,9 +166,9 @@ public final class FirstRunContainerLifecycleListener
         s.save(adminIdentity);
         t.commit();
 
-        logger.info(String.format("Application ID: %s",
+        logger.debug(String.format("Application ID: %s",
                 servletApp.getId()));
-        logger.info(String.format("Admin User ID: %s",
+        logger.debug(String.format("Admin User ID: %s",
                 adminUser.getId()));
         logger.debug("Application created. Let's rock!");
 

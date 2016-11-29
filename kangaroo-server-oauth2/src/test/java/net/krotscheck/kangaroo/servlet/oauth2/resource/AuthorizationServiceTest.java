@@ -70,17 +70,18 @@ public final class AuthorizationServiceTest extends ContainerTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
+    public List<EnvironmentBuilder> fixtures(final Session session) {
+        context = new EnvironmentBuilder(session)
                 .client(ClientType.Implicit)
                 .authenticator("foo")
                 .redirect("http://valid.example.com/redirect");
 
 
-        ownerContext = new EnvironmentBuilder(getSession())
+        ownerContext = new EnvironmentBuilder(session)
                 .client(ClientType.OwnerCredentials)
                 .authenticator("test")
                 .redirect("http://valid.example.com/redirect");

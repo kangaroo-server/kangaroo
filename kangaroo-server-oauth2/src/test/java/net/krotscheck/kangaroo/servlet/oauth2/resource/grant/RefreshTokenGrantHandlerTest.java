@@ -54,11 +54,6 @@ public final class RefreshTokenGrantHandlerTest
     private RefreshTokenGrantHandler handler;
 
     /**
-     * Current hibernate session.
-     */
-    private Session session;
-
-    /**
      * A simple, scoped context.
      */
     private EnvironmentBuilder ownerCredsContext;
@@ -95,13 +90,14 @@ public final class RefreshTokenGrantHandlerTest
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
+    public List<EnvironmentBuilder> fixtures(final Session session) {
         OAuthToken authToken;
 
-        authGrantContext = new EnvironmentBuilder(getSession())
+        authGrantContext = new EnvironmentBuilder(session)
                 .client(ClientType.AuthorizationGrant, true)
                 .authenticator("test")
                 .scope("debug")
@@ -115,7 +111,7 @@ public final class RefreshTokenGrantHandlerTest
                 .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
 
 
-        ownerCredsContext = new EnvironmentBuilder(getSession())
+        ownerCredsContext = new EnvironmentBuilder(session)
                 .client(ClientType.OwnerCredentials, true)
                 .authenticator("test")
                 .scope("debug")
@@ -129,7 +125,7 @@ public final class RefreshTokenGrantHandlerTest
                 .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
 
 
-        expiredContext = new EnvironmentBuilder(getSession())
+        expiredContext = new EnvironmentBuilder(session)
                 .client(ClientType.OwnerCredentials, true)
                 .authenticator("test")
                 .scope("debug")
@@ -142,7 +138,7 @@ public final class RefreshTokenGrantHandlerTest
                 .token(OAuthTokenType.Refresh, true, "debug", null, authToken);
 
 
-        zombieRefreshContext = new EnvironmentBuilder(getSession())
+        zombieRefreshContext = new EnvironmentBuilder(session)
                 .client(ClientType.OwnerCredentials, true)
                 .authenticator("test")
                 .scope("debug")
@@ -151,7 +147,7 @@ public final class RefreshTokenGrantHandlerTest
                 .identity("remote_identity")
                 .refreshToken();
 
-        implicitContext = new EnvironmentBuilder(getSession())
+        implicitContext = new EnvironmentBuilder(session)
                 .client(ClientType.Implicit, true)
                 .authenticator("test")
                 .scope("debug")
@@ -162,7 +158,6 @@ public final class RefreshTokenGrantHandlerTest
                 .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
 
         // The environment builder detaches its data, this reconnects it.
-        session = getSession();
         session.refresh(ownerCredsContext.getClient());
         session.refresh(authGrantContext.getClient());
         session.refresh(implicitContext.getClient());
@@ -181,6 +176,8 @@ public final class RefreshTokenGrantHandlerTest
      */
     @Test
     public void testValidAuthorizationGrant() {
+        Session session = getSession();
+
         Client authClient = authGrantContext.getClient();
         OAuthToken refreshToken = authGrantContext.getToken();
 
@@ -220,6 +217,8 @@ public final class RefreshTokenGrantHandlerTest
      */
     @Test
     public void testValidOwnerCredentials() {
+        Session session = getSession();
+
         Client authClient = ownerCredsContext.getClient();
         OAuthToken refreshToken = ownerCredsContext.getToken();
 
@@ -399,6 +398,8 @@ public final class RefreshTokenGrantHandlerTest
      */
     @Test
     public void testDeescalateScope() {
+        Session session = getSession();
+
         Client authClient = authGrantContext.getClient();
         OAuthToken refreshToken = authGrantContext.getToken();
 
@@ -439,6 +440,8 @@ public final class RefreshTokenGrantHandlerTest
      */
     @Test
     public void testZombieRefresh() {
+        Session session = getSession();
+
         Client authClient = zombieRefreshContext.getClient();
         OAuthToken refreshToken = zombieRefreshContext.getToken();
 

@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.lucene.search.Query;
+import org.hibernate.Session;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -240,24 +241,26 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
      * with different owners, using the kangaroo default scopes so we have
      * some good cross-app name duplication.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
     public final List<EnvironmentBuilder> fixtures(
+            final Session session,
             final EnvironmentBuilder adminApp) throws Exception {
         List<EnvironmentBuilder> fixtures = new ArrayList<>();
 
         // Get the admin app and create users based on the configured
         // parameters.
-        EnvironmentBuilder context = getAdminContext().client(clientType);
+        EnvironmentBuilder context = adminApp.client(clientType);
         if (createUser) {
             context.user().identity();
         }
         adminAppToken = context.bearerToken(tokenScope).getToken();
 
         // Create a second app, owned by another user.
-        otherApp = new EnvironmentBuilder(getSession())
+        otherApp = new EnvironmentBuilder(session)
                 .owner(context.getUser())
                 .scopes(Scope.allScopes());
 
@@ -303,14 +306,14 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         for (int i = 0; i < 10; i++) {
             String appName = String.format("Application %s- %s", i, i % 2 == 0
                     ? "many" : "frown");
-            fixtures.add(new EnvironmentBuilder(getSession(), appName)
+            fixtures.add(new EnvironmentBuilder(session, appName)
                     .owner(adminApp.getOwner()));
-            fixtures.add(new EnvironmentBuilder(getSession(), appName)
+            fixtures.add(new EnvironmentBuilder(session, appName)
                     .owner(adminApp.getUser()));
         }
-        fixtures.add(new EnvironmentBuilder(getSession(), "Single")
+        fixtures.add(new EnvironmentBuilder(session, "Single")
                 .owner(adminApp.getOwner()));
-        fixtures.add(new EnvironmentBuilder(getSession(), "Single")
+        fixtures.add(new EnvironmentBuilder(session, "Single")
                 .owner(adminApp.getUser()));
 
         // Create some users

@@ -30,6 +30,7 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -93,12 +94,14 @@ public final class OAuth2AuthorizationFilterTest
      * Provided the admin context, build a list of all additional
      * applications required for this test.
      *
+     * @param session The session to use to build the environment.
      * @param adminContext The admin context
      * @return A list of fixtures.
      * @throws Exception Thrown if something untoward happens.
      */
     @Override
     public List<EnvironmentBuilder> fixtures(
+            final Session session,
             final EnvironmentBuilder adminContext)
             throws Exception {
         // Create a new user.
