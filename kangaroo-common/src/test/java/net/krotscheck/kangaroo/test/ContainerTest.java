@@ -26,8 +26,10 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
@@ -153,9 +155,18 @@ public abstract class ContainerTest
      */
     @After
     public final void clearData() {
-        List<EnvironmentBuilder> reversed = new ArrayList<>(fixtures);
-        Collections.reverse(reversed);
-        reversed.forEach(EnvironmentBuilder::clear);
+        Query clearOwners = session.createQuery("UPDATE Application SET " +
+                "owner=null");
+        Query clearApplications = session.createQuery("DELETE from " +
+                "Application");
+
+        // Delete everything, making sure to remove the cyclic reference on
+        // owners first.
+        Transaction t = session.beginTransaction();
+        clearOwners.executeUpdate();
+        clearApplications.executeUpdate();
+        t.commit();
+
         fixtures.clear();
 
         session.close();

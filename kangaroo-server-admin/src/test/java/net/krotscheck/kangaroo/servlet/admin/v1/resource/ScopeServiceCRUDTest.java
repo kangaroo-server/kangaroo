@@ -124,37 +124,6 @@ public final class ScopeServiceCRUDTest
                 }
         });
     }
-//
-//    /**
-//     * Load data fixtures for each test.
-//     *
-//     * @return A list of fixtures, which will be cleared after the test.
-//     * @throws Exception An exception that indicates a failed fixture load.
-//     */
-//    @Override
-//    public List<EnvironmentBuilder> fixtures(final EnvironmentBuilder adminApp)
-//            throws Exception {
-//        // Build the admin context with the provided parameters.
-//        EnvironmentBuilder context = getAdminContext();
-//        context.client(clientType);
-//        if (createUser) {
-//            context.user().identity();
-//        }
-//        adminAppToken = context.bearerToken(tokenScope).getToken();
-//
-//        // Build a second app to run some tests against.
-//        otherApp = new EnvironmentBuilder(getSession())
-//                .scopes(Scope.allScopes())
-//                .owner(context.getOwner())
-//                .client(clientType)
-//                .authenticator("test")
-//                .user().identity()
-//                .bearerToken(tokenScope);
-//
-//        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-//        fixtures.add(otherApp);
-//        return fixtures;
-//    }
 
     /**
      * Construct the request URL for this test given a specific resource ID.
@@ -335,8 +304,6 @@ public final class ScopeServiceCRUDTest
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
             Assert.assertEquals("bad_request", response.getError());
         }
-
-        yetAnotherApp.clear();
     }
 
     /**

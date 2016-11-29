@@ -281,27 +281,10 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals(b.getClient(), aState.getClient());
         Assert.assertEquals(b.getAuthenticator(), aState.getAuthenticator());
 
-        // Test getting all entities.
-        List<AbstractEntity> e = b.getTrackedEntities();
-        Assert.assertEquals(22, e.size());
-
         // Delete one of our entities to make sure it's skipped during clearing.
         Transaction t = getSession().beginTransaction();
         getSession().delete(b.getToken());
         t.commit();
-
-        // Assert that everything clears.
-        b.clear();
-        Assert.assertNull(b.getApplication());
-        Assert.assertNull(b.getClient());
-        Assert.assertNull(b.getRole());
-        Assert.assertNull(b.getUser());
-        Assert.assertNull(b.getUserIdentity());
-        Assert.assertNull(b.getScope());
-        Assert.assertEquals(0, b.getScopes().size());
-        Assert.assertNull(b.getAuthenticator());
-        Assert.assertNull(b.getToken());
-        Assert.assertEquals(0, b.getTrackedEntities().size());
     }
 
     /**
@@ -321,12 +304,8 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         b.user();
         User createdUser = b.getUser();
 
-        // Ensure that clearing does not delete the app, but does delete the
-        // user.
-        b.clear();
-
         User oldUser = session.get(User.class, createdUser.getId());
-        Assert.assertNull(oldUser);
+        Assert.assertNotNull(oldUser);
 
         adminApp = session.get(Application.class, adminApp.getId());
         Assert.assertNotNull(adminApp);
@@ -404,8 +383,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         t.commit();
         manualSession.close();
 
-        // Now clear the builder.
-        b.clear();
+        // Now close the session.
         builderSession.close();
     }
 }
