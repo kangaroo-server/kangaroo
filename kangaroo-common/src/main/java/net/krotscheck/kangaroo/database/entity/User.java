@@ -107,7 +107,7 @@ public final class User extends AbstractEntity {
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     @IndexedEmbedded(includePaths = {"claims", "remoteId"})
-    private List<UserIdentity> identities;
+    private List<UserIdentity> identities = new ArrayList<>();
 
     /**
      * Get the application this user belongs to.

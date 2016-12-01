@@ -53,11 +53,13 @@ public final class FirstRunContainerLifecycleListenerTest
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures(final Session session)
+            throws Exception {
         return null;
     }
 

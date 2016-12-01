@@ -26,14 +26,15 @@ import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -76,19 +77,21 @@ public final class Section430OwnerPasswordTest
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception Should not be thrown.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        builder = new EnvironmentBuilder(getSession())
+    public List<EnvironmentBuilder> fixtures(final Session session)
+            throws Exception {
+        builder = new EnvironmentBuilder(session)
                 .scope("debug")
                 .role("debug", new String[]{"debug"})
                 .client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .user()
                 .login(username, password);
-        authBuilder = new EnvironmentBuilder(getSession())
+        authBuilder = new EnvironmentBuilder(session)
                 .scope("debug")
                 .role("debug", new String[]{"debug"})
                 .client(ClientType.OwnerCredentials, true)

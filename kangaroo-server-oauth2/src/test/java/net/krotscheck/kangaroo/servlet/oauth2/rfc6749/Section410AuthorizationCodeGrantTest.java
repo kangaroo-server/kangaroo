@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -91,22 +92,23 @@ public final class Section410AuthorizationCodeGrantTest
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
+    public List<EnvironmentBuilder> fixtures(final Session session) {
+        context = new EnvironmentBuilder(session)
                 .scope("debug")
                 .role("test", new String[]{"debug"})
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("test")
                 .redirect("http://valid.example.com/redirect")
                 .authToken();
-        bareContext = new EnvironmentBuilder(getSession())
+        bareContext = new EnvironmentBuilder(session)
                 .scope("debug")
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("test");
-        authContext = new EnvironmentBuilder(getSession())
+        authContext = new EnvironmentBuilder(session)
                 .scope("debug")
                 .role("test", new String[]{"debug"})
                 .client(ClientType.AuthorizationGrant, true)
@@ -115,17 +117,17 @@ public final class Section410AuthorizationCodeGrantTest
                 .user()
                 .identity("remote_identity")
                 .authToken();
-        noauthContext = new EnvironmentBuilder(getSession())
+        noauthContext = new EnvironmentBuilder(session)
                 .scope("debug")
                 .role("test", new String[]{"debug"})
                 .client(ClientType.AuthorizationGrant)
                 .redirect("http://valid.example.com/redirect");
-        misconfiguredAuthContext = new EnvironmentBuilder(getSession())
+        misconfiguredAuthContext = new EnvironmentBuilder(session)
                 .client(ClientType.AuthorizationGrant)
                 .authenticator("foo")
                 .redirect("http://valid.example.com/redirect")
                 .scope("debug");
-        invalidClientContext = new EnvironmentBuilder(getSession())
+        invalidClientContext = new EnvironmentBuilder(session)
                 .scope("debug")
                 .role("test", new String[]{"debug"})
                 .client(ClientType.Implicit)

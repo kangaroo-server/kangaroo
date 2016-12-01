@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,10 +49,11 @@ public final class OAuthAPITest extends ContainerTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
+    public List<EnvironmentBuilder> fixtures(final Session session) {
         return null;
     }
 

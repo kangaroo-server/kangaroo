@@ -28,12 +28,13 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
 import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * Test that the admin configuration factory creates a singleton instance of
@@ -44,11 +45,13 @@ public final class ServletConfigFactoryTest extends DatabaseTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
+    public List<EnvironmentBuilder> fixtures(final Session session)
+            throws Exception {
         return null;
     }
 

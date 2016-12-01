@@ -33,10 +33,11 @@ public interface IDatabaseTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
-    List<EnvironmentBuilder> fixtures() throws Exception;
+    List<EnvironmentBuilder> fixtures(Session session) throws Exception;
 
     /**
      * Create and return a hibernate session for the test database.

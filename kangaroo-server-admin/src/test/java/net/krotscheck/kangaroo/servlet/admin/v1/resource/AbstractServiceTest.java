@@ -89,12 +89,14 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * Provided the admin context, build a list of all additional
      * applications required for this test.
      *
+     * @param session The session to use to build the environment.
      * @param adminContext The admin context
      * @return A list of fixtures.
      * @throws Exception Thrown if something untoward happens.
      */
     @Override
     public List<EnvironmentBuilder> fixtures(
+            final Session session,
             final EnvironmentBuilder adminContext)
             throws Exception {
 
@@ -110,7 +112,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         service.setSecurityContext(mockContext);
 
         // Create a 'different' app from which we can issue tokens.
-        userApp = new EnvironmentBuilder(getSession())
+        userApp = new EnvironmentBuilder(session)
                 .client(ClientType.Implicit)
                 .authenticator("password")
                 .user()

@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,19 +88,20 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
+    public List<EnvironmentBuilder> fixtures(final Session session) {
+        context = new EnvironmentBuilder(session)
                 .client(ClientType.ClientCredentials, true)
                 .scope("debug");
-        noScopeContext = new EnvironmentBuilder(getSession())
+        noScopeContext = new EnvironmentBuilder(session)
                 .client(ClientType.ClientCredentials, true);
-        implicitContext = new EnvironmentBuilder(getSession())
+        implicitContext = new EnvironmentBuilder(session)
                 .client(ClientType.Implicit, true)
                 .scope("debug");
-        noSecretContext = new EnvironmentBuilder(getSession())
+        noSecretContext = new EnvironmentBuilder(session)
                 .client(ClientType.ClientCredentials)
                 .scope("debug");
 

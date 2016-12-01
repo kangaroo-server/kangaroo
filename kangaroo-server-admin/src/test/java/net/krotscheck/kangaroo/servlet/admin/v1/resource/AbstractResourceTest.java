@@ -36,7 +36,6 @@ import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
 
@@ -100,28 +99,29 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * Create an admin fixture, then use that to feed any other data
      * bootstrapping.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
-    public final List<EnvironmentBuilder> fixtures() throws Exception {
+    public final List<EnvironmentBuilder> fixtures(final Session session)
+            throws Exception {
 
         SessionFactory f = getSessionFactory();
-        Session s = getSession();
 
         ServletConfigFactory factory = new ServletConfigFactory(f);
         systemConfig = factory.provide();
 
         String configId = systemConfig.getString(Config.APPLICATION_ID);
         UUID appId = UUID.fromString(configId);
-        Application a = s.get(Application.class, appId);
+        Application a = session.get(Application.class, appId);
 
-        admin = new EnvironmentBuilder(s, a);
+        admin = new EnvironmentBuilder(session, a);
 
         // Build the fixtures list from this and the implementing class.
         List<EnvironmentBuilder> fixtures = new ArrayList<>();
         fixtures.add(admin);
-        fixtures.addAll(fixtures(admin));
+        fixtures.addAll(fixtures(session, admin));
         return fixtures;
     }
 
@@ -153,11 +153,13 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * Provided the admin context, build a list of all additional
      * applications required for this test.
      *
+     * @param session      The hibernate session.
      * @param adminContext The admin context
      * @return A list of fixtures.
      * @throws Exception Thrown if something untoward happens.
      */
     public abstract List<EnvironmentBuilder> fixtures(
+            Session session,
             EnvironmentBuilder adminContext)
             throws Exception;
 

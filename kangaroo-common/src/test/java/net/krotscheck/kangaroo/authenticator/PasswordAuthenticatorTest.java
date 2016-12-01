@@ -30,16 +30,17 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit tests for the password authenticator.
@@ -56,11 +57,13 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        context = new EnvironmentBuilder(getSession());
+    public List<EnvironmentBuilder> fixtures(final Session session)
+            throws Exception {
+        context = new EnvironmentBuilder(session);
         context.client(ClientType.OwnerCredentials)
                 .authenticator("password")
                 .user()

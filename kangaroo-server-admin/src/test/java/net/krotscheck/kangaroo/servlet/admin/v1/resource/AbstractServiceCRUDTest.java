@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,11 +114,13 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
     @Override
     public final List<EnvironmentBuilder> fixtures(
+            final Session session,
             final EnvironmentBuilder adminApp)
             throws Exception {
         // Build the admin context with the provided parameters.
@@ -135,7 +138,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
         adminAppToken = context.bearerToken(tokenScope).getToken();
 
         // Build a second app to run some tests against.
-        otherApp = new EnvironmentBuilder(getSession())
+        otherApp = new EnvironmentBuilder(session)
                 .scopes(Scope.allScopes())
                 .role(RandomStringUtils.randomAlphabetic(5),
                         Scope.allScopes())

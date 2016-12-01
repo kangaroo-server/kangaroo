@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -72,10 +73,11 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
+    public List<EnvironmentBuilder> fixtures(final Session session) {
         return null;
     }
 
@@ -109,38 +111,56 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
 
     /**
      * Assert that a record has its modified date updated during an update.
+     *
+     * @throws Exception Thrown when interrupted.
      */
     @Test
-    public void testOnPreUpdate() {
+    public void testOnPreUpdate() throws Exception {
         Application a = new Application();
         a.setName("foo");
+
+        Assert.assertNull(a.getCreatedDate());
+        Assert.assertNull(a.getModifiedDate());
 
         Session s = getSession();
         Transaction t = s.beginTransaction();
         s.saveOrUpdate(a);
         t.commit();
 
-        Calendar created = a.getCreatedDate();
-        Calendar modified = a.getModifiedDate();
+        // Evict and reload. This is to ensure that the entity's dates
+        // matches what the underlying database supports. Mysql, for
+        // instance, doesn't store milliseconds.
+        s.refresh(a);
 
-        Assert.assertEquals(created, a.getCreatedDate());
-        Assert.assertEquals(modified, a.getModifiedDate());
+        Calendar created = (Calendar) a.getCreatedDate().clone();
+        Calendar modified = (Calendar) a.getModifiedDate().clone();
+
+        Assert.assertNotNull(created);
+        Assert.assertNotNull(modified);
+
+        TimeUnit.SECONDS.sleep(1);
 
         a.setName("bar");
         Transaction t2 = s.beginTransaction();
         s.saveOrUpdate(a);
         t2.commit();
 
+        s.refresh(a);
+
         Assert.assertEquals(created, a.getCreatedDate());
         Assert.assertNotEquals(modified, a.getModifiedDate());
 
         s.evict(a);
 
-        Application readApplication =
-                s.get(Application.class, a.getId());
+        Application readApplication = s.get(Application.class, a.getId());
 
         Assert.assertEquals(created, readApplication.getCreatedDate());
         Assert.assertNotEquals(modified, readApplication.getModifiedDate());
+
+        Assert.assertEquals(a.getCreatedDate(),
+                readApplication.getCreatedDate());
+        Assert.assertEquals(a.getModifiedDate(),
+                readApplication.getModifiedDate());
     }
 
     /**

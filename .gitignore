@@ -10,7 +10,7 @@
 
 # Maven
 target
-
+jacoco.exec
 # IDE files
 *.iml
 .idea

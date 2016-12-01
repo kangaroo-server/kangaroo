@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -66,14 +67,15 @@ public final class Section440ClientCredentialsTest
     /**
      * Load data fixtures for each test.
      *
+     * @param session The session to use to build the environment.
      * @return A list of fixtures, which will be cleared after the test.
      */
     @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
+    public List<EnvironmentBuilder> fixtures(final Session session) {
+        context = new EnvironmentBuilder(session)
                 .scope("debug")
                 .client(ClientType.ClientCredentials, false);
-        authContext = new EnvironmentBuilder(getSession())
+        authContext = new EnvironmentBuilder(session)
                 .scope("debug")
                 .client(ClientType.ClientCredentials, true);
         authHeader = HttpUtil.authHeaderBasic(
