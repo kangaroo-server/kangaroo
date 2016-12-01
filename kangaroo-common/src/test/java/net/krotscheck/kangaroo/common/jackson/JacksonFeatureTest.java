@@ -20,8 +20,8 @@ package net.krotscheck.kangaroo.common.jackson;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojo;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojoDeserializer;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojoSerializer;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,17 +29,16 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
 /**
  * Test the jackson feature injection.
- *
+ *ss
  * @author Michael Krotscheck
  */
-public final class JacksonFeatureTest extends JerseyTest {
+public final class JacksonFeatureTest extends KangarooJerseyTest {
 
     /**
      * Build an application.
@@ -47,7 +46,7 @@ public final class JacksonFeatureTest extends JerseyTest {
      * @return A configured application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
         config.register(JacksonFeature.class);
         config.register(new MockPojoDeserializer.Binder());

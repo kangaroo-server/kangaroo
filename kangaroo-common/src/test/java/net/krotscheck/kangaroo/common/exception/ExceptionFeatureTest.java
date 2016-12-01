@@ -21,12 +21,10 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +32,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -45,7 +42,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public final class ExceptionFeatureTest extends JerseyTest {
+public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
     /**
      * Build the application.
@@ -53,10 +50,7 @@ public final class ExceptionFeatureTest extends JerseyTest {
      * @return An application that can parse exceptions.
      */
     @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
+    protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(ExceptionFeature.class);
         a.register(MockService.class);

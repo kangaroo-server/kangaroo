@@ -17,9 +17,9 @@
 
 package net.krotscheck.kangaroo.common.config;
 
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -36,7 +35,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class ConfigurationFeatureTest extends JerseyTest {
+public final class ConfigurationFeatureTest extends KangarooJerseyTest {
 
     /**
      * Build the configured application.
@@ -44,7 +43,7 @@ public final class ConfigurationFeatureTest extends JerseyTest {
      * @return The configured application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(ConfigurationFeature.class);
         a.register(MockService.class);

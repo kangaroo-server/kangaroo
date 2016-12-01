@@ -32,11 +32,9 @@ import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.TestAuthenticator;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
 
@@ -88,9 +86,6 @@ public abstract class AbstractResourceTest extends ContainerTest {
      */
     @Override
     protected final ResourceConfig createApplication() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
         ResourceConfig v1Api = new AdminV1API();
         v1Api.register(new TestAuthenticator.Binder());
         return v1Api;

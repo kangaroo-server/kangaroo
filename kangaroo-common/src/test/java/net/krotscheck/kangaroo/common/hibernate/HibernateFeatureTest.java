@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
@@ -32,7 +32,6 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -41,7 +40,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class HibernateFeatureTest extends JerseyTest {
+public final class HibernateFeatureTest extends KangarooJerseyTest {
 
     /**
      * Run a service request.
@@ -59,7 +58,7 @@ public final class HibernateFeatureTest extends JerseyTest {
      * @return A properly configured application.
      */
     @Override
-    protected Application configure() {
+    protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
         config.register(HibernateFeature.class);
         config.register(TestService.class);
