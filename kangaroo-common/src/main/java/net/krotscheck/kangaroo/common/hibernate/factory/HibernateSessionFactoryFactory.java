@@ -118,7 +118,7 @@ public final class HibernateSessionFactoryFactory
     @Override
     public void dispose(final SessionFactory sessionFactory) {
         if (sessionFactory != null && !sessionFactory.isClosed()) {
-            logger.info("Disposing of hibernate session factory.");
+            logger.debug("Disposing of hibernate session factory.");
             sessionFactory.close();
         }
     }
