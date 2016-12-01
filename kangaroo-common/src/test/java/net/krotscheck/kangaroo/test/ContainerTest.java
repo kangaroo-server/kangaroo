@@ -22,10 +22,6 @@ import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
@@ -33,14 +29,11 @@ import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -58,7 +51,7 @@ import static org.junit.Assert.assertTrue;
  * @author Michael Krotscheck
  */
 public abstract class ContainerTest
-        extends JerseyTest
+        extends KangarooJerseyTest
         implements IDatabaseTest {
 
     /**
@@ -101,37 +94,6 @@ public abstract class ContainerTest
     private Session session;
 
     /**
-     * Configure all jersey2 clients.
-     *
-     * @param config The configuration instance to modify.
-     */
-    @Override
-    protected final void configureClient(final ClientConfig config) {
-        config.property(ClientProperties.FOLLOW_REDIRECTS, false);
-    }
-
-    /**
-     * Ask the test to construct an application, and then inject this test
-     * into the context.
-     *
-     * @return The application itself
-     */
-    @Override
-    protected final Application configure() {
-        ResourceConfig config = createApplication();
-        config.register(this);
-
-        return config;
-    }
-
-    /**
-     * Create an application.
-     *
-     * @return The application to test.
-     */
-    protected abstract ResourceConfig createApplication();
-
-    /**
      * Set up the fixtures and any environment that's necessary.
      *
      * @throws Exception Thrown in the fixtures() interface.
@@ -162,20 +124,6 @@ public abstract class ContainerTest
         searchFactory = null;
         fullTextSession = null;
         session = null;
-    }
-
-    /**
-     * Install the JUL-to-SLF4J logging bridge, before any application is
-     * bootstrapped. This explicitly pre-empts the same code in the logging
-     * feature, to catch test-initialization related log messages from
-     * jerseytest.
-     */
-    @BeforeClass
-    public static void installLogging() {
-        if (!SLF4JBridgeHandler.isInstalled()) {
-            SLF4JBridgeHandler.removeHandlersForRootLogger();
-            SLF4JBridgeHandler.install();
-        }
     }
 
     /**
