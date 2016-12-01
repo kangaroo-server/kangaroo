@@ -19,19 +19,20 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
-import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
-import javax.inject.Inject;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
@@ -63,35 +64,29 @@ public abstract class ContainerTest
                     HttpStatus.SC_MOVED_TEMPORARILY);
 
     /**
-     * The database management instance.
+     * The database test rule. Private, so it can be wrapped below.
+     */
+    private static final DatabaseResource DATABASE_RESOURCE =
+            new DatabaseResource();
+
+    /**
+     * The hibernate test rule. Private, so it can be wrapped below.
+     */
+    private static final HibernateResource HIBERNATE_RESOURCE =
+            new HibernateResource();
+
+    /**
+     * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
-    public static final DatabaseResource JNDI = new DatabaseResource();
+    public static final TestRule RULES = RuleChain
+            .outerRule(DATABASE_RESOURCE)
+            .around(HIBERNATE_RESOURCE);
 
     /**
      * The list of loaded fixtures.
      */
     private List<EnvironmentBuilder> fixtures = new ArrayList<>();
-
-    /**
-     * Session factory, injected by Jersey2.
-     */
-    private SessionFactory sessionFactory;
-
-    /**
-     * Search factory, injected by Jersey2.
-     */
-    private SearchFactory searchFactory;
-
-    /**
-     * Fulltext session, injected by jersey2.
-     */
-    private FullTextSession fullTextSession;
-
-    /**
-     * Session specifically for this test, cleaned up after each test.
-     */
-    private Session session;
 
     /**
      * Set up the fixtures and any environment that's necessary.
@@ -100,10 +95,6 @@ public abstract class ContainerTest
      */
     @Before
     public final void setupData() throws Exception {
-        session = sessionFactory.openSession();
-        fullTextSession = Search.getFullTextSession(session);
-        searchFactory = fullTextSession.getSearchFactory();
-
         List<EnvironmentBuilder> newFixtures = fixtures();
         if (newFixtures != null) {
             fixtures.addAll(newFixtures);
@@ -119,11 +110,6 @@ public abstract class ContainerTest
         Collections.reverse(reversed);
         reversed.forEach(EnvironmentBuilder::clear);
         fixtures.clear();
-
-        session.close();
-        searchFactory = null;
-        fullTextSession = null;
-        session = null;
     }
 
     /**
@@ -132,17 +118,7 @@ public abstract class ContainerTest
      * @return The constructed session.
      */
     public final Session getSession() {
-        return session;
-    }
-
-    /**
-     * Set the injected session factory.
-     *
-     * @param sessionFactory The new session factory from the jersey context.
-     */
-    @Inject
-    public final void setSessionFactory(final SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+        return HIBERNATE_RESOURCE.getSession();
     }
 
     /**
@@ -152,7 +128,7 @@ public abstract class ContainerTest
      */
     @Override
     public final SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return HIBERNATE_RESOURCE.getSessionFactory();
     }
 
     /**
@@ -161,7 +137,7 @@ public abstract class ContainerTest
      * @return The session factory
      */
     public final SearchFactory getSearchFactory() {
-        return searchFactory;
+        return HIBERNATE_RESOURCE.getSearchFactory();
     }
 
     /**
@@ -170,7 +146,7 @@ public abstract class ContainerTest
      * @return The session factory
      */
     public final FullTextSession getFullTextSession() {
-        return fullTextSession;
+        return HIBERNATE_RESOURCE.getFullTextSession();
     }
 
     /**
