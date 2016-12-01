@@ -24,7 +24,9 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -163,7 +165,7 @@ public final class OAuthTokenServiceCRUDTest
      * @param type    The type of token to create.
      * @return A bearer token.
      */
-    private OAuthToken createValidToken(final EnvironmentBuilder context,
+    private OAuthToken createValidToken(final ApplicationContext context,
                                         final OAuthTokenType type) {
         OAuthToken token = null;
 
@@ -180,7 +182,10 @@ public final class OAuthTokenServiceCRUDTest
                 break;
         }
 
-        context.persist(token);
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(token);
+        t.commit();
 
         return token;
     }
@@ -205,8 +210,8 @@ public final class OAuthTokenServiceCRUDTest
      * @return The client currently active in the admin app.
      */
     @Override
-    protected OAuthToken getEntity(final EnvironmentBuilder context) {
-        return context.getToken();
+    protected OAuthToken getEntity(final ApplicationContext context) {
+        return getAttached(context.getToken());
     }
 
     /**
@@ -247,8 +252,8 @@ public final class OAuthTokenServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected OAuthToken createValidEntity(final EnvironmentBuilder context) {
-        switch (context.getClient().getType()) {
+    protected OAuthToken createValidEntity(final ApplicationContext context) {
+        switch (getClientType()) {
             case AuthorizationGrant:
                 return createAuthorizationToken(context);
             case Implicit:
@@ -267,8 +272,8 @@ public final class OAuthTokenServiceCRUDTest
      * @return A valid authorization token in the present context.
      */
     private OAuthToken createAuthorizationToken(
-            final EnvironmentBuilder context) {
-        Client client = context.getApplication().getClients()
+            final ApplicationContext context) {
+        Client client = getAttached(context.getApplication()).getClients()
                 .stream()
                 .filter(c -> c.getType().equals(getClientType()))
                 .collect(Collectors.toList())
@@ -307,7 +312,7 @@ public final class OAuthTokenServiceCRUDTest
      * @return A valid refresh token in the present context.
      */
     private OAuthToken createRefreshToken(
-            final EnvironmentBuilder context) {
+            final ApplicationContext context) {
         OAuthToken bearerToken = createBearerToken(context);
 
         OAuthToken token = new OAuthToken();
@@ -326,13 +331,26 @@ public final class OAuthTokenServiceCRUDTest
      * @param context The test application context.
      * @return A valid bearer token in the present context.
      */
-    private OAuthToken createBearerToken(
-            final EnvironmentBuilder context) {
-        Client client = context.getApplication().getClients()
+    private OAuthToken createBearerToken(final ApplicationContext context) {
+        // Get all clients of the correct type.
+        List<Client> clients = getAttached(context.getApplication())
+                .getClients()
                 .stream()
                 .filter(c -> c.getType().equals(getClientType()))
-                .collect(Collectors.toList())
-                .get(0);
+                .collect(Collectors.toList());
+
+        // If we need an identity, further filter it down to a client that
+        // has a user with an identity.
+        if (!getClientType().equals(ClientType.ClientCredentials)) {
+            clients = clients.stream()
+                    .flatMap(c -> c.getAuthenticators().stream())
+                    .flatMap(a -> a.getIdentities().stream())
+                    .map(i -> i.getAuthenticator().getClient())
+                    .collect(Collectors.toList());
+        }
+
+        // Grab the client.
+        Client client = clients.get(0);
 
         // Get an identity from the client authenticator, if available.
         List<UserIdentity> identities = client.getAuthenticators().stream()
@@ -346,8 +364,8 @@ public final class OAuthTokenServiceCRUDTest
         token.setScopes(context.getScopes());
 
         // Identities should only be added if the type calls for it.
-        if (!client.getType().equals(ClientType.ClientCredentials)
-                && identities.size() > 0) {
+        if (identities.size() > 0
+                && !client.getType().equals(ClientType.ClientCredentials)) {
             token.setIdentity(identities.get(0));
         }
 
@@ -438,7 +456,10 @@ public final class OAuthTokenServiceCRUDTest
     @Test
     public void testPostIdentityFromWrongApp() throws Exception {
         OAuthToken testEntity = createValidEntity(getAdminContext());
-        UserIdentity otherIdentity = getSecondaryContext().identity()
+        UserIdentity otherIdentity = getSecondaryContext()
+                .getBuilder()
+                .identity()
+                .build()
                 .getUserIdentity();
 
         testEntity.setIdentity(otherIdentity);
@@ -530,11 +551,9 @@ public final class OAuthTokenServiceCRUDTest
     @Test
     public void testPostRefreshWithAuthToken() throws Exception {
         // Create a token first...
-        EnvironmentBuilder context = getAdminContext();
-        OAuthToken authToken = createValidEntity(context);
-        authToken.setTokenType(OAuthTokenType.Authorization);
-
-        context.persist(authToken);
+        ApplicationContext context = getAdminContext();
+        OAuthToken authToken = createValidToken(context,
+                OAuthTokenType.Authorization);
 
         OAuthToken testEntity = createValidEntity(getAdminContext());
         testEntity.setTokenType(OAuthTokenType.Refresh);
@@ -554,12 +573,16 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPostRefreshWrongBearerTokenParent() throws Exception {
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .identity()
+                .build();
         OAuthToken bearerToken = createValidToken(getAdminContext(),
                 OAuthTokenType.Bearer);
         OAuthToken testEntity = createValidEntity(getAdminContext());
         testEntity.setTokenType(OAuthTokenType.Refresh);
         testEntity.setAuthToken(bearerToken);
-        testEntity.setIdentity(getAdminContext().identity().getUserIdentity());
+        testEntity.setIdentity(testContext.getUserIdentity());
         testEntity.setRedirect(null);
 
         // Issue the request.
@@ -580,8 +603,9 @@ public final class OAuthTokenServiceCRUDTest
         testEntity.setTokenType(OAuthTokenType.Refresh);
         testEntity.setAuthToken(bearerToken);
         if (testEntity.getRedirect() == null) {
-            testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+            testEntity.setRedirect(UriBuilder
+                    .fromPath("http://redirect.example.com/redirect")
+                    .build());
         }
 
         // Issue the request.
@@ -599,8 +623,9 @@ public final class OAuthTokenServiceCRUDTest
         OAuthToken testEntity = createValidEntity(getAdminContext());
         testEntity.setTokenType(OAuthTokenType.Bearer);
         if (testEntity.getRedirect() == null) {
-            testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+            testEntity.setRedirect(UriBuilder
+                    .fromPath("http://redirect.example.com/redirect")
+                    .build());
         }
 
         // Issue the request.
@@ -635,7 +660,6 @@ public final class OAuthTokenServiceCRUDTest
     @Test
     public void testPostAuthInvalidRedirect() throws Exception {
         OAuthToken testEntity = createValidEntity(getAdminContext());
-        testEntity.setTokenType(OAuthTokenType.Bearer);
         testEntity.setRedirect(UriBuilder
                 .fromPath("http://invalid.example.com").build());
 
@@ -668,7 +692,7 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPutTooSmallExpiresIn() throws Exception {
-        OAuthToken token = getAdminToken();
+        OAuthToken token = (OAuthToken) getAdminToken().clone();
         token.setExpiresIn(0);
 
         Response r = putEntity(token, getAdminToken());
@@ -686,7 +710,7 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPutNoExpiresIn() throws Exception {
-        OAuthToken token = getAdminToken();
+        OAuthToken token = (OAuthToken) getAdminToken().clone();
         token.setExpiresIn(null);
 
         Response r = putEntity(token, getAdminToken());
@@ -704,7 +728,7 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPutNoTokenType() throws Exception {
-        OAuthToken token = getAdminToken();
+        OAuthToken token = (OAuthToken) getAdminToken().clone();
         token.setTokenType(null);
 
         Response r = putEntity(token, getAdminToken());
@@ -746,7 +770,10 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPutIdentity() throws Exception {
-        UserIdentity newIdentity = getAdminContext().identity()
+        UserIdentity newIdentity = getAdminContext()
+                .getBuilder()
+                .identity()
+                .build()
                 .getUserIdentity();
         OAuthToken testEntity = getAdminToken();
 
@@ -769,7 +796,10 @@ public final class OAuthTokenServiceCRUDTest
     @Test
     public void testPutIdentityFromWrongApp() throws Exception {
         OAuthToken testEntity = getAdminToken();
-        UserIdentity otherIdentity = getSecondaryContext().identity()
+        UserIdentity otherIdentity = getSecondaryContext()
+                .getBuilder()
+                .identity()
+                .build()
                 .getUserIdentity();
 
         testEntity.setIdentity(otherIdentity);
@@ -792,7 +822,11 @@ public final class OAuthTokenServiceCRUDTest
     public void testPutRefreshWithIdentity() throws Exception {
         OAuthToken testEntity = createValidToken(getAdminContext(),
                 OAuthTokenType.Refresh);
-        UserIdentity identity = getAdminContext().identity().getUserIdentity();
+        UserIdentity identity = getAdminContext()
+                .getBuilder()
+                .identity()
+                .build()
+                .getUserIdentity();
         testEntity.setIdentity(identity);
 
         // Issue the request.
@@ -833,7 +867,10 @@ public final class OAuthTokenServiceCRUDTest
     public void testPutRefreshWithClient() throws Exception {
         OAuthToken testEntity = createValidToken(getAdminContext(),
                 OAuthTokenType.Refresh);
-        Client client = getAdminContext().client(ClientType.ClientCredentials)
+        Client client = getAdminContext()
+                .getBuilder()
+                .client(ClientType.ClientCredentials)
+                .build()
                 .getClient();
         testEntity.setClient(client);
 
@@ -916,9 +953,13 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPutRefreshWrongBearerTokenParent() throws Exception {
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .identity()
+                .build();
         OAuthToken testEntity = createValidToken(getAdminContext(),
                 OAuthTokenType.Refresh);
-        testEntity.setIdentity(getAdminContext().identity().getUserIdentity());
+        testEntity.setIdentity(testContext.getUserIdentity());
         testEntity.setRedirect(null);
 
         // Issue the request.
@@ -939,9 +980,11 @@ public final class OAuthTokenServiceCRUDTest
     public void testPutRefreshWithRedirect() throws Exception {
         OAuthToken testEntity = createValidToken(getAdminContext(),
                 OAuthTokenType.Refresh);
+
         if (testEntity.getRedirect() == null) {
-            testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+            testEntity.setRedirect(UriBuilder
+                    .fromPath("http://redirect.example.com/redirect")
+                    .build());
         }
 
         // Issue the request.
@@ -962,9 +1005,11 @@ public final class OAuthTokenServiceCRUDTest
     public void testPutBearerWithRedirect() throws Exception {
         OAuthToken testEntity = createValidToken(getAdminContext(),
                 OAuthTokenType.Bearer);
+
         if (testEntity.getRedirect() == null) {
-            testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+            testEntity.setRedirect(UriBuilder
+                    .fromPath("http://redirect.example.com/redirect")
+                    .build());
         }
 
         // Issue the request.

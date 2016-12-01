@@ -179,7 +179,8 @@ public final class ScopeServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
-        } else if (token.getScopes().keySet().contains(Scope.SCOPE_ADMIN)) {
+        } else if (getAttached(token).getScopes().keySet()
+                .contains(Scope.SCOPE_ADMIN)) {
             Assert.assertTrue(expectedTotal > 0);
 
             List<ApplicationScope> results = r.readEntity(LIST_TYPE);
@@ -234,8 +235,9 @@ public final class ScopeServiceSearchTest
     protected List<ApplicationScope> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -257,7 +259,7 @@ public final class ScopeServiceSearchTest
     @Override
     protected List<ApplicationScope> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getScopes().values().stream())
                 .collect(Collectors.toList());

@@ -95,8 +95,9 @@ public final class AuthenticatorServiceSearchTest
             final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -121,7 +122,7 @@ public final class AuthenticatorServiceSearchTest
     @Override
     protected List<Authenticator> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getClients().stream())
                 .flatMap(c -> c.getAuthenticators().stream())
@@ -219,8 +220,17 @@ public final class AuthenticatorServiceSearchTest
     @Test
     public void testSearchByClient() {
         String query = "many";
+        // Find a client that we can filter by, which has an authenticator
+        // that will match our search criteria.
         Client c = getSecondaryContext()
-                .getClient();
+                .getApplication()
+                .getClients()
+                .stream()
+                .flatMap(client -> client.getAuthenticators().stream())
+                .filter(auth -> auth.getType().contains(query))
+                .map(Authenticator::getClient)
+                .collect(Collectors.toList())
+                .get(0);
 
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
@@ -246,9 +256,9 @@ public final class AuthenticatorServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(c, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
-
             List<Authenticator> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
                     r.getHeaderString("Offset"));

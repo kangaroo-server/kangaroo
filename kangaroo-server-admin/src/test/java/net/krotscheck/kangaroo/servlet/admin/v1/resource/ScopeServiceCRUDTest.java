@@ -23,9 +23,12 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +37,7 @@ import org.junit.runners.Parameterized;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Test the CRUD methods of the scope service.
@@ -82,79 +86,49 @@ public final class ScopeServiceCRUDTest
 
     /**
      * Test parameters.
+     *
+     * @return List of constructor parameters for variations of this test.
      */
     @Parameterized.Parameters
     public static Collection parameters() {
-        return Arrays.asList(new Object[][]{
-                {
+        return Arrays.asList(
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE_ADMIN,
                         true,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE,
                         true,
                         false
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.SCOPE_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.SCOPE,
                         false,
                         false
-                }
-        });
+                });
     }
-//
-//    /**
-//     * Load data fixtures for each test.
-//     *
-//     * @return A list of fixtures, which will be cleared after the test.
-//     * @throws Exception An exception that indicates a failed fixture load.
-//     */
-//    @Override
-//    public List<EnvironmentBuilder> fixtures(final EnvironmentBuilder adminApp)
-//            throws Exception {
-//        // Build the admin context with the provided parameters.
-//        EnvironmentBuilder context = getAdminContext();
-//        context.client(clientType);
-//        if (createUser) {
-//            context.user().identity();
-//        }
-//        adminAppToken = context.bearerToken(tokenScope).getToken();
-//
-//        // Build a second app to run some tests against.
-//        otherApp = new EnvironmentBuilder(getSession())
-//                .scopes(Scope.allScopes())
-//                .owner(context.getOwner())
-//                .client(clientType)
-//                .authenticator("test")
-//                .user().identity()
-//                .bearerToken(tokenScope);
-//
-//        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-//        fixtures.add(otherApp);
-//        return fixtures;
-//    }
 
     /**
      * Construct the request URL for this test given a specific resource ID.
@@ -177,7 +151,7 @@ public final class ScopeServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected ApplicationScope getEntity(final EnvironmentBuilder context) {
+    protected ApplicationScope getEntity(final ApplicationContext context) {
         return context.getScope();
     }
 
@@ -199,7 +173,7 @@ public final class ScopeServiceCRUDTest
      */
     @Override
     protected ApplicationScope createValidEntity(
-            final EnvironmentBuilder context) {
+            final ApplicationContext context) {
         ApplicationScope s = new ApplicationScope();
         s.setName(RandomStringUtils.randomAlphabetic(10));
         s.setApplication(context.getApplication());
@@ -266,7 +240,7 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testPostOverwrite() throws Exception {
-        EnvironmentBuilder otherApp = getSecondaryContext();
+        ApplicationContext otherApp = getSecondaryContext();
         ApplicationScope newScope = new ApplicationScope();
         newScope.setId(otherApp.getScope().getId());
         newScope.setName(RandomStringUtils.random(20));
@@ -287,11 +261,8 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testPostTooLongName() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
-
-        ApplicationScope newScope = new ApplicationScope();
+        ApplicationScope newScope = createValidEntity(getAdminContext());
         newScope.setName(RandomStringUtils.randomAlphanumeric(257));
-        newScope.setApplication(context.getApplication());
 
         // Issue the request.
         Response r = postEntity(newScope, getAdminToken());
@@ -308,9 +279,10 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testPostApplicationAssign() throws Exception {
-
         OAuthToken token = getAdminToken();
-        EnvironmentBuilder yetAnotherApp = new EnvironmentBuilder(getSession());
+        ApplicationContext yetAnotherApp = ApplicationBuilder
+                .newApplication(getSession())
+                .build();
 
         ApplicationScope newScope = new ApplicationScope();
         newScope.setName(RandomStringUtils.randomAlphanumeric(20));
@@ -319,7 +291,7 @@ public final class ScopeServiceCRUDTest
         // Issue the request.
         Response r = postEntity(newScope, token);
 
-        if (token.getScopes().keySet().contains(getAdminScope())) {
+        if (getTokenScope().equals(getAdminScope())) {
             Assert.assertEquals(HttpStatus.SC_CREATED, r.getStatus());
             Assert.assertNotNull(r.getLocation());
 
@@ -335,8 +307,6 @@ public final class ScopeServiceCRUDTest
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
             Assert.assertEquals("bad_request", response.getError());
         }
-
-        yetAnotherApp.clear();
     }
 
     /**
@@ -346,8 +316,9 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testPutAdminScope() throws Exception {
+        String newName = UUID.randomUUID().toString();
         ApplicationScope scope = getAdminContext().getScope();
-        scope.setName("New Name");
+        scope.setName(newName);
 
         Response r = putEntity(scope, getAdminToken());
 
@@ -370,14 +341,21 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testPutRegularScope() throws Exception {
-        ApplicationScope a = getSecondaryContext().getScope();
-        a.setName("Test New Name");
-        Response r = putEntity(a, getAdminToken());
+        // Create an entity to edit.
+        ApplicationScope scope = createValidEntity(getSecondaryContext());
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(scope);
+        t.commit();
 
-        if (shouldSucceed()) {
+        String newName = UUID.randomUUID().toString();
+        scope.setName(newName);
+        Response r = putEntity(scope, getAdminToken());
+
+        if (isAccessible(scope, getAdminToken())) {
             ApplicationScope response = r.readEntity(ApplicationScope.class);
             Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
-            Assert.assertEquals(a, response);
+            Assert.assertEquals(newName, response.getName());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
             Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
@@ -402,7 +380,7 @@ public final class ScopeServiceCRUDTest
         // Issue the request.
         Response r = putEntity(scope, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(getSecondaryContext().getScope(), getAdminToken())) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
             Assert.assertEquals("bad_request", response.getError());
@@ -421,7 +399,7 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testDeleteAdminScope() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
 
         // Issue the request.
         Response r = deleteEntity(context.getScope(), getAdminToken());
@@ -445,11 +423,17 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testDeleteRegularScope() throws Exception {
-        // Issue the request.
-        Response r = deleteEntity(getSecondaryContext().getScope(),
-                getAdminToken());
+        // Create an entity to delete.
+        ApplicationScope scope = createValidEntity(getSecondaryContext());
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(scope);
+        t.commit();
 
-        if (shouldSucceed()) {
+        // Issue the request.
+        Response r = deleteEntity(scope, getAdminToken());
+
+        if (isAccessible(scope, getAdminToken())) {
             Assert.assertEquals(HttpStatus.SC_NO_CONTENT, r.getStatus());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);

@@ -22,7 +22,9 @@ import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -124,7 +126,7 @@ public final class AuthenticatorServiceCRUDTest
      * @return The client currently active in the admin app.
      */
     @Override
-    protected Authenticator getEntity(final EnvironmentBuilder context) {
+    protected Authenticator getEntity(final ApplicationContext context) {
         return context.getAuthenticator();
     }
 
@@ -166,7 +168,8 @@ public final class AuthenticatorServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected Authenticator createValidEntity(final EnvironmentBuilder context) {
+    protected Authenticator createValidEntity(
+            final ApplicationContext context) {
         Authenticator a = new Authenticator();
         a.setClient(context.getClient());
         a.setType("password");
@@ -260,19 +263,31 @@ public final class AuthenticatorServiceCRUDTest
      */
     @Test
     public void testPut() throws Exception {
-        Authenticator a = getEntity(getSecondaryContext());
-        a.getConfiguration().put("lol", "cat");
+        // Create an entity to update
+        Authenticator a = createValidEntity(getSecondaryContext());
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(a);
+        t.commit();
+
+        // Update the entity
+        a.getConfiguration().put("foo", "baz");
         a.getConfiguration().put("zing", "zong");
 
         Response r = putEntity(a, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(a, getAdminToken())) {
             Authenticator response = r.readEntity(Authenticator.class);
             Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Assert.assertEquals(a, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
+
+        // Cleanup the authenticator
+        Transaction t2 = s.beginTransaction();
+        s.delete(a);
+        t2.commit();
     }
 
     /**
@@ -285,6 +300,8 @@ public final class AuthenticatorServiceCRUDTest
         Client newParent = getAdminContext().getClient();
         Authenticator entity = getEntity(getSecondaryContext());
 
+        Assert.assertNotEquals(newParent, entity.getClient());
+
         Authenticator authenticator = new Authenticator();
         authenticator.setId(entity.getId());
         authenticator.setType(entity.getType());
@@ -292,7 +309,7 @@ public final class AuthenticatorServiceCRUDTest
 
         // Issue the request.
         Response r = putEntity(authenticator, getAdminToken());
-        if (shouldSucceed()) {
+        if (isAccessible(entity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -311,7 +328,7 @@ public final class AuthenticatorServiceCRUDTest
 
         // Issue the request.
         Response r = putEntity(entity, getAdminToken());
-        if (shouldSucceed()) {
+        if (isAccessible(entity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

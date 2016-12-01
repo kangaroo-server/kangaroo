@@ -131,14 +131,15 @@ public final class UserServiceSearchTest
     protected List<User> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
         Criteria c = getSession().createCriteria(Application.class);
 
-        // Get all the owned roles.
+        // Get all the accessible users.
         return ((List<Application>) c.list())
                 .stream()
                 .flatMap(a -> a.getUsers().stream())
@@ -155,7 +156,7 @@ public final class UserServiceSearchTest
     @Override
     protected List<User> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getUsers().stream())
                 .distinct()
@@ -240,8 +241,10 @@ public final class UserServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(a, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<User> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
@@ -327,8 +330,10 @@ public final class UserServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(role, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<User> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),

@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -126,7 +126,7 @@ public final class UserIdentityServiceCRUDTest
      * @return The client currently active in the admin app.
      */
     @Override
-    protected UserIdentity getEntity(final EnvironmentBuilder context) {
+    protected UserIdentity getEntity(final ApplicationContext context) {
         return context.getUserIdentity();
     }
 
@@ -168,7 +168,7 @@ public final class UserIdentityServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected UserIdentity createValidEntity(final EnvironmentBuilder context) {
+    protected UserIdentity createValidEntity(final ApplicationContext context) {
         UserIdentity identity = new UserIdentity();
         identity.setRemoteId(UUID.randomUUID().toString());
         identity.setPassword(UUID.randomUUID().toString());
@@ -177,7 +177,8 @@ public final class UserIdentityServiceCRUDTest
         identity.getClaims().put("lol", "cat");
 
         // Find an appropriate authenticator
-        Authenticator authenticator = context.getApplication().getClients()
+        Authenticator authenticator = getAttached(context.getApplication())
+                .getClients()
                 .stream()
                 .flatMap((c) -> c.getAuthenticators().stream())
                 .filter((a -> a.getType().equals("password")))
@@ -187,149 +188,6 @@ public final class UserIdentityServiceCRUDTest
         identity.setAuthenticator(authenticator);
         return identity;
     }
-//
-//    /**
-//     * Assert that you cannot create an authenticator without a client
-//     * reference.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPostNoParent() throws Exception {
-//        Authenticator testEntity = createValidEntity(getAdminContext());
-//        testEntity.setClient(null);
-//
-//        Response r = postEntity(testEntity, getAdminToken());
-//        assertErrorResponse(r, Status.BAD_REQUEST);
-//    }
-//
-//    /**
-//     * Assert that authenticators must be linked to a valid parent.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPostInvalidParent() throws Exception {
-//        Authenticator testEntity = createValidEntity(getAdminContext());
-//        Client wrongParent = new Client();
-//        wrongParent.setId(UUID.randomUUID());
-//        testEntity.setClient(wrongParent);
-//
-//        // Issue the request.
-//        Response r = postEntity(testEntity, getAdminToken());
-//        assertErrorResponse(r, Status.BAD_REQUEST);
-//    }
-//
-//    /**
-//     * Assert that the type MUST be one that is registered with the system.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPostUnregisteredType() throws Exception {
-//        Authenticator testEntity = createValidEntity(getAdminContext());
-//        testEntity.setType("not_a_registered_string");
-//
-//        // Issue the request.
-//        Response r = postEntity(testEntity, getAdminToken());
-//        assertErrorResponse(r, Status.BAD_REQUEST);
-//    }
-//
-//    /**
-//     * Assert that the type must be set.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPostNoType() throws Exception {
-//        Authenticator testEntity = createValidEntity(getAdminContext());
-//        testEntity.setType(null);
-//
-//        // Issue the request.
-//        Response r = postEntity(testEntity, getAdminToken());
-//        assertErrorResponse(r, Status.BAD_REQUEST);
-//    }
-//
-//    /**
-//     * Assert that an empty type errors.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPostEmptyType() throws Exception {
-//        Authenticator testEntity = createValidEntity(getAdminContext());
-//        testEntity.setType("");
-//
-//        // Issue the request.
-//        Response r = postEntity(testEntity, getAdminToken());
-//        assertErrorResponse(r, Status.BAD_REQUEST);
-//    }
-//
-//    /**
-//     * Assert that a regular entity can be updated, from the admin app, with
-//     * appropriate credentials.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPut() throws Exception {
-//        Authenticator a = getEntity(getSecondaryContext());
-//        a.getConfiguration().put("lol", "cat");
-//        a.getConfiguration().put("zing", "zong");
-//
-//        Response r = putEntity(a, getAdminToken());
-//
-//        if (shouldSucceed()) {
-//            Authenticator response = r.readEntity(Authenticator.class);
-//            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-//            Assert.assertEquals(a, response);
-//        } else {
-//            assertErrorResponse(r, Status.NOT_FOUND);
-//        }
-//    }
-//
-//    /**
-//     * Assert that a regular entity cannot have its parent changed.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPutChangeParentEntity() throws Exception {
-//        Client newParent = getAdminContext().getClient();
-//        Authenticator entity = getEntity(getSecondaryContext());
-//
-//        Authenticator authenticator = new Authenticator();
-//        authenticator.setId(entity.getId());
-//        authenticator.setType(entity.getType());
-//        authenticator.setClient(newParent);
-//
-//        // Issue the request.
-//        Response r = putEntity(authenticator, getAdminToken());
-//        if (shouldSucceed()) {
-//            assertErrorResponse(r, Status.BAD_REQUEST);
-//        } else {
-//            assertErrorResponse(r, Status.NOT_FOUND);
-//        }
-//    }
-//
-//    /**
-//     * Assert that we cannot update to an invalid authenticator type.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPutInvalidateType() throws Exception {
-//        Authenticator entity = getEntity(getSecondaryContext());
-//        entity.setType("invalid_type");
-//
-//        // Issue the request.
-//        Response r = putEntity(entity, getAdminToken());
-//        if (shouldSucceed()) {
-//            assertErrorResponse(r, Status.BAD_REQUEST);
-//        } else {
-//            assertErrorResponse(r, Status.NOT_FOUND);
-//        }
-//    }
 
     /**
      * Assert that we never get a password or salt from a GET request.
@@ -338,10 +196,12 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testGetNoPasswordSalt() throws Exception {
-        EnvironmentBuilder builder = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .user()
-                .login("foo", "bar");
-        UserIdentity testingEntity = builder.getUserIdentity();
+                .login("foo", "bar")
+                .build();
+        UserIdentity testingEntity = testContext.getUserIdentity();
 
         Assert.assertNotNull(testingEntity.getPassword());
         Assert.assertNotNull(testingEntity.getSalt());
@@ -350,6 +210,8 @@ public final class UserIdentityServiceCRUDTest
         Response r = getEntity(testingEntity, getAdminToken());
 
         if (shouldSucceed()) {
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+
             UserIdentity response = r.readEntity(UserIdentity.class);
             Assert.assertEquals(testingEntity.getId(), response.getId());
             Assert.assertNull(response.getPassword());
@@ -428,8 +290,10 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPostWrongAuthenticator() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
-        context.authenticator("not_password");
+        ApplicationContext context = getAdminContext()
+                .getBuilder()
+                .authenticator("not_password")
+                .build();
         UserIdentity testEntity = createValidEntity(context);
         testEntity.setAuthenticator(context.getAuthenticator());
 
@@ -547,15 +411,21 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPutNoPasswordSalt() throws Exception {
-        EnvironmentBuilder context = getSecondaryContext();
-        UserIdentity testEntity = getEntity(context);
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .user()
+                .login("test", "password")
+                .build();
+        UserIdentity testEntity = context.getUserIdentity();
 
         testEntity.setPassword("OMG PASSWORD");
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(testEntity, getAdminToken())) {
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+
             UserIdentity response = r.readEntity(UserIdentity.class);
             Assert.assertNull(response.getPassword());
             Assert.assertNull(response.getSalt());
@@ -571,17 +441,21 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPutChangeAuthenticator() throws Exception {
-        EnvironmentBuilder context = getSecondaryContext();
-        UserIdentity testEntity = getEntity(context);
-        Authenticator newAuthenticator = context.authenticator("new")
-                .getAuthenticator();
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .user()
+                .login("test", "password")
+                .authenticator("new")
+                .build();
+        UserIdentity testEntity = context.getUserIdentity();
+        Authenticator newAuthenticator = context.getAuthenticator();
 
         testEntity.setAuthenticator(newAuthenticator);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(testEntity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -595,17 +469,22 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPutChangeUser() throws Exception {
-        EnvironmentBuilder context = getSecondaryContext();
-        UserIdentity testEntity = getEntity(context);
-        User newUser = context.user()
-                .getUser();
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .user()
+                .login("test", "password")
+                .user()
+                .build();
+        UserIdentity originalEntity = context.getUserIdentity();
+        User newUser = context.getUser();
 
+        UserIdentity testEntity = (UserIdentity) originalEntity.clone();
         testEntity.setUser(newUser);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(originalEntity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

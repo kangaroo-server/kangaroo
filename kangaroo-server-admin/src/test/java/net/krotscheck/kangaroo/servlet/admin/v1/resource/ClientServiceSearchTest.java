@@ -26,6 +26,8 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,18 +96,24 @@ public final class ClientServiceSearchTest
     protected List<Client> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned clients.
-        return ((List<Application>) c.list())
-                .stream()
-                .flatMap(a -> a.getClients().stream())
-                .collect(Collectors.toList());
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        try {
+            // Get all the owned clients.
+            Criteria c = getSession().createCriteria(Application.class);
+            return ((List<Application>) c.list())
+                    .stream()
+                    .flatMap(a -> a.getClients().stream())
+                    .collect(Collectors.toList());
+        } finally {
+            t.commit();
+        }
     }
 
     /**
@@ -118,7 +126,7 @@ public final class ClientServiceSearchTest
     @Override
     protected List<Client> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getClients().stream())
                 .collect(Collectors.toList());
@@ -241,8 +249,10 @@ public final class ClientServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(a, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<Client> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),

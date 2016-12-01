@@ -24,7 +24,8 @@ import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.configuration.Configuration;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -33,14 +34,13 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,7 +53,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * The mock security context constructed for this test.
      */
-    private SecurityContext mockContext;
+    private SecurityContext mockSecurityContext;
 
     /**
      * The abstract service under test.
@@ -63,7 +63,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * A user application from which we can issue tokens.
      */
-    private EnvironmentBuilder userApp;
+    private ApplicationContext userContext;
 
     /**
      * Return the token scope required for admin access on this test.
@@ -85,42 +85,32 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         return null;
     }
 
-    /**
-     * Provided the admin context, build a list of all additional
-     * applications required for this test.
-     *
-     * @param adminContext The admin context
-     * @return A list of fixtures.
-     * @throws Exception Thrown if something untoward happens.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures(
-            final EnvironmentBuilder adminContext)
-            throws Exception {
 
+    /**
+     * Create mock components.
+     */
+    @Before
+    public void initializeTest() {
         // Create a mock context.
-        mockContext = Mockito.mock(SecurityContext.class);
+        mockSecurityContext = Mockito.mock(SecurityContext.class);
 
         // Create a service.
         service = new TestService();
-        service.setConfig(getSystemConfig());
+        service.setConfig(TEST_DATA_RESOURCE.getSystemConfiguration());
         service.setSession(getSession());
         service.setFullTextSession(getFullTextSession());
         service.setSearchFactory(getSearchFactory());
-        service.setSecurityContext(mockContext);
+        service.setSecurityContext(mockSecurityContext);
 
         // Create a 'different' app from which we can issue tokens.
-        userApp = new EnvironmentBuilder(getSession())
+        userContext = ApplicationBuilder.newApplication(getSession())
                 .client(ClientType.Implicit)
                 .authenticator("password")
                 .user()
                 .role("foo")
                 .identity("test_identity")
-                .bearerToken();
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(userApp);
-        return fixtures;
+                .bearerToken()
+                .build();
     }
 
     /**
@@ -169,15 +159,17 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testGetCurrentUser() {
-        EnvironmentBuilder adminContext = getAdminContext();
-        adminContext.bearerToken();
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .bearerToken()
+                .build();
 
         Mockito.doReturn(getAdminContext().getToken())
-                .when(mockContext).getUserPrincipal();
+                .when(mockSecurityContext).getUserPrincipal();
 
         User user = service.getCurrentUser();
         Assert.assertNotNull(user);
-        Assert.assertEquals(adminContext.getToken().getIdentity().getUser(),
+        Assert.assertEquals(testContext.getToken().getIdentity().getUser(),
                 user);
     }
 
@@ -187,12 +179,14 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testGetCurrentUserClientCredentials() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.ClientCredentials)
-                .bearerToken();
+                .bearerToken()
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
 
         Assert.assertNull(service.getCurrentUser());
     }
@@ -220,17 +214,21 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     @Test
     public void testAssertCanAccessAsOwner() {
         // Add a new, non-admin user, and make it the owner of the user app
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .role("lol")
                 .user()
                 .identity("not_admin")
-                .bearerToken();
-        userApp.owner(adminContext.getUser());
+                .bearerToken()
+                .build();
+        ApplicationContext userContext = this.userContext.getBuilder()
+                .owner(testContext.getUser())
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
 
-        service.assertCanAccess(userApp.getApplication(),
+        service.assertCanAccess(this.userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
         Assert.assertTrue(true);
     }
@@ -241,15 +239,17 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testAssertCanAccessNotOwnerValidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
-                .bearerToken(Scope.APPLICATION_ADMIN);
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .bearerToken(Scope.APPLICATION_ADMIN)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        service.assertCanAccess(userApp.getApplication(),
+        service.assertCanAccess(userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
         Assert.assertTrue(true);
     }
@@ -260,15 +260,17 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = HttpNotFoundException.class)
     public void testAssertCanAccessNotOwnerInvalidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
-                .bearerToken(Scope.APPLICATION);
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(false).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(false).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        service.assertCanAccess(userApp.getApplication(),
+        service.assertCanAccess(userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
     }
 
@@ -278,17 +280,19 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testAssertCanAccessClientCredentialsValidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.ClientCredentials)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION_ADMIN);
+                .bearerToken(Scope.APPLICATION_ADMIN)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        service.assertCanAccess(userApp.getApplication(),
+        service.assertCanAccess(userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
         Assert.assertTrue(true);
     }
@@ -299,17 +303,19 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = HttpNotFoundException.class)
     public void testAssertCanAccessClientCredentialsInvalidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.ClientCredentials)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(false).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(false).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        service.assertCanAccess(userApp.getApplication(),
+        service.assertCanAccess(userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
     }
 
@@ -318,14 +324,16 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterAdminNoFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         User user = service.resolveOwnershipFilter(null);
@@ -337,15 +345,17 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = HttpStatusException.class)
     public void testRequestInvalidUserFilterAdminFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .bearerToken(Scope.APPLICATION)
-                .user();
+                .user()
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         service.resolveOwnershipFilter(UUID.randomUUID());
@@ -356,18 +366,20 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterAdminFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .bearerToken(Scope.APPLICATION)
-                .user();
+                .user()
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        User requestedUser = adminContext.getUser();
+        User requestedUser = testContext.getUser();
         User user = service.resolveOwnershipFilter(requestedUser.getId());
         Assert.assertEquals(requestedUser, user);
     }
@@ -377,19 +389,21 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterNonAdminNoFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
-        User requestedUser = adminContext.getUser();
+        User requestedUser = testContext.getUser();
         User user = service.resolveOwnershipFilter(null);
-        Assert.assertEquals(adminContext.getUser(), user);
+        Assert.assertEquals(testContext.getUser(), user);
     }
 
     /**
@@ -397,18 +411,20 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testRequestUserFilterNonAdminFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .bearerToken(Scope.APPLICATION)
-                .user();
+                .user()
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
-        User requestedUser = adminContext.getUser();
+        User requestedUser = testContext.getUser();
         service.resolveOwnershipFilter(requestedUser.getId());
     }
 
@@ -417,17 +433,19 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterNonAdminFilterSelf() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
-        User requestedUser = adminContext.getToken().getIdentity().getUser();
+        User requestedUser = testContext.getToken().getIdentity().getUser();
         User user = service.resolveOwnershipFilter(requestedUser.getId());
         Assert.assertEquals(requestedUser, user);
     }
@@ -438,17 +456,19 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testRequestUserFilterNonAdminClientCredentials() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.ClientCredentials)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
-        service.resolveOwnershipFilter(adminContext.getUser().getId());
+        service.resolveOwnershipFilter(testContext.getUser().getId());
     }
 
     /**
@@ -468,24 +488,26 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     }
 
     /**
-     * Assert that we can require a valid entity
+     * Assert that we can require a valid entity.
      */
     @Test
     public void testRequireValidEntity() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         Application a =
                 service.requireEntityInput(Application.class,
-                        userApp.getApplication());
-        Assert.assertEquals(userApp.getApplication(), a);
+                        userContext.getApplication());
+        Assert.assertEquals(userContext.getApplication(), a);
     }
 
     /**
@@ -493,14 +515,16 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityNoEntityAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         Application result =
@@ -513,14 +537,16 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = HttpStatusException.class)
     public void testResolveFilterEntityNonexistentEntityIdAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         service.resolveFilterEntity(Application.class, UUID.randomUUID());
@@ -531,20 +557,22 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityValidEntityIdAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         Application a =
                 service.resolveFilterEntity(Application.class,
-                        userApp.getApplication().getId());
-        Assert.assertEquals(userApp.getApplication(), a);
+                        userContext.getApplication().getId());
+        Assert.assertEquals(userContext.getApplication(), a);
     }
 
     /**
@@ -552,18 +580,20 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testResolveFilterEntityInvalidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.USER);
 
         service.resolveFilterEntity(Application.class,
-                userApp.getApplication().getId());
+                userContext.getApplication().getId());
     }
 
     /**
@@ -571,14 +601,16 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityNullEntityIdNonAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
         Application a = service.resolveFilterEntity(Application.class, null);
@@ -591,14 +623,16 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = HttpStatusException.class)
     public void testResolveFilterEntityNonexistentEntityIdNonAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
         service.resolveFilterEntity(Application.class, UUID.randomUUID());
@@ -610,17 +644,19 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testResolveFilterEntityNoTokenIdentity() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .client(ClientType.ClientCredentials)
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
         service.resolveFilterEntity(Application.class,
-                adminContext.getApplication().getId());
+                testContext.getApplication().getId());
     }
 
     /**
@@ -630,21 +666,30 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     @Test(expected = HttpStatusException.class)
     public void testResolveFilterEntityNonAdminNonOwner() {
         // Set up an owner for the user app.
-        EnvironmentBuilder adminContext = getAdminContext()
-                .user().identity();
-        userApp.owner(adminContext.getUser());
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .user()
+                .identity()
+                .build();
+        userContext
+                .getBuilder()
+                .owner(testContext.getUser())
+                .build();
 
         // Add a user for the token.
-        adminContext.user().identity()
-                .bearerToken(Scope.APPLICATION);
+        testContext = testContext.getBuilder()
+                .user()
+                .identity()
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
         service.resolveFilterEntity(Application.class,
-                userApp.getApplication().getId());
+                userContext.getApplication().getId());
     }
 
     /**
@@ -652,20 +697,26 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityNonAdminOwner() {
-        EnvironmentBuilder adminContext = getAdminContext()
-                .user().identity()
-                .bearerToken(Scope.APPLICATION);
-        userApp.owner(adminContext.getUser());
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .user()
+                .identity()
+                .bearerToken(Scope.APPLICATION)
+                .build();
+        userContext
+                .getBuilder()
+                .owner(testContext.getUser())
+                .build();
 
-        Mockito.doReturn(adminContext.getToken())
-                .when(mockContext).getUserPrincipal();
-        Mockito.doReturn(true).when(mockContext)
+        Mockito.doReturn(testContext.getToken())
+                .when(mockSecurityContext).getUserPrincipal();
+        Mockito.doReturn(true).when(mockSecurityContext)
                 .isUserInRole(Scope.APPLICATION);
 
         Application a =
                 service.resolveFilterEntity(Application.class,
-                        userApp.getApplication().getId());
-        Assert.assertEquals(adminContext.getUser(), a.getOwner());
+                        userContext.getApplication().getId());
+        Assert.assertEquals(testContext.getUser(), a.getOwner());
     }
 
     /**
