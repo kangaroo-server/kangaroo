@@ -157,7 +157,7 @@ public final class ClientTest {
         List<AuthenticatorState> states = new ArrayList<>();
         states.add(new AuthenticatorState());
 
-        Assert.assertNull(client.getStates());
+        Assert.assertEquals(0, client.getStates().size());
         client.setStates(states);
         Assert.assertEquals(states, client.getStates());
         Assert.assertNotSame(states, client.getStates());
@@ -172,7 +172,7 @@ public final class ClientTest {
         List<OAuthToken> tokens = new ArrayList<>();
         tokens.add(new OAuthToken());
 
-        Assert.assertNull(client.getTokens());
+        Assert.assertEquals(0, client.getTokens().size());
         client.setTokens(tokens);
         Assert.assertEquals(tokens, client.getTokens());
         Assert.assertNotSame(tokens, client.getTokens());
@@ -187,7 +187,7 @@ public final class ClientTest {
         List<Authenticator> authenticators = new ArrayList<>();
         authenticators.add(new Authenticator());
 
-        Assert.assertNull(client.getAuthenticators());
+        Assert.assertEquals(0, client.getAuthenticators().size());
         client.setAuthenticators(authenticators);
         Assert.assertEquals(authenticators, client.getAuthenticators());
         Assert.assertNotSame(authenticators, client.getAuthenticators());

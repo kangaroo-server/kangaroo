@@ -91,7 +91,7 @@ public final class Role extends AbstractEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
     @JsonIgnore
     @ContainedIn
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     /**
      * The name of the role.

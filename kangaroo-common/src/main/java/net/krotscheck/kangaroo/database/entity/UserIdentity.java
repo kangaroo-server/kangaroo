@@ -114,7 +114,7 @@ public final class UserIdentity extends AbstractEntity {
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ContainedIn
-    private List<OAuthToken> tokens;
+    private List<OAuthToken> tokens = new ArrayList<>();
 
     /**
      * The user's remote ID- the ID by which the authenticator would recognize

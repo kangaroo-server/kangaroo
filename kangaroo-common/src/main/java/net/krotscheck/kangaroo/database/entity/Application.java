@@ -81,7 +81,7 @@ public final class Application extends AbstractEntity {
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ContainedIn
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     /**
      * List of the application's clients.
@@ -95,7 +95,7 @@ public final class Application extends AbstractEntity {
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ContainedIn
-    private List<Client> clients;
+    private List<Client> clients = new ArrayList<>();
 
     /**
      * List of the application's roles.
@@ -108,7 +108,7 @@ public final class Application extends AbstractEntity {
     )
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Role> roles;
+    private List<Role> roles = new ArrayList<>();
 
     /**
      * List of the application's scopes.
@@ -124,7 +124,7 @@ public final class Application extends AbstractEntity {
     @SortNatural
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ContainedIn
-    private SortedMap<String, ApplicationScope> scopes;
+    private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
 
     /**
      * The owner of the application.

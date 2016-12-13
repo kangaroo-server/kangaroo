@@ -101,7 +101,7 @@ public final class AuthenticatorTest {
         List<AuthenticatorState> states = new ArrayList<>();
         states.add(new AuthenticatorState());
 
-        Assert.assertNull(a.getStates());
+        Assert.assertEquals(0, a.getStates().size());
         a.setStates(states);
         Assert.assertEquals(states, a.getStates());
         Assert.assertNotSame(states, a.getStates());
@@ -116,7 +116,7 @@ public final class AuthenticatorTest {
         List<UserIdentity> identities = new ArrayList<>();
         identities.add(new UserIdentity());
 
-        Assert.assertNull(a.getIdentities());
+        Assert.assertEquals(0, a.getIdentities().size());
         a.setIdentities(identities);
         Assert.assertEquals(identities, a.getIdentities());
         Assert.assertNotSame(identities, a.getIdentities());

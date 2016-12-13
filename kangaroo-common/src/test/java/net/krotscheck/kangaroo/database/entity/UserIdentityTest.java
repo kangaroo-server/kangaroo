@@ -88,7 +88,7 @@ public final class UserIdentityTest {
         List<OAuthToken> tokens = new ArrayList<>();
         tokens.add(new OAuthToken());
 
-        Assert.assertNull(identity.getTokens());
+        Assert.assertEquals(0, identity.getTokens().size());
         identity.setTokens(tokens);
         Assert.assertEquals(tokens, identity.getTokens());
         Assert.assertNotSame(tokens, identity.getTokens());

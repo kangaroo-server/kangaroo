@@ -90,7 +90,7 @@ public final class AuthenticatorState extends AbstractEntity {
                             nullable = false, updatable = false)})
     @MapKey(name = "name")
     @SortNatural
-    private SortedMap<String, ApplicationScope> clientScopes;
+    private SortedMap<String, ApplicationScope> clientScopes = new TreeMap<>();
 
     /**
      * Retrieve the client.

@@ -83,7 +83,7 @@ public final class User extends AbstractEntity {
             orphanRemoval = true
     )
     @JsonIgnore
-    private List<Application> applications;
+    private List<Application> applications = new ArrayList<>();
 
     /**
      * The user's role in this application.
@@ -107,7 +107,7 @@ public final class User extends AbstractEntity {
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     @IndexedEmbedded(includePaths = {"claims", "remoteId"})
-    private List<UserIdentity> identities;
+    private List<UserIdentity> identities = new ArrayList<>();
 
     /**
      * Get the application this user belongs to.
