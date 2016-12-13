@@ -105,7 +105,7 @@ public final class Client extends AbstractEntity {
     )
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Authenticator> authenticators;
+    private List<Authenticator> authenticators = new ArrayList<>();
 
     /**
      * OAuth tokens issued to this client.
@@ -119,7 +119,7 @@ public final class Client extends AbstractEntity {
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ContainedIn
-    private List<OAuthToken> tokens;
+    private List<OAuthToken> tokens = new ArrayList<>();
 
     /**
      * List of all authenticator states currently active.
@@ -132,7 +132,7 @@ public final class Client extends AbstractEntity {
     )
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<AuthenticatorState> states;
+    private List<AuthenticatorState> states = new ArrayList<>();
 
     /**
      * Human recognizable name for this client.

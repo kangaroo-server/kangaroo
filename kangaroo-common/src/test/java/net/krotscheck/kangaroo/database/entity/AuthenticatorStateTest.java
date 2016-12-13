@@ -101,7 +101,7 @@ public final class AuthenticatorStateTest {
         SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         scopes.put("test", new ApplicationScope());
 
-        Assert.assertNull(state.getClientScopes());
+        Assert.assertEquals(0, state.getClientScopes().size());
         state.setClientScopes(scopes);
         Assert.assertEquals(scopes, state.getClientScopes());
         Assert.assertNotSame(scopes, state.getClientScopes());

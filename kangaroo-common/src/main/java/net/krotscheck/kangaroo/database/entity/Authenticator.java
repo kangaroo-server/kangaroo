@@ -93,7 +93,7 @@ public final class Authenticator extends AbstractEntity {
             orphanRemoval = true
     )
     @JsonIgnore
-    private List<UserIdentity> identities;
+    private List<UserIdentity> identities = new ArrayList<>();
 
     /**
      * List of all authenticator states currently active.
@@ -106,7 +106,7 @@ public final class Authenticator extends AbstractEntity {
     )
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<AuthenticatorState> states;
+    private List<AuthenticatorState> states = new ArrayList<>();
 
     /**
      * The authenticator type.

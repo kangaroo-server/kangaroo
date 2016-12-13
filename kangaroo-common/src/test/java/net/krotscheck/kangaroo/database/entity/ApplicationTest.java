@@ -81,7 +81,7 @@ public final class ApplicationTest {
         List<User> users = new ArrayList<>();
         users.add(new User());
 
-        Assert.assertNull(a.getUsers());
+        Assert.assertEquals(0, a.getUsers().size());
         a.setUsers(users);
         Assert.assertEquals(users, a.getUsers());
         Assert.assertNotSame(users, a.getUsers());
@@ -96,7 +96,7 @@ public final class ApplicationTest {
         List<Client> clients = new ArrayList<>();
         clients.add(new Client());
 
-        Assert.assertNull(a.getClients());
+        Assert.assertEquals(0, a.getClients().size());
         a.setClients(clients);
         Assert.assertEquals(clients, a.getClients());
         Assert.assertNotSame(clients, a.getClients());
@@ -111,7 +111,7 @@ public final class ApplicationTest {
         List<Role> roles = new ArrayList<>();
         roles.add(new Role());
 
-        Assert.assertNull(a.getRoles());
+        Assert.assertEquals(0, a.getRoles().size());
         a.setRoles(roles);
         Assert.assertEquals(roles, a.getRoles());
         Assert.assertNotSame(roles, a.getRoles());
@@ -126,7 +126,7 @@ public final class ApplicationTest {
         SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         scopes.put("foo", new ApplicationScope());
 
-        Assert.assertNull(a.getScopes());
+        Assert.assertEquals(0, a.getScopes().size());
         a.setScopes(scopes);
         Assert.assertEquals(scopes, a.getScopes());
         Assert.assertNotSame(scopes, a.getScopes());

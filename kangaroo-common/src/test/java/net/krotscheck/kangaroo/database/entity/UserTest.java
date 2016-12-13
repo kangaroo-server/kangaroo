@@ -76,7 +76,7 @@ public final class UserTest {
         applications.add(new Application());
         applications.add(new Application());
 
-        Assert.assertNull(u.getApplications());
+        Assert.assertEquals(0, u.getIdentities().size());
         u.setApplications(applications);
         Assert.assertEquals(applications, u.getApplications());
         Assert.assertNotSame(applications, u.getApplications());
@@ -104,7 +104,7 @@ public final class UserTest {
         identities.add(new UserIdentity());
         User user = new User();
 
-        Assert.assertNull(user.getIdentities());
+        Assert.assertEquals(0, user.getIdentities().size());
         user.setIdentities(identities);
         Assert.assertEquals(identities, user.getIdentities());
         Assert.assertNotSame(identities, user.getIdentities());
