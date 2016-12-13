@@ -40,7 +40,6 @@ public final class SearchIndexContextListenerTest extends DatabaseTest {
      * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
-    @Override
     public List<EnvironmentBuilder> fixtures() throws Exception {
         return null;
     }

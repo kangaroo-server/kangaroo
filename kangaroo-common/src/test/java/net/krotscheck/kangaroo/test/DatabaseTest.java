@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public abstract class DatabaseTest implements IDatabaseTest {
+public abstract class DatabaseTest {
 
     /**
      * Ensure that a JDNI resource is set up for this suite.
@@ -60,6 +60,14 @@ public abstract class DatabaseTest implements IDatabaseTest {
      * The list of loaded fixtures.
      */
     private List<EnvironmentBuilder> fixtures = new ArrayList<>();
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     * @throws Exception An exception that indicates a failed fixture load.
+     */
+    public abstract List<EnvironmentBuilder> fixtures() throws Exception;
 
     /**
      * Set up the fixtures and any environment that's necessary.
@@ -111,7 +119,6 @@ public abstract class DatabaseTest implements IDatabaseTest {
      *
      * @return The constructed session.
      */
-    @Override
     public final Session getSession() {
         return session;
     }
@@ -121,7 +128,6 @@ public abstract class DatabaseTest implements IDatabaseTest {
      *
      * @return The session factory
      */
-    @Override
     public final SessionFactory getSessionFactory() {
         return sessionFactory;
     }
