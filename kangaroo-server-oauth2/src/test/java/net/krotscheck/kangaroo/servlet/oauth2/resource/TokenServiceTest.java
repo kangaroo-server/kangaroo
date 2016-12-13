@@ -22,7 +22,7 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthAPI;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.DContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -43,7 +43,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class TokenServiceTest extends ContainerTest {
+public final class TokenServiceTest extends DContainerTest {
 
     /**
      * Simple testing context.

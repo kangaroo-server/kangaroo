@@ -18,7 +18,7 @@
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthTestApp;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.DContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -28,7 +28,7 @@ import org.glassfish.jersey.server.ResourceConfig;
  * @author Michael Krotscheck
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-2.3">https://tools.ietf.org/html/rfc6749#section-2.3</a>
  */
-public abstract class AbstractRFC6749Test extends ContainerTest {
+public abstract class AbstractRFC6749Test extends DContainerTest {
 
     /**
      * Create a small dummy app to test against.

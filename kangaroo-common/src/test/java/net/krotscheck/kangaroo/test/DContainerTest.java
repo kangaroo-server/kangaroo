@@ -50,7 +50,8 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public abstract class ContainerTest
+@Deprecated
+public abstract class DContainerTest
         extends KangarooJerseyTest {
 
     /**
