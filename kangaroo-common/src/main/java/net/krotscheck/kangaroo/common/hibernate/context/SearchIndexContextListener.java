@@ -50,19 +50,36 @@ public final class SearchIndexContextListener
             LoggerFactory.getLogger(SearchIndexContextListener.class);
 
     /**
+     * The service registry initialized by this class.
+     */
+    private ServiceRegistry registry;
+
+    /**
+     * Build/Retrieve the service registry.
+     *
+     * @return The service registry.
+     */
+    private ServiceRegistry getServiceRegistry() {
+        // configures settings from hibernate.cfg.xml
+        registry = new StandardServiceRegistryBuilder().configure().build();
+        return registry;
+    }
+
+    /**
+     * Dispose of the service registry.
+     */
+    private void disposeServiceRegistry() {
+        StandardServiceRegistryBuilder.destroy(registry);
+    }
+
+    /**
      * Create a session factory given the current configuration method.
      *
      * @return A constructed session factory.
      */
     protected SessionFactory createSessionFactory() {
-        // Set up a service registry.
-        StandardServiceRegistryBuilder b = new StandardServiceRegistryBuilder();
-
-        // configures settings from hibernate.cfg.xml
-        ServiceRegistry registry = b.configure().build();
-
         // Build the session factory.
-        return new MetadataSources(registry)
+        return new MetadataSources(getServiceRegistry())
                 .buildMetadata()
                 .buildSessionFactory();
     }
@@ -97,6 +114,7 @@ public final class SearchIndexContextListener
             // Close everything and release the lock file.
             session.close();
             factory.close();
+            disposeServiceRegistry();
         }
     }
 
