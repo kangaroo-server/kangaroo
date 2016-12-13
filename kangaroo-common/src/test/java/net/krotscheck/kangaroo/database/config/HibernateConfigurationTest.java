@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.database.config;
 
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.junit.After;
 import org.junit.Assert;
@@ -65,17 +64,6 @@ public final class HibernateConfigurationTest extends DatabaseTest {
     public void teardown() {
         configOne.clear();
         configTwo.clear();
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        return null; // No fixtures.
     }
 
     /**

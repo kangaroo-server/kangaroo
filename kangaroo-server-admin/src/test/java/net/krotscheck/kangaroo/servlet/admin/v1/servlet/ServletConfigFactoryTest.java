@@ -42,17 +42,6 @@ import javax.inject.Singleton;
 public final class ServletConfigFactoryTest extends DatabaseTest {
 
     /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        return null;
-    }
-
-    /**
      * Assert that we can create a configuration.
      */
     @Test

@@ -51,17 +51,6 @@ public final class FirstRunContainerLifecycleListenerTest
         extends DatabaseTest {
 
     /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        return null;
-    }
-
-    /**
      * Make sure that the lifecycle listener is only run when the firstRun
      * flag is called.
      */

@@ -27,12 +27,13 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -45,29 +46,53 @@ import javax.ws.rs.core.MultivaluedMap;
 public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
 
     /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData() {
+            context = new EnvironmentBuilder(getSession())
+                    .client(ClientType.ClientCredentials, true)
+                    .scope("debug");
+            noScopeContext = new EnvironmentBuilder(getSession())
+                    .client(ClientType.ClientCredentials, true);
+            implicitContext = new EnvironmentBuilder(getSession())
+                    .client(ClientType.Implicit, true)
+                    .scope("debug");
+            noSecretContext = new EnvironmentBuilder(getSession())
+                    .client(ClientType.ClientCredentials)
+                    .scope("debug");
+        }
+    };
+
+    /**
      * The harness under test.
      */
-    private ClientCredentialsGrantHandler handler;
+    private static ClientCredentialsGrantHandler handler;
 
     /**
      * A simple, scoped context.
      */
-    private EnvironmentBuilder context;
+    private static EnvironmentBuilder context;
 
     /**
      * A non-client-credentials context.
      */
-    private EnvironmentBuilder implicitContext;
+    private static EnvironmentBuilder implicitContext;
 
     /**
      * A context with no configured scopes.
      */
-    private EnvironmentBuilder noScopeContext;
+    private static EnvironmentBuilder noScopeContext;
 
     /**
      * A no-secret Context.
      */
-    private EnvironmentBuilder noSecretContext;
+    private static EnvironmentBuilder noSecretContext;
 
     /**
      * Setup the test.
@@ -75,43 +100,6 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     @Before
     public void initializeEnvironment() {
         handler = new ClientCredentialsGrantHandler(getSession());
-    }
-
-    /**
-     * Set up the test harness data.
-     */
-    @Before
-    public void createTestData() {
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .client(ClientType.ClientCredentials, true)
-                .scope("debug");
-        noScopeContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.ClientCredentials, true);
-        implicitContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.Implicit, true)
-                .scope("debug");
-        noSecretContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.ClientCredentials)
-                .scope("debug");
-
-        // The environment builder detaches its data, this reconnects it.
-        getSession().refresh(context.getClient());
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        fixtures.add(noScopeContext);
-        fixtures.add(implicitContext);
-        fixtures.add(noSecretContext);
-        return fixtures;
     }
 
     /**

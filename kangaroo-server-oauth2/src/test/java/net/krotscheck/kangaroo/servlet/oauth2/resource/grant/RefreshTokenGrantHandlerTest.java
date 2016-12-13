@@ -27,17 +27,17 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
-import org.hibernate.Session;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.TimeZone;
+import java.util.UUID;
 
 /**
  * These tests ensure coverage on the Refresh token grant type
@@ -45,8 +45,43 @@ import javax.ws.rs.core.MultivaluedMap;
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-6">https://tools.ietf.org/html/rfc6749#section-6</a>
  */
-public final class RefreshTokenGrantHandlerTest
-        extends DatabaseTest {
+public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
+
+    /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData() {
+            authGrantContext = new EnvironmentBuilder(getSession())
+                    .client(ClientType.AuthorizationGrant, true)
+                    .authenticator("test")
+                    .scope("debug")
+                    .scope("debug1")
+                    .role("test", new String[]{"debug", "debug1"})
+                    .user()
+                    .identity("remote_identity");
+
+            ownerCredsContext = new EnvironmentBuilder(getSession())
+                    .client(ClientType.OwnerCredentials, true)
+                    .authenticator("test")
+                    .scope("debug")
+                    .scope("debug1")
+                    .role("test", new String[]{"debug", "debug1"})
+                    .user()
+                    .identity("remote_identity");
+
+            implicitContext = new EnvironmentBuilder(getSession())
+                    .client(ClientType.Implicit, true)
+                    .authenticator("test")
+                    .scope("debug")
+                    .role("test", new String[]{"debug"});
+        }
+    };
 
     /**
      * The harness under test.
@@ -54,34 +89,19 @@ public final class RefreshTokenGrantHandlerTest
     private RefreshTokenGrantHandler handler;
 
     /**
-     * Current hibernate session.
+     * A simple, scoped context.
      */
-    private Session session;
+    private static EnvironmentBuilder ownerCredsContext;
 
     /**
      * A simple, scoped context.
      */
-    private EnvironmentBuilder ownerCredsContext;
-
-    /**
-     * A simple, scoped context.
-     */
-    private EnvironmentBuilder authGrantContext;
+    private static EnvironmentBuilder authGrantContext;
 
     /**
      * A non-refresh-token context.
      */
-    private EnvironmentBuilder implicitContext;
-
-    /**
-     * A context with an expired refresh token.
-     */
-    private EnvironmentBuilder expiredContext;
-
-    /**
-     * A context with a refresh token that has no associated auth token.
-     */
-    private EnvironmentBuilder zombieRefreshContext;
+    private static EnvironmentBuilder implicitContext;
 
     /**
      * Setup the test.
@@ -93,96 +113,15 @@ public final class RefreshTokenGrantHandlerTest
     }
 
     /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        OAuthToken authToken;
-
-        authGrantContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.AuthorizationGrant, true)
-                .authenticator("test")
-                .scope("debug")
-                .scope("debug1")
-                .role("test", new String[]{"debug", "debug1"})
-                .user()
-                .identity("remote_identity")
-                .bearerToken();
-        authToken = authGrantContext.getToken();
-        authGrantContext
-                .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
-
-
-        ownerCredsContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.OwnerCredentials, true)
-                .authenticator("test")
-                .scope("debug")
-                .scope("debug1")
-                .role("test", new String[]{"debug", "debug1"})
-                .user()
-                .identity("remote_identity")
-                .bearerToken();
-        authToken = ownerCredsContext.getToken();
-        ownerCredsContext
-                .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
-
-
-        expiredContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.OwnerCredentials, true)
-                .authenticator("test")
-                .scope("debug")
-                .role("test", new String[]{"debug"})
-                .user()
-                .identity("remote_identity")
-                .bearerToken();
-        authToken = expiredContext.getToken();
-        expiredContext
-                .token(OAuthTokenType.Refresh, true, "debug", null, authToken);
-
-
-        zombieRefreshContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.OwnerCredentials, true)
-                .authenticator("test")
-                .scope("debug")
-                .role("test", new String[]{"debug"})
-                .user()
-                .identity("remote_identity")
-                .refreshToken();
-
-        implicitContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.Implicit, true)
-                .authenticator("test")
-                .scope("debug")
-                .role("test", new String[]{"debug"})
-                .bearerToken();
-        authToken = implicitContext.getToken();
-        implicitContext
-                .token(OAuthTokenType.Refresh, false, "debug", null, authToken);
-
-        // The environment builder detaches its data, this reconnects it.
-        session = getSession();
-        session.refresh(ownerCredsContext.getClient());
-        session.refresh(authGrantContext.getClient());
-        session.refresh(implicitContext.getClient());
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(authGrantContext);
-        fixtures.add(ownerCredsContext);
-        fixtures.add(expiredContext);
-        fixtures.add(zombieRefreshContext);
-        fixtures.add(implicitContext);
-        return fixtures;
-    }
-
-    /**
      * Test that a valid request works, using the Authorization Grant type.
      */
     @Test
     public void testValidAuthorizationGrant() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext.getToken();
+        OAuthToken refreshToken = authGrantContext
+                .bearerToken("debug")
+                .refreshToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -200,7 +139,7 @@ public final class RefreshTokenGrantHandlerTest
         Assert.assertEquals("debug", token.getScope());
 
         // Resolve the granted refresh token
-        OAuthToken newRefresh = session.get(OAuthToken.class,
+        OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
@@ -209,9 +148,9 @@ public final class RefreshTokenGrantHandlerTest
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getAuthToken().getId()));
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 
@@ -221,7 +160,10 @@ public final class RefreshTokenGrantHandlerTest
     @Test
     public void testValidOwnerCredentials() {
         Client authClient = ownerCredsContext.getClient();
-        OAuthToken refreshToken = ownerCredsContext.getToken();
+        OAuthToken refreshToken = ownerCredsContext
+                .bearerToken("debug")
+                .refreshToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -239,7 +181,7 @@ public final class RefreshTokenGrantHandlerTest
         Assert.assertEquals("debug", token.getScope());
 
         // Resolve the granted refresh token
-        OAuthToken newRefresh = session.get(OAuthToken.class,
+        OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
@@ -248,9 +190,9 @@ public final class RefreshTokenGrantHandlerTest
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getAuthToken().getId()));
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 
@@ -260,7 +202,10 @@ public final class RefreshTokenGrantHandlerTest
     @Test(expected = InvalidGrantException.class)
     public void testInvalidClientType() {
         Client authClient = implicitContext.getClient();
-        OAuthToken refreshToken = implicitContext.getToken();
+        OAuthToken refreshToken = implicitContext
+                .bearerToken("debug")
+                .refreshToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -328,7 +273,9 @@ public final class RefreshTokenGrantHandlerTest
     @Test(expected = InvalidGrantException.class)
     public void testNotARefreshToken() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken authToken = authGrantContext.getToken().getAuthToken();
+        OAuthToken authToken = authGrantContext
+                .bearerToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -345,15 +292,18 @@ public final class RefreshTokenGrantHandlerTest
      */
     @Test(expected = InvalidGrantException.class)
     public void testExpiredToken() {
-        Client authClient = expiredContext.getClient();
-        OAuthToken authToken = expiredContext.getToken();
+        Client authClient = ownerCredsContext.getClient();
+        OAuthToken refreshToken = ownerCredsContext
+                .bearerToken()
+                .token(OAuthTokenType.Refresh, true, "debug", null, null)
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
         testData.putSingle("client_secret", authClient.getClientSecret());
         testData.putSingle("scope", "debug");
         testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token", authToken.getId().toString());
+        testData.putSingle("refresh_token", refreshToken.getId().toString());
 
         handler.handle(authClient, testData);
     }
@@ -364,7 +314,10 @@ public final class RefreshTokenGrantHandlerTest
     @Test(expected = InvalidScopeException.class)
     public void testInvalidScope() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext.getToken();
+        OAuthToken refreshToken = authGrantContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -382,7 +335,10 @@ public final class RefreshTokenGrantHandlerTest
     @Test(expected = InvalidScopeException.class)
     public void testEscalateScope() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext.getToken();
+        OAuthToken refreshToken = authGrantContext
+                .bearerToken("debug")
+                .refreshToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -400,7 +356,10 @@ public final class RefreshTokenGrantHandlerTest
     @Test
     public void testDeescalateScope() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext.getToken();
+        OAuthToken refreshToken = authGrantContext
+                .bearerToken("debug")
+                .refreshToken()
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -418,7 +377,7 @@ public final class RefreshTokenGrantHandlerTest
         Assert.assertNull(token.getScope());
 
         // Resolve the granted refresh token
-        OAuthToken newRefresh = session.get(OAuthToken.class,
+        OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
@@ -427,9 +386,9 @@ public final class RefreshTokenGrantHandlerTest
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getAuthToken().getId()));
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 
@@ -439,8 +398,10 @@ public final class RefreshTokenGrantHandlerTest
      */
     @Test
     public void testZombieRefresh() {
-        Client authClient = zombieRefreshContext.getClient();
-        OAuthToken refreshToken = zombieRefreshContext.getToken();
+        Client authClient = authGrantContext.getClient();
+        OAuthToken refreshToken = authGrantContext
+                .token(OAuthTokenType.Refresh, false, "debug", null, null)
+                .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id", authClient.getId().toString());
@@ -458,7 +419,7 @@ public final class RefreshTokenGrantHandlerTest
         Assert.assertNull(token.getScope());
 
         // Resolve the granted refresh token
-        OAuthToken newRefresh = session.get(OAuthToken.class,
+        OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
         Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
@@ -467,7 +428,7 @@ public final class RefreshTokenGrantHandlerTest
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(session.get(OAuthToken.class,
+        Assert.assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 }
