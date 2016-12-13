@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.event.service.spi.EventListenerRegistrationException;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PreInsertEvent;
@@ -63,20 +64,15 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
         EventListenerRegistry eventRegistry = registry
                 .getService(EventListenerRegistry.class);
 
-        eventRegistry.appendListeners(EventType.PRE_INSERT,
-                new CreatedUpdatedListener());
-        eventRegistry.appendListeners(EventType.PRE_UPDATE,
-                new CreatedUpdatedListener());
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        return null;
+        try {
+            eventRegistry.appendListeners(EventType.PRE_INSERT,
+                    new CreatedUpdatedListener());
+            eventRegistry.appendListeners(EventType.PRE_UPDATE,
+                    new CreatedUpdatedListener());
+        } catch (EventListenerRegistrationException e) {
+            // Session Factories are class-static, so we may have already
+            // registered these listeners. i.e. do nothing.
+        }
     }
 
     /**

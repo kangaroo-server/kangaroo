@@ -25,11 +25,14 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -43,28 +46,28 @@ import java.util.List;
 public final class EnvironmentBuilderTest extends DatabaseTest {
 
     /**
-     * Fixture context for the environment builder.
+     * Test data loading for this test.
      */
-    private EnvironmentBuilder context;
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData() {
+            context = new EnvironmentBuilder(getSession(), "Test App")
+                    .client(ClientType.OwnerCredentials)
+                    .authenticator("password")
+                    .scopes(Arrays.asList("one", "two", "three"))
+                    .user()
+                    .identity();
+        }
+    };
 
     /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
+     * Fixture context for the environment builder.
      */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        // Create an independent session.
-        SessionFactory f = getSessionFactory();
-
-        context = new EnvironmentBuilder(f.openSession(), "Test App")
-                .client(ClientType.OwnerCredentials)
-                .authenticator("password")
-                .scopes(Arrays.asList("one", "two", "three"))
-                .user();
-
-        return Arrays.asList(context);
-    }
+    private static EnvironmentBuilder context;
 
     /**
      * Helper method, makes sure a new entity has been created with all
@@ -111,7 +114,7 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         assertNewResource(b.getRole());
         Assert.assertEquals("testRole", b.getRole().getName());
         Assert.assertEquals(b.getApplication(), b.getRole().getApplication());
-        Assert.assertEquals(0, b.getRole().getScopes().size());
+        Assert.assertEquals(1, b.getRole().getScopes().size());
 
         // Create a role with scopes.
         b.role("scopedRole", new String[]{"testScope", "omgNoScope"});
@@ -355,15 +358,11 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
      */
     @Test
     public void testApplicationWrapperWithIdentities() {
-        // Add an identity
-        context.identity("admin");
-
         // A mock, self-owned admin application.
         Application adminApp = context.getApplication();
 
         Session session = getSession();
-        EnvironmentBuilder b =
-                new EnvironmentBuilder(session, context.getApplication());
+        EnvironmentBuilder b = new EnvironmentBuilder(session, adminApp);
         Assert.assertEquals(adminApp, b.getApplication());
         Assert.assertNotNull(b.getUserIdentity());
     }

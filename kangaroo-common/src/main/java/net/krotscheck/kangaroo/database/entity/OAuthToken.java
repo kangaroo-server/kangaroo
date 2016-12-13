@@ -88,11 +88,8 @@ public final class OAuthToken extends AbstractEntity implements Principal {
     /**
      * The authenticated user identity.
      */
-    @ManyToOne(fetch = FetchType.LAZY,
-            cascade = {CascadeType.REMOVE, CascadeType.MERGE}
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "identity", updatable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = UserIdentity.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id", "user.id"})

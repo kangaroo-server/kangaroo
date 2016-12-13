@@ -19,18 +19,12 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.service.ServiceRegistry;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * This test suite sets up a database, without a service container, to test
@@ -41,85 +35,24 @@ import java.util.List;
 public abstract class DatabaseTest {
 
     /**
+     * The database test rule. Private, so it can be wrapped below.
+     */
+    private static final DatabaseResource DATABASE_RESOURCE =
+            new DatabaseResource();
+
+    /**
+     * The hibernate test rule. Private, so it can be wrapped below.
+     */
+    private static final HibernateResource HIBERNATE_RESOURCE =
+            new HibernateResource();
+
+    /**
      * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
-    public static final DatabaseResource JNDI = new DatabaseResource();
-
-    /**
-     * Service registry, as built from the configuration.
-     */
-    private ServiceRegistry serviceRegistry;
-
-    /**
-     * Internal session factory, reconstructed for every test run.
-     */
-    private SessionFactory sessionFactory;
-
-    /**
-     * The last created session.
-     */
-    private Session session;
-
-    /**
-     * The list of loaded fixtures.
-     */
-    private List<EnvironmentBuilder> fixtures = new ArrayList<>();
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    public abstract List<EnvironmentBuilder> fixtures() throws Exception;
-
-    /**
-     * Set up the fixtures and any environment that's necessary.
-     *
-     * @throws Exception Thrown in the fixtures() interface.
-     */
-    @Before
-    public final void setupData() throws Exception {
-        // Create the session factory.
-        serviceRegistry =
-                new StandardServiceRegistryBuilder()
-                        .configure()
-                        .build();
-        sessionFactory = new MetadataSources(serviceRegistry)
-                .buildMetadata()
-                .buildSessionFactory();
-
-        // Create the session
-        session = sessionFactory.openSession();
-
-        List<EnvironmentBuilder> newFixtures = fixtures();
-        if (newFixtures != null) {
-            fixtures.addAll(newFixtures);
-        }
-    }
-
-    /**
-     * Cleanup the session factory after every run.
-     *
-     * @throws Exception An exception that indicates a failed data clear.
-     */
-    @After
-    public final void clearData() throws Exception {
-        List<EnvironmentBuilder> reversed = new ArrayList<>(fixtures);
-        Collections.reverse(reversed);
-        reversed.forEach(EnvironmentBuilder::clear);
-        fixtures.clear();
-
-        // Clean any outstanding sessions.
-        session.close();
-        session = null;
-
-        sessionFactory.close();
-        sessionFactory = null;
-
-        StandardServiceRegistryBuilder.destroy(serviceRegistry);
-    }
+    public static final TestRule RULES = RuleChain
+            .outerRule(DATABASE_RESOURCE)
+            .around(HIBERNATE_RESOURCE);
 
     /**
      * Create and return a hibernate session for the test database.
@@ -127,7 +60,7 @@ public abstract class DatabaseTest {
      * @return The constructed session.
      */
     public final Session getSession() {
-        return session;
+        return HIBERNATE_RESOURCE.getSession();
     }
 
     /**
@@ -136,7 +69,6 @@ public abstract class DatabaseTest {
      * @return The session factory
      */
     public final SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return HIBERNATE_RESOURCE.getSessionFactory();
     }
-
 }
