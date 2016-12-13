@@ -90,7 +90,7 @@ public final class RoleTest {
         List<User> users = new ArrayList<>();
         users.add(new User());
 
-        Assert.assertNull(role.getUsers());
+        Assert.assertEquals(0, role.getUsers().size());
         role.setUsers(users);
         Assert.assertEquals(users, role.getUsers());
         Assert.assertNotSame(users, role.getUsers());
