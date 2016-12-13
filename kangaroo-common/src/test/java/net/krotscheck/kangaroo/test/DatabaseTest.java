@@ -19,14 +19,14 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.service.ServiceRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,20 +41,24 @@ import java.util.List;
 public abstract class DatabaseTest implements IDatabaseTest {
 
     /**
+     * The database test rule. Private, so it can be wrapped below.
+     */
+    private static final DatabaseResource DATABASE_RESOURCE =
+            new DatabaseResource();
+
+    /**
+     * The hibernate test rule. Private, so it can be wrapped below.
+     */
+    private static final HibernateResource HIBERNATE_RESOURCE =
+            new HibernateResource();
+
+    /**
      * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
-    public static final DatabaseResource JNDI = new DatabaseResource();
-
-    /**
-     * Internal session factory, reconstructed for every test run.
-     */
-    private SessionFactory sessionFactory;
-
-    /**
-     * The last created session.
-     */
-    private Session session;
+    public static final TestRule RULES = RuleChain
+            .outerRule(DATABASE_RESOURCE)
+            .around(HIBERNATE_RESOURCE);
 
     /**
      * The list of loaded fixtures.
@@ -68,18 +72,6 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @Before
     public final void setupData() throws Exception {
-        // Create the session factory.
-        ServiceRegistry serviceRegistry =
-                new StandardServiceRegistryBuilder()
-                        .configure()
-                        .build();
-        sessionFactory = new MetadataSources(serviceRegistry)
-                .buildMetadata()
-                .buildSessionFactory();
-
-        // Create the session
-        session = sessionFactory.openSession();
-
         List<EnvironmentBuilder> newFixtures = fixtures();
         if (newFixtures != null) {
             fixtures.addAll(newFixtures);
@@ -97,13 +89,6 @@ public abstract class DatabaseTest implements IDatabaseTest {
         Collections.reverse(reversed);
         reversed.forEach(EnvironmentBuilder::clear);
         fixtures.clear();
-
-        // Clean any outstanding sessions.
-        session.close();
-        session = null;
-
-        sessionFactory.close();
-        sessionFactory = null;
     }
 
     /**
@@ -113,7 +98,7 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @Override
     public final Session getSession() {
-        return session;
+        return HIBERNATE_RESOURCE.getSession();
     }
 
     /**
@@ -123,7 +108,7 @@ public abstract class DatabaseTest implements IDatabaseTest {
      */
     @Override
     public final SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return HIBERNATE_RESOURCE.getSessionFactory();
     }
 
 }
