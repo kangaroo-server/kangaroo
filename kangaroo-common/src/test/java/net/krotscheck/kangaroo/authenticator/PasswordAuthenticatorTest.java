@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -31,15 +32,16 @@ import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.List;
 
 /**
  * Unit tests for the password authenticator.
@@ -49,27 +51,27 @@ import javax.ws.rs.core.UriBuilder;
 public final class PasswordAuthenticatorTest extends DatabaseTest {
 
     /**
-     * Test context.
+     * Test data loading for this test.
      */
-    private EnvironmentBuilder context;
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData() {
+            context = new EnvironmentBuilder(getSession());
+            context.client(ClientType.OwnerCredentials)
+                    .authenticator("password")
+                    .user()
+                    .login("login", "password");
+        }
+    };
 
     /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
+     * The environment set up for this test suite.
      */
-    @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        context = new EnvironmentBuilder(getSession());
-        context.client(ClientType.OwnerCredentials)
-                .authenticator("password")
-                .user()
-                .login("login", "password");
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        return fixtures;
-    }
+    private static EnvironmentBuilder context;
 
     /**
      * Assert that the test delegate does nothing.

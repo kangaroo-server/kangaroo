@@ -46,6 +46,7 @@ import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This class assists in the creation of a test environment, by bootstrapping
@@ -277,7 +278,18 @@ public final class EnvironmentBuilder {
         this.application = session.get(Application.class, app.getId());
         this.scopes.putAll(this.application.getScopes());
         this.scope = this.scopes.values().iterator().next();
-        this.client = this.application.getClients().get(0);
+
+        // If possible, find a client with a token.
+        List<Client> clients = this.application.getClients().stream()
+                .flatMap(c -> c.getTokens().stream())
+                .map(OAuthToken::getClient)
+                .collect(Collectors.toList());
+        if (clients.size() > 0) {
+            this.client = clients.get(0);
+        } else {
+            this.client = this.application.getClients().get(0);
+        }
+
         this.authenticator = this.client.getAuthenticators().get(0);
         this.user = this.application.getUsers().get(0);
         if (this.application.getRoles().size() > 0) {
@@ -285,6 +297,9 @@ public final class EnvironmentBuilder {
         }
         if (this.user.getIdentities().size() > 0) {
             this.userIdentity = this.user.getIdentities().get(0);
+        }
+        if (this.client.getTokens().size() > 0) {
+            this.token = this.client.getTokens().get(0);
         }
     }
 
@@ -308,6 +323,10 @@ public final class EnvironmentBuilder {
         role = new Role();
         role.setApplication(getApplication());
         role.setName(name);
+
+        if (scope != null) {
+            role.getScopes().put(scope.getName(), scope);
+        }
 
         persist(role);
 
@@ -621,6 +640,21 @@ public final class EnvironmentBuilder {
     }
 
     /**
+     * Add a scoped bearer token for a specific user..
+     *
+     * @param client   The client to apply this to.
+     * @param identity The identity to apply this to.
+     * @param scopes   The scopes to assign to this token.
+     * @return This builder.
+     */
+    public EnvironmentBuilder bearerToken(final Client client,
+                                          final UserIdentity identity,
+                                          final String scopes) {
+        return token(client, identity, OAuthTokenType.Bearer, false,
+                scopes, null, null);
+    }
+
+    /**
      * Add a scoped bearer token to this user.
      *
      * @param scopes The scopes to assign to this token.
@@ -644,7 +678,8 @@ public final class EnvironmentBuilder {
      */
     public EnvironmentBuilder bearerToken(final Client client,
                                           final String... scopes) {
-        return token(client, OAuthTokenType.Bearer,
+        return token(client, getUserIdentity(),
+                OAuthTokenType.Bearer,
                 false,
                 String.join(" ", (CharSequence[]) scopes),
                 null, null);
@@ -656,7 +691,9 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder refreshToken() {
-        return token(OAuthTokenType.Refresh, false, null, null, token);
+        String scopes = String.join(" ", token.getScopes().keySet());
+        return token(OAuthTokenType.Refresh, false, scopes,
+                null, token);
     }
 
     /**
@@ -674,14 +711,15 @@ public final class EnvironmentBuilder {
                                     final String scopeString,
                                     final String redirect,
                                     final OAuthToken authToken) {
-        return token(getClient(), type, expired, scopeString, redirect,
-                authToken);
+        return token(getClient(), getUserIdentity(), type, expired,
+                scopeString, redirect, authToken);
     }
 
     /**
      * Customize a token.
      *
      * @param client      The client for which this token should be created.
+     * @param identity    The identity for this token.
      * @param type        The token type.
      * @param expired     Whether it's expired.
      * @param scopeString The requested scope.
@@ -690,6 +728,7 @@ public final class EnvironmentBuilder {
      * @return This builder.
      */
     public EnvironmentBuilder token(final Client client,
+                                    final UserIdentity identity,
                                     final OAuthTokenType type,
                                     final Boolean expired,
                                     final String scopeString,
