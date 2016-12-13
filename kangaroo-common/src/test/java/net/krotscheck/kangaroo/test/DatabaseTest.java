@@ -47,6 +47,11 @@ public abstract class DatabaseTest {
     public static final DatabaseResource JNDI = new DatabaseResource();
 
     /**
+     * Service registry, as built from the configuration.
+     */
+    private ServiceRegistry serviceRegistry;
+
+    /**
      * Internal session factory, reconstructed for every test run.
      */
     private SessionFactory sessionFactory;
@@ -77,7 +82,7 @@ public abstract class DatabaseTest {
     @Before
     public final void setupData() throws Exception {
         // Create the session factory.
-        ServiceRegistry serviceRegistry =
+        serviceRegistry =
                 new StandardServiceRegistryBuilder()
                         .configure()
                         .build();
@@ -112,6 +117,8 @@ public abstract class DatabaseTest {
 
         sessionFactory.close();
         sessionFactory = null;
+
+        StandardServiceRegistryBuilder.destroy(serviceRegistry);
     }
 
     /**
