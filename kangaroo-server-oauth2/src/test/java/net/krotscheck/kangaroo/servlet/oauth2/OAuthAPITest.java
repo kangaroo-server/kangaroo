@@ -18,7 +18,7 @@
 package net.krotscheck.kangaroo.servlet.oauth2;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.DContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class OAuthAPITest extends ContainerTest {
+public final class OAuthAPITest extends DContainerTest {
 
     /**
      * Create a test instance of the application to test against.
