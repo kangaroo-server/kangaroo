@@ -51,8 +51,7 @@ import static org.junit.Assert.assertTrue;
  * @author Michael Krotscheck
  */
 public abstract class ContainerTest
-        extends KangarooJerseyTest
-        implements IDatabaseTest {
+        extends KangarooJerseyTest {
 
     /**
      * A list of HTTP status codes that are valid for redirects.
@@ -72,6 +71,14 @@ public abstract class ContainerTest
      * The list of loaded fixtures.
      */
     private List<EnvironmentBuilder> fixtures = new ArrayList<>();
+
+    /**
+     * Load data fixtures for each test.
+     *
+     * @return A list of fixtures, which will be cleared after the test.
+     * @throws Exception An exception that indicates a failed fixture load.
+     */
+    public abstract List<EnvironmentBuilder> fixtures() throws Exception;
 
     /**
      * Session factory, injected by Jersey2.
@@ -150,7 +157,6 @@ public abstract class ContainerTest
      *
      * @return The session factory
      */
-    @Override
     public final SessionFactory getSessionFactory() {
         return sessionFactory;
     }
