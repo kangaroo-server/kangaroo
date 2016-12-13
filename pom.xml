@@ -49,6 +49,25 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Database profiles -->
+    <profile>
+      <id>h2</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <jndi.datasource>jdbc:h2:mem:target/test/db/h2/hibernate</jndi.datasource>
+        <jndi.driver>org.h2.Driver</jndi.driver>
+      </properties>
+    </profile>
+    <profile>
+      <id>mysql</id>
+      <properties>
+        <jndi.datasource>jdbc:mysql://127.0.0.1:3306/oid?useUnicode=yes</jndi.datasource>
+        <jndi.driver>com.mysql.jdbc.Driver</jndi.driver>
+      </properties>
+    </profile>
   </profiles>
 
   <!-- The license under which this package is released -->
@@ -259,11 +278,11 @@
               <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
               <property>
                 <name>test.db.jdbc</name>
-                <value>jdbc:h2:mem:target/test/db/h2/hibernate</value>
+                <value>${jndi.datasource}</value>
               </property>
               <property>
                 <name>test.db.driver</name>
-                <value>org.h2.Driver</value>
+                <value>${jndi.driver}</value>
               </property>
               <property>
                 <name>test.db.user</name>
@@ -272,6 +291,10 @@
               <property>
                 <name>test.db.password</name>
                 <value>oid</value>
+              </property>
+              <property>
+                <name>test.db.jndiName</name>
+                <value>OIDServerDB</value>
               </property>
             </systemProperties>
           </configuration>
