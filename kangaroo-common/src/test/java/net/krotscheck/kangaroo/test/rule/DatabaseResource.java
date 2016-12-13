@@ -55,8 +55,6 @@ public final class DatabaseResource implements TestRule {
     private static String getDbJdbcPath() {
         return System.getProperty("test.db.jdbc",
                 "jdbc:h2:mem:target/test/db/h2/hibernate");
-//        return System.getProperty("test.db.jdbc",
-//                "jdbc:mysql://localhost:3306/oid?useUnicode=yes");
     }
 
     /**
@@ -66,7 +64,6 @@ public final class DatabaseResource implements TestRule {
      */
     private static String getDbDriver() {
         return System.getProperty("test.db.driver", "org.h2.Driver");
-//        return System.getProperty("test.db.driver", "com.mysql.jdbc.Driver");
     }
 
     /**
@@ -125,7 +122,7 @@ public final class DatabaseResource implements TestRule {
         System.setProperty(Context.URL_PKG_PREFIXES,
                 "org.eclipse.jetty.jndi");
 
-        logger.info(String.format("Setting up [%s] database at [%s]",
+        logger.debug(String.format("Setting up [%s] database at [%s]",
                 getDbDriver(), getDbJdbcPath()));
 
         try {
@@ -155,7 +152,7 @@ public final class DatabaseResource implements TestRule {
      *                   fix your tests!
      */
     private void setupDatabase() throws Exception {
-        logger.info("Migrating Database Schema.");
+        logger.debug("Migrating Database Schema.");
 
         // Force the database to use UTC.
         System.setProperty("user.timezone", "UTC");
@@ -164,6 +161,7 @@ public final class DatabaseResource implements TestRule {
         // We need to persist this connection so that the in-memory database
         // is not destroyed when the connection drops.
         Class.forName(getDbDriver());
+        logger.debug("Opening connection.");
         conn = DriverManager.getConnection(
                 getDbJdbcPath(),
                 getDbLogin(),
@@ -178,9 +176,9 @@ public final class DatabaseResource implements TestRule {
             s.close();
         }
 
+        logger.debug("Migrating schema.");
         Database database = DatabaseFactory.getInstance()
                 .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-
         liquibase = new Liquibase("liquibase/db.changelog-master.yaml",
                 new ClassLoaderResourceAccessor(), database);
         liquibase.update(new Contexts());
@@ -192,7 +190,7 @@ public final class DatabaseResource implements TestRule {
      * @throws Throwable An exception encountered during teardown.
      */
     private void cleanDatabase() throws Throwable {
-        logger.info("Cleaning Database.");
+        logger.debug("Cleaning Database.");
         liquibase.rollback(1000, null);
         liquibase = null;
 
