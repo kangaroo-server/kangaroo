@@ -60,7 +60,7 @@ public final class SystemConfiguration extends CompositeConfiguration {
             String path = context.getRealPath("/META-INF/MANIFEST.MF");
             addConfiguration(new PropertiesConfiguration(path));
         } catch (ConfigurationException | NullPointerException ce) {
-            logger.warn("Cannot load global properties file, does not exist "
+            logger.debug("Cannot load global properties file, does not exist "
                     + "or not readable.");
         }
 
