@@ -18,8 +18,7 @@
 package net.krotscheck.kangaroo.database;
 
 import net.krotscheck.kangaroo.database.listener.CreatedUpdatedListener;
-import net.krotscheck.kangaroo.test.DContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -41,7 +40,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public final class DatabaseFeatureTest extends DContainerTest {
+public final class DatabaseFeatureTest extends ContainerTest {
 
     /**
      * Setup an application.
@@ -54,16 +53,6 @@ public final class DatabaseFeatureTest extends DContainerTest {
         a.register(DatabaseFeature.class);
         a.register(MockService.class);
         return a;
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        return null;
     }
 
     /**
