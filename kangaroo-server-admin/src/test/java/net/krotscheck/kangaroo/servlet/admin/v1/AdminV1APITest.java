@@ -17,7 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1;
 
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.DContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ import javax.ws.rs.core.Response;
 /**
  * Test for the admin API.
  */
-public final class AdminV1APITest extends ContainerTest {
+public final class AdminV1APITest extends DContainerTest {
 
     /**
      * Create a test instance of the application to test against.

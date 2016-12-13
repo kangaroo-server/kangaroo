@@ -26,7 +26,7 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.DContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.TestAuthenticator;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  *
  * @author Michael Krotscheck
  */
-public abstract class AbstractResourceTest extends ContainerTest {
+public abstract class AbstractResourceTest extends DContainerTest {
 
     /**
      * The Admin context.

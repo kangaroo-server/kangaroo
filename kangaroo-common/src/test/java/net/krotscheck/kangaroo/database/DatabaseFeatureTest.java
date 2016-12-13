@@ -18,7 +18,7 @@
 package net.krotscheck.kangaroo.database;
 
 import net.krotscheck.kangaroo.database.listener.CreatedUpdatedListener;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.DContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public final class DatabaseFeatureTest extends ContainerTest {
+public final class DatabaseFeatureTest extends DContainerTest {
 
     /**
      * Setup an application.
