@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
+import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -29,7 +30,9 @@ import org.hibernate.search.SearchFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
@@ -40,6 +43,12 @@ import javax.ws.rs.core.FeatureContext;
  * @author Michael Krotscheck
  */
 public final class FulltextSearchFactoryFactoryTest {
+
+    /**
+     * Ensure that the JNDI Resource exists.
+     */
+    @ClassRule
+    public static final TestRule DATABASE = new DatabaseResource();
 
     /**
      * The jersey application handler.
