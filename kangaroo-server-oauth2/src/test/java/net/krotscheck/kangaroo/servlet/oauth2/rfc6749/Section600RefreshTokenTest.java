@@ -26,11 +26,13 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
@@ -49,89 +51,53 @@ public final class Section600RefreshTokenTest
         extends AbstractRFC6749Test {
 
     /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .scope("debug2")
+                    .role("test", new String[]{"debug", "debug2"})
+                    .client(ClientType.AuthorizationGrant)
+                    .authenticator("debug")
+                    .user()
+                    .identity("test_identity_1");
+
+            authContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .scope("debug2")
+                    .role("test", new String[]{"debug", "debug2"})
+                    .client(ClientType.OwnerCredentials, true)
+                    .authenticator("debug")
+                    .user()
+                    .identity("test_identity_2");
+
+            authHeader = HttpUtil.authHeaderBasic(
+                    authContext.getClient().getId(),
+                    authContext.getClient().getClientSecret());
+        }
+    };
+
+    /**
      * The test context for a public application.
      */
-    private EnvironmentBuilder context;
+    private static EnvironmentBuilder context;
 
     /**
      * The test context for a private application.
      */
-    private EnvironmentBuilder authContext;
-
-    /**
-     * An oauth token.
-     */
-    private OAuthToken token;
-
-    /**
-     * A token with two scopes.
-     */
-    private OAuthToken scopedToken;
-
-    /**
-     * An expired token.
-     */
-    private OAuthToken expiredToken;
+    private static EnvironmentBuilder authContext;
 
     /**
      * The auth header string for each test.
      */
-    private String authHeader;
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .scope("debug2")
-                .role("test", new String[]{"debug", "debug2"})
-                .client(ClientType.AuthorizationGrant)
-                .authenticator("debug")
-                .user()
-                .identity("test_identity_1")
-                .bearerToken();
-
-        // Create an auth token with a scope and refresh token.
-        context.bearerToken();
-        context.token(OAuthTokenType.Refresh,
-                false, null, null, context.getToken());
-        token = context.getToken();
-
-        // Create a multiscope token.
-        context.bearerToken();
-        context.token(OAuthTokenType.Refresh,
-                false, "debug debug2", null, context.getToken());
-        scopedToken = context.getToken();
-
-        // Create an expired token
-        context.bearerToken();
-        context.token(OAuthTokenType.Refresh, true, null, null,
-                context.getToken());
-        expiredToken = context.getToken();
-
-        authContext = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .scope("debug2")
-                .role("test", new String[]{"debug", "debug2"})
-                .client(ClientType.OwnerCredentials, true)
-                .authenticator("debug")
-                .user()
-                .identity("test_identity_2")
-                .bearerToken()
-                .refreshToken();
-        authHeader = HttpUtil.authHeaderBasic(
-                authContext.getClient().getId(),
-                authContext.getClient().getClientSecret());
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        fixtures.add(authContext);
-        return fixtures;
-    }
+    private static String authHeader;
 
     /**
      * Assert that a simple refresh request works.
@@ -139,6 +105,10 @@ public final class Section600RefreshTokenTest
     @Test
     public void testTokenSimpleRequest() {
         Client c = context.getClient();
+        OAuthToken token = context
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -171,12 +141,16 @@ public final class Section600RefreshTokenTest
     @Test
     public void testAuthViaBodyRequest() {
         Client c = authContext.getClient();
+        OAuthToken authToken = authContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
         f.param("client_secret", c.getClientSecret());
-        f.param("refresh_token", authContext.getToken().getId().toString());
+        f.param("refresh_token", authToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -203,12 +177,16 @@ public final class Section600RefreshTokenTest
     @Test
     public void testWrongAuthViaBodyRequest() {
         Client c = authContext.getClient();
+        OAuthToken authToken = authContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
         f.param("client_secret", "wrong_secret");
-        f.param("refresh_token", authContext.getToken().getId().toString());
+        f.param("refresh_token", authToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -232,11 +210,15 @@ public final class Section600RefreshTokenTest
     @Test
     public void testAuthViaHeaderRequest() {
         Client c = authContext.getClient();
+        OAuthToken authToken = authContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
-        f.param("refresh_token", authContext.getToken().getId().toString());
+        f.param("refresh_token", authToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -265,12 +247,16 @@ public final class Section600RefreshTokenTest
     @Test
     public void testWrongAuthViaHeaderRequest() {
         Client c = authContext.getClient();
+        OAuthToken authToken = authContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
         String badHeader = HttpUtil.authHeaderBasic(c.getId(), "badsecret");
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
-        f.param("refresh_token", authContext.getToken().getId().toString());
+        f.param("refresh_token", authToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -295,12 +281,16 @@ public final class Section600RefreshTokenTest
     @Test
     public void testOnlyOneAuthMethod() {
         Client c = authContext.getClient();
+        OAuthToken authToken = authContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
         f.param("client_secret", c.getClientSecret());
-        f.param("refresh_token", authContext.getToken().getId().toString());
+        f.param("refresh_token", authToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -326,11 +316,15 @@ public final class Section600RefreshTokenTest
     @Test
     public void testMismatchedClient() {
         Client c = context.getClient();
+        OAuthToken authToken = authContext
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
-        f.param("refresh_token", authContext.getToken().getId().toString());
+        f.param("refresh_token", authToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -354,6 +348,11 @@ public final class Section600RefreshTokenTest
      */
     @Test
     public void testNoClient() {
+        OAuthToken token = context
+                .bearerToken()
+                .refreshToken()
+                .getToken();
+
         // Build the entity.
         Form f = new Form();
         f.param("refresh_token", token.getId().toString());
@@ -408,11 +407,15 @@ public final class Section600RefreshTokenTest
     @Test
     public void testExpiredRefreshToken() {
         Client c = context.getClient();
+        OAuthToken bearerToken = context.bearerToken().getToken();
+        OAuthToken refreshToken = context
+                .token(OAuthTokenType.Bearer, true, null, null, bearerToken)
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
-        f.param("refresh_token", expiredToken.getId().toString());
+        f.param("refresh_token", refreshToken.getId().toString());
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -435,6 +438,10 @@ public final class Section600RefreshTokenTest
     @Test
     public void testRefreshInvalidatedOnIssue() {
         Client c = context.getClient();
+        OAuthToken token = context
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -480,6 +487,12 @@ public final class Section600RefreshTokenTest
     public void testScopePersistedOnRefresh() {
         Client c = context.getClient();
 
+        // Create a multiscope token.
+        context.bearerToken();
+        context.token(OAuthTokenType.Refresh,
+                false, "debug debug2", null, context.getToken());
+        OAuthToken scopedToken = context.getToken();
+
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
@@ -513,6 +526,12 @@ public final class Section600RefreshTokenTest
     public void testScopeSubsetSelected() {
         Client c = context.getClient();
 
+        // Create a multiscope token.
+        context.bearerToken();
+        context.token(OAuthTokenType.Refresh,
+                false, "debug debug2", null, context.getToken());
+        OAuthToken scopedToken = context.getToken();
+
         // Build the entity.
         Form f = new Form();
         f.param("client_id", c.getId().toString());
@@ -545,6 +564,10 @@ public final class Section600RefreshTokenTest
     @Test
     public void testScopeEscalationFails() {
         Client c = context.getClient();
+        OAuthToken token = context
+                .bearerToken()
+                .refreshToken()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();

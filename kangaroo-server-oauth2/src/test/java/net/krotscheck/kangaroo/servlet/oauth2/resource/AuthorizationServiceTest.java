@@ -21,22 +21,23 @@ import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorRespon
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthTestApp;
-import net.krotscheck.kangaroo.test.DContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.UUID;
 
 /**
  * Unit tests for the authorization endpoint. Note that this is not a
@@ -45,17 +46,40 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class AuthorizationServiceTest extends DContainerTest {
+public final class AuthorizationServiceTest extends ContainerTest {
+
+    /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session)
+                    .client(ClientType.Implicit)
+                    .authenticator("foo")
+                    .redirect("http://valid.example.com/redirect");
+
+            ownerContext = new EnvironmentBuilder(session)
+                    .client(ClientType.OwnerCredentials)
+                    .authenticator("test")
+                    .redirect("http://valid.example.com/redirect")
+                    .authenticatorState();
+        }
+    };
 
     /**
      * Simple testing context.
      */
-    private EnvironmentBuilder context;
+    private static EnvironmentBuilder context;
 
     /**
      * An owner context.
      */
-    private EnvironmentBuilder ownerContext;
+    private static EnvironmentBuilder ownerContext;
 
     /**
      * Build and configure the application.
@@ -65,30 +89,6 @@ public final class AuthorizationServiceTest extends DContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         return new OAuthTestApp();
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .client(ClientType.Implicit)
-                .authenticator("foo")
-                .redirect("http://valid.example.com/redirect");
-
-
-        ownerContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.OwnerCredentials)
-                .authenticator("test")
-                .redirect("http://valid.example.com/redirect");
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        fixtures.add(ownerContext);
-        return fixtures;
     }
 
     /**
@@ -210,8 +210,6 @@ public final class AuthorizationServiceTest extends DContainerTest {
      */
     @Test
     public void testCallbackStateWithInvalidClientType() throws Exception {
-        ownerContext.authenticatorState();
-
         Response r = target("/authorize/callback")
                 .queryParam("state", ownerContext.getAuthenticatorState()
                         .getId().toString())

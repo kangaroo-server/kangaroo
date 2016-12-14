@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -54,16 +55,16 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
          * Initialize the test data.
          */
         @Override
-        protected void loadTestData() {
-            context = new EnvironmentBuilder(getSession())
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session)
                     .client(ClientType.ClientCredentials, true)
                     .scope("debug");
-            noScopeContext = new EnvironmentBuilder(getSession())
+            noScopeContext = new EnvironmentBuilder(session)
                     .client(ClientType.ClientCredentials, true);
-            implicitContext = new EnvironmentBuilder(getSession())
+            implicitContext = new EnvironmentBuilder(session)
                     .client(ClientType.Implicit, true)
                     .scope("debug");
-            noSecretContext = new EnvironmentBuilder(getSession())
+            noSecretContext = new EnvironmentBuilder(session)
                     .client(ClientType.ClientCredentials)
                     .scope("debug");
         }

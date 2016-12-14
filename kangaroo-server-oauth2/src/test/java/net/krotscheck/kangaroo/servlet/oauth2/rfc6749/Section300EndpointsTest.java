@@ -17,12 +17,10 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
 import javax.ws.rs.core.Response;
 
 /**
@@ -31,16 +29,6 @@ import javax.ws.rs.core.Response;
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-3">https://tools.ietf.org/html/rfc6749#section-3</a>
  */
 public final class Section300EndpointsTest extends AbstractRFC6749Test {
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        return null;
-    }
 
     /**
      * Assert that the /authorize endpoint exists.

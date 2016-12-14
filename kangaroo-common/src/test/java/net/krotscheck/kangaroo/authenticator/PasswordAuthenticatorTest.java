@@ -31,6 +31,7 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -59,8 +60,8 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
          * Initialize the test data.
          */
         @Override
-        protected void loadTestData() {
-            context = new EnvironmentBuilder(getSession());
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session);
             context.client(ClientType.OwnerCredentials)
                     .authenticator("password")
                     .user()

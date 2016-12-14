@@ -115,6 +115,7 @@ public abstract class AbstractDBRule implements TestRule {
             newSource.setUrl(getDbJdbcPath());
             newSource.setUsername(getDbLogin());
             newSource.setPassword(getDbPassword());
+            newSource.setMaxIdle(1);
             dataSource.set(newSource);
         }
         dsCounter++;

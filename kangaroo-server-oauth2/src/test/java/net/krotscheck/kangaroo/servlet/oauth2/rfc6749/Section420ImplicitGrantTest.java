@@ -22,17 +22,19 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -49,48 +51,78 @@ public final class Section420ImplicitGrantTest
         extends AbstractRFC6749Test {
 
     /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .role("test", new String[]{"debug"})
+                    .client(ClientType.Implicit)
+                    .authenticator("test")
+                    .redirect("http://valid.example.com/redirect");
+            twoRedirectContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .role("test", new String[]{"debug"})
+                    .client(ClientType.Implicit)
+                    .authenticator("test")
+                    .redirect("http://valid.example.com/redirect")
+                    .redirect("http://other.example.com/redirect");
+            bareContext = new EnvironmentBuilder(session)
+                    .client(ClientType.Implicit)
+                    .authenticator("test");
+            noRoleContext = new EnvironmentBuilder(session)
+                    .client(ClientType.Implicit)
+                    .authenticator("test")
+                    .redirect("http://valid.example.com/redirect");
+            roleNoScopeContext = new EnvironmentBuilder(session)
+                    .client(ClientType.Implicit)
+                    .authenticator("test")
+                    .scope("debug")
+                    .redirect("http://valid.example.com/redirect")
+                    .role("test", new String[]{});
+            noauthContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .role("test", new String[]{"debug"})
+                    .client(ClientType.Implicit)
+                    .redirect("http://valid.example.com/redirect");
+        }
+    };
+
+    /**
      * The environment context for the regular client.
      */
-    private EnvironmentBuilder context;
+    private static EnvironmentBuilder context;
+
+    /**
+     * The environment context for the regular client and two redirects.
+     */
+    private static EnvironmentBuilder twoRedirectContext;
+
+    /**
+     * An application with no role.
+     */
+    private static EnvironmentBuilder noRoleContext;
+
+    /**
+     * An application with a role, but no scopes on that role.
+     */
+    private static EnvironmentBuilder roleNoScopeContext;
 
     /**
      * The test context for a bare-bones application.
      */
-    private EnvironmentBuilder bareContext;
+    private static EnvironmentBuilder bareContext;
 
     /**
      * An application without an authenticator.
      */
-    private EnvironmentBuilder noauthContext;
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .role("test", new String[]{"debug"})
-                .client(ClientType.Implicit)
-                .authenticator("test")
-                .redirect("http://valid.example.com/redirect");
-        bareContext = new EnvironmentBuilder(getSession())
-                .client(ClientType.Implicit)
-                .authenticator("test");
-        noauthContext = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .role("test", new String[]{"debug"})
-                .client(ClientType.Implicit)
-                .redirect("http://valid.example.com/redirect");
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        fixtures.add(bareContext);
-        fixtures.add(noauthContext);
-        return fixtures;
-    }
+    private static EnvironmentBuilder noauthContext;
 
     /**
      * Assert that a simple request works. This request requires the setup of a
@@ -338,13 +370,12 @@ public final class Section420ImplicitGrantTest
     @Test
     public void testAuthorizeRedirectMulti() {
         // Register a new redirect on the current builder.
-        context.redirect("http://redirect.example.com/redirect");
-
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        twoRedirectContext.getClient().getId().toString())
                 .queryParam("redirect_uri",
-                        "http://redirect.example.com/redirect")
+                        "http://other.example.com/redirect")
                 .request()
                 .get();
 
@@ -354,7 +385,7 @@ public final class Section420ImplicitGrantTest
         // Validate the redirect location
         URI location = second.getLocation();
         assertEquals("http", location.getScheme());
-        assertEquals("redirect.example.com", location.getHost());
+        assertEquals("other.example.com", location.getHost());
         assertEquals("/redirect", location.getPath());
 
         // Extract the query parameters in the fragment
@@ -397,9 +428,6 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoneRegisteredWithRequest() {
-        // Make sure the bare context has an authenticator.
-        bareContext.authenticator("test");
-
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id", bareContext.getClient().getId())
@@ -426,13 +454,10 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectMultiNoneProvided() {
-        // Register a new redirect on the current builder.
-        context.redirect("http://redirect.example.com/redirect");
-
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        twoRedirectContext.getClient().getId().toString())
                 .request()
                 .get();
 
@@ -514,15 +539,10 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoRole() {
-        // Fill out the bare context. The test authenticator will assign a
-        // null role if none has been created, so we don't create one here.
-        bareContext
-                .redirect("http://valid.example.com/redirect");
-
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        bareContext.getClient().getId().toString())
+                        noRoleContext.getClient().getId().toString())
                 .request()
                 .get();
 
@@ -580,8 +600,6 @@ public final class Section420ImplicitGrantTest
         URI secondLocation = second.getLocation();
 
         // Extract the query parameters in the fragment
-
-        // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(secondLocation.getFragment());
         assertTrue(params.containsKey("error"));
@@ -595,18 +613,10 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectRoleWantsNoScope() {
-        // Fill out the bare context. The test authenticator will assign the
-        // 'test' role if it finds it, so we create it here to ensure that it
-        // has no permitted scopes.
-        bareContext
-                .scope("debug")
-                .redirect("http://valid.example.com/redirect")
-                .role("test", new String[]{});
-
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        roleNoScopeContext.getClient().getId().toString())
                 .request()
                 .get();
 
