@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 
+import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.boot.MetadataSources;
@@ -26,7 +27,9 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
@@ -37,6 +40,12 @@ import javax.ws.rs.core.FeatureContext;
  * @author Michael Krotscheck
  */
 public final class HibernateServiceRegistryFactoryTest {
+
+    /**
+     * Ensure that the JNDI Resource exists.
+     */
+    @ClassRule
+    public static final TestRule DATABASE = new DatabaseResource();
 
     /**
      * Test provide and dispose.

@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.apache.http.HttpStatus;
@@ -27,8 +28,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.rules.RuleChain;
+import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 
 import javax.ws.rs.client.Invocation.Builder;
@@ -70,12 +75,42 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             new HibernateResource();
 
     /**
+     * Make the test name available during a test.
+     */
+    private static final TestName TEST_NAME = new TestName();
+
+    /**
+     * Make the # of active DB sessions available in every test.
+     */
+    private static final ActiveSessions SESSION_COUNT = new ActiveSessions();
+
+    /**
      * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
     public static final TestRule RULES = RuleChain
-            .outerRule(DATABASE_RESOURCE)
+            .outerRule(TEST_NAME)
+            .around(DATABASE_RESOURCE)
+            .around(SESSION_COUNT)
             .around(HIBERNATE_RESOURCE);
+
+    /**
+     * Mark the # of sessions that exist.
+     */
+    @BeforeClass
+    public static void markSessionCount() {
+        SESSION_COUNT.mark();
+    }
+
+    /**
+     * Ensure that all sessions have been cleaned up.
+     */
+    @AfterClass
+    public static final void enforceSessionCount() {
+        Assert.assertFalse("Zombie DB sessions detected.",
+                SESSION_COUNT.check()
+        );
+    }
 
     /**
      * Create and return a hibernate session for the test database.

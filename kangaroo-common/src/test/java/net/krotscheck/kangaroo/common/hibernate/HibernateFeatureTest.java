@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate;
 
+import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.hibernate.Session;
@@ -26,7 +27,9 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -41,6 +44,12 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 public final class HibernateFeatureTest extends KangarooJerseyTest {
+
+    /**
+     * Ensure that the JNDI Resource exists.
+     */
+    @ClassRule
+    public static final TestRule DATABASE = new DatabaseResource();
 
     /**
      * Run a service request.

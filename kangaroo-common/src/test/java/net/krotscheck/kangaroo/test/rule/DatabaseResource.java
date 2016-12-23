@@ -24,20 +24,17 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.TimeZone;
+import java.sql.SQLException;
 
 /**
  * This JUnit4 rule ensures that the JNDI resource has been bootstrapped, and
@@ -45,54 +42,13 @@ import java.util.TimeZone;
  *
  * @author Michael Krotscheck
  */
-public final class DatabaseResource implements TestRule {
+public final class DatabaseResource extends AbstractDBRule {
 
-    /**
-     * Evaluate the Test Database JDBC Address.
-     *
-     * @return The test database address.
-     */
-    private static String getDbJdbcPath() {
-        return System.getProperty("test.db.jdbc",
-                "jdbc:h2:mem:target/test/db/h2/hibernate");
-    }
-
-    /**
-     * Evaluate the Test Database Driver.
-     *
-     * @return The test database driver class as a string.
-     */
-    private static String getDbDriver() {
-        return System.getProperty("test.db.driver", "org.h2.Driver");
-    }
-
-    /**
-     * Evaluate the Test Database Login.
-     *
-     * @return The test database login.
-     */
-    private static String getDbLogin() {
-        return System.getProperty("test.db.user", "oid");
-    }
-
-    /**
-     * Evaluate the Test Database Password.
-     *
-     * @return The test database password.
-     */
-    private static String getDbPassword() {
-        return System.getProperty("test.db.password", "oid");
-    }
-
-    /**
-     * Evaluate the JNDI Identity.
-     *
-     * @return The JNDI Identity path.
-     */
-    private static String getJndiAddress() {
-        String jndiName = System.getProperty("test.db.jndiName",
-                "OIDServerDB");
-        return String.format("java:/comp/env/jdbc/%s", jndiName);
+    static {
+        System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
+                "org.eclipse.jetty.jndi.InitialContextFactory");
+        System.setProperty(Context.URL_PKG_PREFIXES,
+                "org.eclipse.jetty.jndi");
     }
 
     /**
@@ -102,86 +58,97 @@ public final class DatabaseResource implements TestRule {
             LoggerFactory.getLogger(DatabaseResource.class);
 
     /**
-     * Database connection, currently active.
+     * Path to the liquibase changelog master file.
      */
-    private Connection conn;
+    private static final String CHANGELOG = "liquibase/db" +
+            ".changelog-master.yaml";
 
     /**
-     * The currently active liquibase context.
+     * Evaluate the JNDI Identity.
+     *
+     * @return The JNDI Identity path.
      */
-    private Liquibase liquibase;
+    private String getJndiAddress() {
+        String jndiName = System.getProperty("test.db.jndiName",
+                "OIDServerDB");
+        return String.format("%s/%s", "java://comp/env/jdbc", jndiName);
+    }
 
     /**
      * Set up a JDNI connection for your tests.
+     *
+     * @throws Throwable In case something odd happens.
      */
-    private void setupJNDI() {
-        logger.debug("Setting up JNDI.");
-        // Create initial context
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                "org.eclipse.jetty.jndi.InitialContextFactory");
-        System.setProperty(Context.URL_PKG_PREFIXES,
-                "org.eclipse.jetty.jndi");
+    private void setupJNDI() throws Throwable {
+        InitialContext context = new InitialContext();
+        ensureSubcontextExists(context);
+        context.bind(getJndiAddress(), getDataSource());
+    }
 
-        logger.debug(String.format("Setting up [%s] database at [%s]",
-                getDbDriver(), getDbJdbcPath()));
+    /**
+     * Clean up the JNDI Binding.
+     *
+     * @throws Throwable Thrown if something goes sideways in the context.
+     */
+    private void cleanJNDI() throws Throwable {
+        // Clean anything opened in the initial context.
+        InitialContext ctx = new InitialContext();
+        ctx.unbind(getJndiAddress());
+    }
 
-        try {
-            InitialContext ic = new InitialContext();
+    /**
+     * Ensure the required subcontext namespaces exist on the provided context.
+     *
+     * @param context The context on which to create the subcontext.
+     */
+    private void ensureSubcontextExists(final Context context) {
+        String[] names = new String[]{
+                "java://comp",
+                "java://comp/env",
+                "java://comp/env/jdbc",
+        };
 
-            ic.createSubcontext("java:/comp/env");
-            ic.createSubcontext("java:/comp/env/jdbc");
-
-            BasicDataSource bds = new BasicDataSource();
-            bds.setDriverClassName(getDbDriver());
-            bds.setUrl(getDbJdbcPath());
-            bds.setUsername(getDbLogin());
-            bds.setPassword(getDbPassword());
-            ic.bind(getJndiAddress(), bds);
-        } catch (NamingException e) {
-            // Do nothing, this is only thrown if the context already exists,
-            // which will happen in a second test run.
-            logger.debug("JDNI Naming Exception, resource likely already "
-                    + "exists.");
+        for (String name : names) {
+            try {
+                context.createSubcontext(name);
+            } catch (NameAlreadyBoundException nae) {
+                logger.trace(String.format("Subcontext [%s] already exists",
+                        name));
+            } catch (NamingException ne) {
+                throw new RuntimeException(ne);
+            }
         }
     }
 
     /**
      * Migrate the current database using the existing liquibase schema.
      *
-     * @throws Exception Exceptions thrown during migration. If these fail,
-     *                   fix your tests!
+     * @throws SQLException Exceptions thrown during migration. If these fail,
+     *                      fix your tests!
      */
-    private void setupDatabase() throws Exception {
+    private void setupDatabase() throws SQLException {
         logger.debug("Migrating Database Schema.");
 
-        // Force the database to use UTC.
-        System.setProperty("user.timezone", "UTC");
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        try (Connection conn = getDataSource().getConnection()) {
 
-        // We need to persist this connection so that the in-memory database
-        // is not destroyed when the connection drops.
-        Class.forName(getDbDriver());
-        logger.debug("Opening connection.");
-        conn = DriverManager.getConnection(
-                getDbJdbcPath(),
-                getDbLogin(),
-                getDbPassword());
+            // Flush the database if necessary
+            if (conn instanceof MySQLConnection) {
+                java.sql.Statement s = conn.createStatement();
+                s.addBatch("DROP DATABASE IF EXISTS oid");
+                s.addBatch("CREATE DATABASE IF NOT EXISTS oid;");
+                s.executeBatch();
+                s.close();
+            }
 
-        // Flush the database if necessary
-        if (conn instanceof MySQLConnection) {
-            java.sql.Statement s = conn.createStatement();
-            s.addBatch("DROP DATABASE IF EXISTS oid");
-            s.addBatch("CREATE DATABASE IF NOT EXISTS oid;");
-            s.executeBatch();
-            s.close();
+            logger.debug("Migrating schema.");
+            Database database = DatabaseFactory.getInstance()
+                    .findCorrectDatabaseImplementation(new JdbcConnection(conn));
+            Liquibase liquibase = new Liquibase(CHANGELOG,
+                    new ClassLoaderResourceAccessor(), database);
+            liquibase.update(new Contexts());
+        } catch (LiquibaseException lbe) {
+            throw new RuntimeException(lbe);
         }
-
-        logger.debug("Migrating schema.");
-        Database database = DatabaseFactory.getInstance()
-                .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-        liquibase = new Liquibase("liquibase/db.changelog-master.yaml",
-                new ClassLoaderResourceAccessor(), database);
-        liquibase.update(new Contexts());
     }
 
     /**
@@ -190,41 +157,36 @@ public final class DatabaseResource implements TestRule {
      * @throws Throwable An exception encountered during teardown.
      */
     private void cleanDatabase() throws Throwable {
-        logger.debug("Cleaning Database.");
-        liquibase.rollback(1000, null);
-        liquibase = null;
-
-        logger.debug("Closing connection.");
-        conn.close();
-        conn = null;
+        try (Connection conn = getDataSource().getConnection()) {
+            Database database = DatabaseFactory.getInstance()
+                    .findCorrectDatabaseImplementation(
+                            new JdbcConnection(conn));
+            Liquibase l = new Liquibase(CHANGELOG,
+                    new ClassLoaderResourceAccessor(),
+                    database);
+            l.rollback(1000, null);
+        }
     }
 
     /**
-     * Modifies the method-running {@link Statement} to implement this
-     * test-running rule.
+     * Bind the datasource to JNDI, and migrate the database schema.
      *
-     * @param base        The {@link Statement} to be modified
-     * @param description A {@link Description} of the test implemented in
-     *                    {@code base}
-     * @return a new statement, which may be the same as {@code base},
-     * a wrapper around {@code base}, or a completely new Statement.
+     * @throws Throwable Exceptions thrown during setup.
      */
     @Override
-    public Statement apply(
-            final Statement base,
-            final Description description) {
-        return new Statement() {
+    protected void before() throws Throwable {
+        setupJNDI();
+        setupDatabase();
+    }
 
-            @Override
-            public void evaluate() throws Throwable {
-                setupJNDI();
-                setupDatabase();
-                try {
-                    base.evaluate();
-                } finally {
-                    cleanDatabase();
-                }
-            }
-        };
+    /**
+     * Rollback the database schema.
+     *
+     * @throws Throwable Exceptions thrown during setup.
+     */
+    @Override
+    protected void after() throws Throwable {
+        cleanDatabase();
+        cleanJNDI();
     }
 }

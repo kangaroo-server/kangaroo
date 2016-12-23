@@ -252,26 +252,6 @@ public final class AuthenticatorServiceCRUDTest
         assertErrorResponse(r, Status.BAD_REQUEST);
     }
 
-//    /**
-//     * Assert that we cannot modify the client we're currently using to
-//     * access this application.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPutCannotModifyCurrentClient() throws Exception {
-//        Client client = getAdminToken().getClient();
-//        client.setName("New Name");
-//
-//        Response r = putEntity(client, getAdminToken());
-//
-//        if (shouldSucceed()) {
-//            assertErrorResponse(r, Status.CONFLICT);
-//        } else {
-//            assertErrorResponse(r, Status.NOT_FOUND);
-//        }
-//    }
-
     /**
      * Assert that a regular entity can be updated, from the admin app, with
      * appropriate credentials.
