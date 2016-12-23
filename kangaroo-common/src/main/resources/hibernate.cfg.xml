@@ -23,7 +23,7 @@
   <session-factory>
     <!-- Connection properties -->
     <property name="connection.datasource">
-      java:comp/env/jdbc/OIDServerDB
+      java://comp/env/jdbc/OIDServerDB
     </property>
 
     <!-- Generic hibernate configuration -->

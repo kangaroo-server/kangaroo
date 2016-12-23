@@ -27,8 +27,12 @@ import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -157,7 +161,6 @@ public final class RoleServiceCRUDTest
     protected Role getNewEntity() {
         return new Role();
     }
-
 
     /**
      * Return the token scope required for admin access.
@@ -343,6 +346,8 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testAddScope() throws Exception {
+        Session s = getSession();
+
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
@@ -367,8 +372,14 @@ public final class RoleServiceCRUDTest
         if (shouldSucceed()) {
             Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
 
-            getSession().refresh(role);
+            s.refresh(role);
             Assert.assertTrue(role.getScopes().values().contains(scope));
+
+            // Cleanup
+            Transaction t = s.beginTransaction();
+            role.getScopes().remove(scope.getName());
+            s.update(role);
+            t.commit();
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -557,6 +568,7 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testAddScopeRegularSubresourcePermission() throws Exception {
+        Session s = getSession();
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
@@ -584,8 +596,14 @@ public final class RoleServiceCRUDTest
         if (shouldSucceed) {
             Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
 
-            getSession().refresh(role);
+            s.refresh(role);
             Assert.assertTrue(role.getScopes().values().contains(scope));
+
+            // Cleanup
+            Transaction t = s.beginTransaction();
+            role.getScopes().remove(scope.getName());
+            s.update(role);
+            t.commit();
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
