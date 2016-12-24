@@ -35,6 +35,7 @@
   <logger name="org.apache.http" level="WARN"/>
   <logger name="com.mchange" level="WARN"/>
   <logger name="org.hibernate" level="WARN"/>
+  <logger name="org.hibernate.internal.SessionImpl" level="OFF"/>
   <logger name="org.jboss" level="WARN"/>
   <logger name="net.sourceforge.cobertura" level="WARN"/>
   <logger name="liquibase" level="WARN"/>
