@@ -150,7 +150,7 @@
     <hibernate.version>5.0.6.Final</hibernate.version>
     <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
     <hibernate-search.version>5.5.1.Final</hibernate-search.version>
-    <jersey.version>2.24</jersey.version>
+    <jersey.version>2.25</jersey.version>
     <jetty.version>9.1.1.v20140108</jetty.version>
     <jersey2-toolkit.version>2.1.1</jersey2-toolkit.version>
     <slf4j.version>1.7.13</slf4j.version>
