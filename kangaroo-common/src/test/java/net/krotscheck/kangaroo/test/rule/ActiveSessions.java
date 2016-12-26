@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This JUnit4 rule ensures that the JNDI resource has been bootstrapped, and
@@ -59,14 +60,17 @@ public final class ActiveSessions extends AbstractDBRule {
      * @return Whether there are extra, lingering sessions.
      */
     public Boolean check() {
-        List<Map<String, String>> results = getActiveSessions();
-        Integer remainderSessions = results.size() - initialSessions.size();
-        if (remainderSessions > 0) {
+        List<Map<String, String>> lingeringSessions = getActiveSessions()
+                .stream()
+                .filter(row -> !initialSessions.contains(row))
+                .collect(Collectors.toList());
+        if (lingeringSessions.size() > 0) {
             String message = String.format("Database sessions did not clean "
                     + "up after themselves. %s extra sessions "
-                    + "detected.", remainderSessions);
+                    + "detected.", lingeringSessions.size());
             // Log out the problems.
-            results.forEach((item) -> logger.error(item.toString()));
+            logger.error(message);
+            lingeringSessions.forEach((item) -> logger.error(item.toString()));
             return true;
         }
         return false;
@@ -84,8 +88,14 @@ public final class ActiveSessions extends AbstractDBRule {
                     return new ArrayList<>();
                 case "org.h2.Driver":
                 default:
-                    return executeQuery("select * from information_schema"
-                            + ".sessions");
+                    String query = "select ID, STATEMENT, SESSION_START, "
+                            + "USER_NAME, CONTAINS_UNCOMMITTED "
+                            + "from information_schema.sessions";
+                    List<Map<String, String>> results = executeQuery(query)
+                            .stream()
+                            .filter(row -> !query.equals(row.get("STATEMENT")))
+                            .collect(Collectors.toList());
+                    return results;
             }
         } catch (SQLException sqle) {
             // Don't do this. Fix it.
