@@ -30,11 +30,15 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
@@ -53,6 +57,11 @@ import static org.junit.Assert.assertTrue;
  * @author Michael Krotscheck
  */
 public abstract class ContainerTest extends KangarooJerseyTest {
+
+    /**
+     * Logger instance.
+     */
+    private static Logger logger = LoggerFactory.getLogger(ContainerTest.class);
 
     /**
      * A list of HTTP status codes that are valid for redirects.
@@ -75,11 +84,6 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             new HibernateResource();
 
     /**
-     * Make the test name available during a test.
-     */
-    private static final TestName TEST_NAME = new TestName();
-
-    /**
      * Make the # of active DB sessions available in every test.
      */
     private static final ActiveSessions SESSION_COUNT = new ActiveSessions();
@@ -89,10 +93,15 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      */
     @ClassRule
     public static final TestRule RULES = RuleChain
-            .outerRule(TEST_NAME)
-            .around(DATABASE_RESOURCE)
+            .outerRule(DATABASE_RESOURCE)
             .around(SESSION_COUNT)
             .around(HIBERNATE_RESOURCE);
+
+    /**
+     * Make the test name available during a test.
+     */
+    @Rule
+    public final TestName testName = new TestName();
 
     /**
      * Mark the # of sessions that exist.
@@ -110,6 +119,14 @@ public abstract class ContainerTest extends KangarooJerseyTest {
         Assert.assertFalse("Zombie DB sessions detected.",
                 SESSION_COUNT.check()
         );
+    }
+
+    /**
+     * Log out the test name.
+     */
+    @Before
+    public final void logTestName() {
+        logger.info(testName.getMethodName());
     }
 
     /**
