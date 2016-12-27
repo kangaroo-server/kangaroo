@@ -26,6 +26,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +46,11 @@ import java.sql.SQLException;
 public final class DatabaseResource extends AbstractDBRule {
 
     static {
+        //javax.naming.NoInitialContextException
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                "org.eclipse.jetty.jndi.InitialContextFactory");
-        System.setProperty(Context.URL_PKG_PREFIXES,
-                "org.eclipse.jetty.jndi");
+                "org.apache.naming.java.javaURLContextFactory");
+//        System.setProperty(Context.URL_PKG_PREFIXES,
+//                "org.eclipse.jetty.jndi");
     }
 
     /**
@@ -103,9 +105,10 @@ public final class DatabaseResource extends AbstractDBRule {
      */
     private void ensureSubcontextExists(final Context context) {
         String[] names = new String[]{
+                "java:",
                 "java://comp",
                 "java://comp/env",
-                "java://comp/env/jdbc",
+                "java://comp/env/jdbc"
         };
 
         for (String name : names) {
