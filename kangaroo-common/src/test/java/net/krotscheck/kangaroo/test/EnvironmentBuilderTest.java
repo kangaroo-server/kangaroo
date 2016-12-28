@@ -289,8 +289,9 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
         Assert.assertEquals(22, e.size());
 
         // Delete one of our entities to make sure it's skipped during clearing.
+        OAuthToken tokenToDelete = b.getToken();
         Transaction t = getSession().beginTransaction();
-        getSession().delete(b.getToken());
+        getSession().delete(tokenToDelete);
         t.commit();
 
         // Assert that everything clears.
