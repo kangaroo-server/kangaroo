@@ -43,9 +43,9 @@
   <logger name="ResourceAccessorXsdStreamResolver" level="WARN"/>
   <logger name="ContextClassLoaderXsdStreamResolver" level="WARN"/>
   <logger name="jndi" level="WARN"/>
-  <logger name="org.eclipse.jetty" level="WARN"/>
   <logger name="ch.qos" level="WARN"/>
-  <logger name="org.glassfish.jersey.test.jetty" level="ERROR"/>
+  <logger name="org.glassfish.grizzly" level="ERROR"/>
+  <logger name="org.glassfish.jersey.test.grizzly" level="ERROR"/>
   <logger name="org.glassfish.jersey.test" level="INFO"/>
   <logger name="org.glassfish.jersey.internal" level="ERROR"/>
 

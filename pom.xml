@@ -151,7 +151,6 @@
     <hibernate-validator.version>5.3.4.Final</hibernate-validator.version>
     <hibernate-search.version>5.5.5.Final</hibernate-search.version>
     <jersey.version>2.25</jersey.version>
-    <jetty.version>9.1.1.v20140108</jetty.version>
     <jersey2-toolkit.version>2.1.1</jersey2-toolkit.version>
     <slf4j.version>1.7.13</slf4j.version>
     <powermock.version>1.6.6</powermock.version>
@@ -607,18 +606,6 @@
 
     <!-- Jetty test environment -->
     <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-jndi</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-servlet</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.glassfish.jersey.test-framework</groupId>
       <artifactId>jersey-test-framework-core</artifactId>
       <version>${jersey.version}</version>
@@ -626,8 +613,14 @@
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-      <artifactId>jersey-test-framework-provider-jetty</artifactId>
+      <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
       <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>8.5.9</version>
       <scope>test</scope>
     </dependency>
 
