@@ -36,6 +36,7 @@
     <property name="order_updates">true</property>
     <property name="max_fetch_depth">1</property>
     <property name="default_batch_fetch_size">8</property>
+    <property name="connection.release_mode">after_transaction</property>
 
     <!-- Hibernate Search Configuration -->
     <property name="search.default.directory_provider">ram</property>
