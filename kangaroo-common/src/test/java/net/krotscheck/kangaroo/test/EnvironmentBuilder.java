@@ -34,12 +34,15 @@ import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
@@ -61,6 +64,12 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 public final class EnvironmentBuilder {
+
+    /**
+     * Logger instance.
+     */
+    private static Logger logger = LoggerFactory
+            .getLogger(EnvironmentBuilder.class);
 
     /**
      * Static timezone.
@@ -161,7 +170,8 @@ public final class EnvironmentBuilder {
      * @return The current list of tracked entities.
      */
     public List<AbstractEntity> getTrackedEntities() {
-        return Collections.unmodifiableList(getRefreshed(trackedEntities));
+        return Collections.unmodifiableList(
+                new ArrayList<>(getRefreshed(trackedEntities)));
     }
 
     /**
@@ -275,7 +285,7 @@ public final class EnvironmentBuilder {
         this.session = session;
 
         // Load this entity from the provided session.
-        this.application = session.get(Application.class, app.getId());
+        this.application = transactionGet(Application.class, app.getId());
         this.scopes.putAll(this.application.getScopes());
         this.scope = this.scopes.values().iterator().next();
 
@@ -553,9 +563,17 @@ public final class EnvironmentBuilder {
         }
         e.setModifiedDate(Calendar.getInstance(UTC));
 
-        Transaction t = session.beginTransaction();
-        session.saveOrUpdate(e);
-        t.commit();
+        Transaction t = null;
+        try {
+            t = session.beginTransaction();
+            session.saveOrUpdate(e);
+            t.commit();
+        } catch (Exception ex) {
+            logger.error("Cannot persist", ex);
+            if (t != null) {
+                t.rollback();
+            }
+        }
 
         if (!trackedEntities.contains(e)) {
             trackedEntities.add(e);
@@ -809,16 +827,12 @@ public final class EnvironmentBuilder {
     public EnvironmentBuilder owner(final User user) {
         Application a = getApplication();
         // Reload the owner from the current session.
-        User sessionUser = session.get(User.class, user.getId());
+        User sessionUser = transactionGet(User.class, user.getId());
         a.setOwner(sessionUser);
 
         // Since the session user may not be tracked by this environment
         // builder, we manually persist it.
         persist(a);
-//        Transaction t = session.beginTransaction();
-//        session.update(sessionUser);
-//        session.update(a);
-//        t.commit();
 
         return this;
     }
@@ -827,6 +841,7 @@ public final class EnvironmentBuilder {
      * Clear all created entities from the database.
      */
     public void clear() {
+
         // Delete the entities in reverse order.
         for (int i = trackedEntities.size() - 1; i >= 0; i--) {
             AbstractEntity e = trackedEntities.get(i);
@@ -839,9 +854,17 @@ public final class EnvironmentBuilder {
 
             // Is it still in the database?
             if (e != null) {
-                Transaction t = session.beginTransaction();
-                session.delete(e);
-                t.commit();
+                Transaction t = null;
+                try {
+                    t = session.beginTransaction();
+                    session.delete(e);
+                    t.commit();
+                } catch (Exception exception) {
+                    logger.error("Cannot clean", exception);
+                    if (t != null) {
+                        t.rollback();
+                    }
+                }
             }
         }
         trackedEntities.clear();
@@ -869,7 +892,9 @@ public final class EnvironmentBuilder {
      */
     private <T extends AbstractEntity> T getRefreshed(final T e) {
         if (e != null) {
-            session.refresh(e);
+            List<T> entities = new ArrayList<T>();
+            entities.add(e);
+            getRefreshed(entities);
         }
         return e;
     }
@@ -881,11 +906,14 @@ public final class EnvironmentBuilder {
      * @param <T>      An AbstractEntity.
      * @return The entity, refreshed, or null.
      */
-    private <T extends AbstractEntity> List<T> getRefreshed(
-            final List<T> entities) {
+    private <T extends AbstractEntity> Collection<T> getRefreshed(
+            final Collection<T> entities) {
+
+        Transaction t = session.beginTransaction();
         for (AbstractEntity e : entities) {
             session.refresh(e);
         }
+        t.commit();
 
         return entities;
     }
@@ -899,9 +927,24 @@ public final class EnvironmentBuilder {
      */
     private <T extends AbstractEntity> SortedMap<String, T> getRefreshed(
             final SortedMap<String, T> entities) {
-        for (AbstractEntity e : entities.values()) {
-            session.refresh(e);
-        }
+        getRefreshed(entities.values());
         return entities;
+    }
+
+    /**
+     * Transaction based get() of a specific type and ID.
+     *
+     * @param type The type to retrieve.
+     * @param id   The Unique DB ID.
+     * @param <K>  The class of entity to retrieve.
+     * @return The entity, refreshed, or null.
+     */
+    private <K extends AbstractEntity> K transactionGet(
+            final Class<K> type, final UUID id) {
+
+        Transaction t = session.beginTransaction();
+        K entity = session.get(type, id);
+        t.commit();
+        return entity;
     }
 }
