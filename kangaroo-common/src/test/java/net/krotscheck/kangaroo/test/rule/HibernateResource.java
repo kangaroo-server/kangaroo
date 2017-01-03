@@ -18,11 +18,11 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
+import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
 import net.krotscheck.kangaroo.test.rule.hibernate.TestDirectoryProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
@@ -187,7 +187,7 @@ public class HibernateResource implements TestRule {
         sessionFactory = null;
 
         logger.debug("Disposing ServiceRegistry");
-        StandardServiceRegistryBuilder.destroy(registry);
+        new HibernateServiceRegistryFactory().dispose(registry);
     }
 
     /**
@@ -196,10 +196,8 @@ public class HibernateResource implements TestRule {
     private void createHibernateConnection() {
         // Create the session factory.
         logger.debug("Creating ServiceRegistry");
-        registry = new StandardServiceRegistryBuilder()
-                .configure()
-                .applySettings(System.getProperties())
-                .build();
+        registry = new HibernateServiceRegistryFactory().provide();
+
         logger.debug("Creating SessionFactory");
         sessionFactory = new MetadataSources(registry)
                 .buildMetadata()

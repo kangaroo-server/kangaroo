@@ -28,10 +28,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.RuleChain;
@@ -78,47 +77,55 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             new DatabaseResource();
 
     /**
-     * The hibernate test rule. Private, so it can be wrapped below.
-     */
-    private static final HibernateResource HIBERNATE_RESOURCE =
-            new HibernateResource();
-
-    /**
-     * Make the # of active DB sessions available in every test.
-     */
-    private static final ActiveSessions SESSION_COUNT = new ActiveSessions();
-
-    /**
      * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
-    public static final TestRule RULES = RuleChain
-            .outerRule(DATABASE_RESOURCE)
-            .around(SESSION_COUNT)
-            .around(HIBERNATE_RESOURCE);
+    public static final TestRule CLASS_RULES = RuleChain
+            .outerRule(DATABASE_RESOURCE);
+
+    /**
+     * The hibernate test rule. Private, so it can be wrapped below.
+     */
+    private final HibernateResource hibernateResource =
+            new HibernateResource();
 
     /**
      * Make the test name available during a test.
      */
+    private final TestName testName = new TestName();
+
+    /**
+     * Make the # of active DB sessions available in every test.
+     */
+    private final ActiveSessions sessionCount = new ActiveSessions();
+
+    /**
+     * Ensure that a JDNI resource is set up for this suite.
+     */
     @Rule
-    public final TestName testName = new TestName();
+    public final TestRule instanceRules = RuleChain
+            .outerRule(testName)
+            .around(hibernateResource)
+            .around(sessionCount);
 
     /**
      * Mark the # of sessions that exist.
      */
-    @BeforeClass
-    public static void markSessionCount() {
-        SESSION_COUNT.mark();
+    @Before
+    public void markSessionCount() {
+        sessionCount.mark();
     }
 
     /**
      * Ensure that all sessions have been cleaned up.
      */
-    @AfterClass
-    public static final void enforceSessionCount() {
-        Assert.assertFalse("Zombie DB sessions detected.",
-                SESSION_COUNT.check()
-        );
+    @After
+    public final void enforceSessionCount() {
+        String className = this.getClass().getSimpleName();
+        String methodName = this.testName.getMethodName();
+        String message = String.format("Zombie DB Sessions detected in %s.%s",
+                className, methodName);
+        Assert.assertFalse(message, sessionCount.check());
     }
 
     /**
@@ -135,7 +142,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      * @return The constructed session.
      */
     public final Session getSession() {
-        return HIBERNATE_RESOURCE.getSession();
+        return hibernateResource.getSession();
     }
 
     /**
@@ -144,7 +151,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      * @return The session factory
      */
     public final SessionFactory getSessionFactory() {
-        return HIBERNATE_RESOURCE.getSessionFactory();
+        return hibernateResource.getSessionFactory();
     }
 
     /**
@@ -153,7 +160,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      * @return The session factory
      */
     public final SearchFactory getSearchFactory() {
-        return HIBERNATE_RESOURCE.getSearchFactory();
+        return hibernateResource.getSearchFactory();
     }
 
     /**
@@ -162,7 +169,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      * @return The session factory
      */
     public final FullTextSession getFullTextSession() {
-        return HIBERNATE_RESOURCE.getFullTextSession();
+        return hibernateResource.getFullTextSession();
     }
 
     /**
