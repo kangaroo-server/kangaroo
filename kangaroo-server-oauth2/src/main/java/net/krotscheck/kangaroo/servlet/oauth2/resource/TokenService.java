@@ -17,11 +17,12 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.resource;
 
-import net.krotscheck.kangaroo.servlet.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.servlet.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.grant.IGrantTypeHandler;
-import net.krotscheck.kangaroo.database.entity.Client;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
 
@@ -48,6 +49,7 @@ import javax.ws.rs.core.UriInfo;
 @Path("/token")
 @PermitAll
 @OAuthFilterChain
+@Transactional
 public final class TokenService {
 
     /**

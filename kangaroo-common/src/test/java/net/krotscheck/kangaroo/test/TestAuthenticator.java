@@ -121,10 +121,8 @@ public final class TestAuthenticator
             identity.setRemoteId(REMOTE_ID);
             identity.setUser(devUser);
 
-            Transaction t = session.beginTransaction();
             session.save(devUser);
             session.save(identity);
-            t.commit();
 
             return identity;
         }

@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
@@ -37,7 +38,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
@@ -68,6 +68,7 @@ import java.util.UUID;
 @Path("/token")
 @RolesAllowed({Scope.TOKEN_ADMIN, Scope.TOKEN})
 @OAuth2
+@Transactional
 public final class OAuthTokenService extends AbstractService {
 
     /**
@@ -283,9 +284,7 @@ public final class OAuthTokenService extends AbstractService {
 
         // Yay, we're valid! Save it.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
         s.save(validToken);
-        t.commit();
 
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
@@ -344,9 +343,7 @@ public final class OAuthTokenService extends AbstractService {
         current.setExpiresIn(validToken.getExpiresIn());
         current.setRedirect(validToken.getRedirect());
 
-        Transaction t = s.beginTransaction();
         s.update(current);
-        t.commit();
 
         return Response.ok(current).build();
     }
@@ -366,9 +363,7 @@ public final class OAuthTokenService extends AbstractService {
         assertCanAccess(token, getAdminScope());
 
         // Let's hope they know what they're doing.
-        Transaction t = s.beginTransaction();
         s.delete(token);
-        t.commit();
 
         return Response.noContent().build();
     }

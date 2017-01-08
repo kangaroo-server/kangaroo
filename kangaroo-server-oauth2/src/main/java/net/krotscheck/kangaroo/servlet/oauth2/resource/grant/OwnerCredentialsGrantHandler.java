@@ -35,11 +35,10 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import java.util.SortedMap;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.SortedMap;
 
 /**
  * This grant type handler takes care of the "password" grant_type
@@ -127,10 +126,8 @@ public final class OwnerCredentialsGrantHandler implements IGrantTypeHandler {
         refreshToken.setScopes(token.getScopes());
         refreshToken.setAuthToken(token);
 
-        Transaction t = session.beginTransaction();
         session.save(token);
         session.save(refreshToken);
-        t.commit();
 
         return TokenResponseEntity.factory(token, refreshToken, state);
     }
