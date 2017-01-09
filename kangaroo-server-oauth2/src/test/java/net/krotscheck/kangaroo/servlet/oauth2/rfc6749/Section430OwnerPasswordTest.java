@@ -25,11 +25,13 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
@@ -49,61 +51,58 @@ public final class Section430OwnerPasswordTest
         extends AbstractRFC6749Test {
 
     /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        protected void loadTestData(final Session session) {
+            builder = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .role("debug", new String[]{"debug"})
+                    .client(ClientType.OwnerCredentials)
+                    .authenticator("password")
+                    .user()
+                    .login(username, password);
+            authBuilder = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .role("debug", new String[]{"debug"})
+                    .client(ClientType.OwnerCredentials, true)
+                    .authenticator("password")
+                    .user()
+                    .login(username, password);
+            authHeader = HttpUtil.authHeaderBasic(
+                    authBuilder.getClient().getId(),
+                    authBuilder.getClient().getClientSecret());
+        }
+    };
+
+    /**
      * User name used for valid requests.
      */
-    private String username = "valid_user";
+    private static String username = "valid_user";
 
     /**
      * The password used for valid requests.
      */
-    private String password = "valid_password";
+    private static String password = "valid_password";
 
     /**
      * The environment builder for the regular client.
      */
-    private EnvironmentBuilder builder;
+    private static EnvironmentBuilder builder;
 
     /**
      * The environment builder for the authentication client.
      */
-    private EnvironmentBuilder authBuilder;
+    private static EnvironmentBuilder authBuilder;
 
     /**
      * The auth header string for each test.
      */
-    private String authHeader;
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception Should not be thrown.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        builder = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .role("debug", new String[]{"debug"})
-                .client(ClientType.OwnerCredentials)
-                .authenticator("password")
-                .user()
-                .login(username, password);
-        authBuilder = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .role("debug", new String[]{"debug"})
-                .client(ClientType.OwnerCredentials, true)
-                .authenticator("password")
-                .user()
-                .login(username, password);
-        authHeader = HttpUtil.authHeaderBasic(
-                authBuilder.getClient().getId(),
-                authBuilder.getClient().getClientSecret());
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(builder);
-        fixtures.add(authBuilder);
-        return fixtures;
-    }
+    private static String authHeader;
 
     /**
      * Assert that a simple token request works.

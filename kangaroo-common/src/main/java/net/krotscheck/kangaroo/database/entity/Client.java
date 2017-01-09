@@ -163,7 +163,7 @@ public final class Client extends AbstractEntity {
     /**
      * A collection of referral URL's, used for CORS matching.
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "client_referrers",
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "referrer")
@@ -173,7 +173,7 @@ public final class Client extends AbstractEntity {
     /**
      * A list of redirect URL's, used for redirection-based flows.
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "client_redirects",
             joinColumns = @JoinColumn(name = "client"))
     @Column(name = "redirect")

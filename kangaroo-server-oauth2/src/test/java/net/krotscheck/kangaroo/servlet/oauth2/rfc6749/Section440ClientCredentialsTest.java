@@ -25,11 +25,13 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
@@ -49,42 +51,41 @@ public final class Section440ClientCredentialsTest
         extends AbstractRFC6749Test {
 
     /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .client(ClientType.ClientCredentials, false);
+            authContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .client(ClientType.ClientCredentials, true);
+            authHeader = HttpUtil.authHeaderBasic(
+                    authContext.getClient().getId(),
+                    authContext.getClient().getClientSecret());
+        }
+    };
+
+    /**
      * Generic context.
      */
-    private EnvironmentBuilder context;
+    private static EnvironmentBuilder context;
 
     /**
      * The test context for an authenticated application.
      */
-    private EnvironmentBuilder authContext;
+    private static EnvironmentBuilder authContext;
 
     /**
      * The auth header string for each test.
      */
-    private String authHeader;
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .client(ClientType.ClientCredentials, false);
-        authContext = new EnvironmentBuilder(getSession())
-                .scope("debug")
-                .client(ClientType.ClientCredentials, true);
-        authHeader = HttpUtil.authHeaderBasic(
-                authContext.getClient().getId(),
-                authContext.getClient().getClientSecret());
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        fixtures.add(authContext);
-        return fixtures;
-    }
+    private static String authHeader;
 
     /**
      * Assert that a simple token request works.

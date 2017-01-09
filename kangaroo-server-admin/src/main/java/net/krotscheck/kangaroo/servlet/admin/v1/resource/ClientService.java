@@ -169,6 +169,7 @@ public final class ClientService extends AbstractService {
                 .createAlias("application", "a")
                 .setFirstResult(offset)
                 .setMaxResults(limit)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .addOrder(SortUtil.order(order, sort));
 
         if (filterByApp != null) {
