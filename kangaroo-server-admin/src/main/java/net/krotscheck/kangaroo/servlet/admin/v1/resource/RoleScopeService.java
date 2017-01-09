@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
@@ -28,7 +29,6 @@ import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScope;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
@@ -46,6 +46,7 @@ import java.util.UUID;
  */
 @OAuth2
 @RolesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
+@Transactional
 public final class RoleScopeService extends AbstractService {
 
     /**
@@ -104,10 +105,8 @@ public final class RoleScopeService extends AbstractService {
         }
 
         // Create the link.
-        Transaction t = s.beginTransaction();
         role.getScopes().put(scope.getName(), scope);
         s.update(role);
-        t.commit();
 
         return Response.created(getUriInfo().getAbsolutePath()).build();
     }
@@ -150,10 +149,8 @@ public final class RoleScopeService extends AbstractService {
         }
 
         // Execute the command.
-        Transaction t = s.beginTransaction();
         role.getScopes().remove(scope.getName());
         s.update(role);
-        t.commit();
 
         return Response.noContent().build();
     }

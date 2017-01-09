@@ -27,14 +27,13 @@ import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * This grant type handler takes care of the "authorization_code" grant_type
@@ -124,11 +123,9 @@ public final class AuthorizationCodeGrantHandler implements IGrantTypeHandler {
         newRefreshToken.setScopes(authCode.getScopes());
         newRefreshToken.setAuthToken(newAuthToken);
 
-        Transaction t = session.beginTransaction();
         session.save(newAuthToken);
         session.save(newRefreshToken);
         session.delete(authCode);
-        t.commit();
 
         return TokenResponseEntity.factory(newAuthToken, newRefreshToken,
                 state);

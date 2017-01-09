@@ -19,6 +19,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.common.exception.exception.HttpForbiddenException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
@@ -30,7 +31,6 @@ import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
@@ -60,6 +60,7 @@ import java.util.UUID;
 @Path("/application")
 @RolesAllowed({Scope.APPLICATION, Scope.APPLICATION_ADMIN})
 @OAuth2
+@Transactional
 public final class ApplicationService extends AbstractService {
 
     /**
@@ -202,9 +203,7 @@ public final class ApplicationService extends AbstractService {
 
         // Save it all.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
         s.save(application);
-        t.commit();
 
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
@@ -252,9 +251,7 @@ public final class ApplicationService extends AbstractService {
         // Transfer all the values we're allowed to edit.
         currentApp.setName(application.getName());
 
-        Transaction t = s.beginTransaction();
         s.update(currentApp);
-        t.commit();
 
         return Response.ok(application).build();
     }
@@ -279,9 +276,7 @@ public final class ApplicationService extends AbstractService {
         }
 
         // Let's hope they now what they're doing.
-        Transaction t = s.beginTransaction();
         s.delete(a);
-        t.commit();
 
         return Response.noContent().build();
     }

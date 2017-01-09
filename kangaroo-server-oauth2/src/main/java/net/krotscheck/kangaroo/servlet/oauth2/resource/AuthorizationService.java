@@ -21,6 +21,7 @@ import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
@@ -38,15 +39,8 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.jvnet.hk2.annotations.Optional;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -59,6 +53,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 /**
@@ -68,6 +68,7 @@ import javax.ws.rs.core.UriInfo;
  */
 @Path("/authorize")
 @PermitAll
+@Transactional
 public final class AuthorizationService {
 
     /**
@@ -167,9 +168,7 @@ public final class AuthorizationService {
             callbackState.setAuthenticator(auth);
 
             // Save the state.
-            Transaction t = session.beginTransaction();
             session.save(callbackState);
-            t.commit();
 
             // Generate the redirection url.
             URI callback = uriInfo.getAbsolutePathBuilder()
@@ -256,10 +255,8 @@ public final class AuthorizationService {
         t.setExpiresIn(s.getClient().getAccessTokenExpireIn());
 
         // Persist and get an ID.
-        Transaction transaction = session.beginTransaction();
         session.save(t);
         session.delete(s);
-        transaction.commit();
 
         // Build our redirect URL.
         UriBuilder responseBuilder = UriBuilder.fromUri(s.getClientRedirect());
@@ -309,10 +306,8 @@ public final class AuthorizationService {
         t.setRedirect(s.getClientRedirect());
 
         // Persist and get an ID.
-        Transaction transaction = session.beginTransaction();
         session.save(t);
         session.delete(s);
-        transaction.commit();
 
         // Build our redirect URL.
         UriBuilder responseBuilder = UriBuilder.fromUri(s.getClientRedirect());
