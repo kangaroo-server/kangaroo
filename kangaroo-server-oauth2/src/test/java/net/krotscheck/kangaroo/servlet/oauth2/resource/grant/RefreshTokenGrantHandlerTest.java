@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -56,8 +57,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
          * Initialize the test data.
          */
         @Override
-        protected void loadTestData() {
-            authGrantContext = new EnvironmentBuilder(getSession())
+        protected void loadTestData(final Session session) {
+            authGrantContext = new EnvironmentBuilder(session)
                     .client(ClientType.AuthorizationGrant, true)
                     .authenticator("test")
                     .scope("debug")
@@ -66,7 +67,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                     .user()
                     .identity("remote_identity");
 
-            ownerCredsContext = new EnvironmentBuilder(getSession())
+            ownerCredsContext = new EnvironmentBuilder(session)
                     .client(ClientType.OwnerCredentials, true)
                     .authenticator("test")
                     .scope("debug")
@@ -75,7 +76,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                     .user()
                     .identity("remote_identity");
 
-            implicitContext = new EnvironmentBuilder(getSession())
+            implicitContext = new EnvironmentBuilder(session)
                     .client(ClientType.Implicit, true)
                     .authenticator("test")
                     .scope("debug")

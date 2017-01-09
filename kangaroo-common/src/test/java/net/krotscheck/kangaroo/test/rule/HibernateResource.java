@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistry
 import net.krotscheck.kangaroo.test.rule.hibernate.TestDirectoryProvider;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
@@ -208,5 +209,9 @@ public class HibernateResource implements TestRule {
         logger.debug("Creating FullTextSession");
         fullTextSession = Search.getFullTextSession(session);
         searchFactory = fullTextSession.getSearchFactory();
+
+        // Force hibernate to grab a connection
+        Transaction t = session.beginTransaction();
+        t.rollback();
     }
 }

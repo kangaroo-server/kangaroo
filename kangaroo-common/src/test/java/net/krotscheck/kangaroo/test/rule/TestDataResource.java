@@ -45,39 +45,6 @@ public abstract class TestDataResource implements TestRule {
             LoggerFactory.getLogger(TestDataResource.class);
 
     /**
-     * Service registry, constructed from the configuration.
-     */
-    private ServiceRegistry registry;
-
-    /**
-     * Internal session factory, reconstructed for every test run.
-     */
-    private SessionFactory sessionFactory;
-
-    /**
-     * The last created session.
-     */
-    private Session session;
-
-    /**
-     * Retrieve the session from within this resource.
-     *
-     * @return The initialized session.
-     */
-    protected final Session getSession() {
-        return session;
-    }
-
-    /**
-     * Retrieve the session factory from within this resource.
-     *
-     * @return The initialized session.
-     */
-    protected final SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    /**
      * Modifies the method-running {@link Statement} to implement this
      * test-running rule.
      *
@@ -89,18 +56,20 @@ public abstract class TestDataResource implements TestRule {
      */
     @Override
     public final Statement apply(final Statement base,
-                           final Description description) {
+                                 final Description description) {
         return new Statement() {
 
             @Override
             public void evaluate() throws Throwable {
-                openHibernateSession();
-                loadTestData();
-                try {
-                    base.evaluate();
-                } finally {
-                    clearTestData();
-                    closeHibernateSession();
+
+                try (SessionFactory f = buildSessionFactory();
+                     Session s = f.openSession()) {
+                    loadTestData(s);
+                    try {
+                        base.evaluate();
+                    } finally {
+                        clearTestData(s);
+                    }
                 }
             }
         };
@@ -109,53 +78,34 @@ public abstract class TestDataResource implements TestRule {
     /**
      * Create a session factory for the database.
      */
-    private void openHibernateSession() {
+    private SessionFactory buildSessionFactory() {
         // Create the session factory.
         logger.debug("Creating ServiceRegistry");
-        registry = new StandardServiceRegistryBuilder()
+        ServiceRegistry registry =
+                new StandardServiceRegistryBuilder()
                         .configure()
                         .applySettings(System.getProperties())
                         .build();
-
         logger.debug("Creating SessionFactory");
-        sessionFactory = new MetadataSources(registry)
+        return new MetadataSources(registry)
                 .buildMetadata()
                 .buildSessionFactory();
-
-        logger.debug("Opening Session");
-        session = sessionFactory.openSession();
     }
 
-    /**
-     * Ensure that the hibernate connection is closed even if a test fails.
-     */
-    private void closeHibernateSession() {
-        // Clean any outstanding sessions.
-        logger.debug("Closing Session");
-        if (session.isOpen()) {
-            session.close();
-        }
-        session = null;
-
-        logger.debug("Closing SessionFactory");
-        if (!sessionFactory.isClosed()) {
-            sessionFactory.close();
-        }
-        sessionFactory = null;
-
-        logger.debug("Closing ServiceRegistry");
-        StandardServiceRegistryBuilder.destroy(registry);
-    }
 
     /**
      * Load data into the database.
+     *
+     * @param session The hibernate session to use to persist our data.
      */
-    protected abstract void loadTestData();
+    protected abstract void loadTestData(Session session);
 
     /**
      * Wipe the database clean.
+     *
+     * @param session The hibernate session to use to persist our data.
      */
-    private void clearTestData() {
+    private void clearTestData(final Session session) {
         Query removeOwners =
                 session.createQuery("UPDATE Application SET owner = null");
         Query removeApplications =

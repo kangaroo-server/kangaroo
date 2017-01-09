@@ -54,8 +54,8 @@ public final class EnvironmentBuilderTest extends DatabaseTest {
          * Initialize the test data.
          */
         @Override
-        protected void loadTestData() {
-            context = new EnvironmentBuilder(getSession(), "Test App")
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session, "Test App")
                     .client(ClientType.OwnerCredentials)
                     .authenticator("password")
                     .scopes(Arrays.asList("one", "two", "three"))

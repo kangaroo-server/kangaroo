@@ -18,14 +18,12 @@
 package net.krotscheck.kangaroo.servlet.oauth2;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.test.DContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
 import javax.ws.rs.core.Response;
 
 /**
@@ -33,7 +31,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class OAuthAPITest extends DContainerTest {
+public final class OAuthAPITest extends ContainerTest {
 
     /**
      * Create a test instance of the application to test against.
@@ -43,16 +41,6 @@ public final class OAuthAPITest extends DContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         return new OAuthAPI();
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        return null;
     }
 
     /**

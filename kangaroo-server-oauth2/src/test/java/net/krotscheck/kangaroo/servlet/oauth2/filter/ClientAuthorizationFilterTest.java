@@ -26,8 +26,7 @@ import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory.Credentials;
-import net.krotscheck.kangaroo.test.DContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -36,7 +35,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.container.ContainerRequestContext;
 
@@ -47,7 +45,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public final class ClientAuthorizationFilterTest extends DContainerTest {
+public final class ClientAuthorizationFilterTest extends ContainerTest {
 
     /**
      * Test cpplication.
@@ -76,16 +74,6 @@ public final class ClientAuthorizationFilterTest extends DContainerTest {
         config.register(HibernateFeature.class);
 
         return config;
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        return null;
     }
 
     /**

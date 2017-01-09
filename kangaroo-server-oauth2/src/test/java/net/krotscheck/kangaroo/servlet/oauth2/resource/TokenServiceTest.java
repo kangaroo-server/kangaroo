@@ -22,15 +22,17 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthAPI;
-import net.krotscheck.kangaroo.test.DContainerTest;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.hibernate.Session;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
@@ -43,12 +45,27 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public final class TokenServiceTest extends DContainerTest {
+public final class TokenServiceTest extends ContainerTest {
+
+    /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
+        /**
+         * Initialize the test data.
+         */
+        @Override
+        protected void loadTestData(final Session session) {
+            context = new EnvironmentBuilder(session)
+                    .client(ClientType.ClientCredentials, true);
+        }
+    };
 
     /**
      * Simple testing context.
      */
-    private EnvironmentBuilder context;
+    private static EnvironmentBuilder context;
 
     /**
      * Build and configure the application.
@@ -58,21 +75,6 @@ public final class TokenServiceTest extends DContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         return new OAuthAPI();
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        context = new EnvironmentBuilder(getSession())
-                .client(ClientType.ClientCredentials, true);
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(context);
-        return fixtures;
     }
 
     /**
