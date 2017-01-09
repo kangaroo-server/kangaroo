@@ -30,11 +30,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import java.util.SortedMap;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.SortedMap;
 
 /**
  * This grant type handler takes care of the "client_credentials" grant_type
@@ -100,9 +99,7 @@ public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
         token.setExpiresIn(client.getAccessTokenExpireIn());
         token.setScopes(requestedScopes);
 
-        Transaction t = session.beginTransaction();
         session.save(token);
-        t.commit();
 
         return TokenResponseEntity.factory(token, state);
     }

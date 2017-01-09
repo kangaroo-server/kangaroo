@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
@@ -31,7 +32,6 @@ import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
@@ -61,6 +61,7 @@ import java.util.UUID;
 @Path("/role")
 @RolesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
 @OAuth2
+@Transactional
 public final class RoleService extends AbstractService {
 
     /**
@@ -239,9 +240,7 @@ public final class RoleService extends AbstractService {
 
         // Save it all.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
         s.save(role);
-        t.commit();
 
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
@@ -289,9 +288,7 @@ public final class RoleService extends AbstractService {
         // Transfer all the values we're allowed to edit.
         current.setName(role.getName());
 
-        Transaction t = s.beginTransaction();
         s.update(current);
-        t.commit();
 
         return Response.ok(role).build();
     }
@@ -316,9 +313,7 @@ public final class RoleService extends AbstractService {
         }
 
         // Let's hope they now what they're doing.
-        Transaction t = s.beginTransaction();
         s.delete(role);
-        t.commit();
 
         return Response.noContent().build();
     }

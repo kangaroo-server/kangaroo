@@ -28,12 +28,11 @@ import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import java.util.SortedMap;
-import java.util.UUID;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.SortedMap;
+import java.util.UUID;
 
 /**
  * This grant type handler takes care of the "refresh_token" grant_type
@@ -122,14 +121,12 @@ public final class RefreshTokenGrantHandler implements IGrantTypeHandler {
         newRefreshToken.setScopes(requestedScopes);
         newRefreshToken.setAuthToken(newAuthToken);
 
-        Transaction t = session.beginTransaction();
         session.save(newAuthToken);
         session.save(newRefreshToken);
         if (refreshToken.getAuthToken() != null) {
             session.delete(refreshToken.getAuthToken());
         }
         session.delete(refreshToken);
-        t.commit();
 
         return TokenResponseEntity.factory(newAuthToken, newRefreshToken,
                 state);

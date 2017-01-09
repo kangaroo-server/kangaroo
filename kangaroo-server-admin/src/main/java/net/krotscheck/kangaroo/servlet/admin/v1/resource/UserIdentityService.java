@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
@@ -35,7 +36,6 @@ import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
@@ -65,6 +65,7 @@ import java.util.UUID;
 @Path("/identity")
 @RolesAllowed({Scope.IDENTITY, Scope.IDENTITY_ADMIN})
 @OAuth2
+@Transactional
 public final class UserIdentityService extends AbstractService {
 
     /**
@@ -313,9 +314,7 @@ public final class UserIdentityService extends AbstractService {
 
         // Save it all.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
         s.save(identity);
-        t.commit();
 
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
@@ -369,9 +368,7 @@ public final class UserIdentityService extends AbstractService {
         current.setClaims(identity.getClaims());
         current.setPassword(identity.getPassword());
 
-        Transaction t = s.beginTransaction();
         s.update(current);
-        t.commit();
 
         return Response.ok(current).build();
     }
@@ -392,9 +389,7 @@ public final class UserIdentityService extends AbstractService {
         assertCanAccess(identity, getAdminScope());
 
         // Let's hope they know what they're doing.
-        Transaction t = s.beginTransaction();
         s.delete(identity);
-        t.commit();
 
         return Response.noContent().build();
     }

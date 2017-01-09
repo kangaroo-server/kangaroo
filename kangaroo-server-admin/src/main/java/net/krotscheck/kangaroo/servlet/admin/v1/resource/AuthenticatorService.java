@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
@@ -34,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
@@ -64,6 +64,7 @@ import java.util.UUID;
 @Path("/authenticator")
 @RolesAllowed({Scope.AUTHENTICATOR, Scope.AUTHENTICATOR_ADMIN})
 @OAuth2
+@Transactional
 public final class AuthenticatorService extends AbstractService {
 
     /**
@@ -251,9 +252,7 @@ public final class AuthenticatorService extends AbstractService {
 
         // Save it all.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
         s.save(authenticator);
-        t.commit();
 
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
@@ -300,9 +299,7 @@ public final class AuthenticatorService extends AbstractService {
         current.setType(authenticator.getType());
         current.setConfiguration(authenticator.getConfiguration());
 
-        Transaction t = s.beginTransaction();
         s.update(current);
-        t.commit();
 
         return Response.ok(current).build();
     }
@@ -322,9 +319,7 @@ public final class AuthenticatorService extends AbstractService {
         assertCanAccess(authenticator, getAdminScope());
 
         // Let's hope they know what they're doing.
-        Transaction t = s.beginTransaction();
         s.delete(authenticator);
-        t.commit();
 
         return Response.noContent().build();
     }
