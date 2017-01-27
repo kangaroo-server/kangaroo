@@ -19,12 +19,9 @@
 package net.krotscheck.kangaroo.common.hibernate.context;
 
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 
 /**
@@ -33,16 +30,6 @@ import java.util.List;
  * @author Michael Krotscheck
  */
 public final class SearchIndexContextListenerTest extends DatabaseTest {
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    public List<EnvironmentBuilder> fixtures() throws Exception {
-        return null;
-    }
 
     /**
      * Assert that the session factory is properly created.

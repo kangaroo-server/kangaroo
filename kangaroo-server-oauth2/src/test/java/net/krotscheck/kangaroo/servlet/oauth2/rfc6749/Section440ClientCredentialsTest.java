@@ -23,7 +23,8 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
@@ -60,12 +61,14 @@ public final class Section440ClientCredentialsTest
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session)
+            context = ApplicationBuilder.newApplication(session)
                     .scope("debug")
-                    .client(ClientType.ClientCredentials, false);
-            authContext = new EnvironmentBuilder(session)
+                    .client(ClientType.ClientCredentials, false)
+                    .build();
+            authContext = ApplicationBuilder.newApplication(session)
                     .scope("debug")
-                    .client(ClientType.ClientCredentials, true);
+                    .client(ClientType.ClientCredentials, true)
+                    .build();
             authHeader = HttpUtil.authHeaderBasic(
                     authContext.getClient().getId(),
                     authContext.getClient().getClientSecret());
@@ -75,12 +78,12 @@ public final class Section440ClientCredentialsTest
     /**
      * Generic context.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * The test context for an authenticated application.
      */
-    private static EnvironmentBuilder authContext;
+    private static ApplicationContext authContext;
 
     /**
      * The auth header string for each test.
