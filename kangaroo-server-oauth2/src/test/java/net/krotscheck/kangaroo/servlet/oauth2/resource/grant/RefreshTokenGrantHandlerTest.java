@@ -25,8 +25,9 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -58,29 +59,32 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
          */
         @Override
         protected void loadTestData(final Session session) {
-            authGrantContext = new EnvironmentBuilder(session)
+            authGrantContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.AuthorizationGrant, true)
                     .authenticator("test")
                     .scope("debug")
                     .scope("debug1")
                     .role("test", new String[]{"debug", "debug1"})
                     .user()
-                    .identity("remote_identity");
+                    .identity("remote_identity")
+                    .build();
 
-            ownerCredsContext = new EnvironmentBuilder(session)
+            ownerCredsContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.OwnerCredentials, true)
                     .authenticator("test")
                     .scope("debug")
                     .scope("debug1")
                     .role("test", new String[]{"debug", "debug1"})
                     .user()
-                    .identity("remote_identity");
+                    .identity("remote_identity")
+                    .build();
 
-            implicitContext = new EnvironmentBuilder(session)
+            implicitContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.Implicit, true)
                     .authenticator("test")
                     .scope("debug")
-                    .role("test", new String[]{"debug"});
+                    .role("test", new String[]{"debug"})
+                    .build();
         }
     };
 
@@ -92,17 +96,17 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     /**
      * A simple, scoped context.
      */
-    private static EnvironmentBuilder ownerCredsContext;
+    private static ApplicationContext ownerCredsContext;
 
     /**
      * A simple, scoped context.
      */
-    private static EnvironmentBuilder authGrantContext;
+    private static ApplicationContext authGrantContext;
 
     /**
      * A non-refresh-token context.
      */
-    private static EnvironmentBuilder implicitContext;
+    private static ApplicationContext implicitContext;
 
     /**
      * Setup the test.
@@ -119,9 +123,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test
     public void testValidAuthorizationGrant() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext
+        OAuthToken refreshToken = authGrantContext.getBuilder()
                 .bearerToken("debug")
                 .refreshToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -161,9 +166,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test
     public void testValidOwnerCredentials() {
         Client authClient = ownerCredsContext.getClient();
-        OAuthToken refreshToken = ownerCredsContext
+        OAuthToken refreshToken = ownerCredsContext.getBuilder()
                 .bearerToken("debug")
                 .refreshToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -203,9 +209,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test(expected = InvalidGrantException.class)
     public void testInvalidClientType() {
         Client authClient = implicitContext.getClient();
-        OAuthToken refreshToken = implicitContext
+        OAuthToken refreshToken = implicitContext.getBuilder()
                 .bearerToken("debug")
                 .refreshToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -274,8 +281,9 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test(expected = InvalidGrantException.class)
     public void testNotARefreshToken() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken authToken = authGrantContext
+        OAuthToken authToken = authGrantContext.getBuilder()
                 .bearerToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -294,9 +302,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test(expected = InvalidGrantException.class)
     public void testExpiredToken() {
         Client authClient = ownerCredsContext.getClient();
-        OAuthToken refreshToken = ownerCredsContext
+        OAuthToken refreshToken = ownerCredsContext.getBuilder()
                 .bearerToken()
                 .token(OAuthTokenType.Refresh, true, "debug", null, null)
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -315,9 +324,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test(expected = InvalidScopeException.class)
     public void testInvalidScope() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext
+        OAuthToken refreshToken = authGrantContext.getBuilder()
                 .bearerToken()
                 .refreshToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -336,9 +346,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test(expected = InvalidScopeException.class)
     public void testEscalateScope() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext
+        OAuthToken refreshToken = authGrantContext.getBuilder()
                 .bearerToken("debug")
                 .refreshToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -357,9 +368,10 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test
     public void testDeescalateScope() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext
+        OAuthToken refreshToken = authGrantContext.getBuilder()
                 .bearerToken("debug")
                 .refreshToken()
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
@@ -400,8 +412,9 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     @Test
     public void testZombieRefresh() {
         Client authClient = authGrantContext.getClient();
-        OAuthToken refreshToken = authGrantContext
+        OAuthToken refreshToken = authGrantContext.getBuilder()
                 .token(OAuthTokenType.Refresh, false, "debug", null, null)
+                .build()
                 .getToken();
 
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();

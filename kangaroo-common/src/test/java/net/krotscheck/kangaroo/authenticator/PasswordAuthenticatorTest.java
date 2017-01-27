@@ -22,8 +22,9 @@ import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.Invalid
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -61,18 +62,19 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session);
-            context.client(ClientType.OwnerCredentials)
+            context = ApplicationBuilder.newApplication(session)
+                    .client(ClientType.OwnerCredentials)
                     .authenticator("password")
                     .user()
-                    .login("login", "password");
+                    .login("login", "password")
+                    .build();
         }
     };
 
     /**
      * The environment set up for this test suite.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * Assert that the test delegate does nothing.

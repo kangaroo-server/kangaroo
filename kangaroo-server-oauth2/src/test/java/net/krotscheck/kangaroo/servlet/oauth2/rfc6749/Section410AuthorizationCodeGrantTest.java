@@ -23,7 +23,8 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpHeaders;
@@ -63,29 +64,38 @@ public final class Section410AuthorizationCodeGrantTest
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session)
+            context = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .scope("debug1")
                     .role("test", new String[]{"debug"})
                     .client(ClientType.AuthorizationGrant)
                     .authenticator("test")
-                    .redirect("http://valid.example.com/redirect");
-            bareContext = new EnvironmentBuilder(session)
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
+            bareContext = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .client(ClientType.AuthorizationGrant)
-                    .authenticator("test");
-            noScopeRoleContext = new EnvironmentBuilder(session)
+                    .authenticator("test")
+                    .build();
+            noScopeRoleContext = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .role("test", new String[]{})
                     .client(ClientType.AuthorizationGrant)
                     .authenticator("test")
-                    .redirect("http://valid.example.com/redirect");
-            noUserRoleContext = new EnvironmentBuilder(session)
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
+            noUserRoleContext = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .client(ClientType.AuthorizationGrant)
                     .authenticator("test")
-                    .redirect("http://valid.example.com/redirect");
-            authContext = new EnvironmentBuilder(session)
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
+            authContext = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .role("test", new String[]{"debug"})
                     .client(ClientType.AuthorizationGrant, true)
@@ -93,23 +103,30 @@ public final class Section410AuthorizationCodeGrantTest
                     .redirect("http://valid.example.com/redirect")
                     .redirect("http://redirect.example.com/redirect")
                     .user()
-                    .identity("remote_identity");
-            noauthContext = new EnvironmentBuilder(session)
+                    .identity("remote_identity")
+                    .build();
+            noauthContext = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .role("test", new String[]{"debug"})
                     .client(ClientType.AuthorizationGrant)
-                    .redirect("http://valid.example.com/redirect");
-            misconfiguredAuthContext = new EnvironmentBuilder(session)
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
+            misconfiguredAuthContext = ApplicationBuilder
+                    .newApplication(session)
                     .client(ClientType.AuthorizationGrant)
                     .authenticator("foo")
                     .redirect("http://valid.example.com/redirect")
-                    .scope("debug");
-            invalidClientContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .build();
+            invalidClientContext = ApplicationBuilder
+                    .newApplication(session)
                     .scope("debug")
                     .role("test", new String[]{"debug"})
                     .client(ClientType.Implicit)
                     .authenticator("foo")
-                    .redirect("http://valid.example.com/redirect");
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
 
             authHeader = HttpUtil.authHeaderBasic(
                     authContext.getClient().getId(),
@@ -120,43 +137,43 @@ public final class Section410AuthorizationCodeGrantTest
     /**
      * The test context for a regular application.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * The test context for a bare application.
      */
-    private static EnvironmentBuilder bareContext;
+    private static ApplicationContext bareContext;
 
     /**
      * The test context for an application with a user that has no roles.
      */
-    private static EnvironmentBuilder noUserRoleContext;
+    private static ApplicationContext noUserRoleContext;
 
     /**
      * A scope with a role, but not scope assigned.
      */
-    private static EnvironmentBuilder noScopeRoleContext;
+    private static ApplicationContext noScopeRoleContext;
 
     /**
      * The test context for an authenticated application.
      */
-    private static EnvironmentBuilder authContext;
+    private static ApplicationContext authContext;
 
     /**
      * The test context for an application with no authenticator.
      */
-    private static EnvironmentBuilder noauthContext;
+    private static ApplicationContext noauthContext;
 
     /**
      * The test context for an application with an authenticator that has no
      * implementation.
      */
-    private static EnvironmentBuilder misconfiguredAuthContext;
+    private static ApplicationContext misconfiguredAuthContext;
 
     /**
      * An invalid client context.
      */
-    private static EnvironmentBuilder invalidClientContext;
+    private static ApplicationContext invalidClientContext;
 
     /**
      * The auth header string for each test.
@@ -897,7 +914,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenSimpleRequest() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -928,7 +948,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenNoClientId() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -978,8 +1001,14 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenMultiCode() {
-        OAuthToken one = context.authToken().getToken();
-        OAuthToken two = context.authToken().getToken();
+        OAuthToken one = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
+        OAuthToken two = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1007,7 +1036,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenNoGrant() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1033,7 +1065,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenNoRedirect() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1060,7 +1095,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenAuthHeaderValid() {
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1096,7 +1134,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenAuthHeaderMismatchClientId() {
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1153,7 +1194,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenAuthHeaderInvalid() {
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         String badHeader = HttpUtil.authHeaderBasic(
                 authContext.getClient().getId(),
@@ -1188,7 +1232,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenAuthSecretInBody() {
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1221,7 +1268,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenAuthBothMethods() {
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1252,7 +1302,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenInvalidGrantTypePassword() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1279,7 +1332,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenInvalidGrantTypeRefreshToken() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1306,7 +1362,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenInvalidGrantTypeClientCredentials() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1333,7 +1392,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenUnknownGrantType() {
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1361,12 +1423,14 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenInvalidClient() {
         // Create the test token.
-        OAuthToken token = invalidClientContext.authToken().getToken();
+        ApplicationContext testContext = invalidClientContext.getBuilder()
+                .authToken()
+                .build();
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", invalidClientContext.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", testContext.getClient().getId().toString());
+        f.param("code", testContext.getToken().getId().toString());
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1439,8 +1503,9 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenExpiredCode() {
         // Add an expired token.
-        OAuthToken token = context
+        OAuthToken token = context.getBuilder()
                 .token(OAuthTokenType.Authorization, true, null, null, null)
+                .build()
                 .getToken();
 
         // Build the entity.
@@ -1469,7 +1534,10 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenCodeClientMismatch() {
         // Create the test token.
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1497,7 +1565,10 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenCodeRedirectMismatch() {
         // Create the test token.
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1525,9 +1596,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenMultiCodeRedirectMismatch() {
-        OAuthToken token = context
+        OAuthToken token = context.getBuilder()
                 .token(OAuthTokenType.Authorization,
                         false, null, "http://valid.example.com/redirect", null)
+                .build()
                 .getToken();
 
         // Build the entity.
@@ -1555,9 +1627,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenRedirectSimple() {
-        OAuthToken token = context
+        OAuthToken token = context.getBuilder()
                 .token(OAuthTokenType.Authorization, false, null,
                         "http://valid.example.com/redirect", null)
+                .build()
                 .getToken();
 
         // Build the entity.
@@ -1590,9 +1663,10 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenRedirectMulti() {
-        OAuthToken token = authContext
+        OAuthToken token = authContext.getBuilder()
                 .token(OAuthTokenType.Authorization,
                         false, null, "http://other.example.com/redirect", null)
+                .build()
                 .getToken();
 
         // Build the entity.
@@ -1630,7 +1704,10 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenRedirectMultiNoneProvided() {
         // Create the test token.
-        OAuthToken token = authContext.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1661,7 +1738,10 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenRedirectDefault() {
         // Create the test token.
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
@@ -1689,17 +1769,17 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenRedirectPartial() {
-        context.token(OAuthTokenType.Authorization,
-                false,
-                null,
-                "http://valid.example.com/redirect?foo=bar", null);
+        ApplicationContext testContext = context.getBuilder()
+                .token(OAuthTokenType.Authorization, false, null,
+                        "http://valid.example.com/redirect?foo=bar", null)
+                .build();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id",
-                context.getClient().getId().toString());
+                testContext.getClient().getId().toString());
         f.param("code",
-                context.getToken().getId().toString());
+                testContext.getToken().getId().toString());
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect?foo=bar");
         Entity postEntity = Entity.entity(f,
@@ -1728,17 +1808,18 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testTokenRedirectPartialMismatch() {
-        context.token(OAuthTokenType.Authorization,
-                false,
-                null,
-                "http://valid.example.com/redirect?foo=bar", null);
+        OAuthToken token = context.getBuilder()
+                .token(OAuthTokenType.Authorization, false, null,
+                        "http://valid.example.com/redirect?foo=bar", null)
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();
         f.param("client_id",
                 context.getClient().getId().toString());
         f.param("code",
-                context.getToken().getId().toString());
+                token.getId().toString());
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect?lol=cat");
         Entity postEntity = Entity.entity(f,
@@ -1761,7 +1842,10 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testTokenRedirectInvalid() {
         // Create the test token.
-        OAuthToken token = context.authToken().getToken();
+        OAuthToken token = context.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
 
         // Build the entity.
         Form f = new Form();

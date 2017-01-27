@@ -22,8 +22,9 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthAPI;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -57,15 +58,16 @@ public final class TokenServiceTest extends ContainerTest {
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session)
-                    .client(ClientType.ClientCredentials, true);
+            context = ApplicationBuilder.newApplication(session)
+                    .client(ClientType.ClientCredentials, true)
+                    .build();
         }
     };
 
     /**
      * Simple testing context.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * Build and configure the application.

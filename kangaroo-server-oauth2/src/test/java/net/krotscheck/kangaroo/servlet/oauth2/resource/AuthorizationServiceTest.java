@@ -21,8 +21,9 @@ import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorRespon
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.oauth2.OAuthTestApp;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
@@ -58,28 +59,30 @@ public final class AuthorizationServiceTest extends ContainerTest {
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session)
+            context = ApplicationBuilder.newApplication(session)
                     .client(ClientType.Implicit)
                     .authenticator("foo")
-                    .redirect("http://valid.example.com/redirect");
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
 
-            ownerContext = new EnvironmentBuilder(session)
+            ownerContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.OwnerCredentials)
                     .authenticator("test")
                     .redirect("http://valid.example.com/redirect")
-                    .authenticatorState();
+                    .authenticatorState()
+                    .build();
         }
     };
 
     /**
      * Simple testing context.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * An owner context.
      */
-    private static EnvironmentBuilder ownerContext;
+    private static ApplicationContext ownerContext;
 
     /**
      * Build and configure the application.

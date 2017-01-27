@@ -20,7 +20,8 @@ package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
@@ -60,69 +61,75 @@ public final class Section420ImplicitGrantTest
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.Implicit)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect");
-            twoRedirectContext = new EnvironmentBuilder(session)
+            context = ApplicationBuilder.newApplication(session)
                     .scope("debug")
                     .role("test", new String[]{"debug"})
                     .client(ClientType.Implicit)
                     .authenticator("test")
                     .redirect("http://valid.example.com/redirect")
-                    .redirect("http://other.example.com/redirect");
-            bareContext = new EnvironmentBuilder(session)
-                    .client(ClientType.Implicit)
-                    .authenticator("test");
-            noRoleContext = new EnvironmentBuilder(session)
+                    .build();
+            twoRedirectContext = ApplicationBuilder.newApplication(session)
+                    .scope("debug")
+                    .role("test", new String[]{"debug"})
                     .client(ClientType.Implicit)
                     .authenticator("test")
-                    .redirect("http://valid.example.com/redirect");
-            roleNoScopeContext = new EnvironmentBuilder(session)
+                    .redirect("http://valid.example.com/redirect")
+                    .redirect("http://other.example.com/redirect")
+                    .build();
+            bareContext = ApplicationBuilder.newApplication(session)
+                    .client(ClientType.Implicit)
+                    .authenticator("test")
+                    .build();
+            noRoleContext = ApplicationBuilder.newApplication(session)
+                    .client(ClientType.Implicit)
+                    .authenticator("test")
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
+            roleNoScopeContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.Implicit)
                     .authenticator("test")
                     .scope("debug")
                     .redirect("http://valid.example.com/redirect")
-                    .role("test", new String[]{});
-            noauthContext = new EnvironmentBuilder(session)
+                    .role("test", new String[]{})
+                    .build();
+            noauthContext = ApplicationBuilder.newApplication(session)
                     .scope("debug")
                     .role("test", new String[]{"debug"})
                     .client(ClientType.Implicit)
-                    .redirect("http://valid.example.com/redirect");
+                    .redirect("http://valid.example.com/redirect")
+                    .build();
         }
     };
 
     /**
      * The environment context for the regular client.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * The environment context for the regular client and two redirects.
      */
-    private static EnvironmentBuilder twoRedirectContext;
+    private static ApplicationContext twoRedirectContext;
 
     /**
      * An application with no role.
      */
-    private static EnvironmentBuilder noRoleContext;
+    private static ApplicationContext noRoleContext;
 
     /**
      * An application with a role, but no scopes on that role.
      */
-    private static EnvironmentBuilder roleNoScopeContext;
+    private static ApplicationContext roleNoScopeContext;
 
     /**
      * The test context for a bare-bones application.
      */
-    private static EnvironmentBuilder bareContext;
+    private static ApplicationContext bareContext;
 
     /**
      * An application without an authenticator.
      */
-    private static EnvironmentBuilder noauthContext;
+    private static ApplicationContext noauthContext;
 
     /**
      * Assert that a simple request works. This request requires the setup of a
@@ -575,16 +582,17 @@ public final class Section420ImplicitGrantTest
         // Fill out the bare context. The test authenticator will assign the
         // 'test' role if it finds it, so we create it here to ensure that it
         // has no permitted scopes.
-        bareContext
+        ApplicationContext testContext = bareContext.getBuilder()
                 .scope("debug")
                 .redirect("http://valid.example.com/redirect")
-                .role("test", new String[]{});
+                .role("test", new String[]{})
+                .build();
 
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("scope", "debug")
                 .queryParam("client_id",
-                        bareContext.getClient().getId().toString())
+                        testContext.getClient().getId().toString())
                 .request()
                 .get();
 

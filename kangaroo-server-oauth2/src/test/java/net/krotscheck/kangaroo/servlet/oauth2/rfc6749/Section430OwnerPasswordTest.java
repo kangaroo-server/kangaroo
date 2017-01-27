@@ -23,7 +23,8 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
@@ -59,20 +60,22 @@ public final class Section430OwnerPasswordTest
          * Initialize the test data.
          */
         protected void loadTestData(final Session session) {
-            builder = new EnvironmentBuilder(session)
+            builder = ApplicationBuilder.newApplication(session)
                     .scope("debug")
                     .role("debug", new String[]{"debug"})
                     .client(ClientType.OwnerCredentials)
                     .authenticator("password")
                     .user()
-                    .login(username, password);
-            authBuilder = new EnvironmentBuilder(session)
+                    .login(username, password)
+                    .build();
+            authBuilder = ApplicationBuilder.newApplication(session)
                     .scope("debug")
                     .role("debug", new String[]{"debug"})
                     .client(ClientType.OwnerCredentials, true)
                     .authenticator("password")
                     .user()
-                    .login(username, password);
+                    .login(username, password)
+                    .build();
             authHeader = HttpUtil.authHeaderBasic(
                     authBuilder.getClient().getId(),
                     authBuilder.getClient().getClientSecret());
@@ -92,12 +95,12 @@ public final class Section430OwnerPasswordTest
     /**
      * The environment builder for the regular client.
      */
-    private static EnvironmentBuilder builder;
+    private static ApplicationContext builder;
 
     /**
      * The environment builder for the authentication client.
      */
-    private static EnvironmentBuilder authBuilder;
+    private static ApplicationContext authBuilder;
 
     /**
      * The auth header string for each test.
