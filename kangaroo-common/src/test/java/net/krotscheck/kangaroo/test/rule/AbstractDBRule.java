@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
+import net.krotscheck.kangaroo.test.TestConfig;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -60,43 +61,6 @@ public abstract class AbstractDBRule implements TestRule {
     private static Integer dsCounter = 0;
 
     /**
-     * Evaluate the Test Database JDBC Address.
-     *
-     * @return The test database address.
-     */
-    protected final String getDbJdbcPath() {
-        return System.getProperty("test.db.jdbc",
-                "jdbc:h2:mem:target/test/db/h2/hibernate");
-    }
-
-    /**
-     * Evaluate the Test Database Driver.
-     *
-     * @return The test database driver class as a string.
-     */
-    protected final String getDbDriver() {
-        return System.getProperty("test.db.driver", "org.h2.Driver");
-    }
-
-    /**
-     * Evaluate the Test Database Login.
-     *
-     * @return The test database login.
-     */
-    protected final String getDbLogin() {
-        return System.getProperty("test.db.user", "oid");
-    }
-
-    /**
-     * Evaluate the Test Database Password.
-     *
-     * @return The test database password.
-     */
-    protected final String getDbPassword() {
-        return System.getProperty("test.db.password", "oid");
-    }
-
-    /**
      * Return the current datasource.
      *
      * @return The datasource.
@@ -111,10 +75,10 @@ public abstract class AbstractDBRule implements TestRule {
     private void initializeDatasource() {
         if (dataSource.get() == null) {
             BasicDataSource newSource = new BasicDataSource();
-            newSource.setDriverClassName(getDbDriver());
-            newSource.setUrl(getDbJdbcPath());
-            newSource.setUsername(getDbLogin());
-            newSource.setPassword(getDbPassword());
+            newSource.setDriverClassName(TestConfig.getDbDriver());
+            newSource.setUrl(TestConfig.getDbJdbcPath());
+            newSource.setUsername(TestConfig.getDbLogin());
+            newSource.setPassword(TestConfig.getDbPassword());
             newSource.setMaxIdle(1);
             dataSource.set(newSource);
         }

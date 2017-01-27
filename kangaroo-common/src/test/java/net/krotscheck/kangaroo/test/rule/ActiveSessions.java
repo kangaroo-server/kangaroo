@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
+import net.krotscheck.kangaroo.test.TestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public final class ActiveSessions extends AbstractDBRule {
      */
     private List<Map<String, String>> getActiveSessions() {
         try {
-            switch (getDbDriver()) {
+            switch (TestConfig.getDbDriver()) {
                 case "com.mysql.jdbc.Driver":
                     return new ArrayList<>();
                 case "org.h2.Driver":
