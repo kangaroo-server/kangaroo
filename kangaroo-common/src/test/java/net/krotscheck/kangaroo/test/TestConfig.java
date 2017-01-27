@@ -27,12 +27,13 @@ package net.krotscheck.kangaroo.test;
 public final class TestConfig {
 
     /**
-     * The JNDI path where the database may be accessed.
+     * Fully qualified jndi path for the database.
      *
-     * @return A fully qualified JNDI Path.
+     * @return The path.
      */
-    public static String getDbJndiName() {
-        return System.getProperty("test.db.jndiName", "OIDServerDB");
+    public static String getDbJndiPath() {
+        return System.getProperty("test.db.jndiPath",
+                "java://comp/env/jdbc/OIDServerDB");
     }
 
     /**

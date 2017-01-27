@@ -292,8 +292,8 @@
                 <value>oid</value>
               </property>
               <property>
-                <name>test.db.jndiName</name>
-                <value>OIDServerDB</value>
+                <name>test.db.jndiPath</name>
+                <value>java://comp/env/jdbc/OIDServerDB</value>
               </property>
             </systemProperties>
           </configuration>
