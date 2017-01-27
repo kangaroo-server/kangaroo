@@ -26,7 +26,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
+import net.krotscheck.kangaroo.test.TestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +71,7 @@ public final class DatabaseResource extends AbstractDBRule {
      * @return The JNDI Identity path.
      */
     private String getJndiAddress() {
-        String jndiName = System.getProperty("test.db.jndiName",
-                "OIDServerDB");
+        String jndiName = TestConfig.getDbJndiName();
         return String.format("%s/%s", "java://comp/env/jdbc", jndiName);
     }
 
