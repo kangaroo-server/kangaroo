@@ -185,6 +185,17 @@ public final class OAuthTokenTest {
     }
 
     /**
+     * Test getting the principal name with a null client.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testGetNullClient() throws Exception {
+        OAuthToken token = new OAuthToken();
+        Assert.assertNull(token.getName());
+    }
+
+    /**
      * Test get/set scope list.
      */
     @Test
