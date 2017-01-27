@@ -339,11 +339,15 @@ public final class OAuthToken extends AbstractEntity implements Principal {
     @Transient
     @JsonIgnore
     public String getName() {
-        if (getClient().getType().equals(ClientType.ClientCredentials)) {
-            return getClient().getName();
-        } else {
-            return getIdentity().getRemoteId();
+        Client c = getClient();
+        UserIdentity i = getIdentity();
+
+        if (c != null && c.getType().equals(ClientType.ClientCredentials)) {
+            return c.getName();
+        } else if (i != null) {
+            return i.getRemoteId();
         }
+        return null;
     }
 
     /**
