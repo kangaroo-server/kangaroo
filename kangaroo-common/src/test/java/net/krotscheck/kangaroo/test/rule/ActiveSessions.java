@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -19,22 +19,32 @@
 package net.krotscheck.kangaroo.test.rule;
 
 import net.krotscheck.kangaroo.test.TestConfig;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.InitialContext;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * This JUnit4 rule ensures that the JNDI resource has been bootstrapped, and
- * that the database schema has been migrated into the test database.
+ * This JUnit4 rule provides a few handy methods that allow one to mark(),
+ * and then verify(), the current number of open connections against the
+ * database.
  *
  * @author Michael Krotscheck
  */
-public final class ActiveSessions extends AbstractDBRule {
+public final class ActiveSessions implements TestRule {
 
     /**
      * Logger instance.
@@ -98,29 +108,74 @@ public final class ActiveSessions extends AbstractDBRule {
                             .collect(Collectors.toList());
                     return results;
             }
-        } catch (SQLException sqle) {
+        } catch (Throwable sqle) {
             // Don't do this. Fix it.
             throw new RuntimeException(sqle);
         }
     }
 
     /**
-     * Actions to perform before the test.
+     * Execute a query against the current database, and return the results.
      *
-     * @throws Throwable Exceptions thrown during setup.
+     * @param query The query to execute.
+     * @return A map of the results.
+     * @throws Throwable Thrown if the query borks.
      */
-    @Override
-    protected void before() throws Throwable {
+    private List<Map<String, String>> executeQuery(final String query)
+            throws Throwable {
+        InitialContext ctx = new InitialContext();
+        BasicDataSource dataSource =
+                (BasicDataSource) ctx.lookup(TestConfig.getDbJndiPath());
 
+        try (
+                Connection conn = dataSource.getConnection();
+                java.sql.Statement stmt = conn.createStatement()
+        ) {
+            ResultSet rs = stmt.executeQuery(query);
+
+            List<Map<String, String>> results = new ArrayList<>();
+
+            ResultSetMetaData metaData = rs.getMetaData();
+            List<String> columnNames = new ArrayList<>();
+            for (Integer i = 1; i <= metaData.getColumnCount(); i++) {
+                columnNames.add(metaData.getColumnLabel(i));
+            }
+
+            while (rs.next()) {
+                Map<String, String> row = new HashMap<>();
+                columnNames.forEach((name) -> {
+                    try {
+                        row.put(name, rs.getString(name));
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                });
+                results.add(row);
+            }
+            rs.close();
+            return results;
+        }
     }
 
     /**
-     * Actions to perform after the test.
+     * Modifies the method-running {@link Statement} to implement this
+     * test-running rule.
      *
-     * @throws Throwable Exceptions thrown during teardown.
+     * @param base        The {@link Statement} to be modified
+     * @param description A {@link Description} of the test implemented in
+     *                    {@code base}
+     * @return a new statement, which may be the same as {@code base},
+     * a wrapper around {@code base}, or a completely new Statement.
      */
     @Override
-    protected void after() throws Throwable {
+    public Statement apply(final Statement base,
+                           final Description description) {
+        return new Statement() {
 
+            @Override
+            public void evaluate() throws Throwable {
+                base.evaluate();
+            }
+        };
     }
 }
