@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
  *
  * @author Michael Krotscheck
  */
+@Deprecated
 public final class EnvironmentBuilder {
 
     /**

@@ -25,8 +25,9 @@ import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -56,17 +57,21 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
          */
         @Override
         protected void loadTestData(final Session session) {
-            context = new EnvironmentBuilder(session)
+            context = ApplicationBuilder.newApplication(session)
                     .client(ClientType.ClientCredentials, true)
-                    .scope("debug");
-            noScopeContext = new EnvironmentBuilder(session)
-                    .client(ClientType.ClientCredentials, true);
-            implicitContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .build();
+            noScopeContext = ApplicationBuilder.newApplication(session)
+                    .client(ClientType.ClientCredentials, true)
+                    .build();
+            implicitContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.Implicit, true)
-                    .scope("debug");
-            noSecretContext = new EnvironmentBuilder(session)
+                    .scope("debug")
+                    .build();
+            noSecretContext = ApplicationBuilder.newApplication(session)
                     .client(ClientType.ClientCredentials)
-                    .scope("debug");
+                    .scope("debug")
+                    .build();
         }
     };
 
@@ -78,22 +83,22 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     /**
      * A simple, scoped context.
      */
-    private static EnvironmentBuilder context;
+    private static ApplicationContext context;
 
     /**
      * A non-client-credentials context.
      */
-    private static EnvironmentBuilder implicitContext;
+    private static ApplicationContext implicitContext;
 
     /**
      * A context with no configured scopes.
      */
-    private static EnvironmentBuilder noScopeContext;
+    private static ApplicationContext noScopeContext;
 
     /**
      * A no-secret Context.
      */
-    private static EnvironmentBuilder noSecretContext;
+    private static ApplicationContext noSecretContext;
 
     /**
      * Setup the test.

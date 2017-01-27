@@ -19,7 +19,6 @@ package net.krotscheck.kangaroo.database.listener;
 
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -35,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
