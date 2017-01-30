@@ -51,29 +51,30 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.ClientCredentials, true)
-                    .scope("debug")
-                    .build();
-            noScopeContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.ClientCredentials, true)
-                    .build();
-            implicitContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.Implicit, true)
-                    .scope("debug")
-                    .build();
-            noSecretContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.ClientCredentials)
-                    .scope("debug")
-                    .build();
-        }
-    };
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.ClientCredentials, true)
+                            .scope("debug")
+                            .build();
+                    noScopeContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.ClientCredentials, true)
+                            .build();
+                    implicitContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.Implicit, true)
+                            .scope("debug")
+                            .build();
+                    noSecretContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.ClientCredentials)
+                            .scope("debug")
+                            .build();
+                }
+            };
 
     /**
      * The harness under test.
@@ -121,7 +122,11 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
         testData.putSingle("scope", "debug");
         testData.putSingle("grant_type", "client_credentials");
 
-        TokenResponseEntity token = handler.handle(context.getClient(),
+        // Hydrate the client from the test session.
+        Client testClient = getSession()
+                .get(Client.class, context.getClient().getId());
+
+        TokenResponseEntity token = handler.handle(testClient,
                 testData);
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
@@ -176,7 +181,11 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
         testData.putSingle("scope", "debug invalid");
         testData.putSingle("grant_type", "client_credentials");
 
-        handler.handle(context.getClient(), testData);
+        // Hydrate the client from the test session.
+        Client testClient = getSession()
+                .get(Client.class, context.getClient().getId());
+
+        handler.handle(testClient, testData);
     }
 
     /**

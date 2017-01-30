@@ -21,7 +21,6 @@ import net.krotscheck.kangaroo.database.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener.Binder;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -37,10 +36,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import javax.inject.Singleton;
 
 /**
  * Unit test our application bootstrap.

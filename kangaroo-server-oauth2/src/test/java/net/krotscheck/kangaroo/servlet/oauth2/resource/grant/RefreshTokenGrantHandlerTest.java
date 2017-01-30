@@ -53,40 +53,41 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            authGrantContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.AuthorizationGrant, true)
-                    .authenticator("test")
-                    .scope("debug")
-                    .scope("debug1")
-                    .role("test", new String[]{"debug", "debug1"})
-                    .user()
-                    .identity("remote_identity")
-                    .build();
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    authGrantContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.AuthorizationGrant, true)
+                            .authenticator("test")
+                            .scope("debug")
+                            .scope("debug1")
+                            .role("test", new String[]{"debug", "debug1"})
+                            .user()
+                            .identity("remote_identity")
+                            .build();
 
-            ownerCredsContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.OwnerCredentials, true)
-                    .authenticator("test")
-                    .scope("debug")
-                    .scope("debug1")
-                    .role("test", new String[]{"debug", "debug1"})
-                    .user()
-                    .identity("remote_identity")
-                    .build();
+                    ownerCredsContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.OwnerCredentials, true)
+                            .authenticator("test")
+                            .scope("debug")
+                            .scope("debug1")
+                            .role("test", new String[]{"debug", "debug1"})
+                            .user()
+                            .identity("remote_identity")
+                            .build();
 
-            implicitContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.Implicit, true)
-                    .authenticator("test")
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .build();
-        }
-    };
+                    implicitContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.Implicit, true)
+                            .authenticator("test")
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .build();
+                }
+            };
 
     /**
      * The harness under test.

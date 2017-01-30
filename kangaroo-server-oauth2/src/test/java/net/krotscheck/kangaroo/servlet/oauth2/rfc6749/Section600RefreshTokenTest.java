@@ -54,37 +54,38 @@ public final class Section600RefreshTokenTest
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .scope("debug2")
-                    .role("test", new String[]{"debug", "debug2"})
-                    .client(ClientType.AuthorizationGrant)
-                    .authenticator("debug")
-                    .user()
-                    .identity("test_identity_1")
-                    .build();
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .scope("debug2")
+                            .role("test", new String[]{"debug", "debug2"})
+                            .client(ClientType.AuthorizationGrant)
+                            .authenticator("debug")
+                            .user()
+                            .identity("test_identity_1")
+                            .build();
 
-            authContext = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .scope("debug2")
-                    .role("test", new String[]{"debug", "debug2"})
-                    .client(ClientType.OwnerCredentials, true)
-                    .authenticator("debug")
-                    .user()
-                    .identity("test_identity_2")
-                    .build();
+                    authContext = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .scope("debug2")
+                            .role("test", new String[]{"debug", "debug2"})
+                            .client(ClientType.OwnerCredentials, true)
+                            .authenticator("debug")
+                            .user()
+                            .identity("test_identity_2")
+                            .build();
 
-            authHeader = HttpUtil.authHeaderBasic(
-                    authContext.getClient().getId(),
-                    authContext.getClient().getClientSecret());
-        }
-    };
+                    authHeader = HttpUtil.authHeaderBasic(
+                            authContext.getClient().getId(),
+                            authContext.getClient().getClientSecret());
+                }
+            };
 
     /**
      * The test context for a public application.

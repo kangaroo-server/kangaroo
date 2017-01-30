@@ -56,20 +56,21 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.OwnerCredentials)
-                    .authenticator("password")
-                    .user()
-                    .login("login", "password")
-                    .build();
-        }
-    };
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.OwnerCredentials)
+                            .authenticator("password")
+                            .user()
+                            .login("login", "password")
+                            .build();
+                }
+            };
 
     /**
      * The environment set up for this test suite.
