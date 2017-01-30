@@ -58,81 +58,82 @@ public final class Section410AuthorizationCodeGrantTest
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .scope("debug1")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.AuthorizationGrant)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-            bareContext = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .client(ClientType.AuthorizationGrant)
-                    .authenticator("test")
-                    .build();
-            noScopeRoleContext = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{})
-                    .client(ClientType.AuthorizationGrant)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-            noUserRoleContext = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .client(ClientType.AuthorizationGrant)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-            authContext = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.AuthorizationGrant, true)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .redirect("http://redirect.example.com/redirect")
-                    .user()
-                    .identity("remote_identity")
-                    .build();
-            noauthContext = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.AuthorizationGrant)
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-            misconfiguredAuthContext = ApplicationBuilder
-                    .newApplication(session)
-                    .client(ClientType.AuthorizationGrant)
-                    .authenticator("foo")
-                    .redirect("http://valid.example.com/redirect")
-                    .scope("debug")
-                    .build();
-            invalidClientContext = ApplicationBuilder
-                    .newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.Implicit)
-                    .authenticator("foo")
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .scope("debug1")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.AuthorizationGrant)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                    bareContext = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .client(ClientType.AuthorizationGrant)
+                            .authenticator("test")
+                            .build();
+                    noScopeRoleContext = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{})
+                            .client(ClientType.AuthorizationGrant)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                    noUserRoleContext = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .client(ClientType.AuthorizationGrant)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                    authContext = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.AuthorizationGrant, true)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .redirect("http://redirect.example.com/redirect")
+                            .user()
+                            .identity("remote_identity")
+                            .build();
+                    noauthContext = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.AuthorizationGrant)
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                    misconfiguredAuthContext = ApplicationBuilder
+                            .newApplication(session)
+                            .client(ClientType.AuthorizationGrant)
+                            .authenticator("foo")
+                            .redirect("http://valid.example.com/redirect")
+                            .scope("debug")
+                            .build();
+                    invalidClientContext = ApplicationBuilder
+                            .newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.Implicit)
+                            .authenticator("foo")
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
 
-            authHeader = HttpUtil.authHeaderBasic(
-                    authContext.getClient().getId(),
-                    authContext.getClient().getClientSecret());
-        }
-    };
+                    authHeader = HttpUtil.authHeaderBasic(
+                            authContext.getClient().getId(),
+                            authContext.getClient().getClientSecret());
+                }
+            };
 
     /**
      * The test context for a regular application.

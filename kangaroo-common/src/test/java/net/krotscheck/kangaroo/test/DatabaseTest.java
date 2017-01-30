@@ -18,12 +18,16 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
+import net.krotscheck.kangaroo.test.rule.HibernateTestResource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.rules.RuleChain;
+import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 
 /**
@@ -43,16 +47,41 @@ public abstract class DatabaseTest {
     /**
      * The hibernate test rule. Private, so it can be wrapped below.
      */
-    private static final HibernateResource HIBERNATE_RESOURCE =
+    public static final HibernateResource HIBERNATE_RESOURCE =
             new HibernateResource();
 
     /**
      * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
-    public static final TestRule RULES = RuleChain
+    public static final TestRule CLASS_RULES = RuleChain
             .outerRule(DATABASE_RESOURCE)
             .around(HIBERNATE_RESOURCE);
+
+    /**
+     * The hibernate test rule. Private, so it can be wrapped below.
+     */
+    private final HibernateTestResource hibernate =
+            new HibernateTestResource(HIBERNATE_RESOURCE);
+
+    /**
+     * Make the test name available during a test.
+     */
+    private final TestName testName = new TestName();
+
+    /**
+     * Make the # of active DB sessions available in every test.
+     */
+    private final ActiveSessions sessionCount = new ActiveSessions();
+
+    /**
+     * Ensure that a JDNI resource is set up for this suite.
+     */
+    @Rule
+    public final TestRule instanceRules = RuleChain
+            .outerRule(testName)
+            .around(sessionCount)
+            .around(hibernate);
 
     /**
      * Create and return a hibernate session for the test database.
@@ -60,7 +89,7 @@ public abstract class DatabaseTest {
      * @return The constructed session.
      */
     public final Session getSession() {
-        return HIBERNATE_RESOURCE.getSession();
+        return hibernate.getSession();
     }
 
     /**

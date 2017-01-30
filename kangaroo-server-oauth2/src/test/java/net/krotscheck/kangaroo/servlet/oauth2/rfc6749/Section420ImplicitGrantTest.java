@@ -55,51 +55,52 @@ public final class Section420ImplicitGrantTest
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.Implicit)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-            twoRedirectContext = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.Implicit)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .redirect("http://other.example.com/redirect")
-                    .build();
-            bareContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.Implicit)
-                    .authenticator("test")
-                    .build();
-            noRoleContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.Implicit)
-                    .authenticator("test")
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-            roleNoScopeContext = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.Implicit)
-                    .authenticator("test")
-                    .scope("debug")
-                    .redirect("http://valid.example.com/redirect")
-                    .role("test", new String[]{})
-                    .build();
-            noauthContext = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .role("test", new String[]{"debug"})
-                    .client(ClientType.Implicit)
-                    .redirect("http://valid.example.com/redirect")
-                    .build();
-        }
-    };
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.Implicit)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                    twoRedirectContext = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.Implicit)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .redirect("http://other.example.com/redirect")
+                            .build();
+                    bareContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.Implicit)
+                            .authenticator("test")
+                            .build();
+                    noRoleContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.Implicit)
+                            .authenticator("test")
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                    roleNoScopeContext = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.Implicit)
+                            .authenticator("test")
+                            .scope("debug")
+                            .redirect("http://valid.example.com/redirect")
+                            .role("test", new String[]{})
+                            .build();
+                    noauthContext = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .role("test", new String[]{"debug"})
+                            .client(ClientType.Implicit)
+                            .redirect("http://valid.example.com/redirect")
+                            .build();
+                }
+            };
 
     /**
      * The environment context for the regular client.

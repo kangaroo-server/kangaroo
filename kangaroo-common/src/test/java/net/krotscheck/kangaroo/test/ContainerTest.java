@@ -21,6 +21,7 @@ package net.krotscheck.kangaroo.test;
 import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
+import net.krotscheck.kangaroo.test.rule.HibernateTestResource;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -28,8 +29,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -71,23 +70,24 @@ public abstract class ContainerTest extends KangarooJerseyTest {
                     HttpStatus.SC_MOVED_TEMPORARILY);
 
     /**
-     * The database test rule. Private, so it can be wrapped below.
+     * The hibernate rule, explicitly created so we can reference it later.
      */
-    private static final DatabaseResource DATABASE_RESOURCE =
-            new DatabaseResource();
+    public static final HibernateResource HIBERNATE_RESOURCE =
+            new HibernateResource();
 
     /**
      * Ensure that a JDNI resource is set up for this suite.
      */
     @ClassRule
     public static final TestRule CLASS_RULES = RuleChain
-            .outerRule(DATABASE_RESOURCE);
+            .outerRule(new DatabaseResource())
+            .around(HIBERNATE_RESOURCE);
 
     /**
      * The hibernate test rule. Private, so it can be wrapped below.
      */
-    private final HibernateResource hibernateResource =
-            new HibernateResource();
+    private final HibernateTestResource hibernate =
+            new HibernateTestResource(HIBERNATE_RESOURCE);
 
     /**
      * Make the test name available during a test.
@@ -105,28 +105,8 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     @Rule
     public final TestRule instanceRules = RuleChain
             .outerRule(testName)
-            .around(hibernateResource)
-            .around(sessionCount);
-
-    /**
-     * Mark the # of sessions that exist.
-     */
-    @Before
-    public void markSessionCount() {
-        sessionCount.mark();
-    }
-
-    /**
-     * Ensure that all sessions have been cleaned up.
-     */
-    @After
-    public final void enforceSessionCount() {
-        String className = this.getClass().getSimpleName();
-        String methodName = this.testName.getMethodName();
-        String message = String.format("Zombie DB Sessions detected in %s.%s",
-                className, methodName);
-        Assert.assertFalse(message, sessionCount.check());
-    }
+            .around(sessionCount)
+            .around(hibernate);
 
     /**
      * Log out the test name.
@@ -137,21 +117,21 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     }
 
     /**
-     * Create and return a hibernate session for the test database.
-     *
-     * @return The constructed session.
-     */
-    public final Session getSession() {
-        return hibernateResource.getSession();
-    }
-
-    /**
      * Create and return a hibernate session factory the test database.
      *
      * @return The session factory
      */
     public final SessionFactory getSessionFactory() {
-        return hibernateResource.getSessionFactory();
+        return HIBERNATE_RESOURCE.getSessionFactory();
+    }
+
+    /**
+     * Create and return a hibernate session for the test database.
+     *
+     * @return The constructed session.
+     */
+    public final Session getSession() {
+        return hibernate.getSession();
     }
 
     /**
@@ -160,7 +140,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      * @return The session factory
      */
     public final SearchFactory getSearchFactory() {
-        return hibernateResource.getSearchFactory();
+        return hibernate.getSearchFactory();
     }
 
     /**
@@ -169,7 +149,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      * @return The session factory
      */
     public final FullTextSession getFullTextSession() {
-        return hibernateResource.getFullTextSession();
+        return hibernate.getFullTextSession();
     }
 
     /**
