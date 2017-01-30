@@ -55,25 +55,26 @@ public final class Section440ClientCredentialsTest
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .client(ClientType.ClientCredentials, false)
-                    .build();
-            authContext = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .client(ClientType.ClientCredentials, true)
-                    .build();
-            authHeader = HttpUtil.authHeaderBasic(
-                    authContext.getClient().getId(),
-                    authContext.getClient().getClientSecret());
-        }
-    };
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .client(ClientType.ClientCredentials, false)
+                            .build();
+                    authContext = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .client(ClientType.ClientCredentials, true)
+                            .build();
+                    authHeader = HttpUtil.authHeaderBasic(
+                            authContext.getClient().getId(),
+                            authContext.getClient().getClientSecret());
+                }
+            };
 
     /**
      * Generic context.

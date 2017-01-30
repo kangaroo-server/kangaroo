@@ -22,14 +22,9 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.service.ServiceRegistry;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A rule which, by extension, can act as a test data loader for any test.
@@ -39,10 +34,18 @@ import org.slf4j.LoggerFactory;
 public abstract class TestDataResource implements TestRule {
 
     /**
-     * Logger instance.
+     * The source of our hibernate session factory.
      */
-    private static Logger logger =
-            LoggerFactory.getLogger(TestDataResource.class);
+    private final HibernateResource factoryProvider;
+
+    /**
+     * Create a new instance of the test data resource.
+     *
+     * @param factoryProvider The session factory provider.
+     */
+    public TestDataResource(final HibernateResource factoryProvider) {
+        this.factoryProvider = factoryProvider;
+    }
 
     /**
      * Modifies the method-running {@link Statement} to implement this
@@ -62,8 +65,8 @@ public abstract class TestDataResource implements TestRule {
             @Override
             public void evaluate() throws Throwable {
 
-                try (SessionFactory f = buildSessionFactory();
-                     Session s = f.openSession()) {
+                SessionFactory factory = factoryProvider.getSessionFactory();
+                try (Session s = factory.openSession()) {
                     loadTestData(s);
                     try {
                         base.evaluate();
@@ -73,23 +76,6 @@ public abstract class TestDataResource implements TestRule {
                 }
             }
         };
-    }
-
-    /**
-     * Create a session factory for the database.
-     */
-    private SessionFactory buildSessionFactory() {
-        // Create the session factory.
-        logger.debug("Creating ServiceRegistry");
-        ServiceRegistry registry =
-                new StandardServiceRegistryBuilder()
-                        .configure()
-                        .applySettings(System.getProperties())
-                        .build();
-        logger.debug("Creating SessionFactory");
-        return new MetadataSources(registry)
-                .buildMetadata()
-                .buildSessionFactory();
     }
 
 

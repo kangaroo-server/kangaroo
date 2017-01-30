@@ -55,32 +55,33 @@ public final class Section430OwnerPasswordTest
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        protected void loadTestData(final Session session) {
-            builder = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .role("debug", new String[]{"debug"})
-                    .client(ClientType.OwnerCredentials)
-                    .authenticator("password")
-                    .user()
-                    .login(username, password)
-                    .build();
-            authBuilder = ApplicationBuilder.newApplication(session)
-                    .scope("debug")
-                    .role("debug", new String[]{"debug"})
-                    .client(ClientType.OwnerCredentials, true)
-                    .authenticator("password")
-                    .user()
-                    .login(username, password)
-                    .build();
-            authHeader = HttpUtil.authHeaderBasic(
-                    authBuilder.getClient().getId(),
-                    authBuilder.getClient().getClientSecret());
-        }
-    };
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                protected void loadTestData(final Session session) {
+                    builder = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .role("debug", new String[]{"debug"})
+                            .client(ClientType.OwnerCredentials)
+                            .authenticator("password")
+                            .user()
+                            .login(username, password)
+                            .build();
+                    authBuilder = ApplicationBuilder.newApplication(session)
+                            .scope("debug")
+                            .role("debug", new String[]{"debug"})
+                            .client(ClientType.OwnerCredentials, true)
+                            .authenticator("password")
+                            .user()
+                            .login(username, password)
+                            .build();
+                    authHeader = HttpUtil.authHeaderBasic(
+                            authBuilder.getClient().getId(),
+                            authBuilder.getClient().getClientSecret());
+                }
+            };
 
     /**
      * User name used for valid requests.

@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.test.rule;
 
 import net.krotscheck.kangaroo.test.TestConfig;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.Assert;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -60,7 +61,7 @@ public final class ActiveSessions implements TestRule {
     /**
      * Mark the current number of active sessions.
      */
-    public void mark() {
+    private void mark() {
         initialSessions = getActiveSessions();
     }
 
@@ -70,8 +71,9 @@ public final class ActiveSessions implements TestRule {
      *
      * @return Whether there are extra, lingering sessions.
      */
-    public Boolean check() {
-        List<Map<String, String>> lingeringSessions = getActiveSessions()
+    private Boolean check() {
+        List<Map<String, String>> currentSessions = getActiveSessions();
+        List<Map<String, String>> lingeringSessions = currentSessions
                 .stream()
                 .filter(row -> !initialSessions.contains(row))
                 .collect(Collectors.toList());
@@ -174,7 +176,10 @@ public final class ActiveSessions implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
+                mark();
                 base.evaluate();
+                Assert.assertFalse("Zombie DB Sessions Detected",
+                        check());
             }
         };
     }

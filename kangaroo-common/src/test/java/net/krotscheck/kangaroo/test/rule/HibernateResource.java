@@ -20,13 +20,8 @@ package net.krotscheck.kangaroo.test.rule;
 
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
 import net.krotscheck.kangaroo.test.rule.hibernate.TestDirectoryProvider;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.search.FullTextSession;
-import org.hibernate.search.Search;
-import org.hibernate.search.SearchFactory;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -35,8 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This JUnit Rule creates and maintains a set of Hibernate entities that
- * match the configuration settings for the application database itself.
+ * This JUnit Rule bootstraps hibernate so that it is bound to the correct
+ * testing database. It also provides a session factory, though it does not
+ * presume to create or destroy individual sessions or transactions.
  *
  * @author Michael Krotscheck
  */
@@ -57,48 +53,6 @@ public class HibernateResource implements TestRule {
      * Internal session factory, reconstructed for every test run.
      */
     private SessionFactory sessionFactory;
-
-    /**
-     * The last created session.
-     */
-    private Session session;
-
-    /**
-     * Search factory.
-     */
-    private SearchFactory searchFactory;
-
-    /**
-     * Fulltext session.
-     */
-    private FullTextSession fullTextSession;
-
-    /**
-     * Create and return a hibernate session for the test database.
-     *
-     * @return The constructed session.
-     */
-    public Session getSession() {
-        return session;
-    }
-
-    /**
-     * Retrieve the search factory for the test.
-     *
-     * @return The session factory
-     */
-    public final SearchFactory getSearchFactory() {
-        return searchFactory;
-    }
-
-    /**
-     * Retrieve the fulltext session for the test.
-     *
-     * @return The session factory
-     */
-    public final FullTextSession getFullTextSession() {
-        return fullTextSession;
-    }
 
     /**
      * Create and return a hibernate session factory the test database.
@@ -126,13 +80,13 @@ public class HibernateResource implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
-                overrideSettings();
+                initializeSearchIndexProvider();
                 createHibernateConnection();
                 try {
                     base.evaluate();
                 } finally {
                     closeHibernateConnection();
-                    clearSettings();
+                    resetSearchIndexProvider();
                 }
             }
         };
@@ -142,7 +96,7 @@ public class HibernateResource implements TestRule {
      * Override any settings automatically loaded from the hibernate
      * configuration file.
      */
-    private void overrideSettings() {
+    private void initializeSearchIndexProvider() {
         // Override the cache directory implementation setting for hibernate
         // search. This provider is essentially a RAMDirectory, except that
         // it can be accessed by all the different SessionFactories
@@ -157,7 +111,7 @@ public class HibernateResource implements TestRule {
     /**
      * Clear any settings we've previously set.
      */
-    private void clearSettings() {
+    private void resetSearchIndexProvider() {
         System.clearProperty("hibernate.search.default.directory_provider");
         System.clearProperty("hibernate.search.default.exclusive_index_use");
     }
@@ -166,21 +120,6 @@ public class HibernateResource implements TestRule {
      * Ensure that the hibernate connection is closed even if a test fails.
      */
     private void closeHibernateConnection() {
-        searchFactory = null;
-
-        if (fullTextSession.isOpen()) {
-            logger.debug("Closing FullTextSession");
-            fullTextSession.close();
-        }
-        fullTextSession = null;
-
-        // Clean any outstanding sessions.
-        if (session.isOpen()) {
-            logger.debug("Closing Session");
-            session.close();
-        }
-        session = null;
-
         if (!sessionFactory.isClosed()) {
             logger.debug("Closing SessionFactory");
             sessionFactory.close();
@@ -203,15 +142,5 @@ public class HibernateResource implements TestRule {
         sessionFactory = new MetadataSources(registry)
                 .buildMetadata()
                 .buildSessionFactory();
-        logger.debug("Opening Session");
-        session = sessionFactory.openSession();
-
-        logger.debug("Creating FullTextSession");
-        fullTextSession = Search.getFullTextSession(session);
-        searchFactory = fullTextSession.getSearchFactory();
-
-        // Force hibernate to grab a connection
-        Transaction t = session.beginTransaction();
-        t.rollback();
     }
 }

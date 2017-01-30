@@ -52,17 +52,18 @@ public final class TokenServiceTest extends ContainerTest {
      * Test data loading for this test.
      */
     @ClassRule
-    public static final TestRule TEST_DATA_RULE = new TestDataResource() {
-        /**
-         * Initialize the test data.
-         */
-        @Override
-        protected void loadTestData(final Session session) {
-            context = ApplicationBuilder.newApplication(session)
-                    .client(ClientType.ClientCredentials, true)
-                    .build();
-        }
-    };
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    context = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.ClientCredentials, true)
+                            .build();
+                }
+            };
 
     /**
      * Simple testing context.
