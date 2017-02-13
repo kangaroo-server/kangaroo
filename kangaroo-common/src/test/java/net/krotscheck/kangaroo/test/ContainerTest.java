@@ -59,7 +59,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     /**
      * Logger instance.
      */
-    private static Logger logger = LoggerFactory.getLogger(ContainerTest.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * A list of HTTP status codes that are valid for redirects.
