@@ -168,7 +168,7 @@ public final class ApplicationService extends AbstractService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getResource(@PathParam("id") final UUID id) {
         Application application = getSession().get(Application.class, id);
-        assertCanAccess(application, Scope.APPLICATION_ADMIN);
+        assertCanAccess(application, getAdminScope());
         return Response.ok(application).build();
     }
 
@@ -191,7 +191,7 @@ public final class ApplicationService extends AbstractService {
 
         // Only admins can change the owner.
         if (application.getOwner() != null) {
-            if (!getSecurityContext().isUserInRole(Scope.APPLICATION_ADMIN)
+            if (!getSecurityContext().isUserInRole(getAdminScope())
                     && !application.getOwner().equals(getCurrentUser())) {
                 throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
             }
@@ -231,7 +231,7 @@ public final class ApplicationService extends AbstractService {
         // Load the old instance.
         Application currentApp = s.get(Application.class, id);
 
-        assertCanAccess(currentApp, Scope.APPLICATION_ADMIN);
+        assertCanAccess(currentApp, getAdminScope());
 
         // Additional special case - we cannot modify the kangaroo app itself.
         if (currentApp.equals(getAdminApplication())) {
@@ -268,7 +268,7 @@ public final class ApplicationService extends AbstractService {
         Session s = getSession();
         Application a = s.get(Application.class, id);
 
-        assertCanAccess(a, Scope.APPLICATION_ADMIN);
+        assertCanAccess(a, getAdminScope());
 
         // Additional special case - we cannot delete the kangaroo app itself.
         if (a.equals(getAdminApplication())) {
