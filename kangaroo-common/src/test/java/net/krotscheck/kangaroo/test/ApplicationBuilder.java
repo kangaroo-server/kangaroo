@@ -607,7 +607,7 @@ public final class ApplicationBuilder {
         // Only non-client-credentials clients are associated with users.
         if (!context.token.getClient()
                 .getType().equals(ClientType.ClientCredentials)) {
-            context.token.setIdentity(context.userIdentity);
+            context.token.setIdentity(identity);
         }
 
         if (!StringUtils.isEmpty(redirect)) {
@@ -719,7 +719,7 @@ public final class ApplicationBuilder {
         }
         t2.commit();
 
-        return this.context;
+        return this.context.copy();
     }
 
     /**
