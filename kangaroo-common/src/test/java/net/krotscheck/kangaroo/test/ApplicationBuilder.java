@@ -190,25 +190,6 @@ public final class ApplicationBuilder {
             token = client.getTokens().get(0);
         }
 
-        // Evict everything.
-        session.evict(application);
-        session.evict(client);
-        for (ApplicationScope sScope : scopes.values()) {
-            session.evict(sScope);
-        }
-        if (authenticator != null) {
-            session.evict(authenticator);
-        }
-        if (role != null) {
-            session.evict(role);
-        }
-        if (userIdentity != null) {
-            session.evict(userIdentity);
-        }
-        if (token != null) {
-            session.evict(token);
-        }
-
         // We're done with the session, close the transaction.
         t.commit();
 
