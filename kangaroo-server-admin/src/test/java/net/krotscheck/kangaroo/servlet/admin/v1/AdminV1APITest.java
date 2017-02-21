@@ -17,19 +17,17 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1;
 
-import net.krotscheck.kangaroo.test.DContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
 import javax.ws.rs.core.Response;
 
 /**
  * Test for the admin API.
  */
-public final class AdminV1APITest extends DContainerTest {
+public final class AdminV1APITest extends ContainerTest {
 
     /**
      * Create a test instance of the application to test against.
@@ -39,16 +37,6 @@ public final class AdminV1APITest extends DContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         return new AdminV1API();
-    }
-
-    /**
-     * Load data fixtures for each test.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures() {
-        return null;
     }
 
     /**
