@@ -51,7 +51,7 @@ public final class ActiveSessions implements TestRule {
      * Logger instance.
      */
     private static Logger logger =
-            LoggerFactory.getLogger(DatabaseResource.class);
+            LoggerFactory.getLogger(ActiveSessions.class);
 
     /**
      * THe marked list of initial sessions.
