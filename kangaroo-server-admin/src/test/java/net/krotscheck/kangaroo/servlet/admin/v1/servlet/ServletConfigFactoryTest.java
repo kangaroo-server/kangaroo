@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
 import net.krotscheck.kangaroo.database.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory.Binder;
 import net.krotscheck.kangaroo.test.DatabaseTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Factory;
