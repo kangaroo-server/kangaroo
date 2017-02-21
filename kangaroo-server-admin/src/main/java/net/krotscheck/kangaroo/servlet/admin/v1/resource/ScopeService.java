@@ -221,7 +221,7 @@ public final class ScopeService extends AbstractService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getResource(@PathParam("id") final UUID id) {
         ApplicationScope scope = getSession().get(ApplicationScope.class, id);
-        assertCanAccess(scope, Scope.SCOPE_ADMIN);
+        assertCanAccess(scope, getAdminScope());
         return Response.ok(scope).build();
     }
 
@@ -247,7 +247,7 @@ public final class ScopeService extends AbstractService {
         }
 
         // Assert that we can create a scope in this application.
-        if (!getSecurityContext().isUserInRole(Scope.SCOPE_ADMIN)) {
+        if (!getSecurityContext().isUserInRole(getAdminScope())) {
             Application scopeApp =
                     getSession().get(Application.class,
                             scope.getApplication().getId());
@@ -290,7 +290,7 @@ public final class ScopeService extends AbstractService {
         // Load the old instance.
         ApplicationScope currentScope = s.get(ApplicationScope.class, id);
 
-        assertCanAccess(currentScope, Scope.SCOPE_ADMIN);
+        assertCanAccess(currentScope, getAdminScope());
 
         // Additional special case - we cannot modify the kangaroo app's scopes.
         if (currentScope.getApplication().equals(getAdminApplication())) {
@@ -327,7 +327,7 @@ public final class ScopeService extends AbstractService {
         Session s = getSession();
         ApplicationScope a = s.get(ApplicationScope.class, id);
 
-        assertCanAccess(a, Scope.SCOPE_ADMIN);
+        assertCanAccess(a, getAdminScope());
 
         // Additional special case - we cannot delete the kangaroo app itself.
         if (a.getApplication().equals(getAdminApplication())) {
