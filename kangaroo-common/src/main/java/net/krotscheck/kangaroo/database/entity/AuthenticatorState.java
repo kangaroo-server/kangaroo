@@ -49,13 +49,6 @@ import java.util.TreeMap;
 public final class AuthenticatorState extends AbstractEntity {
 
     /**
-     * Domain on which this is valid.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client", nullable = false, updatable = false)
-    private Client client;
-
-    /**
      * The authenticator for this state.
      */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -91,24 +84,6 @@ public final class AuthenticatorState extends AbstractEntity {
     @MapKey(name = "name")
     @SortNatural
     private SortedMap<String, ApplicationScope> clientScopes = new TreeMap<>();
-
-    /**
-     * Retrieve the client.
-     *
-     * @return This state's client.
-     */
-    public Client getClient() {
-        return client;
-    }
-
-    /**
-     * Set the client.
-     *
-     * @param client The client for this state.
-     */
-    public void setClient(final Client client) {
-        this.client = client;
-    }
 
     /**
      * Get the authenticator for this state.

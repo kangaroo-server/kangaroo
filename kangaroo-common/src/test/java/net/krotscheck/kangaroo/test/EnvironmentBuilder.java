@@ -812,7 +812,6 @@ public final class EnvironmentBuilder {
      */
     public EnvironmentBuilder authenticatorState() {
         authenticatorState = new AuthenticatorState();
-        authenticatorState.setClient(getClient());
         authenticatorState.setAuthenticator(getAuthenticator());
         authenticatorState.setClientRedirect(redirectUri);
         persist(authenticatorState);

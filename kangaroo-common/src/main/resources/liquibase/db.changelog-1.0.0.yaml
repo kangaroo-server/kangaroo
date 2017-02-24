@@ -555,11 +555,6 @@ databaseChangeLog:
                 name: modifiedDate
                 type: datetime
             - column:
-                name: client
-                type: BINARY(16)
-                constraints:
-                  nullable: false
-            - column:
                 name: authenticator
                 type: BINARY(16)
                 constraints:
@@ -589,14 +584,6 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: authenticators
-      - addForeignKeyConstraint:
-          baseColumnNames: client
-          baseTableName: authenticator_states
-          constraintName: fk_authenticator_states_clients
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: clients
 
       # An intermediate authenticator state must keep track of the requested
       # scopes.
