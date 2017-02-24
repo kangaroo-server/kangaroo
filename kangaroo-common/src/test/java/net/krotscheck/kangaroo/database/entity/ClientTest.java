@@ -149,21 +149,6 @@ public final class ClientTest {
     }
 
     /**
-     * Test get/set states list.
-     */
-    @Test
-    public void testGetSetStates() {
-        Client client = new Client();
-        List<AuthenticatorState> states = new ArrayList<>();
-        states.add(new AuthenticatorState());
-
-        Assert.assertEquals(0, client.getStates().size());
-        client.setStates(states);
-        Assert.assertEquals(states, client.getStates());
-        Assert.assertNotSame(states, client.getStates());
-    }
-
-    /**
      * Test get/set tokens list.
      */
     @Test
@@ -331,11 +316,6 @@ public final class ClientTest {
         token.setId(UUID.randomUUID());
         tokens.add(token);
 
-        List<AuthenticatorState> states = new ArrayList<>();
-        AuthenticatorState state = new AuthenticatorState();
-        state.setId(UUID.randomUUID());
-        states.add(state);
-
         Set<URI> referrers = new HashSet<>();
         referrers.add(new URI("https://example.com/oauth/foo?lol=cat#omg"));
         Set<URI> redirects = new HashSet<>();
@@ -359,7 +339,6 @@ public final class ClientTest {
 
         // These should not serialize.
         c.setTokens(tokens);
-        c.setStates(states);
 
         // De/serialize to json.
         ObjectMapper m = JacksonUtil.buildMapper();
@@ -390,7 +369,6 @@ public final class ClientTest {
                 c.getType().toString(),
                 node.get("type").asText());
         Assert.assertFalse(node.has("tokens"));
-        Assert.assertFalse(node.has("states"));
 
         // Extract the referrers
         ArrayNode referrerNode = (ArrayNode) node.get("referrers");

@@ -122,19 +122,6 @@ public final class Client extends AbstractEntity {
     private List<OAuthToken> tokens = new ArrayList<>();
 
     /**
-     * List of all authenticator states currently active.
-     */
-    @OneToMany(
-            fetch = FetchType.LAZY,
-            mappedBy = "client",
-            cascade = {CascadeType.REMOVE},
-            orphanRemoval = true
-    )
-    @JsonIgnore
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<AuthenticatorState> states = new ArrayList<>();
-
-    /**
      * Human recognizable name for this client.
      */
     @Basic(optional = false)
@@ -314,24 +301,6 @@ public final class Client extends AbstractEntity {
      */
     public void setTokens(final List<OAuthToken> tokens) {
         this.tokens = new ArrayList<>(tokens);
-    }
-
-    /**
-     * Get the list of currently active query states.
-     *
-     * @return The list of states.
-     */
-    public List<AuthenticatorState> getStates() {
-        return states;
-    }
-
-    /**
-     * Set the list of states.
-     *
-     * @param states The list of states.
-     */
-    public void setStates(final List<AuthenticatorState> states) {
-        this.states = new ArrayList<>(states);
     }
 
     /**
