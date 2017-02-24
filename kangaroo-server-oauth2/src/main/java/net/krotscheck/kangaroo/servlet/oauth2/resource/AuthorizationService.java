@@ -161,7 +161,6 @@ public final class AuthorizationService {
 
             // Create the intermediate authorization store.
             AuthenticatorState callbackState = new AuthenticatorState();
-            callbackState.setClient(client);
             callbackState.setClientState(state);
             callbackState.setClientScopes(scopes);
             callbackState.setClientRedirect(redirect);
@@ -208,6 +207,7 @@ public final class AuthorizationService {
             final String state) {
         // Resolve various necessary components.
         AuthenticatorState s = getAuthenticatorState(state);
+        Client c = s.getAuthenticator().getClient();
 
         try {
             IAuthenticator a = getAuthenticator(s);
@@ -216,9 +216,9 @@ public final class AuthorizationService {
 
             // Since this code won't execute without a valid state, we should be
             // safe to do a simple if/else here. Except we're paranoid.
-            if (s.getClient().getType() == ClientType.AuthorizationGrant) {
+            if (c.getType() == ClientType.AuthorizationGrant) {
                 return handleGrantResponse(s, i);
-            } else if (s.getClient().getType() == ClientType.Implicit) {
+            } else if (c.getType() == ClientType.Implicit) {
                 return handleImplicitResponse(s, i);
             } else {
                 throw new InvalidRequestException();
@@ -232,7 +232,7 @@ public final class AuthorizationService {
                             e.getErrorCode(),
                             s.getClientRedirect());
             return builder.build(ClientType.Implicit
-                    .equals(s.getClient().getType()));
+                    .equals(c.getType()));
         }
     }
 
@@ -247,12 +247,13 @@ public final class AuthorizationService {
                                             final UserIdentity i) {
         // Build the token.
         OAuthToken t = new OAuthToken();
-        t.setClient(s.getClient());
+        t.setClient(s.getAuthenticator().getClient());
         t.setIdentity(i);
         t.setScopes(ValidationUtil
                 .validateScope(s.getClientScopes(), i.getUser().getRole()));
         t.setTokenType(OAuthTokenType.Bearer);
-        t.setExpiresIn(s.getClient().getAccessTokenExpireIn());
+        t.setExpiresIn(s.getAuthenticator().getClient()
+                .getAccessTokenExpireIn());
 
         // Persist and get an ID.
         session.save(t);
@@ -297,12 +298,13 @@ public final class AuthorizationService {
                                          final UserIdentity i) {
         // Build the token.
         OAuthToken t = new OAuthToken();
-        t.setClient(s.getClient());
+        t.setClient(s.getAuthenticator().getClient());
         t.setIdentity(i);
         t.setScopes(ValidationUtil
                 .validateScope(s.getClientScopes(), i.getUser().getRole()));
         t.setTokenType(OAuthTokenType.Authorization);
-        t.setExpiresIn(s.getClient().getAuthorizationCodeExpiresIn());
+        t.setExpiresIn(s.getAuthenticator().getClient()
+                .getAuthorizationCodeExpiresIn());
         t.setRedirect(s.getClientRedirect());
 
         // Persist and get an ID.

@@ -180,9 +180,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
     @Test
     public void testCallbackUnimplementedAuthenticator() throws Exception {
 
-
         AuthenticatorState state = new AuthenticatorState();
-        state.setClient(context.getClient());
         state.setAuthenticator(context.getAuthenticator());
         state.setClientRedirect(new URI("http://valid.example.com/redirect"));
 

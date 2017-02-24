@@ -53,19 +53,6 @@ public final class AuthenticatorStateTest {
     }
 
     /**
-     * Assert that we can get and set client.
-     */
-    @Test
-    public void testGetSetClient() {
-        AuthenticatorState token = new AuthenticatorState();
-        Client client = new Client();
-
-        Assert.assertNull(token.getClient());
-        token.setClient(client);
-        Assert.assertEquals(client, token.getClient());
-    }
-
-    /**
      * Assert that we can get and set client state.
      */
     @Test

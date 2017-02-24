@@ -657,7 +657,6 @@ public final class ApplicationBuilder {
     public ApplicationBuilder authenticatorState() {
         context.authenticatorState = new AuthenticatorState();
         context.authenticatorState.setClientRedirect(context.redirectUri);
-        context.authenticatorState.setClient(context.client);
         context.authenticatorState.setAuthenticator(context.authenticator);
 
         persist(context.authenticatorState);
