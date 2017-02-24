@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class ScopeServiceSearchTest
-        extends AbstractServiceSearchTest<ApplicationScope> {
+        extends DAbstractServiceSearchTest<ApplicationScope> {
 
     /**
      * Create a new instance of this parameterized test.

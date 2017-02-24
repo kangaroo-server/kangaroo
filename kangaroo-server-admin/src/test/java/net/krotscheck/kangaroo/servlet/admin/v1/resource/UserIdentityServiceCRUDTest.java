@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 public final class UserIdentityServiceCRUDTest
-        extends AbstractServiceCRUDTest<UserIdentity> {
+        extends DAbstractServiceCRUDTest<UserIdentity> {
 
     /**
      * Create a new instance of this parameterized test.

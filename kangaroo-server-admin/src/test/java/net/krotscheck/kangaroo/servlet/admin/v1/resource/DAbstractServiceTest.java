@@ -48,7 +48,8 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-public final class AbstractServiceTest extends AbstractResourceTest {
+@Deprecated
+public final class DAbstractServiceTest extends DAbstractResourceTest {
 
     /**
      * The mock security context constructed for this test.

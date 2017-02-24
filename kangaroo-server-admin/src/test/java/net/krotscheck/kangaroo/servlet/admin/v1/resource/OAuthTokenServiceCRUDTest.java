@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 public final class OAuthTokenServiceCRUDTest
-        extends AbstractServiceCRUDTest<OAuthToken> {
+        extends DAbstractServiceCRUDTest<OAuthToken> {
 
     /**
      * Create a new instance of this parameterized test.

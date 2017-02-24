@@ -42,7 +42,7 @@ import java.util.Collection;
  */
 @RunWith(Parameterized.class)
 public final class ScopeServiceCRUDTest
-        extends AbstractServiceCRUDTest<ApplicationScope> {
+        extends DAbstractServiceCRUDTest<ApplicationScope> {
 
     /**
      * Create a new instance of this parameterized test.

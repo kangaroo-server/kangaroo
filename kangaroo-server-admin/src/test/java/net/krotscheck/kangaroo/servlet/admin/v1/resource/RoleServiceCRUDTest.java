@@ -30,9 +30,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.Assert;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -48,7 +46,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 public final class RoleServiceCRUDTest
-        extends AbstractServiceCRUDTest<Role> {
+        extends DAbstractServiceCRUDTest<Role> {
 
     /**
      * Create a new instance of this parameterized test.

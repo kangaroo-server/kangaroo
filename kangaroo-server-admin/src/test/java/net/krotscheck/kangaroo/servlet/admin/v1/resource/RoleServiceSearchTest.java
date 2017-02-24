@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class RoleServiceSearchTest
-        extends AbstractServiceSearchTest<Role> {
+        extends DAbstractServiceSearchTest<Role> {
 
     /**
      * Convenience generic type for response decoding.

@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class UserServiceBrowseTest
-        extends AbstractServiceBrowseTest<User> {
+        extends DAbstractServiceBrowseTest<User> {
 
     /**
      * Generic type declaration for list decoding.
