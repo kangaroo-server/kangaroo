@@ -87,6 +87,15 @@ public abstract class TestDataResource implements TestRule {
     protected abstract void loadTestData(Session session);
 
     /**
+     * Return the session factory associated with this resource.
+     *
+     * @return The driving session factory, provided by the constructor.
+     */
+    protected final SessionFactory getSessionFactory() {
+        return factoryProvider.getSessionFactory();
+    }
+
+    /**
      * Wipe the database clean.
      *
      * @param session The hibernate session to use to persist our data.
