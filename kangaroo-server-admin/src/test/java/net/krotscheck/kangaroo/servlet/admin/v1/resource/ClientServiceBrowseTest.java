@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,8 +113,9 @@ public final class ClientServiceBrowseTest
     protected List<Client> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.

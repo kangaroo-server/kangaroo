@@ -19,14 +19,17 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
+import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
-import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.test.LuceneTestUtil;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -34,7 +37,6 @@ import org.junit.runners.Parameterized;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +70,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
     private final ClientType clientType;
 
     /**
+     * The client under test.
+     */
+    private Client client;
+
+    /**
      * Whether to create a user, or fall back on an existing user. In most
      * cases, this will fall back to the owner of the admin scope.
      */
@@ -77,11 +84,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
      * The token issued to the admin app, with appropriate credentials.
      */
     private OAuthToken adminAppToken;
-
-    /**
-     * An additional application context used for testing.
-     */
-    private EnvironmentBuilder otherApp;
 
     /**
      * Create a new instance of this parameterized test.
@@ -99,6 +101,37 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         this.tokenScope = tokenScope;
         this.clientType = clientType;
         this.createUser = createUser;
+    }
+
+    /**
+     * Load data fixtures for each test. Here we're creating two applications
+     * with different owners, using the kangaroo default scopes so we have
+     * some good cross-app name duplication.
+     *
+     * @throws Exception An exception that indicates a failed fixture load.
+     */
+    @Before
+    public final void configureData() throws Exception {
+        // Get the admin app and create users based on the configured
+        // parameters.
+        ApplicationContext context = getAdminContext()
+                .getBuilder()
+                .client(clientType)
+                .build();
+        client = context.getClient();
+
+        User owner = context.getOwner();
+        if (createUser) {
+            // Switch to the other user.
+            owner = getSecondaryContext().getOwner();
+        }
+        UserIdentity identity = owner.getIdentities().iterator().next();
+
+        adminAppToken = context
+                .getBuilder()
+                .bearerToken(client, identity, tokenScope)
+                .build()
+                .getToken();
     }
 
     /**
@@ -138,10 +171,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
      * @return The list of entities.
      */
     protected final List<T> getOwnedEntities(final OAuthToken token) {
-        if (token.getIdentity() == null) {
+        OAuthToken attachedToken = getAttached(token);
+        if (attachedToken.getIdentity() == null) {
             return Collections.emptyList();
         } else {
-            return getOwnedEntities(getAdminToken().getIdentity().getUser());
+            return getOwnedEntities(attachedToken.getIdentity().getUser());
         }
     }
 
@@ -196,15 +230,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
     }
 
     /**
-     * Return the second application context (not the admin context).
-     *
-     * @return The secondary context in this test.
-     */
-    protected final EnvironmentBuilder getSecondaryContext() {
-        return otherApp;
-    }
-
-    /**
      * Return the oauth token for the primary application.
      *
      * @return The application token.
@@ -219,7 +244,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
      * @return The application token.
      */
     protected final OAuthToken getSecondaryToken() {
-        return otherApp.getToken();
+        return getSecondaryContext().getToken();
     }
 
     /**
@@ -233,133 +258,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
     protected final Boolean isLimitedByClientCredentials() {
         return clientType.equals(ClientType.ClientCredentials)
                 && tokenScope.equals(getRegularScope());
-    }
-
-    /**
-     * Load data fixtures for each test. Here we're creating two applications
-     * with different owners, using the kangaroo default scopes so we have
-     * some good cross-app name duplication.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public final List<EnvironmentBuilder> fixtures(
-            final EnvironmentBuilder adminApp) throws Exception {
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-
-        // Get the admin app and create users based on the configured
-        // parameters.
-        EnvironmentBuilder context = getAdminContext().client(clientType);
-        if (createUser) {
-            context.user().identity();
-        }
-        adminAppToken = context.bearerToken(tokenScope).getToken();
-
-        // Create a second app, owned by another user.
-        otherApp = new EnvironmentBuilder(getSession())
-                .owner(context.getUser())
-                .scopes(Scope.allScopes());
-
-        // Add some data for scopes
-        context.scope("Single Scope");
-        context.scope("Second Scope - many");
-        context.scope("Third Scope - many");
-        context.scope("Fourth Scope - many");
-        otherApp.scope("Single Scope");
-        otherApp.scope("Second Scope - many");
-        otherApp.scope("Third Scope - many");
-        otherApp.scope("Fourth Scope - many");
-
-        // Add some test data for clients
-        context.client(ClientType.ClientCredentials, "Single client");
-        context.authenticator("Single authenticator");
-        context.client(ClientType.ClientCredentials, "Second client - many");
-        context.authenticator("Second authenticator - many");
-        context.client(ClientType.Implicit, "Third client - many");
-        context.authenticator("Third authenticator - many");
-        context.client(ClientType.AuthorizationGrant, "Fourth client - many");
-        context.authenticator("Fourth authenticator - many");
-        otherApp.client(ClientType.ClientCredentials, "Single client");
-        otherApp.authenticator("Single authenticator");
-        otherApp.client(ClientType.ClientCredentials, "Second client - many");
-        otherApp.authenticator("Second authenticator - many");
-        otherApp.client(ClientType.Implicit, "Third client - many");
-        otherApp.authenticator("Third authenticator - many");
-        otherApp.client(ClientType.AuthorizationGrant, "Fourth client - many");
-        otherApp.authenticator("Fourth authenticator - many");
-
-        // Add some data for roles
-        context.role("Single Role");
-        context.role("Second Role - many");
-        context.role("Third Role - many");
-        context.role("Fourth Role - many");
-        otherApp.role("Single Role");
-        otherApp.role("Second Role - many");
-        otherApp.role("Third Role - many");
-        otherApp.role("Fourth Role - many");
-
-        // Create a whole lot of applications to run some tests against.
-        for (int i = 0; i < 10; i++) {
-            String appName = String.format("Application %s- %s", i, i % 2 == 0
-                    ? "many" : "frown");
-            fixtures.add(new EnvironmentBuilder(getSession(), appName)
-                    .owner(adminApp.getOwner()));
-            fixtures.add(new EnvironmentBuilder(getSession(), appName)
-                    .owner(adminApp.getUser()));
-        }
-        fixtures.add(new EnvironmentBuilder(getSession(), "Single")
-                .owner(adminApp.getOwner()));
-        fixtures.add(new EnvironmentBuilder(getSession(), "Single")
-                .owner(adminApp.getUser()));
-
-        // Create some users
-        context.user()
-                .identity()
-                .claim("name", "Single User");
-        context.user()
-                .identity()
-                .claim("name", "Second User - many");
-        context.user()
-                .identity()
-                .claim("name", "Third User - many");
-        context.user()
-                .identity()
-                .claim("name", "Fourth User - many");
-        otherApp.user()
-                .identity()
-                .claim("name", "Single User");
-        otherApp.user()
-                .identity()
-                .claim("name", "Second User - many");
-        otherApp.user()
-                .identity()
-                .claim("name", "Third User - many");
-        otherApp.user()
-                .identity()
-                .claim("name", "Fourth User - many");
-
-        // Create a bunch of tokens
-        context.redirect("http://single.token.example.com/")
-                .authToken();
-        context.redirect("http://second.token.example.com/many")
-                .authToken();
-        context.redirect("http://third.token.example.com/many")
-                .authToken();
-        context.redirect("http://fourth.token.example.com/many")
-                .authToken();
-        otherApp.redirect("http://single.token.example.com/")
-                .authToken();
-        otherApp.redirect("http://second.token.example.com/many")
-                .authToken();
-        otherApp.redirect("http://third.token.example.com/many")
-                .authToken();
-        otherApp.redirect("http://fourth.token.example.com/many")
-                .authToken();
-
-        fixtures.add(otherApp);
-
-        return fixtures;
     }
 
     /**
@@ -527,7 +425,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         User secondaryOwner = getSecondaryContext().getOwner();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("owner", getAdminContext().getOwner().getId().toString());
+        params.put("owner", secondaryOwner.getId().toString());
 
         // Determine result set.
         List<T> searchResults = getSearchResults(query);
@@ -551,11 +449,12 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
-        } else if (!isAccessible(secondaryOwner, adminToken)) {
+        } else if (!getAdminScope().equals(tokenScope)
+                && !adminToken.getIdentity().getUser().equals(secondaryOwner)) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<T> results = r.readEntity(getListType());
             Assert.assertEquals(200, r.getStatus());
@@ -621,7 +520,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
 
         Response r = search(params, token);
 
-        if (token.getScopes().keySet().contains(getAdminScope())) {
+        if (tokenScope.equals(getAdminScope())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),

@@ -93,8 +93,9 @@ public final class RoleServiceSearchTest
     protected List<Role> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -117,7 +118,7 @@ public final class RoleServiceSearchTest
     @Override
     protected List<Role> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getRoles().stream())
                 .collect(Collectors.toList());
@@ -240,6 +241,8 @@ public final class RoleServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(a, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             Assert.assertTrue(expectedTotal > 1);
 

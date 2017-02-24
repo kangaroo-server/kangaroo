@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -84,8 +85,9 @@ public final class ApplicationServiceBrowseTest
     protected List<Application> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -103,7 +105,7 @@ public final class ApplicationServiceBrowseTest
      */
     @Override
     protected List<Application> getOwnedEntities(final User owner) {
-        return owner.getApplications();
+        return getAttached(owner).getApplications();
     }
 
     /**
@@ -146,12 +148,12 @@ public final class ApplicationServiceBrowseTest
     @Parameterized.Parameters
     public static Collection parameters() {
         return Arrays.asList(
-                new Object[] {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION_ADMIN,
                         false
                 },
-                new Object[] {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION,
                         false
@@ -161,7 +163,7 @@ public final class ApplicationServiceBrowseTest
                         Scope.APPLICATION_ADMIN,
                         true
                 },
-                new Object[] {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION,
                         true
@@ -171,7 +173,7 @@ public final class ApplicationServiceBrowseTest
                         Scope.APPLICATION_ADMIN,
                         false
                 },
-                new Object[]  {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.APPLICATION,
                         false
