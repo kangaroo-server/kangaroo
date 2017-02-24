@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class AuthenticatorServiceSearchTest
-        extends AbstractServiceSearchTest<Authenticator> {
+        extends DAbstractServiceSearchTest<Authenticator> {
 
     /**
      * Convenience generic type for response decoding.

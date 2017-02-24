@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class UserIdentityServiceBrowseTest
-        extends AbstractServiceBrowseTest<UserIdentity> {
+        extends DAbstractServiceBrowseTest<UserIdentity> {
 
     /**
      * Generic type declaration for list decoding.

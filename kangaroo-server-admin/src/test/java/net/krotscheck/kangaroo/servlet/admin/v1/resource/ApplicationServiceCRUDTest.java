@@ -43,7 +43,7 @@ import java.util.UUID;
  */
 @RunWith(Parameterized.class)
 public final class ApplicationServiceCRUDTest
-        extends AbstractServiceCRUDTest<Application> {
+        extends DAbstractServiceCRUDTest<Application> {
 
     /**
      * Create a new instance of this parameterized test.

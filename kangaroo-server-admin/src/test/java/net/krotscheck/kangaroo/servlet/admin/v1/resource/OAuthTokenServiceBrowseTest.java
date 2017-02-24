@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class OAuthTokenServiceBrowseTest
-        extends AbstractServiceBrowseTest<OAuthToken> {
+        extends DAbstractServiceBrowseTest<OAuthToken> {
 
     /**
      * Generic type declaration for list decoding.

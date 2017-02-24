@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 public final class UserIdentityServiceSearchTest
-        extends AbstractServiceSearchTest<UserIdentity> {
+        extends DAbstractServiceSearchTest<UserIdentity> {
 
     /**
      * Convenience generic type for response decoding.

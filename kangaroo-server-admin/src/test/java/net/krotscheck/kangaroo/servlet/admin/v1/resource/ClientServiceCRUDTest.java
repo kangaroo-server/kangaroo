@@ -41,7 +41,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 public final class ClientServiceCRUDTest
-        extends AbstractServiceCRUDTest<Client> {
+        extends DAbstractServiceCRUDTest<Client> {
 
     /**
      * Create a new instance of this parameterized test.

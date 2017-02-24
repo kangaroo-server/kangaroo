@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class AuthenticatorServiceBrowseTest
-        extends AbstractServiceBrowseTest<Authenticator> {
+        extends DAbstractServiceBrowseTest<Authenticator> {
 
     /**
      * Generic type declaration for list decoding.

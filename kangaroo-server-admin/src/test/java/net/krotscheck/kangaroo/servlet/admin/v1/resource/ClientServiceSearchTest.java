@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class ClientServiceSearchTest
-        extends AbstractServiceSearchTest<Client> {
+        extends DAbstractServiceSearchTest<Client> {
 
     /**
      * Convenience generic type for response decoding.
