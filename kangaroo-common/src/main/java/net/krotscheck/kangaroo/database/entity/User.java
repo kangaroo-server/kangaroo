@@ -101,7 +101,7 @@ public final class User extends AbstractEntity {
     @OneToMany(
             fetch = FetchType.LAZY,
             mappedBy = "user",
-            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            cascade = {CascadeType.ALL},
             orphanRemoval = true
     )
     @JsonIgnore
