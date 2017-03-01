@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 public final class UserServiceSearchTest
-        extends DAbstractServiceSearchTest<User> {
+        extends AbstractServiceSearchTest<User> {
 
     /**
      * Convenience generic type for response decoding.
@@ -123,32 +123,6 @@ public final class UserServiceSearchTest
     }
 
     /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<User> getAccessibleEntities(final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned roles.
-        return ((List<Application>) c.list())
-                .stream()
-                .flatMap(a -> a.getUsers().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Return the list of entities which are owned by the given oauth token.
      *
      * @param owner The owner of these entities.
@@ -157,7 +131,7 @@ public final class UserServiceSearchTest
     @Override
     protected List<User> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getUsers().stream())
                 .distinct()
@@ -252,8 +226,10 @@ public final class UserServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(a, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<User> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
@@ -339,8 +315,10 @@ public final class UserServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(role, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<User> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),

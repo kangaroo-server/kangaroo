@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class ScopeServiceSearchTest
-        extends DAbstractServiceSearchTest<ApplicationScope> {
+        extends AbstractServiceSearchTest<ApplicationScope> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -191,7 +190,8 @@ public final class ScopeServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
-        } else if (token.getScopes().keySet().contains(Scope.SCOPE_ADMIN)) {
+        } else if (getAttached(token).getScopes().keySet()
+                .contains(Scope.SCOPE_ADMIN)) {
             Assert.assertTrue(expectedTotal > 0);
 
             List<ApplicationScope> results = r.readEntity(LIST_TYPE);
@@ -236,32 +236,6 @@ public final class ScopeServiceSearchTest
     }
 
     /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<ApplicationScope> getAccessibleEntities(
-            final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned clients.
-        return ((List<Application>) c.list())
-                .stream()
-                .flatMap(a -> a.getScopes().values().stream())
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Return the list of entities which are owned by the given oauth token.
      *
      * @param owner The owner of these entities.
@@ -270,7 +244,7 @@ public final class ScopeServiceSearchTest
     @Override
     protected List<ApplicationScope> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getScopes().values().stream())
                 .collect(Collectors.toList());

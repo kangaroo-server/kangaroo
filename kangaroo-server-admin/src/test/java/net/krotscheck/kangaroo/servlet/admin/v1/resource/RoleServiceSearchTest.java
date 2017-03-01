@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class RoleServiceSearchTest
-        extends DAbstractServiceSearchTest<Role> {
+        extends AbstractServiceSearchTest<Role> {
 
     /**
      * Convenience generic type for response decoding.
@@ -85,31 +85,6 @@ public final class RoleServiceSearchTest
     }
 
     /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<Role> getAccessibleEntities(final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned roles.
-        return ((List<Application>) c.list())
-                .stream()
-                .flatMap(a -> a.getRoles().stream())
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Return the list of entities which are owned by the given user.
      * Includes scope checks.
      *
@@ -119,7 +94,7 @@ public final class RoleServiceSearchTest
     @Override
     protected List<Role> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getRoles().stream())
                 .collect(Collectors.toList());
@@ -252,6 +227,8 @@ public final class RoleServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(a, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             Assert.assertTrue(expectedTotal > 1);
 
