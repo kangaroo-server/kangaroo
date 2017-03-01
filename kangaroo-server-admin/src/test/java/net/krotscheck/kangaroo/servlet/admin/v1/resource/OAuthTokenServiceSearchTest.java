@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class OAuthTokenServiceSearchTest
-        extends DAbstractServiceSearchTest<OAuthToken> {
+        extends AbstractServiceSearchTest<OAuthToken> {
 
     /**
      * Convenience generic type for response decoding.
@@ -86,33 +86,6 @@ public final class OAuthTokenServiceSearchTest
     }
 
     /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<OAuthToken> getAccessibleEntities(final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria criteria = getSession().createCriteria(Application.class);
-
-        // Get all the owned clients.
-        List<OAuthToken> tokens = ((List<Application>) criteria.list())
-                .stream()
-                .flatMap(a -> a.getClients().stream())
-                .flatMap(c -> c.getTokens().stream())
-                .collect(Collectors.toList());
-        return tokens;
-    }
-
-    /**
      * Return the list of entities which are owned by the given user.
      * Includes scope checks.
      *
@@ -122,7 +95,7 @@ public final class OAuthTokenServiceSearchTest
     @Override
     protected List<OAuthToken> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getClients().stream())
                 .flatMap(c -> c.getTokens().stream())
@@ -228,25 +201,30 @@ public final class OAuthTokenServiceSearchTest
      */
     @Test
     public void testSearchByUser() {
+        // Find a search term with some results.
+        Application app = getSecondaryContext().getApplication();
         String query = "many";
-        User a = getSecondaryContext()
-                .getUser();
+        List<OAuthToken> searchResults = getSearchResults(query);
+        User user = searchResults.stream()
+                .filter(t -> t.getClient().getApplication().equals(app))
+                .map(OAuthToken::getIdentity)
+                .map(UserIdentity::getUser)
+                .collect(Collectors.toList())
+                .get(0);
 
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("user", a.getId().toString());
+        params.put("user", user.getId().toString());
         Response r = search(params, token);
 
         // Determine result set.
-        List<OAuthToken> searchResults = getSearchResults(query);
         List<OAuthToken> accessibleEntities = getAccessibleEntities(token);
-
         List<OAuthToken> expectedResults = searchResults
                 .stream()
                 .filter((item) -> accessibleEntities.indexOf(item) > -1)
                 .filter((item) -> item.getIdentity() != null)
-                .filter((item) -> item.getIdentity().getUser().equals(a))
+                .filter((item) -> item.getIdentity().getUser().equals(user))
                 .collect(Collectors.toList());
 
         Integer expectedTotal = expectedResults.size();
@@ -257,8 +235,10 @@ public final class OAuthTokenServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(user, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<OAuthToken> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
@@ -309,9 +289,15 @@ public final class OAuthTokenServiceSearchTest
      */
     @Test
     public void testSearchByIdentity() {
+        // Find a search term with some results.
+        Application app = getSecondaryContext().getApplication();
         String query = "many";
-        UserIdentity identity = getSecondaryContext()
-                .getUserIdentity();
+        List<OAuthToken> searchResults = getSearchResults(query);
+        UserIdentity identity = searchResults.stream()
+                .filter(t -> t.getClient().getApplication().equals(app))
+                .map(OAuthToken::getIdentity)
+                .collect(Collectors.toList())
+                .get(0);
 
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
@@ -320,9 +306,7 @@ public final class OAuthTokenServiceSearchTest
         Response r = search(params, token);
 
         // Determine result set.
-        List<OAuthToken> searchResults = getSearchResults(query);
         List<OAuthToken> accessibleEntities = getAccessibleEntities(token);
-
         List<OAuthToken> expectedResults = searchResults
                 .stream()
                 .filter((item) -> accessibleEntities.indexOf(item) > -1)
@@ -337,8 +321,10 @@ public final class OAuthTokenServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(identity, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<OAuthToken> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
@@ -390,13 +376,13 @@ public final class OAuthTokenServiceSearchTest
     @Test
     public void testSearchByClient() {
         String query = "many";
-        Client a = getSecondaryContext()
+        Client client = getSecondaryContext()
                 .getClient();
 
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("client", a.getId().toString());
+        params.put("client", client.getId().toString());
         Response r = search(params, token);
 
         // Determine result set.
@@ -406,7 +392,7 @@ public final class OAuthTokenServiceSearchTest
         List<OAuthToken> expectedResults = searchResults
                 .stream()
                 .filter((item) -> accessibleEntities.indexOf(item) > -1)
-                .filter((item) -> item.getClient().equals(a))
+                .filter((item) -> item.getClient().equals(client))
                 .collect(Collectors.toList());
 
         Integer expectedTotal = expectedResults.size();
@@ -417,8 +403,10 @@ public final class OAuthTokenServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(client, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            Assert.assertTrue(expectedTotal > 0);
 
             List<OAuthToken> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),

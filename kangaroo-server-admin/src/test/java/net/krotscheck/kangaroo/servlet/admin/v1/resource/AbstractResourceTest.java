@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,6 +13,7 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
@@ -21,24 +22,21 @@ import com.carrotsearch.ant.tasks.junit4.dependencies.com.google.common.base.Str
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
-import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
-import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
-import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
-import net.krotscheck.kangaroo.test.DContainerTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.servlet.admin.v1.test.rule.TestDataResource;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.TestAuthenticator;
-import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.After;
+import org.hibernate.collection.internal.PersistentSortedMap;
+import org.hibernate.internal.SessionImpl;
 import org.junit.Assert;
+import org.junit.ClassRule;
 
 import javax.persistence.Transient;
 import javax.ws.rs.client.Entity;
@@ -60,6 +58,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -69,18 +69,14 @@ import java.util.stream.Collectors;
  *
  * @author Michael Krotscheck
  */
-@Deprecated
-public abstract class DAbstractResourceTest extends DContainerTest {
+public abstract class AbstractResourceTest extends ContainerTest {
 
     /**
-     * The Admin context.
+     * Preload data into the system.
      */
-    private EnvironmentBuilder admin;
-
-    /**
-     * DB Configuration, for ease of access.
-     */
-    private Configuration systemConfig;
+    @ClassRule
+    public static final TestDataResource TEST_DATA_RESOURCE =
+            new TestDataResource(HIBERNATE_RESOURCE);
 
     /**
      * Create the application under test.
@@ -95,86 +91,21 @@ public abstract class DAbstractResourceTest extends DContainerTest {
     }
 
     /**
-     * Create an admin fixture, then use that to feed any other data
-     * bootstrapping.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public final List<EnvironmentBuilder> fixtures() throws Exception {
-
-        SessionFactory f = getSessionFactory();
-        Session s = getSession();
-
-        ServletConfigFactory factory = new ServletConfigFactory(f);
-        systemConfig = factory.provide();
-
-        String configId = systemConfig.getString(Config.APPLICATION_ID);
-        UUID appId = UUID.fromString(configId);
-        Application a = s.get(Application.class, appId);
-
-        admin = new EnvironmentBuilder(s, a);
-
-        // Build the fixtures list from this and the implementing class.
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(admin);
-        fixtures.addAll(fixtures(admin));
-        return fixtures;
-    }
-
-    /**
-     * After everything has been cleared, we need to delete the configured
-     * admin application reference.
-     */
-    @After
-    public final void resetAdminApplication() {
-        // Manually delete the admin application, so it can be recreated in a
-        // clean state.
-        Session s = getSession();
-
-        // Clear out any ownership references, so we don't have any cyclic
-        // dependencies.
-        Query removeOwners =
-                s.createQuery("update Application set owner = null");
-        removeOwners.executeUpdate();
-
-        // Delete all the applications. This should cascade to delete all
-        // other database records.
-        Query remove = s.createQuery("delete Application");
-        remove.executeUpdate();
-
-        systemConfig.clear();
-    }
-
-    /**
-     * Provided the admin context, build a list of all additional
-     * applications required for this test.
-     *
-     * @param adminContext The admin context
-     * @return A list of fixtures.
-     * @throws Exception Thrown if something untoward happens.
-     */
-    public abstract List<EnvironmentBuilder> fixtures(
-            EnvironmentBuilder adminContext)
-            throws Exception;
-
-    /**
      * Return the admin context.
      *
      * @return The admin context.
      */
-    public final EnvironmentBuilder getAdminContext() {
-        return admin;
+    public final ApplicationContext getAdminContext() {
+        return TEST_DATA_RESOURCE.getAdminApplication();
     }
 
     /**
-     * Return the convenience system configuration.
+     * Return the second application context (not the admin context).
      *
-     * @return The system configuration.
+     * @return The secondary context in this test.
      */
-    public final Configuration getSystemConfig() {
-        return systemConfig;
+    protected final ApplicationContext getSecondaryContext() {
+        return TEST_DATA_RESOURCE.getSecondaryApplication();
     }
 
     /**
@@ -523,14 +454,24 @@ public abstract class DAbstractResourceTest extends DContainerTest {
     protected final boolean isAccessible(final AbstractEntity entity,
                                          final OAuthToken token,
                                          final String adminScope) {
-        if (token.getScopes().containsKey(adminScope)) {
-            return true;
+        Session session = (SessionImpl) ((PersistentSortedMap) token
+                .getScopes())
+                .getSession();
+        session.beginTransaction();
+        try {
+            if (token.getScopes().containsKey(adminScope)) {
+                return true;
+            }
+            if (token.getIdentity() == null) {
+                return false;
+            }
+            return token.getIdentity().getUser().equals(entity.getOwner());
+
+        } finally {
+            session.getTransaction().commit();
         }
-        if (token.getIdentity() == null) {
-            return false;
-        }
-        return token.getIdentity().getUser().equals(entity.getOwner());
     }
+
 
     /**
      * Assert that two entities - using reflection - are exactly the same.
@@ -636,5 +577,49 @@ public abstract class DAbstractResourceTest extends DContainerTest {
         ErrorResponse response = r.readEntity(ErrorResponse.class);
         Assert.assertEquals(statusCode, r.getStatus());
         Assert.assertEquals(expectedMessage, response.getError());
+    }
+
+    /**
+     * Returns an entity, attached to the test's current session.
+     *
+     * @param instance The instance to hydrate.
+     * @param <T>      The instance type.
+     * @return This same database instance, attached to the test's session.
+     */
+    protected final <T extends AbstractEntity> T getAttached(final T instance) {
+        return (T) getSession().get(instance.getClass(),
+                instance.getId());
+    }
+
+    /**
+     * Returns an entity, attached to the test's current session.
+     *
+     * @param instances The instances to hydrate.
+     * @param <T>       The instance type.
+     * @return This same database instance, attached to the test's session.
+     */
+    protected final <T extends AbstractEntity> List<T> getAttached(
+            final List<T> instances) {
+        List<T> attached = new ArrayList<T>();
+        for (T instance : instances) {
+            attached.add(getAttached(instance));
+        }
+        return attached;
+    }
+
+    /**
+     * Returns an entity, attached to the test's current session.
+     *
+     * @param instances The instances to hydrate.
+     * @param <T>       The instance type.
+     * @return This same database instance, attached to the test's session.
+     */
+    protected final <T extends AbstractEntity> SortedMap<String, T> getAttached(
+            final SortedMap<String, T> instances) {
+        SortedMap<String, T> attached = new TreeMap<>();
+        for (Entry<String, T> entry : instances.entrySet()) {
+            attached.put(entry.getKey(), getAttached(entry.getValue()));
+        }
+        return attached;
     }
 }
