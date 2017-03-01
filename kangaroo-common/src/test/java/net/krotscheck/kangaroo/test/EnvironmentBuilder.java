@@ -627,6 +627,10 @@ public final class EnvironmentBuilder {
         userIdentity.setPassword(PasswordUtil.hash(password,
                 userIdentity.getSalt()));
         userIdentity.setAuthenticator(getAuthenticator());
+
+        user.getIdentities().add(userIdentity);
+
+        persist(user);
         persist(userIdentity);
 
         return this;
@@ -643,6 +647,10 @@ public final class EnvironmentBuilder {
         userIdentity.setUser(getUser());
         userIdentity.setRemoteId(remoteIdentity);
         userIdentity.setAuthenticator(getAuthenticator());
+
+        user.getIdentities().add(userIdentity);
+
+        persist(user);
         persist(userIdentity);
         return this;
     }
@@ -870,7 +878,7 @@ public final class EnvironmentBuilder {
      */
     public void clear() {
 
-        // Clear everything...
+        // Clear everything, then...
         session.clear();
 
         // Delete the entities in reverse order.

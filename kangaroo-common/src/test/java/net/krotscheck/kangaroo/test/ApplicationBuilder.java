@@ -449,6 +449,9 @@ public final class ApplicationBuilder {
         context.userIdentity.setUser(context.user);
         context.userIdentity.setAuthenticator(context.authenticator);
 
+        context.user.getIdentities().add(context.userIdentity);
+
+        persist(context.user);
         persist(context.userIdentity);
 
         return this;
@@ -466,6 +469,9 @@ public final class ApplicationBuilder {
         context.userIdentity.setUser(context.user);
         context.userIdentity.setAuthenticator(context.authenticator);
 
+        context.user.getIdentities().add(context.userIdentity);
+
+        persist(context.user);
         persist(context.userIdentity);
 
         return this;
