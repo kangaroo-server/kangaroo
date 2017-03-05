@@ -24,6 +24,10 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.core.Application;
@@ -52,6 +56,12 @@ public abstract class KangarooJerseyTest extends JerseyTest {
 
         return config;
     }
+
+    /**
+     * Rules applicable to each test.
+     */
+    @Rule
+    public final TestRule instanceRules = Timeout.seconds(10);
 
     /**
      * Create an application.
