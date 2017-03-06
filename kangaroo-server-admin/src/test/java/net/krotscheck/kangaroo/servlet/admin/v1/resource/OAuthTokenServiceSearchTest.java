@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class OAuthTokenServiceSearchTest
-        extends AbstractServiceSearchTest<OAuthToken> {
+        extends DAbstractServiceSearchTest<OAuthToken> {
 
     /**
      * Convenience generic type for response decoding.

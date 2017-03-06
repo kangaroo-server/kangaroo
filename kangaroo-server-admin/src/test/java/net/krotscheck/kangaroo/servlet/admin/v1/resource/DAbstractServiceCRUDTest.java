@@ -44,9 +44,10 @@ import java.util.UUID;
  * @param <T> The type of entity to execute this test for.
  * @author Michael Krotscheck
  */
+@Deprecated
 @RunWith(Parameterized.class)
-public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
-        extends AbstractResourceTest {
+public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
+        extends DAbstractResourceTest {
 
     /**
      * Class reference for this class' type, used in casting.
@@ -98,11 +99,11 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
      * @param createUser    Whether to create a new user.
      * @param shouldSucceed Should this test succeed?
      */
-    public AbstractServiceCRUDTest(final Class<T> typingClass,
-                                   final ClientType clientType,
-                                   final String tokenScope,
-                                   final Boolean createUser,
-                                   final Boolean shouldSucceed) {
+    public DAbstractServiceCRUDTest(final Class<T> typingClass,
+                                    final ClientType clientType,
+                                    final String tokenScope,
+                                    final Boolean createUser,
+                                    final Boolean shouldSucceed) {
         this.typingClass = typingClass;
         this.tokenScope = tokenScope;
         this.clientType = clientType;

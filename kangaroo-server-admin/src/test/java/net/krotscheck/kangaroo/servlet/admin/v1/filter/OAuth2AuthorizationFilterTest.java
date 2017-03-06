@@ -22,7 +22,7 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.Binder;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.OAuthTokenContext;
-import net.krotscheck.kangaroo.servlet.admin.v1.resource.AbstractResourceTest;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.DAbstractResourceTest;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ActiveDescriptor;
@@ -47,7 +47,7 @@ import javax.ws.rs.core.Response;
  * @author Michael Krotscheck
  */
 public final class OAuth2AuthorizationFilterTest
-        extends AbstractResourceTest {
+        extends DAbstractResourceTest {
 
     /**
      * A valid, non-expired, bearer token.

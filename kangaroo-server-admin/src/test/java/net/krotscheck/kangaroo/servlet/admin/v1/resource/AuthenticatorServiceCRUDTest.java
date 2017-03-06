@@ -39,7 +39,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 public final class AuthenticatorServiceCRUDTest
-        extends AbstractServiceCRUDTest<Authenticator> {
+        extends DAbstractServiceCRUDTest<Authenticator> {
 
     /**
      * Create a new instance of this parameterized test.

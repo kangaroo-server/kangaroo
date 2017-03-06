@@ -39,7 +39,7 @@ import java.util.Collection;
  * @author Michael Krotscheck
  */
 public final class UserServiceCRUDTest
-        extends AbstractServiceCRUDTest<User> {
+        extends DAbstractServiceCRUDTest<User> {
 
     /**
      * Create a new instance of this parameterized test.

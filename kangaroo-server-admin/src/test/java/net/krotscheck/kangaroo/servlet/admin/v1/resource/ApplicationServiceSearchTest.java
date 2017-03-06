@@ -39,7 +39,7 @@ import java.util.List;
  */
 @RunWith(Parameterized.class)
 public final class ApplicationServiceSearchTest
-        extends AbstractServiceSearchTest<Application> {
+        extends DAbstractServiceSearchTest<Application> {
 
     /**
      * Convenience generic type for response decoding.

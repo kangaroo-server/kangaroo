@@ -67,7 +67,8 @@ import java.util.stream.Collectors;
  *
  * @author Michael Krotscheck
  */
-public abstract class AbstractResourceTest extends DContainerTest {
+@Deprecated
+public abstract class DAbstractResourceTest extends DContainerTest {
 
     /**
      * The Admin context.

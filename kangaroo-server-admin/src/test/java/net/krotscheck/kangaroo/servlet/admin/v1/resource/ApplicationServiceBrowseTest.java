@@ -40,7 +40,7 @@ import java.util.List;
  */
 @RunWith(Parameterized.class)
 public final class ApplicationServiceBrowseTest
-        extends AbstractServiceBrowseTest<Application> {
+        extends DAbstractServiceBrowseTest<Application> {
 
     /**
      * Convenience generic type for response decoding.
