@@ -79,7 +79,7 @@ public final class URITypeDescriptorTest {
     }
 
     /**
-     * Test the unwrap method, null input
+     * Test the unwrap method, null input.
      */
     @Test
     public void testUnwrapNull() {
@@ -107,7 +107,7 @@ public final class URITypeDescriptorTest {
     }
 
     /**
-     * Test the wrap method, null input
+     * Test the wrap method, null input.
      */
     @Test
     public void testWrapNull() {
@@ -117,7 +117,7 @@ public final class URITypeDescriptorTest {
     }
 
     /**
-     * Test the wrap method, string requested
+     * Test the wrap method, string requested.
      */
     @Test
     public void testWrapString() {
@@ -127,7 +127,7 @@ public final class URITypeDescriptorTest {
     }
 
     /**
-     * Test the wrap method, null input
+     * Test the wrap method, null input.
      */
     @Test(expected = HibernateException.class)
     public void testWrapUnknown() {

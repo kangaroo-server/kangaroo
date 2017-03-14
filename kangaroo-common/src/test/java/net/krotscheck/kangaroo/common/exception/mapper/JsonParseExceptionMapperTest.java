@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.common.exception.mapper;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.common.exception.mapper.JsonParseExceptionMapper;
 import org.junit.Assert;
 import org.junit.Test;
 

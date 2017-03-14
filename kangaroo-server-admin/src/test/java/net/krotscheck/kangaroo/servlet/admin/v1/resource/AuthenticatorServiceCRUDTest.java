@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -29,6 +30,8 @@ import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
@@ -111,11 +114,26 @@ public final class AuthenticatorServiceCRUDTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (id == null) {
-            return "/authenticator/";
+    protected URI getUrlForId(final String id) {
+        UriBuilder builder = UriBuilder.fromPath("/authenticator/");
+        if (id != null) {
+            builder.path(id);
         }
-        return String.format("/authenticator/%s", id);
+        return builder.build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return getUrlForId((String) null);
+        }
+        return getUrlForId(entity.getId().toString());
     }
 
     /**
@@ -166,7 +184,8 @@ public final class AuthenticatorServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected Authenticator createValidEntity(final EnvironmentBuilder context) {
+    protected Authenticator createValidEntity(
+            final EnvironmentBuilder context) {
         Authenticator a = new Authenticator();
         a.setClient(context.getClient());
         a.setType("password");

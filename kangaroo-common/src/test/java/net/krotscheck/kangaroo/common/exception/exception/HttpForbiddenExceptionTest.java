@@ -17,13 +17,11 @@
 
 package net.krotscheck.kangaroo.common.exception.exception;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpForbiddenException;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 
 /**
  * Assert that HttpForbiddenException has the appropriate values.

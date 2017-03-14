@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.filter;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
@@ -33,13 +34,14 @@ import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import javax.inject.Singleton;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Tests for our authorization filter.
@@ -291,7 +293,18 @@ public final class OAuth2AuthorizationFilterTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
+    protected URI getUrlForId(final String id) {
+        return null;
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
         return null;
     }
 }

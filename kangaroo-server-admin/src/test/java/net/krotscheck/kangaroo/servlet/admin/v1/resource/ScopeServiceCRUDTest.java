@@ -18,6 +18,7 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -32,6 +33,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -82,79 +85,49 @@ public final class ScopeServiceCRUDTest
 
     /**
      * Test parameters.
+     *
+     * @return A list of parameters used to initialize the test class.
      */
     @Parameterized.Parameters
     public static Collection parameters() {
-        return Arrays.asList(new Object[][]{
-                {
+        return Arrays.asList(
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE_ADMIN,
                         true,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.SCOPE,
                         true,
                         false
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.SCOPE_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.SCOPE,
                         false,
                         false
-                }
-        });
+                });
     }
-//
-//    /**
-//     * Load data fixtures for each test.
-//     *
-//     * @return A list of fixtures, which will be cleared after the test.
-//     * @throws Exception An exception that indicates a failed fixture load.
-//     */
-//    @Override
-//    public List<EnvironmentBuilder> fixtures(final EnvironmentBuilder adminApp)
-//            throws Exception {
-//        // Build the admin context with the provided parameters.
-//        EnvironmentBuilder context = getAdminContext();
-//        context.client(clientType);
-//        if (createUser) {
-//            context.user().identity();
-//        }
-//        adminAppToken = context.bearerToken(tokenScope).getToken();
-//
-//        // Build a second app to run some tests against.
-//        otherApp = new EnvironmentBuilder(getSession())
-//                .scopes(Scope.allScopes())
-//                .owner(context.getOwner())
-//                .client(clientType)
-//                .authenticator("test")
-//                .user().identity()
-//                .bearerToken(tokenScope);
-//
-//        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-//        fixtures.add(otherApp);
-//        return fixtures;
-//    }
 
     /**
      * Construct the request URL for this test given a specific resource ID.
@@ -163,11 +136,26 @@ public final class ScopeServiceCRUDTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (id == null) {
-            return "/scope/";
+    protected URI getUrlForId(final String id) {
+        UriBuilder builder = UriBuilder.fromPath("/scope/");
+        if (id != null) {
+            builder.path(id);
         }
-        return String.format("/scope/%s", id);
+        return builder.build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return getUrlForId((String) null);
+        }
+        return getUrlForId(entity.getId().toString());
     }
 
     /**

@@ -62,14 +62,16 @@ public final class Section420ImplicitGrantTest
                  */
                 @Override
                 protected void loadTestData(final Session session) {
-                    context = ApplicationBuilder.newApplication(session)
+                    context = ApplicationBuilder
+                            .newApplication(session)
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.Implicit)
                             .authenticator("test")
                             .redirect("http://valid.example.com/redirect")
                             .build();
-                    twoRedirectContext = ApplicationBuilder.newApplication(session)
+                    twoRedirectContext = ApplicationBuilder
+                            .newApplication(session)
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.Implicit)
@@ -77,23 +79,27 @@ public final class Section420ImplicitGrantTest
                             .redirect("http://valid.example.com/redirect")
                             .redirect("http://other.example.com/redirect")
                             .build();
-                    bareContext = ApplicationBuilder.newApplication(session)
+                    bareContext = ApplicationBuilder
+                            .newApplication(session)
                             .client(ClientType.Implicit)
                             .authenticator("test")
                             .build();
-                    noRoleContext = ApplicationBuilder.newApplication(session)
+                    noRoleContext = ApplicationBuilder
+                            .newApplication(session)
                             .client(ClientType.Implicit)
                             .authenticator("test")
                             .redirect("http://valid.example.com/redirect")
                             .build();
-                    roleNoScopeContext = ApplicationBuilder.newApplication(session)
+                    roleNoScopeContext = ApplicationBuilder
+                            .newApplication(session)
                             .client(ClientType.Implicit)
                             .authenticator("test")
                             .scope("debug")
                             .redirect("http://valid.example.com/redirect")
                             .role("test", new String[]{})
                             .build();
-                    noauthContext = ApplicationBuilder.newApplication(session)
+                    noauthContext = ApplicationBuilder
+                            .newApplication(session)
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.Implicit)

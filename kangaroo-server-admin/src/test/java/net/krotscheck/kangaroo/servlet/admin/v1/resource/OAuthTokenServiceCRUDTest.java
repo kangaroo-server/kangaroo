@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
@@ -192,11 +193,26 @@ public final class OAuthTokenServiceCRUDTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (id == null) {
-            return "/token/";
+    protected URI getUrlForId(final String id) {
+        UriBuilder builder = UriBuilder.fromPath("/token/");
+        if (id != null) {
+            builder.path(id);
         }
-        return String.format("/token/%s", id);
+        return builder.build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return getUrlForId((String) null);
+        }
+        return getUrlForId(entity.getId().toString());
     }
 
     /**

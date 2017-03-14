@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
@@ -38,7 +39,9 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -131,8 +134,21 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        return String.format("/application/%s", id);
+    protected URI getUrlForId(final String id) {
+        return UriBuilder.fromPath("/application/")
+                .path(id)
+                .build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        return getUrlForId(entity.getId().toString());
     }
 
     /**
@@ -469,7 +485,7 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
     }
 
     /**
-     * Assert that we can require a valid entity
+     * Assert that we can require a valid entity.
      */
     @Test
     public void testRequireValidEntity() {

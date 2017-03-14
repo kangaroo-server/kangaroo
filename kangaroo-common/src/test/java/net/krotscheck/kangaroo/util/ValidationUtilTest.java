@@ -100,7 +100,7 @@ public final class ValidationUtilTest {
     }
 
     /**
-     * Check simple valid redirect by URI
+     * Check simple valid redirect by URI.
      *
      * @throws Exception Thrown if validation fails.
      */
@@ -116,7 +116,7 @@ public final class ValidationUtilTest {
     }
 
     /**
-     * Check simple valid redirect by null URI
+     * Check simple valid redirect by null URI.
      *
      * @throws Exception Thrown if validation fails.
      */
@@ -252,7 +252,8 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://two.example.com/?foo=bar");
 
-        URI result = ValidationUtil.requireValidRedirect(test.toString(), testSet);
+        URI result = ValidationUtil
+                .requireValidRedirect(test.toString(), testSet);
         Assert.assertEquals(test, result);
     }
 
@@ -268,7 +269,8 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=bar&lol=cat");
 
-        URI result = ValidationUtil.requireValidRedirect(test.toString(), testSet);
+        URI result = ValidationUtil
+                .requireValidRedirect(test.toString(), testSet);
         Assert.assertEquals(test, result);
     }
 
@@ -285,7 +287,8 @@ public final class ValidationUtilTest {
 
         URI test = new URI("http://one.example.com/?foo=bar&foo=cat&lol=cat");
 
-        URI result = ValidationUtil.requireValidRedirect(test.toString(), testSet);
+        URI result = ValidationUtil
+                .requireValidRedirect(test.toString(), testSet);
         Assert.assertEquals(test, result);
     }
 
