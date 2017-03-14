@@ -25,7 +25,6 @@ import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDese
 import net.krotscheck.kangaroo.database.filters.UUIDFilter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
@@ -54,14 +53,11 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * This represents a registered client, as well as it's connection metadata,
@@ -150,22 +146,30 @@ public final class Client extends AbstractEntity {
     /**
      * A collection of referral URL's, used for CORS matching.
      */
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "client_referrers",
-            joinColumns = @JoinColumn(name = "client"))
-    @Column(name = "referrer")
-    @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
-    private Set<URI> referrers = new TreeSet<>();
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client",
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true
+    )
+    @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @IndexedEmbedded(includePaths = {"id", "uri"})
+    private List<ClientReferrer> referrers = new ArrayList<>();
 
     /**
      * A list of redirect URL's, used for redirection-based flows.
      */
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "client_redirects",
-            joinColumns = @JoinColumn(name = "client"))
-    @Column(name = "redirect")
-    @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
-    private Set<URI> redirects = new TreeSet<>();
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "client",
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true
+    )
+    @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @IndexedEmbedded(includePaths = {"id", "uri"})
+    private List<ClientRedirect> redirects = new ArrayList<>();
 
     /**
      * The configuration settings for this application.
@@ -236,7 +240,7 @@ public final class Client extends AbstractEntity {
      *
      * @return This client's list of valid referrers.
      */
-    public Set<URI> getReferrers() {
+    public List<ClientReferrer> getReferrers() {
         return referrers;
     }
 
@@ -245,8 +249,8 @@ public final class Client extends AbstractEntity {
      *
      * @param referrers A new set of referrers.
      */
-    public void setReferrers(final Set<URI> referrers) {
-        this.referrers = referrers;
+    public void setReferrers(final List<ClientReferrer> referrers) {
+        this.referrers = new ArrayList<>(referrers);
     }
 
     /**
@@ -254,7 +258,7 @@ public final class Client extends AbstractEntity {
      *
      * @return The valid redirect url's.
      */
-    public Set<URI> getRedirects() {
+    public List<ClientRedirect> getRedirects() {
         return redirects;
     }
 
@@ -263,8 +267,8 @@ public final class Client extends AbstractEntity {
      *
      * @param redirects The redirects.
      */
-    public void setRedirects(final Set<URI> redirects) {
-        this.redirects = redirects;
+    public void setRedirects(final List<ClientRedirect> redirects) {
+        this.redirects = new ArrayList<>(redirects);
     }
 
     /**

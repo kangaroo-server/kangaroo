@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.database.entity.Client.Deserializer;
@@ -41,11 +40,9 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -119,14 +116,17 @@ public final class ClientTest {
     public void testGetSetReferrers() throws Exception {
         Client c = new Client();
 
-        Set<URI> referrers = new HashSet<>();
+        List<ClientReferrer> referrers = new ArrayList<>();
         URI referrer = new URI("https://example.com/oauth/foo?lol=cat#omg");
-        referrers.add(referrer);
+        ClientReferrer r = new ClientReferrer();
+        r.setClient(c);
+        r.setUri(referrer);
+        referrers.add(r);
 
         Assert.assertEquals(0, c.getReferrers().size());
         c.setReferrers(referrers);
         Assert.assertEquals(referrers, c.getReferrers());
-        Assert.assertTrue(c.getReferrers().contains(referrer));
+        Assert.assertTrue(c.getReferrers().contains(r));
     }
 
     /**
@@ -138,14 +138,17 @@ public final class ClientTest {
     public void testGetSetRedirects() throws Exception {
         Client c = new Client();
 
-        Set<URI> redirects = new HashSet<>();
-        URI redirect = new URI("https://example.com/oauth/foo?lol=cat#omg");
-        redirects.add(redirect);
+        List<ClientRedirect> redirects = new ArrayList<>();
+        URI referrer = new URI("https://example.com/oauth/foo?lol=cat#omg");
+        ClientRedirect r = new ClientRedirect();
+        r.setClient(c);
+        r.setUri(referrer);
+        redirects.add(r);
 
         Assert.assertEquals(0, c.getRedirects().size());
         c.setRedirects(redirects);
         Assert.assertEquals(redirects, c.getRedirects());
-        Assert.assertTrue(c.getRedirects().contains(redirect));
+        Assert.assertTrue(c.getRedirects().contains(r));
     }
 
     /**
@@ -316,11 +319,6 @@ public final class ClientTest {
         token.setId(UUID.randomUUID());
         tokens.add(token);
 
-        Set<URI> referrers = new HashSet<>();
-        referrers.add(new URI("https://example.com/oauth/foo?lol=cat#omg"));
-        Set<URI> redirects = new HashSet<>();
-        redirects.add(new URI("https://example.com/oauth/foo?lol=cat#omg"));
-
         Map<String, String> configuration = new HashMap<>();
         configuration.put("one", "value");
         configuration.put("two", "value");
@@ -333,9 +331,19 @@ public final class ClientTest {
         c.setName("name");
         c.setClientSecret("clientSecret");
         c.setType(ClientType.AuthorizationGrant);
-        c.setRedirects(redirects);
-        c.setReferrers(referrers);
         c.setConfiguration(configuration);
+
+        List<ClientRedirect> redirects = new ArrayList<>();
+        ClientRedirect redirect = new ClientRedirect();
+        redirect.setClient(c);
+        redirect.setUri(new URI("https://example.com/oauth/foo?lol=cat#omg"));
+        c.getRedirects().add(redirect);
+
+        List<ClientReferrer> referrers = new ArrayList<>();
+        ClientReferrer referrer = new ClientReferrer();
+        redirect.setClient(c);
+        redirect.setUri(new URI("https://example.com/oauth/foo?lol=cat#omg"));
+        c.getReferrers().add(referrer);
 
         // These should not serialize.
         c.setTokens(tokens);
@@ -370,16 +378,6 @@ public final class ClientTest {
                 node.get("type").asText());
         Assert.assertFalse(node.has("tokens"));
 
-        // Extract the referrers
-        ArrayNode referrerNode = (ArrayNode) node.get("referrers");
-        Assert.assertEquals("https://example.com/oauth/foo?lol=cat#omg",
-                referrerNode.get(0).asText());
-
-        // Extract the redirects
-        ArrayNode redirectNode = (ArrayNode) node.get("redirects");
-        Assert.assertEquals("https://example.com/oauth/foo?lol=cat#omg",
-                redirectNode.get(0).asText());
-
         // Get the configuration node.
         JsonNode configurationNode = node.get("configuration");
         Assert.assertEquals(
@@ -389,13 +387,18 @@ public final class ClientTest {
                 "value",
                 configurationNode.get("two").asText());
 
+        // These should not exist.
+        Assert.assertFalse(node.has("referrers"));
+        Assert.assertFalse(node.has("redirects"));
+        Assert.assertFalse(node.has("tokens"));
+
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
         Iterator<String> nameIterator = node.fieldNames();
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(10, names.size());
+        Assert.assertEquals(8, names.size());
     }
 
     /**
@@ -422,14 +425,6 @@ public final class ClientTest {
         configurationNode.put("two", "value");
         node.set("configuration", configurationNode);
 
-        ArrayNode referrers = node.arrayNode();
-        referrers.add("https://example.com/oauth/foo?lol=cat#omg");
-        node.set("referrers", referrers);
-
-        ArrayNode redirects = node.arrayNode();
-        redirects.add("https://example.com/oauth/foo?lol=cat#omg");
-        node.set("redirects", redirects);
-
         String output = m.writeValueAsString(node);
         Client c = m.readValue(output, Client.class);
 
@@ -452,14 +447,6 @@ public final class ClientTest {
         Assert.assertEquals(
                 c.getType().toString(),
                 node.get("type").asText());
-        Assert.assertEquals(1, c.getRedirects().size());
-        Assert.assertEquals(1, c.getReferrers().size());
-        Assert.assertTrue(c.getRedirects()
-                .contains(new URI("https://example"
-                        + ".com/oauth/foo?lol=cat#omg")));
-        Assert.assertTrue(c.getReferrers()
-                .contains(new URI("https://example"
-                        + ".com/oauth/foo?lol=cat#omg")));
 
         Map<String, String> configuration = c.getConfiguration();
 

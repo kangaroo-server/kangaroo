@@ -39,6 +39,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -294,6 +295,30 @@ public abstract class AbstractService {
 
         // Not permitted, exit.
         throw new HttpNotFoundException();
+    }
+
+    /**
+     * This method tests whether a particular subresource entity may be
+     * accessed. It defers most of its logic to assertCanAccess, except that
+     * it will rethrow HttpNotFoundExceptions as BadRequestExceptions in the
+     * case where a user does not have permissions to see the parent resource.
+     *
+     * @param entity              The entity to check.
+     * @param requiredParentScope The scope required to access the parent
+     *                            entity.
+     */
+    protected final void assertCanAccessSubresource(
+            final AbstractEntity entity, final String requiredParentScope) {
+        // No null entities permitted.
+        if (entity == null) {
+            throw new HttpNotFoundException();
+        }
+
+        try {
+            assertCanAccess(entity, requiredParentScope);
+        } catch (HttpNotFoundException e) {
+            throw new BadRequestException();
+        }
     }
 
     /**
