@@ -105,7 +105,7 @@ public final class ClientTypeTest {
     }
 
     /**
-     * Assert that valueOf conversions work
+     * Assert that valueOf conversions works.
      */
     @Test
     public void testValueOf() {

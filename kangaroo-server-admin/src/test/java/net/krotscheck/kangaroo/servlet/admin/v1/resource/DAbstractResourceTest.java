@@ -200,18 +200,14 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response getEntity(final AbstractEntity entity,
                                        final OAuthToken token) {
-        String id = null;
+        URI location = getUrlForEntity(entity);
         String authHeader = null;
-
-        if (entity != null && entity.getId() != null) {
-            id = entity.getId().toString();
-        }
 
         if (token != null) {
             authHeader = HttpUtil.authHeaderBearer(token.getId());
         }
 
-        return getEntity(id, authHeader);
+        return getEntity(location, authHeader);
     }
 
     /**
@@ -224,13 +220,8 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response getEntity(final String id,
                                        final String authHeader) {
-        String url = getUrlForId(id);
-        Builder t = target(url).request();
-
-        if (!Strings.isNullOrEmpty(authHeader)) {
-            t.header(HttpHeaders.AUTHORIZATION, authHeader);
-        }
-        return t.get();
+        URI location = getUrlForId(id);
+        return getEntity(location, authHeader);
     }
 
     /**
@@ -242,11 +233,27 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response getEntity(final URI location,
                                        final OAuthToken token) {
-        Builder t = target(location.getPath()).request();
+        String authHeader = null;
 
         if (token != null) {
-            String authHeader =
-                    HttpUtil.authHeaderBearer(token.getId());
+            authHeader = HttpUtil.authHeaderBearer(token.getId());
+        }
+
+        return getEntity(location, authHeader);
+    }
+
+    /**
+     * Issue a GET request to retrieve the given path with the provided token.
+     *
+     * @param location   The URL to get.
+     * @param authHeader the authorization header to use.
+     * @return The received response.
+     */
+    protected final Response getEntity(final URI location,
+                                       final String authHeader) {
+        Builder t = target(location.getPath()).request();
+
+        if (!Strings.isNullOrEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
         return t.get();
@@ -280,8 +287,8 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response postEntity(final AbstractEntity entity,
                                         final String authHeader) {
-        String url = getUrlForId(null);
-        Builder t = target(url).request();
+        URI location = getUrlForId("");
+        Builder t = target(location.getPath()).request();
 
         if (!Strings.isNullOrEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
@@ -302,12 +309,13 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response putEntity(final AbstractEntity entity,
                                        final OAuthToken token) {
+        URI location = getUrlForEntity(entity);
         String authHeader = null;
 
         if (token != null) {
             authHeader = HttpUtil.authHeaderBearer(token.getId());
         }
-        return putEntity(entity.getId().toString(), entity, authHeader);
+        return putEntity(location, entity, authHeader);
     }
 
     /**
@@ -322,8 +330,23 @@ public abstract class DAbstractResourceTest extends DContainerTest {
     protected final Response putEntity(final String id,
                                        final AbstractEntity entity,
                                        final String authHeader) {
-        String url = getUrlForId(id);
-        Builder t = target(url).request();
+        URI location = getUrlForId(id);
+        return putEntity(location, entity, authHeader);
+    }
+
+    /**
+     * Utility method that simplifies issuing a PUT request with a bearer
+     * token.
+     *
+     * @param location   The URI to post to.
+     * @param entity     The Entity to post
+     * @param authHeader The full authorization header.
+     * @return The received response.
+     */
+    protected final Response putEntity(final URI location,
+                                       final AbstractEntity entity,
+                                       final String authHeader) {
+        Builder t = target(location.getPath()).request();
 
         if (!Strings.isNullOrEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
@@ -362,8 +385,21 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response deleteEntity(final String appId,
                                           final String authHeader) {
-        String url = getUrlForId(appId);
-        Builder t = target(url).request();
+        URI location = getUrlForId(appId);
+        return deleteEntity(location, authHeader);
+    }
+
+    /**
+     * Utility method that simplifies issuing a DELETE request with a bearer
+     * token.
+     *
+     * @param location   The URI to post to.
+     * @param authHeader The full authorization header.
+     * @return The received response.
+     */
+    protected final Response deleteEntity(final URI location,
+                                          final String authHeader) {
+        Builder t = target(location.getPath()).request();
 
         if (!Strings.isNullOrEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
@@ -380,7 +416,7 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response browse(final Map<String, String> params,
                                     final OAuthToken token) {
-        WebTarget t = target(getUrlForId(null));
+        WebTarget t = target(getBrowseUrl().getPath());
         for (Entry<String, String> e : params.entrySet()) {
             t = t.queryParam(e.getKey(), e.getValue());
         }
@@ -401,7 +437,7 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response search(final Map<String, String> params,
                                     final OAuthToken token) {
-        WebTarget t = target(getUrlForId("search"));
+        WebTarget t = target(getSearchUrl().getPath());
         for (Entry<String, String> e : params.entrySet()) {
             t = t.queryParam(e.getKey(), e.getValue());
         }
@@ -419,7 +455,33 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      * @param id The ID to use.
      * @return The resource URL.
      */
-    protected abstract String getUrlForId(String id);
+    protected abstract URI getUrlForId(String id);
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    protected abstract URI getUrlForEntity(AbstractEntity entity);
+
+    /**
+     * Construct the URL for the browse endpoint.
+     *
+     * @return The resource URL.
+     */
+    protected final URI getBrowseUrl() {
+        return getUrlForId("");
+    }
+
+    /**
+     * Construct the URL for the search endpoint.
+     *
+     * @return The resource URL.
+     */
+    protected final URI getSearchUrl() {
+        return getUrlForId("search");
+    }
 
     /**
      * Helper method, determines if a given token has read access, or

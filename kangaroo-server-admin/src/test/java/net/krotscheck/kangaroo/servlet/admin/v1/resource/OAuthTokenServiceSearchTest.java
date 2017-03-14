@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -25,7 +26,6 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +35,8 @@ import org.junit.runners.Parameterized;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -164,11 +166,21 @@ public final class OAuthTokenServiceSearchTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (StringUtils.isEmpty(id)) {
-            return "/token/";
-        }
-        return String.format("/token/%s", id);
+    protected URI getUrlForId(final String id) {
+        return UriBuilder.fromPath("/token/")
+                .path(id)
+                .build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        return getUrlForId(entity.getId().toString());
     }
 
     /**

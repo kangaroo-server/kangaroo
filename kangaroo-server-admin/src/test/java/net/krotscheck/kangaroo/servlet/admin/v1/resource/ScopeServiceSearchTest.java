@@ -17,13 +17,13 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,6 +33,8 @@ import org.junit.runners.Parameterized;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -138,11 +140,21 @@ public final class ScopeServiceSearchTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (StringUtils.isEmpty(id)) {
-            return "/scope/";
-        }
-        return String.format("/scope/%s", id);
+    protected URI getUrlForId(final String id) {
+        return UriBuilder.fromPath("/scope/")
+                .path(id)
+                .build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        return getUrlForId(entity.getId().toString());
     }
 
     /**
@@ -231,7 +243,8 @@ public final class ScopeServiceSearchTest
      * @return A list of entities (could be empty).
      */
     @Override
-    protected List<ApplicationScope> getAccessibleEntities(final OAuthToken token) {
+    protected List<ApplicationScope> getAccessibleEntities(
+            final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
         if (!token.getScopes().containsKey(getAdminScope())) {

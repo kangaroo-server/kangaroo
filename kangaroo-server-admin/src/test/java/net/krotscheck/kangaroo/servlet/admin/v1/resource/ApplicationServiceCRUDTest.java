@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
@@ -32,6 +33,8 @@ import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
@@ -123,118 +126,73 @@ public final class ApplicationServiceCRUDTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (id == null) {
-            return "/application/";
+    protected URI getUrlForId(final String id) {
+        UriBuilder builder = UriBuilder.fromPath("/application/");
+        if (id != null) {
+            builder.path(id);
         }
-        return String.format("/application/%s", id);
+        return builder.build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return getUrlForId((String) null);
+        }
+        return getUrlForId(entity.getId().toString());
     }
 
     /**
      * Test parameters.
+     *
+     * @return A list of parameters used to initialize the test class.
      */
     @Parameterized.Parameters
     public static Collection parameters() {
-        return Arrays.asList(new Object[][]{
-                {
+        return Arrays.asList(
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION_ADMIN,
                         true,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION,
                         true,
                         false
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.APPLICATION_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.APPLICATION,
                         false,
                         false
-                }
-        });
+                });
     }
-
-//    /**
-//     * Load data fixtures for each test.
-//     *
-//     * @return A list of fixtures, which will be cleared after the test.
-//     * @throws Exception An exception that indicates a failed fixture load.
-//     */
-//    @Override
-//    public List<EnvironmentBuilder> fixtures(final EnvironmentBuilder adminApp)
-//            throws Exception {
-//        // Build the admin context with the provided parameters.
-//        EnvironmentBuilder context = getAdminContext();
-//        context.client(clientType);
-//        if (createUser) {
-//            context.user().identity();
-//        }
-//        adminAppToken = context.bearerToken(tokenScope).getToken();
-//
-//        // Build a second app to run some tests against.
-//        otherApp = new EnvironmentBuilder(getSession())
-//                .scopes(Scope.allScopes())
-//                .owner(context.getOwner())
-//                .client(clientType)
-//                .authenticator("test")
-//                .user().identity()
-//                .bearerToken(tokenScope);
-//
-//        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-//        fixtures.add(otherApp);
-//        return fixtures;
-//    }
-//
-//    /**
-//     * Assert that an app can be created.
-//     *
-//     * @throws Exception Exception encountered during test.
-//     */
-//    @Test
-//    public void testPostApp() throws Exception {
-//        Application newApp = new Application();
-//        newApp.setName("New Application");
-//
-//        // Issue the request.
-//        Response r = postEntity(newApp, adminAppToken);
-//
-//        if (adminAppToken.getIdentity() != null) {
-//            Assert.assertEquals(HttpStatus.SC_CREATED, r.getStatus());
-//            Assert.assertNotNull(r.getLocation());
-//
-//            Response getResponse = getEntity(r.getLocation(), adminAppToken);
-//            Application response = getResponse.readEntity(Application.class);
-//            Assert.assertNotNull(response.getId());
-//            Assert.assertEquals(newApp.getName(), response.getName());
-//            Assert.assertEquals(adminAppToken.getIdentity().getUser(),
-//                    response.getOwner());
-//        } else {
-//            ErrorResponse response = r.readEntity(ErrorResponse.class);
-//            Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
-//            Assert.assertEquals("bad_request", response.getError());
-//        }
-//    }
 
     /**
      * Assert that an app cannot be created which overwrites another app.

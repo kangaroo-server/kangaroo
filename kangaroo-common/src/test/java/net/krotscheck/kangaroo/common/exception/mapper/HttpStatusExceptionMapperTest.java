@@ -21,7 +21,6 @@ import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorRespon
 import net.krotscheck.kangaroo.common.exception.exception.HttpForbiddenException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpUnauthorizedException;
-import net.krotscheck.kangaroo.common.exception.mapper.HttpStatusExceptionMapper;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
