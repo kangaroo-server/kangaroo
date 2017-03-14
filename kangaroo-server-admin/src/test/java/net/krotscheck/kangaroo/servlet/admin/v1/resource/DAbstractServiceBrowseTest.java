@@ -595,7 +595,7 @@ public abstract class DAbstractServiceBrowseTest<T extends AbstractEntity>
      */
     @Test
     public final void testBrowseFilterByMalformedOwner() {
-        Response response = target(getUrlForId(null))
+        Response response = target(getBrowseUrl().getPath())
                 .queryParam("owner", "malformed")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
@@ -611,7 +611,7 @@ public abstract class DAbstractServiceBrowseTest<T extends AbstractEntity>
     @Test
     public final void testBrowseBySelf() {
         if (adminAppToken.getIdentity() != null) {
-            Response response = target(getUrlForId(null))
+            Response response = target(getBrowseUrl().getPath())
                     .queryParam("owner",
                             adminAppToken.getIdentity().getUser().getId())
                     .request()
@@ -639,7 +639,7 @@ public abstract class DAbstractServiceBrowseTest<T extends AbstractEntity>
      */
     @Test
     public final void testBrowseNoAuth() {
-        Response response = target(getUrlForId(null))
+        Response response = target(getBrowseUrl().getPath())
                 .request()
                 .get();
 

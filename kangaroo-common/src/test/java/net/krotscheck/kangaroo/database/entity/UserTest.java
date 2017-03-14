@@ -67,7 +67,7 @@ public final class UserTest {
     }
 
     /**
-     * Assert that we can get and set the applications which this user owns
+     * Assert that we can get and set the applications which this user owns.
      */
     @Test
     public void testGetSetApplications() {

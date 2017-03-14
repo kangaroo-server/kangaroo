@@ -18,17 +18,19 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -133,25 +135,37 @@ public final class ApplicationServiceBrowseTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (StringUtils.isEmpty(id)) {
-            return "/application/";
-        }
-        return String.format("/application/%s", id);
+    protected URI getUrlForId(final String id) {
+        return UriBuilder.fromPath("/application/")
+                .path(id)
+                .build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        return getUrlForId(entity.getId().toString());
     }
 
     /**
      * Test parameters.
+     *
+     * @return A list of parameters used to initialize the test class.
      */
     @Parameterized.Parameters
     public static Collection parameters() {
         return Arrays.asList(
-                new Object[] {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION_ADMIN,
                         false
                 },
-                new Object[] {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION,
                         false
@@ -161,7 +175,7 @@ public final class ApplicationServiceBrowseTest
                         Scope.APPLICATION_ADMIN,
                         true
                 },
-                new Object[] {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.APPLICATION,
                         true
@@ -171,7 +185,7 @@ public final class ApplicationServiceBrowseTest
                         Scope.APPLICATION_ADMIN,
                         false
                 },
-                new Object[]  {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.APPLICATION,
                         false

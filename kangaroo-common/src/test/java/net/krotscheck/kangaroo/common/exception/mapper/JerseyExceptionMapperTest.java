@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.common.exception.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.common.exception.mapper.JerseyExceptionMapper;
 import org.junit.Assert;
 import org.junit.Test;
 

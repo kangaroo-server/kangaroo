@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -16,26 +16,9 @@
  *
  */
 
-package net.krotscheck.kangaroo.database.jackson;
-
-import net.krotscheck.kangaroo.database.jackson.Views.Public;
-import net.krotscheck.kangaroo.database.jackson.Views.Secure;
-import org.junit.Test;
-
 /**
- * Smoke test for the jackson view annotation classes.
+ * Unit tests for the transaction filters.
  *
  * @author Michael Krotscheck
  */
-public final class ViewsTest {
-
-    /**
-     * Test that all three classes exist.
-     */
-    @Test
-    public void assertAllClasses() {
-        Views views = new Views();
-        Public pub = new Views.Public();
-        Secure secure = new Views.Secure();
-    }
-}
+package net.krotscheck.kangaroo.common.hibernate.transaction;

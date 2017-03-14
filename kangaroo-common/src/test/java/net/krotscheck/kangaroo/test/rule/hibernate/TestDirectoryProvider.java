@@ -90,7 +90,8 @@ public final class TestDirectoryProvider
 
 
     @Override
-    public synchronized void start(final DirectoryBasedIndexManager indexManager) {
+    public synchronized void start(
+            final DirectoryBasedIndexManager indexManager) {
         Integer referenceCount = referenceCounts.getOrDefault(indexName, 0);
         if (referenceCount == 0) {
             LockFactory lockFactory = serviceManager
@@ -131,9 +132,9 @@ public final class TestDirectoryProvider
      */
     @Override
     public boolean equals(final Object obj) {
-        // this code is actually broken since the value change after initialize call
-        // but from a practical POV this is fine since we only call this method
-        // after initialize call
+        // this code is actually broken since the value change after
+        // initialize call but from a practical POV this is fine since we
+        // only call this method after initialization.
         if (obj == this) {
             return true;
         }
@@ -150,9 +151,9 @@ public final class TestDirectoryProvider
      */
     @Override
     public int hashCode() {
-        // this code is actually broken since the value change after initialize call
-        // but from a practical POV this is fine since we only call this method
-        // after initialize call
+        // this code is actually broken since the value change after
+        // initialize call but from a practical POV this is fine since we
+        // only call this method after initialization.
         int hash = 7;
         return 29 * hash + indexName.hashCode();
     }

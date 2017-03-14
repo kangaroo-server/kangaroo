@@ -60,7 +60,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                  */
                 @Override
                 protected void loadTestData(final Session session) {
-                    authGrantContext = ApplicationBuilder.newApplication(session)
+                    authGrantContext = ApplicationBuilder
+                            .newApplication(session)
                             .client(ClientType.AuthorizationGrant, true)
                             .authenticator("test")
                             .scope("debug")
@@ -70,7 +71,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                             .identity("remote_identity")
                             .build();
 
-                    ownerCredsContext = ApplicationBuilder.newApplication(session)
+                    ownerCredsContext = ApplicationBuilder
+                            .newApplication(session)
                             .client(ClientType.OwnerCredentials, true)
                             .authenticator("test")
                             .scope("debug")
@@ -80,7 +82,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                             .identity("remote_identity")
                             .build();
 
-                    implicitContext = ApplicationBuilder.newApplication(session)
+                    implicitContext = ApplicationBuilder
+                            .newApplication(session)
                             .client(ClientType.Implicit, true)
                             .authenticator("test")
                             .scope("debug")

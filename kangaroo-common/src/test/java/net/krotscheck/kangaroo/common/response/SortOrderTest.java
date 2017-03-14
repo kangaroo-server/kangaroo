@@ -65,7 +65,7 @@ public final class SortOrderTest {
     }
 
     /**
-     * Assert that valueOf conversions work
+     * Assert that valueOf conversions works.
      */
     @Test
     public void testValueOf() {

@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -30,6 +31,7 @@ import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
@@ -112,11 +114,26 @@ public final class ClientServiceCRUDTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (id == null) {
-            return "/client/";
+    protected URI getUrlForId(final String id) {
+        UriBuilder builder = UriBuilder.fromPath("/client/");
+        if (id != null) {
+            builder.path(id);
         }
-        return String.format("/client/%s", id);
+        return builder.build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return getUrlForId((String) null);
+        }
+        return getUrlForId(entity.getId().toString());
     }
 
     /**

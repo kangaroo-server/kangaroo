@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -36,6 +37,8 @@ import org.junit.runners.Parameterized;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
@@ -116,11 +119,26 @@ public final class RoleServiceCRUDTest
      * @return The resource URL.
      */
     @Override
-    protected String getUrlForId(final String id) {
-        if (id == null) {
-            return "/role/";
+    protected URI getUrlForId(final String id) {
+        UriBuilder builder = UriBuilder.fromPath("/role/");
+        if (id != null) {
+            builder.path(id);
         }
-        return String.format("/role/%s", id);
+        return builder.build();
+    }
+
+    /**
+     * Construct the request URL for this test given a specific resource ID.
+     *
+     * @param entity The entity to use.
+     * @return The resource URL.
+     */
+    @Override
+    protected URI getUrlForEntity(final AbstractEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return getUrlForId((String) null);
+        }
+        return getUrlForId(entity.getId().toString());
     }
 
     /**
@@ -132,7 +150,7 @@ public final class RoleServiceCRUDTest
      */
     private String getUrlForSubresourceId(final String id,
                                           final String subId) {
-        String firstPath = getUrlForId(id);
+        URI firstPath = getUrlForId(id);
 
         if (subId == null) {
             return String.format("%s/scope/", firstPath);
@@ -884,8 +902,8 @@ public final class RoleServiceCRUDTest
         // other than the admin app.
         OAuthToken token = getAdminContext()
                 .bearerToken(getAdminClient(),
-                getTokenScope(),
-                Scope.SCOPE_ADMIN).getToken();
+                        getTokenScope(),
+                        Scope.SCOPE_ADMIN).getToken();
 
         // Build our request URI for existing linked roles and scopes.
         EnvironmentBuilder context = getAdminContext();
