@@ -24,6 +24,8 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientRedirect;
+import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
@@ -135,12 +137,12 @@ public final class EnvironmentBuilder {
     /**
      * The last redirect created.
      */
-    private URI redirectUri;
+    private ClientRedirect redirect;
 
     /**
      * The last referrer created.
      */
-    private URI referrerUri;
+    private ClientReferrer referrer;
 
     /**
      * The list of entities that are under management by this builder.
@@ -191,6 +193,24 @@ public final class EnvironmentBuilder {
      */
     public Client getClient() {
         return getRefreshed(client);
+    }
+
+    /**
+     * Get the current redirect.
+     *
+     * @return The current redirect.
+     */
+    public ClientRedirect getRedirect() {
+        return getRefreshed(redirect);
+    }
+
+    /**
+     * Get the current referrer.
+     *
+     * @return The current referrer.
+     */
+    public ClientReferrer getReferrer() {
+        return getRefreshed(referrer);
     }
 
     /**
@@ -477,16 +497,20 @@ public final class EnvironmentBuilder {
     /**
      * Add a redirect to the current client context.
      *
-     * @param redirect The Redirect URI for the client.
+     * @param redirectUrl The Redirect URI for the client.
      * @return This builder.
      */
-    public EnvironmentBuilder redirect(final String redirect) {
+    public EnvironmentBuilder redirect(final String redirectUrl) {
+        URI redirectUri = UriBuilder.fromUri(redirectUrl).build();
+
         Client c = getClient();
+        redirect = new ClientRedirect();
+        redirect.setClient(c);
+        redirect.setUri(redirectUri);
 
-        redirectUri = UriBuilder.fromUri(redirect).build();
-        c.getRedirects().add(redirectUri);
+        c.getRedirects().add(redirect);
 
-        persist(c);
+        persist(redirect);
 
         return this;
     }
@@ -494,16 +518,20 @@ public final class EnvironmentBuilder {
     /**
      * Add a referrer to the current client context.
      *
-     * @param referrer The Referral URI for the client.
+     * @param referrerUrl The Referral URI for the client.
      * @return This builder.
      */
-    public EnvironmentBuilder referrer(final String referrer) {
+    public EnvironmentBuilder referrer(final String referrerUrl) {
+        URI referrerUri = UriBuilder.fromUri(referrerUrl).build();
+
         Client c = getClient();
+        referrer = new ClientReferrer();
+        referrer.setClient(c);
+        referrer.setUri(referrerUri);
 
-        referrerUri = UriBuilder.fromUri(referrer).build();
-        c.getReferrers().add(referrerUri);
+        c.getReferrers().add(referrer);
 
-        persist(c);
+        persist(referrer);
 
         return this;
     }
@@ -635,7 +663,7 @@ public final class EnvironmentBuilder {
      */
     public EnvironmentBuilder authToken() {
         return token(OAuthTokenType.Authorization, false, null,
-                redirectUri.toString(),
+                redirect.getUri().toString(),
                 null);
     }
 
@@ -813,7 +841,7 @@ public final class EnvironmentBuilder {
     public EnvironmentBuilder authenticatorState() {
         authenticatorState = new AuthenticatorState();
         authenticatorState.setAuthenticator(getAuthenticator());
-        authenticatorState.setClientRedirect(redirectUri);
+        authenticatorState.setClientRedirect(redirect.getUri());
         persist(authenticatorState);
         return this;
     }
@@ -842,12 +870,12 @@ public final class EnvironmentBuilder {
      */
     public void clear() {
 
+        // Clear everything...
+        session.clear();
+
         // Delete the entities in reverse order.
         for (int i = trackedEntities.size() - 1; i >= 0; i--) {
             AbstractEntity e = trackedEntities.get(i);
-
-            // First, evict the entity.
-            session.evict(e);
 
             // Now, reload it.
             e = session.get(e.getClass(), e.getId());
@@ -878,8 +906,8 @@ public final class EnvironmentBuilder {
         user = null;
         userIdentity = null;
         token = null;
-        redirectUri = null;
-        referrerUri = null;
+        redirect = null;
+        referrer = null;
         authenticatorState = null;
     }
 

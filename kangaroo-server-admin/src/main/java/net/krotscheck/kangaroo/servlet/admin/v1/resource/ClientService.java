@@ -126,7 +126,7 @@ public final class ClientService extends AbstractService {
      * @param order         The sort order, ASC or DESC.
      * @param ownerId       An optional user ID to filter by.
      * @param applicationId An optional application ID to filter by.
-     * @param clientType    An optional client type to filter by..
+     * @param clientType    An optional client type to filter by.
      * @return A list of search results.
      */
     @GET
@@ -334,6 +334,36 @@ public final class ClientService extends AbstractService {
         s.delete(client);
 
         return Response.noContent().build();
+    }
+
+    /**
+     * Expose a subresource that manages the redirects on a client. Note that
+     * the OAuth2 flow will not be initialized until the path fully resolves, so
+     * all auth checks have to happen in the child resource.
+     *
+     * @param clientId The ID of the client.
+     * @return The subresource.
+     */
+    @Path("/{clientId: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}"
+            + "-[a-f0-9]{4}-[a-f0-9]{12}}/redirect")
+    public Class<ClientRedirectService> getRedirectService(
+            @PathParam("clientId") final UUID clientId) {
+        return ClientRedirectService.class;
+    }
+
+    /**
+     * Expose a subresource that manages the referrers on a client. Note that
+     * the OAuth2 flow will not be initialized until the path fully resolves, so
+     * all auth checks have to happen in the child resource.
+     *
+     * @param clientId The ID of the client.
+     * @return The subresource.
+     */
+    @Path("/{clientId: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}"
+            + "-[a-f0-9]{4}-[a-f0-9]{12}}/referrer")
+    public Class<ClientReferrerService> getReferrerService(
+            @PathParam("clientId") final UUID clientId) {
+        return ClientReferrerService.class;
     }
 
     /**
