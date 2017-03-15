@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.Unsuppo
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.Role;
 import org.junit.Assert;
@@ -80,6 +81,96 @@ public final class ValidationUtilTest {
         // Create a new instance for coverage.
         c.setAccessible(true);
         c.newInstance();
+    }
+
+    /**
+     * Check list valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateClientRedirects() throws Exception {
+        List<ClientRedirect> testRedirects = new ArrayList<>();
+
+        ClientRedirect redirect1 = new ClientRedirect();
+        redirect1.setUri(new URI("http://one.example.com"));
+        testRedirects.add(redirect1);
+
+        ClientRedirect redirect2 = new ClientRedirect();
+        redirect2.setUri(new URI("http://two.example.com"));
+        testRedirects.add(redirect2);
+
+        URI result =
+                ValidationUtil.requireValidRedirect("http://one.example.com",
+                        testRedirects);
+        Assert.assertEquals("http://one.example.com", result.toString());
+    }
+
+    /**
+     * Check list valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testValidateClientRedirectsWithUri() throws Exception {
+        List<ClientRedirect> testRedirects = new ArrayList<>();
+
+        ClientRedirect redirect1 = new ClientRedirect();
+        redirect1.setUri(new URI("http://one.example.com"));
+        testRedirects.add(redirect1);
+
+        ClientRedirect redirect2 = new ClientRedirect();
+        redirect2.setUri(new URI("http://two.example.com"));
+        testRedirects.add(redirect2);
+
+        URI validUri = URI.create("http://two.example.com");
+
+        URI result =
+                ValidationUtil.requireValidRedirect(validUri,
+                        testRedirects);
+        Assert.assertEquals(validUri, result);
+    }
+
+    /**
+     * Check list valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testValidateClientRedirectsWithNullUri() throws Exception {
+        List<ClientRedirect> testRedirects = new ArrayList<>();
+
+        ClientRedirect redirect1 = new ClientRedirect();
+        redirect1.setUri(new URI("http://one.example.com"));
+        testRedirects.add(redirect1);
+
+        ClientRedirect redirect2 = new ClientRedirect();
+        redirect2.setUri(new URI("http://two.example.com"));
+        testRedirects.add(redirect2);
+
+        ValidationUtil.requireValidRedirect((URI) null, testRedirects);
+    }
+
+    /**
+     * Check list valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test(expected = InvalidRequestException.class)
+    public void testValidateClientRedirectsWithNullString() throws Exception {
+        List<ClientRedirect> testRedirects = new ArrayList<>();
+
+        ClientRedirect redirect1 = new ClientRedirect();
+        redirect1.setUri(new URI("http://one.example.com"));
+        testRedirects.add(redirect1);
+
+        ClientRedirect redirect2 = new ClientRedirect();
+        redirect2.setUri(new URI("http://two.example.com"));
+        testRedirects.add(redirect2);
+
+        URI result = ValidationUtil.requireValidRedirect((String) null,
+                testRedirects);
+        Assert.assertNull(result);
     }
 
     /**
@@ -186,6 +277,28 @@ public final class ValidationUtilTest {
 
         ValidationUtil.requireValidRedirect("http://one.example.com/bar",
                 testSet);
+    }
+
+    /**
+     * Check list valid redirect.
+     *
+     * @throws Exception Thrown if validation fails.
+     */
+    @Test
+    public void testInvalidClientRedirects() throws Exception {
+        List<ClientRedirect> testRedirects = new ArrayList<>();
+
+        ClientRedirect redirect1 = new ClientRedirect();
+        redirect1.setUri(new URI("http://one.example.com"));
+        testRedirects.add(redirect1);
+
+        ClientRedirect redirect2 = new ClientRedirect();
+        redirect2.setUri(new URI("http://two.example.com"));
+        testRedirects.add(redirect2);
+
+        URI result = ValidationUtil.validateRedirect("http://three.example.com",
+                testRedirects);
+        Assert.assertNull(result);
     }
 
     /**

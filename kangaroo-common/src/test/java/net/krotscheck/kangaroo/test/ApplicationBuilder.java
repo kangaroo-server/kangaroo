@@ -24,6 +24,8 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientRedirect;
+import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
@@ -358,10 +360,13 @@ public final class ApplicationBuilder {
      * @return This builder.
      */
     public ApplicationBuilder redirect(final String redirect) {
+        context.redirect = new ClientRedirect();
+        context.redirect.setClient(context.client);
+        context.redirect.setUri(UriBuilder.fromUri(redirect).build());
 
-        context.redirectUri = UriBuilder.fromUri(redirect).build();
-        context.client.getRedirects().add(context.redirectUri);
+        context.client.getRedirects().add(context.redirect);
 
+        persist(context.redirect);
         persist(context.client);
 
         return this;
@@ -374,9 +379,13 @@ public final class ApplicationBuilder {
      * @return This builder.
      */
     public ApplicationBuilder referrer(final String referrer) {
-        context.referrerUri = UriBuilder.fromUri(referrer).build();
-        context.client.getReferrers().add(context.referrerUri);
+        context.referrer = new ClientReferrer();
+        context.referrer.setClient(context.client);
+        context.referrer.setUri(UriBuilder.fromUri(referrer).build());
 
+        context.client.getReferrers().add(context.referrer);
+
+        persist(context.referrer);
         persist(context.client);
 
         return this;
@@ -478,7 +487,7 @@ public final class ApplicationBuilder {
      */
     public ApplicationBuilder authToken() {
         return token(OAuthTokenType.Authorization, false, null,
-                context.redirectUri.toString(), null);
+                context.redirect.getUri().toString(), null);
     }
 
     /**
@@ -656,7 +665,7 @@ public final class ApplicationBuilder {
      */
     public ApplicationBuilder authenticatorState() {
         context.authenticatorState = new AuthenticatorState();
-        context.authenticatorState.setClientRedirect(context.redirectUri);
+        context.authenticatorState.setClientRedirect(context.redirect.getUri());
         context.authenticatorState.setAuthenticator(context.authenticator);
 
         persist(context.authenticatorState);
@@ -803,12 +812,12 @@ public final class ApplicationBuilder {
         /**
          * The last redirect created.
          */
-        private URI redirectUri;
+        private ClientRedirect redirect;
 
         /**
          * The last referrer created.
          */
-        private URI referrerUri;
+        private ClientReferrer referrer;
 
         /**
          * Get the current application.
@@ -926,8 +935,8 @@ public final class ApplicationBuilder {
             snapshot.user = user;
             snapshot.userIdentity = userIdentity;
             snapshot.token = token;
-            snapshot.redirectUri = redirectUri;
-            snapshot.referrerUri = referrerUri;
+            snapshot.redirect = redirect;
+            snapshot.referrer = referrer;
 
             return snapshot;
         }

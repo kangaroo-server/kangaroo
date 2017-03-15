@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
+import net.krotscheck.kangaroo.database.entity.ClientRedirect;
+import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.servlet.admin.v1.AdminV1API;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
@@ -287,7 +289,20 @@ public abstract class DAbstractResourceTest extends DContainerTest {
      */
     protected final Response postEntity(final AbstractEntity entity,
                                         final String authHeader) {
+        // Set a default.
         URI location = getUrlForId("");
+
+        // If we have an entity, use it.
+        if (entity != null) {
+            // Temporarily null any ID from the entity so we generate a proper
+            // POST path.
+            UUID oldId = entity.getId();
+            entity.setId(null);
+            location = getUrlForEntity(entity);
+            entity.setId(oldId);
+        }
+
+        // Issue the request.
         Builder t = target(location.getPath()).request();
 
         if (!Strings.isNullOrEmpty(authHeader)) {
@@ -372,7 +387,8 @@ public abstract class DAbstractResourceTest extends DContainerTest {
         if (token != null) {
             authHeader = HttpUtil.authHeaderBearer(token.getId());
         }
-        return deleteEntity(entity.getId().toString(), authHeader);
+        URI location = getUrlForEntity(entity);
+        return deleteEntity(location, authHeader);
     }
 
     /**
@@ -533,6 +549,12 @@ public abstract class DAbstractResourceTest extends DContainerTest {
         omittedFields.add("modifiedDate");
         omittedFields.add("owner");
         omittedFields.add("password");
+        omittedFields.add("redirects");
+        omittedFields.add("referrers");
+
+        if (left instanceof ClientRedirect || left instanceof ClientReferrer) {
+            omittedFields.add("client");
+        }
 
         // First assert that we have the same type.
         Assert.assertEquals(left.getClass(), right.getClass());

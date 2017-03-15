@@ -336,12 +336,25 @@ databaseChangeLog:
           tableName: client_referrers
           columns:
             - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_client_referrers_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
                 name: client
                 type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
-                name: referrer
+                name: uri
                 type: varchar(255)
                 constraints:
                   nullable: false
@@ -353,8 +366,8 @@ databaseChangeLog:
           indexName: idx_client_referrers_client
           tableName: client_referrers
       - addUniqueConstraint:
-          columnNames: client, referrer
-          constraintName: uq_client_referrers_client_referrer
+          columnNames: client, uri
+          constraintName: uq_client_referrers_client_uri
           tableName: client_referrers
       - addForeignKeyConstraint:
           baseColumnNames: client
@@ -371,12 +384,25 @@ databaseChangeLog:
           tableName: client_redirects
           columns:
             - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_client_redirects_id
+            - column:
+                name: createdDate
+                type: datetime
+            - column:
+                name: modifiedDate
+                type: datetime
+            - column:
                 name: client
                 type: BINARY(16)
                 constraints:
                   nullable: false
             - column:
-                name: redirect
+                name: uri
                 type: varchar(255)
                 constraints:
                   nullable: false
@@ -388,8 +414,8 @@ databaseChangeLog:
           indexName: idx_client_redirects_client
           tableName: client_redirects
       - addUniqueConstraint:
-          columnNames: client, redirect
-          constraintName: uq_client_redirects_client_redirect
+          columnNames: client, uri
+          constraintName: uq_client_redirects_client_uri
           tableName: client_redirects
       - addForeignKeyConstraint:
           baseColumnNames: client

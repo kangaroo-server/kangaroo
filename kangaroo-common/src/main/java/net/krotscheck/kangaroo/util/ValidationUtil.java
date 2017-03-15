@@ -21,9 +21,11 @@ package net.krotscheck.kangaroo.util;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
+import net.krotscheck.kangaroo.database.entity.AbstractClientUri;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.Role;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * A utility filled with validation tools.
@@ -83,6 +86,38 @@ public final class ValidationUtil {
      * @param redirects A set of redirect url's to check against.
      * @return The validated redirect URI, or null.
      */
+    public static URI requireValidRedirect(
+            final URI redirect, final List<ClientRedirect> redirects) {
+        URI validRedirect = validateRedirect(redirect, redirects);
+        if (validRedirect == null) {
+            throw new InvalidRequestException();
+        }
+        return validRedirect;
+    }
+
+    /**
+     * Require that the provided string matches the set of redirection URL's.
+     *
+     * @param redirect  The URI to check.
+     * @param redirects A set of redirect url's to check against.
+     * @return The validated redirect URI, or null.
+     */
+    public static URI requireValidRedirect(
+            final String redirect, final List<ClientRedirect> redirects) {
+        URI validRedirect = validateRedirect(redirect, redirects);
+        if (validRedirect == null) {
+            throw new InvalidRequestException();
+        }
+        return validRedirect;
+    }
+
+    /**
+     * Require that the provided string matches the set of redirection URL's.
+     *
+     * @param redirect  The URI to check.
+     * @param redirects A set of redirect url's to check against.
+     * @return The validated redirect URI, or null.
+     */
     public static URI requireValidRedirect(final String redirect,
                                            final Set<URI> redirects) {
         URI validRedirect = validateRedirect(redirect, redirects);
@@ -101,9 +136,41 @@ public final class ValidationUtil {
      * @return The validated redirect URI, or null.
      */
     public static URI validateRedirect(final URI redirect,
+                                       final List<ClientRedirect> redirects) {
+        if (redirect == null) {
+            return validateRedirect((String) null, redirects);
+        }
+        return validateRedirect(redirect.toString(), redirects);
+    }
+
+    /**
+     * This method assists in determining if a particular URI is valid for
+     * the scope of this client.
+     *
+     * @param redirect  The URI to check.
+     * @param redirects A set of redirect url's to check against.
+     * @return The validated redirect URI, or null.
+     */
+    public static URI validateRedirect(final String redirect,
+                                       final List<ClientRedirect> redirects) {
+        Set<URI> redirectUris = redirects.stream()
+                .map(AbstractClientUri::getUri)
+                .collect(Collectors.toSet());
+        return validateRedirect(redirect, redirectUris);
+    }
+
+    /**
+     * This method assists in determining if a particular URI is valid for
+     * the scope of this client.
+     *
+     * @param redirect  The URI to check.
+     * @param redirects A set of redirect url's to check against.
+     * @return The validated redirect URI, or null.
+     */
+    public static URI validateRedirect(final URI redirect,
                                        final Set<URI> redirects) {
         if (redirect == null) {
-            return null;
+            return validateRedirect((String) null, redirects);
         }
         return validateRedirect(redirect.toString(), redirects);
     }
@@ -362,8 +429,7 @@ public final class ValidationUtil {
             throw new InvalidScopeException();
         }
 
-        // Convert the role scope list into a storted map.
-
+        // Convert the role scope list into a sorted map.
         return revalidateScope(requestedScopes, originalScopes,
                 role.getScopes());
     }

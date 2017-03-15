@@ -300,7 +300,7 @@ public final class OAuthTokenServiceCRUDTest
         URI redirect = UriBuilder.fromPath("http://invalid.example.com/")
                 .build();
         if (client.getRedirects().size() > 0) {
-            redirect = client.getRedirects().iterator().next();
+            redirect = client.getRedirects().iterator().next().getUri();
         }
 
         OAuthToken t = new OAuthToken();
@@ -597,7 +597,7 @@ public final class OAuthTokenServiceCRUDTest
         testEntity.setAuthToken(bearerToken);
         if (testEntity.getRedirect() == null) {
             testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+                    .iterator().next().getUri());
         }
 
         // Issue the request.
@@ -616,7 +616,7 @@ public final class OAuthTokenServiceCRUDTest
         testEntity.setTokenType(OAuthTokenType.Bearer);
         if (testEntity.getRedirect() == null) {
             testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+                    .iterator().next().getUri());
         }
 
         // Issue the request.
@@ -667,7 +667,11 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPostAuthNoRedirect() throws Exception {
-        OAuthToken testEntity = createValidEntity(getAdminContext());
+        // Make sure there's more than one redirect in this context.
+        EnvironmentBuilder builder = getAdminContext()
+                .redirect("http://one.example.com/redirect")
+                .redirect("http://two.example.com/redirect");
+        OAuthToken testEntity = createValidEntity(builder);
         testEntity.setTokenType(OAuthTokenType.Authorization);
         testEntity.setRedirect(null);
 
@@ -957,7 +961,7 @@ public final class OAuthTokenServiceCRUDTest
                 OAuthTokenType.Refresh);
         if (testEntity.getRedirect() == null) {
             testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+                    .iterator().next().getUri());
         }
 
         // Issue the request.
@@ -980,7 +984,7 @@ public final class OAuthTokenServiceCRUDTest
                 OAuthTokenType.Bearer);
         if (testEntity.getRedirect() == null) {
             testEntity.setRedirect(getAdminClient().getRedirects()
-                    .iterator().next());
+                    .iterator().next().getUri());
         }
 
         // Issue the request.
@@ -1021,7 +1025,10 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Test
     public void testPutAuthNoRedirect() throws Exception {
-        OAuthToken testEntity = createValidToken(getAdminContext(),
+        EnvironmentBuilder builder = getAdminContext()
+                .redirect("http://one.example.com/redirect")
+                .redirect("http://two.example.com/redirect");
+        OAuthToken testEntity = createValidToken(builder,
                 OAuthTokenType.Authorization);
         testEntity.setRedirect(null);
 

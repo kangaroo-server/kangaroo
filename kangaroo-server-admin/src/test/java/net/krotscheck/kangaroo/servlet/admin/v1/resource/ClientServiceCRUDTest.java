@@ -21,6 +21,8 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
+import net.krotscheck.kangaroo.database.entity.ClientRedirect;
+import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.EnvironmentBuilder;
@@ -190,10 +192,22 @@ public final class ClientServiceCRUDTest
         c.setName(RandomStringUtils.randomAlphanumeric(10));
         c.setClientSecret(RandomStringUtils.randomAlphanumeric(10));
         c.setType(ClientType.ClientCredentials);
-        c.getRedirects().add(URI.create("http://example.com/redirect1"));
-        c.getRedirects().add(URI.create("http://example.com/redirect2"));
-        c.getReferrers().add(URI.create("http://example.com/referrer1"));
-        c.getReferrers().add(URI.create("http://example.com/referrer2"));
+
+        ClientRedirect redirect1 = new ClientRedirect();
+        redirect1.setUri(URI.create("http://example.com/redirect1"));
+        ClientRedirect redirect2 = new ClientRedirect();
+        redirect2.setUri(URI.create("http://example.com/redirect2"));
+
+        ClientReferrer referrer1 = new ClientReferrer();
+        referrer1.setUri(URI.create("http://example.com/redirect1"));
+        ClientReferrer referrer2 = new ClientReferrer();
+        referrer2.setUri(URI.create("http://example.com/redirect2"));
+
+        c.getRedirects().add(redirect1);
+        c.getRedirects().add(redirect2);
+        c.getReferrers().add(referrer1);
+        c.getReferrers().add(referrer2);
+
         c.getConfiguration().put("foo", "bar");
         c.getConfiguration().put("lol", "cat");
         return c;
