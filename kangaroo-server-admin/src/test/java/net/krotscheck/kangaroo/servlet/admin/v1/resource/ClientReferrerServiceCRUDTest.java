@@ -23,7 +23,8 @@ import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -43,7 +44,7 @@ import java.util.UUID;
  * Unit test suite for the client redirect subresource.
  */
 public final class ClientReferrerServiceCRUDTest
-        extends DAbstractSubserviceCRUDTest<Client, ClientReferrer> {
+        extends AbstractSubserviceCRUDTest<Client, ClientReferrer> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -208,7 +209,7 @@ public final class ClientReferrerServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected Client getParentEntity(final EnvironmentBuilder context) {
+    protected Client getParentEntity(final ApplicationContext context) {
         return context.getClient();
     }
 
@@ -220,7 +221,7 @@ public final class ClientReferrerServiceCRUDTest
      * @return A valid entity.
      */
     @Override
-    protected ClientReferrer createValidEntity(final EnvironmentBuilder context,
+    protected ClientReferrer createValidEntity(final ApplicationContext context,
                                                final Client parent) {
         ClientReferrer r = new ClientReferrer();
         r.setClient(parent);
@@ -236,7 +237,7 @@ public final class ClientReferrerServiceCRUDTest
      * @return A valid entity.
      */
     @Override
-    protected Client createParentEntity(final EnvironmentBuilder context) {
+    protected Client createParentEntity(final ApplicationContext context) {
         Client c = new Client();
         c.setApplication(context.getApplication());
         c.setName(UUID.randomUUID().toString());
@@ -251,7 +252,7 @@ public final class ClientReferrerServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected ClientReferrer getEntity(final EnvironmentBuilder context) {
+    protected ClientReferrer getEntity(final ApplicationContext context) {
         return context.getReferrer();
     }
 
@@ -289,8 +290,13 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Test
     public void testPostDuplicate() throws Exception {
-        ClientReferrer testEntity = createValidEntity(getSecondaryContext());
-        testEntity.setUri(getSecondaryContext().getReferrer().getUri());
+        ApplicationContext testContext = getAdminContext();
+        Client c = getAttached(getParentEntity(testContext));
+        URI existing = c.getReferrers().get(0).getUri();
+
+        ClientReferrer testEntity = new ClientReferrer();
+        testEntity.setClient(c);
+        testEntity.setUri(existing);
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
@@ -308,7 +314,7 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Test
     public void testPut() throws Exception {
-        EnvironmentBuilder builder = getAdminContext();
+        ApplicationContext builder = getAdminContext();
         ClientReferrer oldEntity = builder.getReferrer();
 
         // Copy the most recent, then use the referrer from the previous.
@@ -335,7 +341,7 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Test
     public void testPutNoUri() throws Exception {
-        EnvironmentBuilder builder = getAdminContext();
+        ApplicationContext builder = getAdminContext();
         ClientReferrer oldEntity = builder.getReferrer();
 
         // Copy the most recent, then use the referrer from the previous.
@@ -360,16 +366,19 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Test
     public void testPutDuplicate() throws Exception {
-        EnvironmentBuilder builder = getAdminContext()
-                .referrer("http://another.example.com")
-                .referrer("http://yet.another.example.com");
+        String rawUrl = String.format("http://%s/redirect",
+                RandomStringUtils.randomAlphabetic(10));
+        ApplicationContext builder = getAdminContext().getBuilder()
+                .referrer(rawUrl)
+                .referrer()
+                .build();
         ClientReferrer oldEntity = builder.getReferrer();
 
         // Copy the most recent, then use the referrer from the previous.
         ClientReferrer duplicateReferrer = new ClientReferrer();
         duplicateReferrer.setClient(oldEntity.getClient());
         duplicateReferrer.setId(oldEntity.getId());
-        duplicateReferrer.setUri(URI.create("http://another.example.com"));
+        duplicateReferrer.setUri(URI.create(rawUrl));
 
         // Issue the request.
         Response r = putEntity(duplicateReferrer, getAdminToken());
@@ -388,7 +397,7 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Test
     public void testDeleteAdminApp() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
 
         // Issue the request.
         Response r = deleteEntity(context.getReferrer(), getAdminToken());

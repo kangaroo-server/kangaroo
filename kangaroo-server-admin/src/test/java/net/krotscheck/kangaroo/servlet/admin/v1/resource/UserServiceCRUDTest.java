@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -41,7 +41,7 @@ import java.util.Collection;
  * @author Michael Krotscheck
  */
 public final class UserServiceCRUDTest
-        extends DAbstractServiceCRUDTest<User> {
+        extends AbstractServiceCRUDTest<User> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -112,7 +112,7 @@ public final class UserServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected User getEntity(final EnvironmentBuilder context) {
+    protected User getEntity(final ApplicationContext context) {
         return context.getUser();
     }
 
@@ -133,7 +133,7 @@ public final class UserServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected User createValidEntity(final EnvironmentBuilder context) {
+    protected User createValidEntity(final ApplicationContext context) {
         User newUser = new User();
         newUser.setApplication(context.getApplication());
         newUser.setRole(context.getRole());
@@ -244,7 +244,7 @@ public final class UserServiceCRUDTest
 
         // Issue the request.
         Response r = putEntity(user, getAdminToken());
-        if (shouldSucceed()) {
+        if (isAccessible(entity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

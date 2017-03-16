@@ -24,7 +24,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 public final class UserIdentityServiceCRUDTest
-        extends DAbstractServiceCRUDTest<UserIdentity> {
+        extends AbstractServiceCRUDTest<UserIdentity> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -144,7 +144,7 @@ public final class UserIdentityServiceCRUDTest
      * @return The client currently active in the admin app.
      */
     @Override
-    protected UserIdentity getEntity(final EnvironmentBuilder context) {
+    protected UserIdentity getEntity(final ApplicationContext context) {
         return context.getUserIdentity();
     }
 
@@ -186,7 +186,7 @@ public final class UserIdentityServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected UserIdentity createValidEntity(final EnvironmentBuilder context) {
+    protected UserIdentity createValidEntity(final ApplicationContext context) {
         UserIdentity identity = new UserIdentity();
         identity.setRemoteId(UUID.randomUUID().toString());
         identity.setPassword(UUID.randomUUID().toString());
@@ -195,7 +195,8 @@ public final class UserIdentityServiceCRUDTest
         identity.getClaims().put("lol", "cat");
 
         // Find an appropriate authenticator
-        Authenticator authenticator = context.getApplication().getClients()
+        Authenticator authenticator = getAttached(context.getApplication())
+                .getClients()
                 .stream()
                 .flatMap((c) -> c.getAuthenticators().stream())
                 .filter((a -> a.getType().equals("password")))
@@ -213,10 +214,12 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testGetNoPasswordSalt() throws Exception {
-        EnvironmentBuilder builder = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .user()
-                .login("foo", "bar");
-        UserIdentity testingEntity = builder.getUserIdentity();
+                .login("foo", "bar")
+                .build();
+        UserIdentity testingEntity = testContext.getUserIdentity();
 
         Assert.assertNotNull(testingEntity.getPassword());
         Assert.assertNotNull(testingEntity.getSalt());
@@ -225,6 +228,8 @@ public final class UserIdentityServiceCRUDTest
         Response r = getEntity(testingEntity, getAdminToken());
 
         if (shouldSucceed()) {
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+
             UserIdentity response = r.readEntity(UserIdentity.class);
             Assert.assertEquals(testingEntity.getId(), response.getId());
             Assert.assertNull(response.getPassword());
@@ -303,8 +308,10 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPostWrongAuthenticator() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
-        context.authenticator("not_password");
+        ApplicationContext context = getAdminContext()
+                .getBuilder()
+                .authenticator("not_password")
+                .build();
         UserIdentity testEntity = createValidEntity(context);
         testEntity.setAuthenticator(context.getAuthenticator());
 
@@ -422,15 +429,21 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPutNoPasswordSalt() throws Exception {
-        EnvironmentBuilder context = getSecondaryContext();
-        UserIdentity testEntity = getEntity(context);
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .user()
+                .login("test", "password")
+                .build();
+        UserIdentity testEntity = context.getUserIdentity();
 
         testEntity.setPassword("OMG PASSWORD");
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(testEntity, getAdminToken())) {
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+
             UserIdentity response = r.readEntity(UserIdentity.class);
             Assert.assertNull(response.getPassword());
             Assert.assertNull(response.getSalt());
@@ -446,17 +459,21 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPutChangeAuthenticator() throws Exception {
-        EnvironmentBuilder context = getSecondaryContext();
-        UserIdentity testEntity = getEntity(context);
-        Authenticator newAuthenticator = context.authenticator("new")
-                .getAuthenticator();
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .user()
+                .login("test", "password")
+                .authenticator("new")
+                .build();
+        UserIdentity testEntity = context.getUserIdentity();
+        Authenticator newAuthenticator = context.getAuthenticator();
 
         testEntity.setAuthenticator(newAuthenticator);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(testEntity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -470,17 +487,22 @@ public final class UserIdentityServiceCRUDTest
      */
     @Test
     public void testPutChangeUser() throws Exception {
-        EnvironmentBuilder context = getSecondaryContext();
-        UserIdentity testEntity = getEntity(context);
-        User newUser = context.user()
-                .getUser();
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .user()
+                .login("test", "password")
+                .user()
+                .build();
+        UserIdentity originalEntity = context.getUserIdentity();
+        User newUser = context.getUser();
 
+        UserIdentity testEntity = (UserIdentity) originalEntity.clone();
         testEntity.setUser(newUser);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(originalEntity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

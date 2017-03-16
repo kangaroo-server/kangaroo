@@ -25,7 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.Session;
@@ -42,6 +42,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Test the CRUD methods of the scope service.
@@ -49,7 +50,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 public final class RoleServiceCRUDTest
-        extends DAbstractServiceCRUDTest<Role> {
+        extends AbstractServiceCRUDTest<Role> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -164,7 +165,7 @@ public final class RoleServiceCRUDTest
      * @return The client currently active in the admin app.
      */
     @Override
-    protected Role getEntity(final EnvironmentBuilder context) {
+    protected Role getEntity(final ApplicationContext context) {
         return context.getRole();
     }
 
@@ -205,7 +206,7 @@ public final class RoleServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected Role createValidEntity(final EnvironmentBuilder context) {
+    protected Role createValidEntity(final ApplicationContext context) {
         Role role = new Role();
         role.setApplication(context.getApplication());
         role.setName(RandomStringUtils.randomAlphanumeric(10));
@@ -280,16 +281,17 @@ public final class RoleServiceCRUDTest
     @Test
     public void testPutRole() throws Exception {
         Role testEntity = getEntity(getSecondaryContext());
-        testEntity.setName("new name");
+        String newName = UUID.randomUUID().toString();
+        testEntity.setName(newName);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(testEntity, getAdminToken())) {
             Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Role result = r.readEntity(Role.class);
             Assert.assertEquals(testEntity.getId(), result.getId());
-            Assert.assertEquals("new name", testEntity.getName());
+            Assert.assertEquals(newName, testEntity.getName());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -304,13 +306,14 @@ public final class RoleServiceCRUDTest
     public void testPutChangeApplication() throws Exception {
         Application otherApplication = getAdminContext()
                 .getApplication();
-        Role testEntity = getEntity(getSecondaryContext());
+        Role entity = getEntity(getSecondaryContext());
+        Role testEntity = (Role) entity.clone();
 
         testEntity.setApplication(otherApplication);
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
-        if (shouldSucceed()) {
+        if (isAccessible(entity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -324,18 +327,17 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testPutAdminApp() throws Exception {
-        Role testEntity = getEntity(getAdminContext());
-        testEntity.setName("new name");
+        Role testEntity = (Role) getEntity(getAdminContext()).clone();
+        testEntity.setName(UUID.randomUUID().toString());
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
-        if (shouldSucceed()) {
+        if (isAccessible(testEntity, getAdminToken())) {
             assertErrorResponse(r, Status.FORBIDDEN);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
     }
-
 
     /**
      * Assert that we cannot delete an admin role.
@@ -367,16 +369,20 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
-                .bearerToken(getAdminClient(),
-                        getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                .getBuilder()
+                .bearerToken(getAdminClient(), getTokenScope(),
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = getEntity(context);
-        ApplicationScope scope = context.scope("test").getScope();
+        ApplicationContext testContext = getSecondaryContext()
+                .getBuilder()
+                .scope(UUID.randomUUID().toString())
+                .build();
+        Role role = getEntity(testContext);
         String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+                testContext.getScope().getId().toString());
 
         // Execute the request.
         Response r = target(url)
@@ -385,15 +391,16 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .post(null);
 
-        if (shouldSucceed()) {
+        if (isAccessible(testContext.getScope(), token)) {
             Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
 
             s.refresh(role);
-            Assert.assertTrue(role.getScopes().values().contains(scope));
+            Assert.assertTrue(role.getScopes().values()
+                    .contains(testContext.getScope()));
 
             // Cleanup
             Transaction t = s.beginTransaction();
-            role.getScopes().remove(scope.getName());
+            role.getScopes().remove(testContext.getScope().getName());
             s.update(role);
             t.commit();
         } else {
@@ -408,20 +415,35 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testAddAlreadyLinkedScope() throws Exception {
+        ApplicationContext secondaryContext = getSecondaryContext();
+        Role editedRole = getAttached(secondaryContext.getRole());
+        Application app = getAttached(secondaryContext.getApplication());
+
+        // Create a scope attached to a role in the secondary context.
+        ApplicationScope newScope = new ApplicationScope();
+        newScope.setApplication(app);
+        newScope.setName(UUID.randomUUID().toString());
+        editedRole.getScopes().put(newScope.getName(), newScope);
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(newScope);
+        s.update(editedRole);
+        t.commit();
+
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = getEntity(context);
-        ApplicationScope scope = context.getScope();
-        Assert.assertTrue(role.getScopes().values().contains(scope));
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(editedRole.getId().toString(),
+                newScope.getId().toString());
 
         // Execute the request.
         Response r = target(url)
@@ -430,11 +452,16 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .post(null);
 
-        if (shouldSucceed()) {
+        if (isAccessible(newScope, token)) {
             assertErrorResponse(r, Status.CONFLICT);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
+
+        // Cleanup
+        Transaction t2 = s.beginTransaction();
+        s.delete(newScope);
+        t2.commit();
     }
 
     /**
@@ -445,12 +472,15 @@ public final class RoleServiceCRUDTest
     @Test
     public void testAddInvalidAppScope() throws Exception {
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
+        ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
         String url = getUrlForSubresourceId(role.getId().toString(),
                 UUID.randomUUID().toString());
@@ -479,12 +509,15 @@ public final class RoleServiceCRUDTest
     @Test
     public void testAddMalformedScope() throws Exception {
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
+        ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
         String url = getUrlForSubresourceId(role.getId().toString(),
                 "malformed");
@@ -515,26 +548,29 @@ public final class RoleServiceCRUDTest
     public void testAddScopeApplicationMismatch() throws Exception {
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
-        OAuthToken token = getAdminContext()
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .scope(UUID.randomUUID().toString())
+                .build();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
+        ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
-        ApplicationScope scope = getAdminContext().scope("test").getScope();
         String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+                testContext.getScope().getId().toString());
 
         // Execute the request.
         Response r = target(url)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
-                        HttpUtil.authHeaderBearer(token.getId()))
+                        HttpUtil.authHeaderBearer(
+                                testContext.getToken().getId()))
                 .post(null);
 
-        if (shouldSucceed()) {
+        if (isAccessible(role, testContext.getToken())) {
             // Bad request because OMG really?
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
@@ -553,15 +589,20 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
-                        getTokenScope()).getToken();
+                        getTokenScope())
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = getEntity(context);
-        ApplicationScope scope = context.scope("test").getScope();
+        ApplicationContext testContext = getSecondaryContext()
+                .getBuilder()
+                .scope(UUID.randomUUID().toString())
+                .build();
+        Role role = getEntity(testContext);
         String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+                testContext.getScope().getId().toString());
 
         // Execute the request.
         Response r = target(url)
@@ -570,7 +611,7 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .post(null);
 
-        if (shouldSucceed()) {
+        if (isAccessible(testContext.getScope(), token)) {
             assertErrorResponse(r, Status.BAD_REQUEST, "invalid_scope");
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -588,14 +629,18 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
-                .bearerToken(getAdminClient(),
-                        getTokenScope(),
-                        Scope.SCOPE).getToken();
+                .getBuilder()
+                .bearerToken(getAdminClient(), getTokenScope(), Scope.SCOPE)
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getSecondaryContext();
+        ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
-        ApplicationScope scope = context.scope("test").getScope();
+        ApplicationScope scope = context.getBuilder()
+                .scope(UUID.randomUUID().toString())
+                .build()
+                .getScope();
         String url = getUrlForSubresourceId(role.getId().toString(),
                 scope.getId().toString());
 
@@ -635,14 +680,21 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
         Role role = getEntity(context);
-        ApplicationScope scope = context.scope("test").getScope();
+        ApplicationScope scope = context
+                .getBuilder()
+                .scope(UUID.randomUUID().toString())
+                .build()
+                .getScope();
         String url = getUrlForSubresourceId(role.getId().toString(),
                 scope.getId().toString());
 
@@ -653,7 +705,7 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .post(null);
 
-        if (shouldSucceed()) {
+        if (isAccessible(scope, token)) {
             assertErrorResponse(r, Status.FORBIDDEN);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -667,20 +719,35 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testRemoveScope() throws Exception {
+        ApplicationContext secondaryContext = getSecondaryContext();
+        Role editedRole = getAttached(secondaryContext.getRole());
+        Application app = getAttached(secondaryContext.getApplication());
+
+        // Create a scope attached to a role in the secondary context.
+        ApplicationScope newScope = new ApplicationScope();
+        newScope.setApplication(app);
+        newScope.setName(UUID.randomUUID().toString());
+        editedRole.getScopes().put(newScope.getName(), newScope);
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(newScope);
+        s.update(editedRole);
+        t.commit();
+
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = context.getRole();
-        ApplicationScope scope = context.getScope();
-        Assert.assertTrue(role.getScopes().values().contains(scope));
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(editedRole.getId().toString(),
+                newScope.getId().toString());
 
         // Execute the request.
         Response r = target(url)
@@ -689,15 +756,21 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .delete();
 
-        if (shouldSucceed()) {
+        if (isAccessible(newScope, token)) {
             Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
 
-            getSession().refresh(role);
-            Assert.assertFalse(role.getScopes().values().contains(scope));
+            getSession().refresh(editedRole);
+            Assert.assertFalse(editedRole.getScopes().values()
+                    .contains(newScope));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
+
+        // Cleanup
+        Transaction t2 = s.beginTransaction();
+        s.delete(newScope);
+        t2.commit();
     }
 
     /**
@@ -710,12 +783,15 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getSecondaryContext();
+        ApplicationContext context = getSecondaryContext();
         Role role = context.getRole();
         String url = getUrlForSubresourceId(role.getId().toString(),
                 UUID.randomUUID().toString());
@@ -745,17 +821,22 @@ public final class RoleServiceCRUDTest
     public void testRemoveUnlinkedScope() throws Exception {
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
-        String scopes = String.format("%s %s", getTokenScope(),
-                Scope.SCOPE_ADMIN);
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = context.getRole();
-        ApplicationScope scope = context.scope("test").getScope();
+        ApplicationContext context = getSecondaryContext()
+                .getBuilder()
+                .scope(UUID.randomUUID().toString())
+                .build();
+        Role role = getAttached(context.getRole());
+        ApplicationScope scope = getAttached(context.getScope());
+
         Assert.assertFalse(role.getScopes().values().contains(scope));
         String url = getUrlForSubresourceId(role.getId().toString(),
                 scope.getId().toString());
@@ -786,12 +867,15 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getSecondaryContext();
+        ApplicationContext context = getSecondaryContext();
         Role role = context.getRole();
         String url = getUrlForSubresourceId(role.getId().toString(),
                 "malformed");
@@ -823,13 +907,18 @@ public final class RoleServiceCRUDTest
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
-                .bearerToken(getAdminClient(),
-                        getTokenScope()).getToken();
+                .getBuilder()
+                .bearerToken(getAdminClient(), getTokenScope())
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = context.getRole();
-        ApplicationScope scope = context.getScope();
+        ApplicationContext context = getSecondaryContext();
+        Role role = context.getApplication().getRoles().stream()
+                .filter(r -> r.getScopes().size() > 0)
+                .collect(Collectors.toList())
+                .get(0);
+        ApplicationScope scope = role.getScopes().values().iterator().next();
         Assert.assertTrue(role.getScopes().values().contains(scope));
         String url = getUrlForSubresourceId(role.getId().toString(),
                 scope.getId().toString());
@@ -841,7 +930,7 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .delete();
 
-        if (shouldSucceed()) {
+        if (isAccessible(scope, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST, "invalid_scope");
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -855,23 +944,39 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testRemoveScopeRegularSubresourcePermission() throws Exception {
+        ApplicationContext secondaryContext = getSecondaryContext();
+        Role editedRole = getAttached(secondaryContext.getRole());
+        Application app = getAttached(secondaryContext.getApplication());
+
+        // Create a scope attached to a role in the secondary context.
+        ApplicationScope newScope = new ApplicationScope();
+        newScope.setApplication(app);
+        newScope.setName(UUID.randomUUID().toString());
+        editedRole.getScopes().put(newScope.getName(), newScope);
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(newScope);
+        s.update(editedRole);
+        t.commit();
+
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE).getToken();
+                        Scope.SCOPE)
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getSecondaryContext();
-        Role role = context.getRole();
-        ApplicationScope scope = context.getScope();
-        Assert.assertTrue(role.getScopes().values().contains(scope));
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        ApplicationContext context = getSecondaryContext();
+        String url = getUrlForSubresourceId(editedRole.getId().toString(),
+                newScope.getId().toString());
 
         Boolean shouldSucceed = shouldSucceed()
-                && isAccessible(scope, token, Scope.SCOPE_ADMIN);
+                && isAccessible(newScope, token, Scope.SCOPE_ADMIN);
 
         // Execute the request.
         Response r = target(url)
@@ -884,11 +989,17 @@ public final class RoleServiceCRUDTest
             Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
 
-            getSession().refresh(role);
-            Assert.assertFalse(role.getScopes().values().contains(scope));
+            getSession().refresh(editedRole);
+            Assert.assertFalse(editedRole.getScopes().values()
+                    .contains(newScope));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
+
+        // Cleanup
+        Transaction t2 = s.beginTransaction();
+        s.delete(newScope);
+        t2.commit();
     }
 
     /**
@@ -898,15 +1009,16 @@ public final class RoleServiceCRUDTest
      */
     @Test
     public void testRemoveScopeAdminApplication() throws Exception {
-        // We're using an admin auth token here, but we're modifying an app
-        // other than the admin app.
         OAuthToken token = getAdminContext()
+                .getBuilder()
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
-                        Scope.SCOPE_ADMIN).getToken();
+                        Scope.SCOPE_ADMIN)
+                .build()
+                .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
         Role role = context.getRole();
         ApplicationScope scope = role.getScopes().values().iterator().next();
         Assert.assertTrue(role.getScopes().values().contains(scope));
@@ -920,7 +1032,7 @@ public final class RoleServiceCRUDTest
                         HttpUtil.authHeaderBearer(token.getId()))
                 .delete();
 
-        if (shouldSucceed()) {
+        if (isAccessible(scope, token)) {
             assertErrorResponse(r, Status.FORBIDDEN);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

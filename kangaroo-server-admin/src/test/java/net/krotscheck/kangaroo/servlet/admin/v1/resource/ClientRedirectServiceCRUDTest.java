@@ -23,7 +23,8 @@ import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -43,7 +44,7 @@ import java.util.UUID;
  * Unit test suite for the client redirect subresource.
  */
 public final class ClientRedirectServiceCRUDTest
-        extends DAbstractSubserviceCRUDTest<Client, ClientRedirect> {
+        extends AbstractSubserviceCRUDTest<Client, ClientRedirect> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -207,7 +208,7 @@ public final class ClientRedirectServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected Client getParentEntity(final EnvironmentBuilder context) {
+    protected Client getParentEntity(final ApplicationContext context) {
         return context.getClient();
     }
 
@@ -219,7 +220,7 @@ public final class ClientRedirectServiceCRUDTest
      * @return A valid entity.
      */
     @Override
-    protected ClientRedirect createValidEntity(final EnvironmentBuilder context,
+    protected ClientRedirect createValidEntity(final ApplicationContext context,
                                                final Client parent) {
         ClientRedirect r = new ClientRedirect();
         r.setClient(parent);
@@ -235,7 +236,7 @@ public final class ClientRedirectServiceCRUDTest
      * @return A valid entity.
      */
     @Override
-    protected Client createParentEntity(final EnvironmentBuilder context) {
+    protected Client createParentEntity(final ApplicationContext context) {
         Client c = new Client();
         c.setApplication(context.getApplication());
         c.setName(UUID.randomUUID().toString());
@@ -250,7 +251,7 @@ public final class ClientRedirectServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected ClientRedirect getEntity(final EnvironmentBuilder context) {
+    protected ClientRedirect getEntity(final ApplicationContext context) {
         return context.getRedirect();
     }
 
@@ -282,14 +283,19 @@ public final class ClientRedirectServiceCRUDTest
     }
 
     /**
-     * Assert that some users may create entities for other parents.
+     * Assert that attempting to create a duplicate record fails.
      *
      * @throws Exception Exception encountered during test.
      */
     @Test
     public void testPostDuplicate() throws Exception {
-        ClientRedirect testEntity = createValidEntity(getSecondaryContext());
-        testEntity.setUri(getSecondaryContext().getRedirect().getUri());
+        ApplicationContext testContext = getAdminContext();
+        Client c = getAttached(getParentEntity(testContext));
+        URI existing = c.getRedirects().get(0).getUri();
+
+        ClientRedirect testEntity = new ClientRedirect();
+        testEntity.setClient(c);
+        testEntity.setUri(existing);
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
@@ -301,13 +307,13 @@ public final class ClientRedirectServiceCRUDTest
     }
 
     /**
-     * Assert that some users may create entities for other parents.
+     * Assert that we can update entities.
      *
      * @throws Exception Exception encountered during test.
      */
     @Test
     public void testPut() throws Exception {
-        EnvironmentBuilder builder = getAdminContext();
+        ApplicationContext builder = getAdminContext();
         ClientRedirect oldEntity = builder.getRedirect();
 
         // Copy the most recent, then use the redirect from the previous.
@@ -328,13 +334,13 @@ public final class ClientRedirectServiceCRUDTest
     }
 
     /**
-     * Assert that some users may create entities for other parents.
+     * Assert that we cannot create an entity without a URI.
      *
      * @throws Exception Exception encountered during test.
      */
     @Test
     public void testPutNoUri() throws Exception {
-        EnvironmentBuilder builder = getAdminContext();
+        ApplicationContext builder = getAdminContext();
         ClientRedirect oldEntity = builder.getRedirect();
 
         // Copy the most recent, then use the redirect from the previous.
@@ -353,22 +359,25 @@ public final class ClientRedirectServiceCRUDTest
     }
 
     /**
-     * Assert that some users may create entities for other parents.
+     * Assert that you cannot edit an entity to become a duplicate.
      *
      * @throws Exception Exception encountered during test.
      */
     @Test
     public void testPutDuplicate() throws Exception {
-        EnvironmentBuilder builder = getAdminContext()
-                .redirect("http://another.example.com")
-                .redirect("http://yet.another.example.com");
+        String rawUrl = String.format("http://%s/redirect",
+                RandomStringUtils.randomAlphabetic(10));
+        ApplicationContext builder = getAdminContext().getBuilder()
+                .redirect(rawUrl)
+                .redirect()
+                .build();
         ClientRedirect oldEntity = builder.getRedirect();
 
         // Copy the most recent, then use the redirect from the previous.
         ClientRedirect duplicateRedirect = new ClientRedirect();
         duplicateRedirect.setClient(oldEntity.getClient());
         duplicateRedirect.setId(oldEntity.getId());
-        duplicateRedirect.setUri(URI.create("http://another.example.com"));
+        duplicateRedirect.setUri(URI.create(rawUrl));
 
         // Issue the request.
         Response r = putEntity(duplicateRedirect, getAdminToken());
@@ -387,7 +396,7 @@ public final class ClientRedirectServiceCRUDTest
      */
     @Test
     public void testDeleteAdminApp() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
 
         // Issue the request.
         Response r = deleteEntity(context.getRedirect(), getAdminToken());
