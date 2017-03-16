@@ -26,7 +26,6 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,11 +78,6 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractEntity>
      * The token issued to the admin app, with appropriate credentials.
      */
     private OAuthToken adminAppToken;
-
-    /**
-     * An additional application context used for testing.
-     */
-    private EnvironmentBuilder otherApp;
 
     /**
      * Create a new instance of this parameterized test.
@@ -200,15 +194,6 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractEntity>
      */
     protected final OAuthToken getAdminToken() {
         return adminAppToken;
-    }
-
-    /**
-     * Return the oauth token for the secondary application.
-     *
-     * @return The application token.
-     */
-    protected final OAuthToken getSecondaryToken() {
-        return otherApp.getToken();
     }
 
     /**

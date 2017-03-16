@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.filter;
 
 import net.krotscheck.kangaroo.database.entity.Application;
-import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
@@ -29,12 +28,9 @@ import org.apache.http.HttpHeaders;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.SortedMap;
-import java.util.UUID;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -44,6 +40,10 @@ import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.SecurityContext;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * A request filter that validates a bearer token before permitting the
@@ -98,6 +98,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         Application a = loadAdminApplication();
 
         Session session = sessionProvider.get();
+        Transaction t = session.beginTransaction();
 
         Criteria c = session.createCriteria(OAuthToken.class)
                 .createAlias("client", "c")
@@ -110,13 +111,12 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         OAuthToken token = (OAuthToken) c.uniqueResult();
 
         // Blank token, and/or expired tokens, throw an exception.
-        if (token == null || token.isExpired()) {
-            return;
+        if (token != null && !token.isExpired()) {
+            Boolean isSecure = requestContext.getSecurityContext().isSecure();
+            SecurityContext context = new OAuthTokenContext(token, isSecure);
+            requestContext.setSecurityContext(context);
         }
-
-        Boolean isSecure = requestContext.getSecurityContext().isSecure();
-        SecurityContext context = new OAuthTokenContext(token, isSecure);
-        requestContext.setSecurityContext(context);
+        t.commit();
     }
 
     /**
@@ -178,9 +178,9 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         private final OAuthToken principal;
 
         /**
-         * The principal.
+         * The scopes.
          */
-        private final SortedMap<String, ApplicationScope> scopes;
+        private final Set<String> scopes;
 
         /**
          * Construct an authentication context from an OAuth token and a secure
@@ -193,7 +193,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
                                  final Boolean isSecure) {
             // Materialize the scopes and the user identity.
             principal = token;
-            scopes = token.getScopes();
+            scopes = token.getScopes().keySet();
             secure = isSecure;
         }
 
@@ -207,14 +207,14 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
 
         /**
          * WARNING: OVERLOADED TERMS
-         *
+         * <p>
          * In order to simplify the declaration of scope permissions, this
          * method will check to see if the current user has been granted the
          * provied "scope" rather than "role".
          */
         @Override
         public boolean isUserInRole(final String roleName) {
-            return principal.getScopes().containsKey(roleName);
+            return scopes.contains(roleName);
         }
 
         /**
