@@ -25,7 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class ClientReferrerServiceBrowseTest
-        extends DAbstractSubserviceBrowseTest<Client, ClientReferrer> {
+        extends AbstractSubserviceBrowseTest<Client, ClientReferrer> {
 
     /**
      * Generic type declaration for list decoding.
@@ -103,6 +103,17 @@ public final class ClientReferrerServiceBrowseTest
     }
 
     /**
+     * Return the correct parent entity type from the provided context.
+     *
+     * @param context The context to extract the value from.
+     * @return The requested entity type under test.
+     */
+    @Override
+    protected Client getParentEntity(final ApplicationContext context) {
+        return context.getClient();
+    }
+
+    /**
      * Return the list of entities which should be accessible given a
      * specific token.
      *
@@ -116,8 +127,9 @@ public final class ClientReferrerServiceBrowseTest
             final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(parentEntity, token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(parentEntity, attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -139,7 +151,7 @@ public final class ClientReferrerServiceBrowseTest
     protected List<ClientReferrer> getOwnedEntities(final Client parentEntity,
                                                     final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getClients().stream())
                 .filter(c -> c.equals(parentEntity))
@@ -238,17 +250,6 @@ public final class ClientReferrerServiceBrowseTest
             parentId = clientId == null ? null : clientId.toString();
         }
         return getUrlForEntity(parentId, childId);
-    }
-
-    /**
-     * Return the correct parent entity type from the provided context.
-     *
-     * @param context The context to extract the value from.
-     * @return The requested entity type under test.
-     */
-    @Override
-    protected Client getParentEntity(final EnvironmentBuilder context) {
-        return context.getReferrer().getClient();
     }
 
     /**
