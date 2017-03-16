@@ -41,7 +41,7 @@ import java.util.List;
  */
 @RunWith(Parameterized.class)
 public final class ApplicationServiceSearchTest
-        extends DAbstractServiceSearchTest<Application> {
+        extends AbstractServiceSearchTest<Application> {
 
     /**
      * Convenience generic type for response decoding.
@@ -75,28 +75,6 @@ public final class ApplicationServiceSearchTest
     }
 
     /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<Application> getAccessibleEntities(final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned clients.
-        return ((List<Application>) c.list());
-    }
-
-    /**
      * Return the list of entities which are owned by the given user.
      *
      * @param owner The owner of the entities.
@@ -105,7 +83,7 @@ public final class ApplicationServiceSearchTest
     @Override
     protected List<Application> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications();
+        return getAttached(owner).getApplications();
     }
 
     /**

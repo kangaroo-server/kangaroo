@@ -19,14 +19,12 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
-import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +50,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class AuthenticatorServiceSearchTest
-        extends DAbstractServiceSearchTest<Authenticator> {
+        extends AbstractServiceSearchTest<Authenticator> {
 
     /**
      * Convenience generic type for response decoding.
@@ -86,34 +84,6 @@ public final class AuthenticatorServiceSearchTest
     }
 
     /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<Authenticator> getAccessibleEntities(
-            final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria criteria = getSession().createCriteria(Application.class);
-
-        // Get all the owned clients.
-        return ((List<Application>) criteria.list())
-                .stream()
-                .flatMap(a -> a.getClients().stream())
-                .flatMap(c -> c.getAuthenticators().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Return the list of entities which are owned by the given user.
      * Includes scope checks.
      *
@@ -123,7 +93,7 @@ public final class AuthenticatorServiceSearchTest
     @Override
     protected List<Authenticator> getOwnedEntities(final User owner) {
         // Get all the owned clients.
-        return owner.getApplications()
+        return getAttached(owner).getApplications()
                 .stream()
                 .flatMap(a -> a.getClients().stream())
                 .flatMap(c -> c.getAuthenticators().stream())
@@ -231,8 +201,17 @@ public final class AuthenticatorServiceSearchTest
     @Test
     public void testSearchByClient() {
         String query = "many";
+        // Find a client that we can filter by, which has an authenticator
+        // that will match our search criteria.
         Client c = getSecondaryContext()
-                .getClient();
+                .getApplication()
+                .getClients()
+                .stream()
+                .flatMap(client -> client.getAuthenticators().stream())
+                .filter(auth -> auth.getType().contains(query))
+                .map(Authenticator::getClient)
+                .collect(Collectors.toList())
+                .get(0);
 
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
@@ -258,9 +237,9 @@ public final class AuthenticatorServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
+        } else if (!isAccessible(c, token)) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
-
             List<Authenticator> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
                     r.getHeaderString("Offset"));
