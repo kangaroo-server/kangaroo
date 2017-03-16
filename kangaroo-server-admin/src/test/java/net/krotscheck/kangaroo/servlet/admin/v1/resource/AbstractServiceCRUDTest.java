@@ -23,19 +23,21 @@ import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
-import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
-import org.apache.commons.lang.RandomStringUtils;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -44,10 +46,9 @@ import java.util.UUID;
  * @param <T> The type of entity to execute this test for.
  * @author Michael Krotscheck
  */
-@Deprecated
 @RunWith(Parameterized.class)
-public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
-        extends DAbstractResourceTest {
+public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
+        extends AbstractResourceTest {
 
     /**
      * Class reference for this class' type, used in casting.
@@ -86,11 +87,6 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
     private OAuthToken adminAppToken;
 
     /**
-     * An additional application context used for testing.
-     */
-    private EnvironmentBuilder otherApp;
-
-    /**
      * Create a new instance of this parameterized test.
      *
      * @param typingClass   The raw class type, used for type-based parsing.
@@ -99,11 +95,11 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      * @param createUser    Whether to create a new user.
      * @param shouldSucceed Should this test succeed?
      */
-    public DAbstractServiceCRUDTest(final Class<T> typingClass,
-                                    final ClientType clientType,
-                                    final String tokenScope,
-                                    final Boolean createUser,
-                                    final Boolean shouldSucceed) {
+    public AbstractServiceCRUDTest(final Class<T> typingClass,
+                                   final ClientType clientType,
+                                   final String tokenScope,
+                                   final Boolean createUser,
+                                   final Boolean shouldSucceed) {
         this.typingClass = typingClass;
         this.tokenScope = tokenScope;
         this.clientType = clientType;
@@ -112,45 +108,36 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
     }
 
     /**
-     * Load data fixtures for each test.
+     * Load data fixtures for each test. Here we're creating two applications
+     * with different owners, using the kangaroo default scopes so we have
+     * some good cross-app name duplication.
      *
-     * @return A list of fixtures, which will be cleared after the test.
      * @throws Exception An exception that indicates a failed fixture load.
      */
-    @Override
-    public final List<EnvironmentBuilder> fixtures(
-            final EnvironmentBuilder adminApp)
-            throws Exception {
-        // Build the admin context with the provided parameters.
-        EnvironmentBuilder context = getAdminContext();
-        client = context
+    @Before
+    public final void configureData() throws Exception {
+
+        // Get the admin app and create users based on the configured
+        // parameters.
+        ApplicationContext context = getAdminContext();
+        User owner = context.getOwner();
+
+        client = context.getBuilder()
                 .client(clientType)
-                .authenticator("password")
-                .redirect("http://example.com/redirect")
-                .referrer("http://example.com/referrer")
-                .identity()
+                .build()
                 .getClient();
+
         if (createUser) {
-            context.user().identity();
+            // Switch to the other user.
+            owner = getSecondaryContext().getOwner();
         }
-        adminAppToken = context.bearerToken(tokenScope).getToken();
+        UserIdentity identity = owner.getIdentities().iterator().next();
 
-        // Build a second app to run some tests against.
-        otherApp = new EnvironmentBuilder(getSession())
-                .scopes(Scope.allScopes())
-                .role(RandomStringUtils.randomAlphabetic(5),
-                        Scope.allScopes())
-                .owner(context.getOwner())
-                .client(clientType)
-                .redirect("http://second.example.com/redirect")
-                .referrer("http://second.example.com/referrer")
-                .authenticator("password")
-                .user().identity()
-                .bearerToken(tokenScope);
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(otherApp);
-        return fixtures;
+        adminAppToken = context
+                .getBuilder()
+                .bearerToken(client, identity, tokenScope)
+                .build()
+                .getToken();
     }
 
     /**
@@ -159,7 +146,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      * @param context The context to extract the value from.
      * @return The requested entity type under test.
      */
-    protected abstract T getEntity(EnvironmentBuilder context);
+    protected abstract T getEntity(ApplicationContext context);
 
     /**
      * Return a new, empty entity.
@@ -174,16 +161,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      * @param context The context within which to create the entity.
      * @return A valid, but unsaved, entity.
      */
-    protected abstract T createValidEntity(EnvironmentBuilder context);
-
-    /**
-     * Return the second application context (not the admin context).
-     *
-     * @return The secondary context in this test.
-     */
-    protected final EnvironmentBuilder getSecondaryContext() {
-        return otherApp;
-    }
+    protected abstract T createValidEntity(ApplicationContext context);
 
     /**
      * Return the oauth token for the primary application.
@@ -200,7 +178,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      * @return The application token.
      */
     protected final OAuthToken getSecondaryToken() {
-        return otherApp.getToken();
+        return getSecondaryContext().getToken();
     }
 
     /**
@@ -281,12 +259,12 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testGetRegularApp() throws Exception {
-        T testingEntity = getEntity(otherApp);
+        T testingEntity = getEntity(getSecondaryContext());
 
         // Issue the request.
         Response r = getEntity(testingEntity, adminAppToken);
 
-        if (shouldSucceed) {
+        if (isAccessible(testingEntity, adminAppToken)) {
             T response = r.readEntity(typingClass);
             Assert.assertEquals(testingEntity, response);
         } else {
@@ -303,7 +281,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
     @Test
     public final void testGetFromExternalApp() throws Exception {
         T testingEntity = getEntity(getAdminContext());
-        OAuthToken token = otherApp.getToken();
+        OAuthToken token = getSecondaryContext().getToken();
 
         // Issue the request.
         Response r = getEntity(testingEntity, token);
@@ -411,16 +389,16 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPostOtherParent() throws Exception {
-        T testEntity = createValidEntity(otherApp);
+        T testEntity = createValidEntity(getSecondaryContext());
 
         // Issue the request.
-        Response r = postEntity(testEntity, adminAppToken);
+        Response r = postEntity(testEntity, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (this.isAccessible(testEntity, getAdminToken())) {
             Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
             Assert.assertNotNull(r.getLocation());
 
-            Response getResponse = getEntity(r.getLocation(), adminAppToken);
+            Response getResponse = getEntity(r.getLocation(), getAdminToken());
             T response = getResponse.readEntity(typingClass);
             Assert.assertNotNull(response.getId());
             assertContentEquals(testEntity, response);
@@ -452,7 +430,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
         T testEntity = createValidEntity(getAdminContext());
 
         // Issue the request.
-        Response r = postEntity(testEntity, otherApp.getToken());
+        Response r = postEntity(testEntity, getSecondaryContext().getToken());
         assertErrorResponse(r, Status.FORBIDDEN);
     }
 
@@ -463,13 +441,15 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPostDifferentApplication() throws Exception {
-        EnvironmentBuilder thirdApp = new EnvironmentBuilder(getSession())
+        ApplicationContext thirdApp = ApplicationBuilder
+                .newApplication(getSession())
                 .client(getClientType())
                 .redirect("http://third.example.org/redirect")
                 .referrer("http://third.example.org/referrer")
                 .authenticator("password")
                 .user()
-                .identity();
+                .identity()
+                .build();
         T testingEntity = createValidEntity(thirdApp);
 
         // Issue the request.
@@ -495,9 +475,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
-        thirdApp.clear();
     }
-
 
     /**
      * Assert that an entity cannot be created with an unknown user.
@@ -506,9 +484,6 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPostByUnknown() throws Exception {
-        // Create another user.
-        getAdminContext().user().identity();
-
         // Create a valid entity.
         T testingEntity = createValidEntity(getAdminContext());
 
@@ -525,7 +500,16 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPutChangeId() throws Exception {
-        T testEntity = (T) getEntity(otherApp).clone();
+        // Create an entity to test with
+        Session s = getSession();
+        T testEntity = createValidEntity(getSecondaryContext());
+        Transaction t = s.beginTransaction();
+        s.save(testEntity);
+        t.commit();
+
+        // Evict so we can use it.
+        s.evict(testEntity);
+
         UUID oldId = testEntity.getId();
         testEntity.setId(UUID.randomUUID());
 
@@ -533,7 +517,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
         Response r = putEntity(oldId.toString(), testEntity,
                 HttpUtil.authHeaderBearer(adminAppToken.getId()));
 
-        if (shouldSucceed()) {
+        if (this.isAccessible(testEntity, adminAppToken)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -548,8 +532,8 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPutFromExternalApp() throws Exception {
-        T testingEntity = getEntity(otherApp);
-        OAuthToken token = otherApp.getToken();
+        T testingEntity = getEntity(getSecondaryContext());
+        OAuthToken token = getSecondaryContext().getToken();
 
         // Issue the request.
         Response r = putEntity(testingEntity, token);
@@ -564,7 +548,7 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPutByUnknown() throws Exception {
-        T testingEntity = getEntity(otherApp);
+        T testingEntity = getEntity(getSecondaryContext());
         Response r = putEntity(testingEntity, (OAuthToken) null);
         assertErrorResponse(r, Status.FORBIDDEN);
     }
@@ -576,9 +560,8 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testPutMalformedId() throws Exception {
-        Response r =
-                putEntity("malformed_id", getNewEntity(),
-                        HttpUtil.authHeaderBearer(adminAppToken.getId()));
+        Response r = putEntity("malformed_id", getNewEntity(),
+                HttpUtil.authHeaderBearer(adminAppToken.getId()));
 
         assertErrorResponse(r, Status.NOT_FOUND);
     }
@@ -604,12 +587,18 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testDeleteRegularEntity() throws Exception {
-        T testingEntity = getEntity(otherApp);
+        // Create an entity to delete.
+        T testingEntity = createValidEntity(getSecondaryContext());
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(testingEntity);
+        t.commit();
 
         // Issue the request.
         Response r = deleteEntity(testingEntity, adminAppToken);
 
-        if (shouldSucceed) {
+        if (isAccessible(testingEntity, adminAppToken)) {
             Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
         } else {
@@ -628,7 +617,8 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
         T testingEntity = getEntity(getAdminContext());
 
         // Issue the request.
-        Response r = deleteEntity(testingEntity, otherApp.getToken());
+        Response r = deleteEntity(testingEntity,
+                getSecondaryContext().getToken());
         assertErrorResponse(r, Status.FORBIDDEN);
     }
 
@@ -640,7 +630,14 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testDeleteByUnknown() throws Exception {
-        T testingEntity = getEntity(otherApp);
+        // Create an entity to delete.
+        T testingEntity = createValidEntity(getSecondaryContext());
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(testingEntity);
+        t.commit();
+
         Response r = deleteEntity(testingEntity, null);
         assertErrorResponse(r, Status.FORBIDDEN);
     }
@@ -652,9 +649,8 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testDeleteMalformedId() throws Exception {
-        Response r =
-                deleteEntity("malformed_id",
-                        HttpUtil.authHeaderBearer(adminAppToken.getId()));
+        Response r = deleteEntity("malformed_id",
+                HttpUtil.authHeaderBearer(adminAppToken.getId()));
         assertErrorResponse(r, Status.NOT_FOUND);
     }
 
@@ -665,10 +661,8 @@ public abstract class DAbstractServiceCRUDTest<T extends AbstractEntity>
      */
     @Test
     public final void testDeleteNonexistent() throws Exception {
-        Response r =
-                deleteEntity(UUID.randomUUID().toString(),
-                        HttpUtil.authHeaderBearer(adminAppToken.getId()));
+        Response r = deleteEntity(UUID.randomUUID().toString(),
+                HttpUtil.authHeaderBearer(adminAppToken.getId()));
         assertErrorResponse(r, Status.NOT_FOUND);
     }
-
 }

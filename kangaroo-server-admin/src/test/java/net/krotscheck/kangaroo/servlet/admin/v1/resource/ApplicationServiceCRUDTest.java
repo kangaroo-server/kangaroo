@@ -23,9 +23,11 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +48,7 @@ import java.util.UUID;
  */
 @RunWith(Parameterized.class)
 public final class ApplicationServiceCRUDTest
-        extends DAbstractServiceCRUDTest<Application> {
+        extends AbstractServiceCRUDTest<Application> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -71,7 +73,7 @@ public final class ApplicationServiceCRUDTest
      * @return The requested entity type under test.
      */
     @Override
-    protected Application getEntity(final EnvironmentBuilder context) {
+    protected Application getEntity(final ApplicationContext context) {
         return context.getApplication();
     }
 
@@ -92,7 +94,7 @@ public final class ApplicationServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected Application createValidEntity(final EnvironmentBuilder context) {
+    protected Application createValidEntity(final ApplicationContext context) {
         Application a = new Application();
         a.setName(UUID.randomUUID().toString());
         a.setOwner(context.getOwner());
@@ -201,7 +203,7 @@ public final class ApplicationServiceCRUDTest
      */
     @Test
     public void testPostOverwrite() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
 
         Application newApp = new Application();
         newApp.setId(getSecondaryContext().getApplication().getId());
@@ -221,7 +223,7 @@ public final class ApplicationServiceCRUDTest
      */
     @Test
     public void testPostTooLongName() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
 
         Application newApp = new Application();
         newApp.setName(RandomStringUtils.randomAlphanumeric(257));
@@ -270,28 +272,27 @@ public final class ApplicationServiceCRUDTest
      */
     @Test
     public void testPostOwnerAssign() throws Exception {
-
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext testContext = getAdminContext()
+                .getBuilder()
+                .user()
+                .identity()
+                .build();
         OAuthToken token = getAdminToken();
-
-        // Create another user.
-        context.user().identity();
 
         Application newApp = new Application();
         newApp.setName("New Application");
-        newApp.setOwner(context.getUser());
+        newApp.setOwner(testContext.getUser());
 
         // Issue the request.
         Response r = postEntity(newApp, token);
 
-        if (token.getScopes().keySet().contains(Scope.APPLICATION_ADMIN)) {
+        if (getTokenScope().equals(Scope.APPLICATION_ADMIN)) {
             Assert.assertEquals(HttpStatus.SC_CREATED, r.getStatus());
             Assert.assertNotNull(r.getLocation());
 
-            Response getResponse =
-                    getEntity(r.getLocation(), getAdminToken());
-            Application response =
-                    getResponse.readEntity(Application.class);
+            Response getResponse = getEntity(r.getLocation(), getAdminToken());
+            Application response = getResponse.readEntity(Application.class);
+
             Assert.assertNotNull(response.getId());
             Assert.assertEquals(newApp.getName(), response.getName());
             Assert.assertEquals(newApp.getOwner(), response.getOwner());
@@ -308,7 +309,7 @@ public final class ApplicationServiceCRUDTest
     @Test
     public void testPutAdminApp() throws Exception {
         Application app = getAdminContext().getApplication();
-        app.setName("New Name");
+        app.setName(UUID.randomUUID().toString());
 
         Response r = putEntity(app, getAdminToken());
 
@@ -328,10 +329,10 @@ public final class ApplicationServiceCRUDTest
     @Test
     public void testPutRegularApp() throws Exception {
         Application a = getSecondaryContext().getApplication();
-        a.setName("Test New Name");
+        a.setName(UUID.randomUUID().toString());
         Response r = putEntity(a, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(a, getAdminToken())) {
             Application response = r.readEntity(Application.class);
             Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
             Assert.assertEquals(a, response);
@@ -347,15 +348,22 @@ public final class ApplicationServiceCRUDTest
      */
     @Test
     public void testPutChangeOwner() throws Exception {
-        User newUser = getAdminContext().user().getUser();
-        Application otherApp = getSecondaryContext().getApplication();
-        Application a = new Application();
-        a.setId(otherApp.getId());
-        a.setName(otherApp.getName());
-        a.setOwner(newUser);
+
+        // Create a new application for the secondary user.
+        User oldOwner = getAdminContext().getOwner();
+        Application newApp = createValidEntity(getAdminContext());
+        newApp.setOwner(oldOwner);
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(newApp);
+        t.commit();
+
+        // Try to change the ownership to the admin user.
+        User newOwner = getSecondaryContext().getOwner();
+        newApp.setOwner(newOwner);
 
         // Issue the request.
-        Response r = putEntity(a, getAdminToken());
+        Response r = putEntity(newApp, getAdminToken());
 
         if (shouldSucceed()) {
             assertErrorResponse(r, Status.BAD_REQUEST);
@@ -372,7 +380,7 @@ public final class ApplicationServiceCRUDTest
      */
     @Test
     public void testDeleteAdminApp() throws Exception {
-        EnvironmentBuilder context = getAdminContext();
+        ApplicationContext context = getAdminContext();
 
         // Issue the request.
         Response r = deleteEntity(context.getApplication(), getAdminToken());

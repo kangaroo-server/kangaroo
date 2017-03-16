@@ -33,6 +33,7 @@ import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.util.PasswordUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -354,6 +355,18 @@ public final class ApplicationBuilder {
     }
 
     /**
+     * Add a random redirect to the current client context.
+     *
+     * @return This builder.
+     */
+    public ApplicationBuilder redirect() {
+        String rawUrl = String.format("http://%s/redirect",
+                RandomStringUtils.randomAlphabetic(10));
+
+        return redirect(rawUrl);
+    }
+
+    /**
      * Add a redirect to the current client context.
      *
      * @param redirect The Redirect URI for the client.
@@ -364,12 +377,21 @@ public final class ApplicationBuilder {
         context.redirect.setClient(context.client);
         context.redirect.setUri(UriBuilder.fromUri(redirect).build());
 
-        context.client.getRedirects().add(context.redirect);
-
         persist(context.redirect);
-        persist(context.client);
 
         return this;
+    }
+
+    /**
+     * Add a random referrer to the current client context.
+     *
+     * @return This builder.
+     */
+    public ApplicationBuilder referrer() {
+        String rawUrl = String.format("http://%s/referrer",
+                RandomStringUtils.randomAlphabetic(10));
+
+        return referrer(rawUrl);
     }
 
     /**
@@ -383,10 +405,7 @@ public final class ApplicationBuilder {
         context.referrer.setClient(context.client);
         context.referrer.setUri(UriBuilder.fromUri(referrer).build());
 
-        context.client.getReferrers().add(context.referrer);
-
         persist(context.referrer);
-        persist(context.client);
 
         return this;
     }
@@ -862,6 +881,24 @@ public final class ApplicationBuilder {
         }
 
         /**
+         * Get the current redirect.
+         *
+         * @return The current redirect.
+         */
+        public ClientRedirect getRedirect() {
+            return redirect;
+        }
+
+        /**
+         * Get the current referrer.
+         *
+         * @return The current referrer.
+         */
+        public ClientReferrer getReferrer() {
+            return referrer;
+        }
+
+        /**
          * Get the current authenticator.
          *
          * @return The current authenticator.
@@ -962,6 +999,8 @@ public final class ApplicationBuilder {
             nullSafeAdd(entities, user);
             nullSafeAdd(entities, userIdentity);
             nullSafeAdd(entities, token);
+            nullSafeAdd(entities, redirect);
+            nullSafeAdd(entities, referrer);
             entities.addAll(scopes.values());
 
             return entities;

@@ -163,7 +163,7 @@ public final class Client extends AbstractEntity {
     @OneToMany(
             fetch = FetchType.LAZY,
             mappedBy = "client",
-            cascade = {CascadeType.ALL},
+            cascade = {CascadeType.REMOVE},
             orphanRemoval = true
     )
     @JsonIgnore

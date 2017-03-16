@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.ClientType;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -32,13 +32,13 @@ import java.util.UUID;
 /**
  * Test the CRUD methods of the scope service.
  *
+ * @param <K> The type of parent entity for this test.
  * @param <T> The type of entity to execute this test for.
  * @author Michael Krotscheck
  */
-@Deprecated
 @RunWith(Parameterized.class)
-public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
-        T extends AbstractEntity> extends DAbstractServiceCRUDTest<T> {
+public abstract class AbstractSubserviceCRUDTest<K extends AbstractEntity,
+        T extends AbstractEntity> extends AbstractServiceCRUDTest<T> {
 
     /**
      * Class reference for this class' parent type, used in casting.
@@ -55,12 +55,12 @@ public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
      * @param createUser    Whether to create a new user.
      * @param shouldSucceed Should this test succeed?
      */
-    public DAbstractSubserviceCRUDTest(final Class<K> parentClass,
-                                       final Class<T> childClass,
-                                       final ClientType clientType,
-                                       final String tokenScope,
-                                       final Boolean createUser,
-                                       final Boolean shouldSucceed) {
+    public AbstractSubserviceCRUDTest(final Class<K> parentClass,
+                                      final Class<T> childClass,
+                                      final ClientType clientType,
+                                      final String tokenScope,
+                                      final Boolean createUser,
+                                      final Boolean shouldSucceed) {
         super(childClass, clientType, tokenScope, createUser, shouldSucceed);
         this.parentClass = parentClass;
     }
@@ -71,7 +71,7 @@ public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
      * @param context The context to extract the value from.
      * @return The requested entity type under test.
      */
-    protected abstract K getParentEntity(EnvironmentBuilder context);
+    protected abstract K getParentEntity(ApplicationContext context);
 
     /**
      * Create a new valid entity to test the creation endpoint.
@@ -80,7 +80,7 @@ public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected final T createValidEntity(final EnvironmentBuilder context) {
+    protected final T createValidEntity(final ApplicationContext context) {
         K parent = getParentEntity(context);
         return createValidEntity(context, parent);
     }
@@ -92,7 +92,7 @@ public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
      * @param parent  The parent entity.
      * @return A valid entity.
      */
-    protected abstract T createValidEntity(EnvironmentBuilder context,
+    protected abstract T createValidEntity(ApplicationContext context,
                                            K parent);
 
     /**
@@ -101,10 +101,10 @@ public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
      * @param context The environment context.
      * @return A valid entity.
      */
-    protected abstract K createParentEntity(EnvironmentBuilder context);
+    protected abstract K createParentEntity(ApplicationContext context);
 
     /**
-     * Assert that we cannot read from an different parent entity
+     * Assert that we cannot read from an different parent entity.
      *
      * @throws Exception Exception encountered during test.
      */
@@ -122,7 +122,7 @@ public abstract class DAbstractSubserviceCRUDTest<K extends AbstractEntity,
     }
 
     /**
-     * Assert that we cannot read from an invalid parent entity
+     * Assert that we cannot read from an invalid parent entity.
      *
      * @throws Exception Exception encountered during test.
      */
