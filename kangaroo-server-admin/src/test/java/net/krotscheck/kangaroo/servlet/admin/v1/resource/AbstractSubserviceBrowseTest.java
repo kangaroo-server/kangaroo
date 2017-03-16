@@ -24,9 +24,10 @@ import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
-import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -34,7 +35,6 @@ import org.junit.runners.Parameterized;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -44,13 +44,13 @@ import java.util.Map;
 /**
  * Abstract class for subresource browsing.
  *
+ * @param <K> The type of the parent entity.
  * @param <T> The type of entity to execute this test for.
  * @author Michael Krotscheck
  */
-@Deprecated
 @RunWith(Parameterized.class)
-public abstract class DAbstractSubserviceBrowseTest<K extends AbstractEntity,
-        T extends AbstractEntity> extends DAbstractResourceTest {
+public abstract class AbstractSubserviceBrowseTest<K extends AbstractEntity,
+        T extends AbstractEntity> extends AbstractResourceTest {
 
     /**
      * The scope to grant the issued token.
@@ -81,7 +81,7 @@ public abstract class DAbstractSubserviceBrowseTest<K extends AbstractEntity,
     /**
      * An additional application context used for testing.
      */
-    private EnvironmentBuilder otherApp;
+    private ApplicationContext otherApp;
 
     /**
      * Create a new instance of this parameterized test.
@@ -90,9 +90,9 @@ public abstract class DAbstractSubserviceBrowseTest<K extends AbstractEntity,
      * @param tokenScope The client scope to issue.
      * @param createUser Whether to create a new user.
      */
-    public DAbstractSubserviceBrowseTest(final ClientType clientType,
-                                         final String tokenScope,
-                                         final Boolean createUser) {
+    public AbstractSubserviceBrowseTest(final ClientType clientType,
+                                        final String tokenScope,
+                                        final Boolean createUser) {
         this.tokenScope = tokenScope;
         this.clientType = clientType;
         this.createUser = createUser;
@@ -169,12 +169,36 @@ public abstract class DAbstractSubserviceBrowseTest<K extends AbstractEntity,
     }
 
     /**
-     * Return the second application context (not the admin context).
+     * Load data fixtures for each test. Here we're creating two applications
+     * with different owners, using the kangaroo default scopes so we have
+     * some good cross-app name duplication.
      *
-     * @return The secondary context in this test.
+     * @throws Exception An exception that indicates a failed fixture load.
      */
-    protected final EnvironmentBuilder getSecondaryContext() {
-        return otherApp;
+    @Before
+    public final void configureData() throws Exception {
+
+        // Get the admin app and create users based on the configured
+        // parameters.
+        ApplicationContext context = getAdminContext();
+        User owner = context.getOwner();
+
+        client = context.getBuilder()
+                .client(clientType)
+                .build()
+                .getClient();
+
+        if (createUser) {
+            // Switch to the other user.
+            owner = getSecondaryContext().getOwner();
+        }
+        UserIdentity identity = owner.getIdentities().iterator().next();
+
+        adminAppToken = context
+                .getBuilder()
+                .bearerToken(client, identity, tokenScope)
+                .build()
+                .getToken();
     }
 
     /**
@@ -232,154 +256,7 @@ public abstract class DAbstractSubserviceBrowseTest<K extends AbstractEntity,
      * @param context The context to extract the value from.
      * @return The requested entity type under test.
      */
-    protected abstract K getParentEntity(EnvironmentBuilder context);
-
-    /**
-     * Load data fixtures for each test. Here we're creating two applications
-     * with different owners, using the kangaroo default scopes so we have
-     * some good cross-app name duplication.
-     *
-     * @return A list of fixtures, which will be cleared after the test.
-     * @throws Exception An exception that indicates a failed fixture load.
-     */
-    @Override
-    public final List<EnvironmentBuilder> fixtures(
-            final EnvironmentBuilder adminApp) throws Exception {
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-
-        // Get the admin app and create users based on the configured
-        // parameters.
-        EnvironmentBuilder context = getAdminContext()
-                .client(clientType);
-
-        client = context.getClient();
-
-        // Create a whole lot of applications to run some tests against.
-        for (int i = 0; i < 10; i++) {
-            String appName = String.format("Application %s- %s", i, i % 2 == 0
-                    ? "many" : "frown");
-            fixtures.add(new EnvironmentBuilder(getSession(), appName)
-                    .owner(adminApp.getUser()));
-        }
-        fixtures.add(new EnvironmentBuilder(getSession(), "Single")
-                .owner(adminApp.getUser()));
-
-
-        if (createUser) {
-            context.user().identity();
-        }
-        adminAppToken = context.bearerToken(tokenScope).getToken();
-
-        // Create a whole lot more applications to run some tests against.
-        for (int i = 0; i < 10; i++) {
-            String appName = String.format("Application %s- %s", i, i % 2 == 0
-                    ? "many" : "frown");
-            fixtures.add(new EnvironmentBuilder(getSession(), appName)
-                    .owner(adminApp.getUser()));
-        }
-        fixtures.add(new EnvironmentBuilder(getSession(), "Single")
-                .owner(adminApp.getUser()));
-
-        // Create a second app, owned by another user.
-        otherApp = new EnvironmentBuilder(getSession())
-                .owner(context.getUser())
-                .scopes(Scope.allScopes());
-
-        // Add some data for scopes
-        context.scope("Single Scope");
-        context.scope("Second Scope - many");
-        context.scope("Third Scope - many");
-        context.scope("Fourth Scope - many");
-        otherApp.scope("Single Scope");
-        otherApp.scope("Second Scope - many");
-        otherApp.scope("Third Scope - many");
-        otherApp.scope("Fourth Scope - many");
-
-        // Add some test data for clients
-        context.client(ClientType.ClientCredentials, "Single client");
-        context.authenticator("Single authenticator");
-        context.client(ClientType.ClientCredentials, "Second client - many");
-        context.authenticator("Second authenticator - many");
-        context.client(ClientType.Implicit, "Third client - many");
-        context.authenticator("Third authenticator - many");
-        context.client(ClientType.AuthorizationGrant, "Fourth client - many");
-        context.authenticator("Fourth authenticator - many");
-        otherApp.client(ClientType.ClientCredentials, "Single client");
-        otherApp.authenticator("Single authenticator");
-        otherApp.client(ClientType.ClientCredentials, "Second client - many");
-        otherApp.authenticator("Second authenticator - many");
-        otherApp.client(ClientType.Implicit, "Third client - many");
-        otherApp.authenticator("Third authenticator - many");
-        otherApp.client(ClientType.AuthorizationGrant, "Fourth client - many");
-        otherApp.authenticator("Fourth authenticator - many");
-
-        // Add some data for roles
-        context.role("Single Role");
-        context.role("Second Role - many");
-        context.role("Third Role - many");
-        context.role("Fourth Role - many");
-        otherApp.role("Single Role");
-        otherApp.role("Second Role - many");
-        otherApp.role("Third Role - many");
-        otherApp.role("Fourth Role - many");
-
-        // Create some users
-        context.user()
-                .identity()
-                .claim("name", "Single User");
-        context.user()
-                .identity()
-                .claim("name", "Second User - many");
-        context.user()
-                .identity()
-                .claim("name", "Third User - many");
-        context.user()
-                .identity()
-                .claim("name", "Fourth User - many");
-        otherApp.user()
-                .identity()
-                .claim("name", "Single User");
-        otherApp.user()
-                .identity()
-                .claim("name", "Second User - many");
-        otherApp.user()
-                .identity()
-                .claim("name", "Third User - many");
-        otherApp.user()
-                .identity()
-                .claim("name", "Fourth User - many");
-
-        // Create a bunch of tokens
-        context.redirect("http://single.token.example.com/")
-                .authToken();
-        context.redirect("http://second.token.example.com/many")
-                .authToken();
-        context.redirect("http://third.token.example.com/many")
-                .authToken();
-        context.redirect("http://fourth.token.example.com/many")
-                .authToken();
-        otherApp.redirect("http://single.token.example.com/")
-                .authToken();
-        otherApp.redirect("http://second.token.example.com/many")
-                .authToken();
-        otherApp.redirect("http://third.token.example.com/many")
-                .authToken();
-        otherApp.redirect("http://fourth.token.example.com/many")
-                .authToken();
-
-        // Create a bunch of referrers
-        context.referrer("http://single.referrer.example.com/");
-        context.referrer("http://second.referrer.example.com/many");
-        context.referrer("http://third.referrer.example.com/many");
-        context.referrer("http://fourth.referrer.example.com/many");
-        otherApp.referrer("http://single.referrer.example.com/");
-        otherApp.referrer("http://second.referrer.example.com/many");
-        otherApp.referrer("http://third.referrer.example.com/many");
-        otherApp.referrer("http://fourth.referrer.example.com/many");
-
-        fixtures.add(otherApp);
-        return fixtures;
-    }
+    protected abstract K getParentEntity(ApplicationContext context);
 
     /**
      * Assert that you can browse applications.

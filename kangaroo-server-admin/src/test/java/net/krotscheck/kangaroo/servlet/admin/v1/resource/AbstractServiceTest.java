@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,6 +13,7 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
@@ -25,7 +26,9 @@ import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -34,7 +37,10 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
@@ -42,8 +48,6 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,8 +55,46 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-@Deprecated
-public final class DAbstractServiceTest extends DAbstractResourceTest {
+public final class AbstractServiceTest extends AbstractResourceTest {
+
+    /**
+     * Test data loading for this test.
+     */
+    @ClassRule
+    public static final TestRule TEST_DATA_RULE =
+            new TestDataResource(HIBERNATE_RESOURCE) {
+                /**
+                 * Initialize the test data.
+                 */
+                @Override
+                protected void loadTestData(final Session session) {
+                    userApp = ApplicationBuilder.newApplication(session)
+                            .client(ClientType.Implicit)
+                            .authenticator("password")
+                            .user()
+                            .role("foo")
+                            .identity("test_identity")
+                            .bearerToken()
+                            .build();
+                }
+            };
+
+    /**
+     * Setup test data.
+     */
+    @Before
+    public void setupTestData() {
+        mockContext = Mockito.mock(SecurityContext.class);
+
+        // Create a service.
+        service = new TestService();
+        service.setConfig(getSystemConfig());
+        service.setSession(getSession());
+        service.setFullTextSession(getFullTextSession());
+        service.setSearchFactory(getSearchFactory());
+        service.setSecurityContext(mockContext);
+    }
+
 
     /**
      * The mock security context constructed for this test.
@@ -67,7 +109,7 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
     /**
      * A user application from which we can issue tokens.
      */
-    private EnvironmentBuilder userApp;
+    private static ApplicationContext userApp;
 
     /**
      * Return the token scope required for admin access on this test.
@@ -87,44 +129,6 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
     @Override
     protected String getRegularScope() {
         return null;
-    }
-
-    /**
-     * Provided the admin context, build a list of all additional
-     * applications required for this test.
-     *
-     * @param adminContext The admin context
-     * @return A list of fixtures.
-     * @throws Exception Thrown if something untoward happens.
-     */
-    @Override
-    public List<EnvironmentBuilder> fixtures(
-            final EnvironmentBuilder adminContext)
-            throws Exception {
-
-        // Create a mock context.
-        mockContext = Mockito.mock(SecurityContext.class);
-
-        // Create a service.
-        service = new TestService();
-        service.setConfig(getSystemConfig());
-        service.setSession(getSession());
-        service.setFullTextSession(getFullTextSession());
-        service.setSearchFactory(getSearchFactory());
-        service.setSecurityContext(mockContext);
-
-        // Create a 'different' app from which we can issue tokens.
-        userApp = new EnvironmentBuilder(getSession())
-                .client(ClientType.Implicit)
-                .authenticator("password")
-                .user()
-                .role("foo")
-                .identity("test_identity")
-                .bearerToken();
-
-        List<EnvironmentBuilder> fixtures = new ArrayList<>();
-        fixtures.add(userApp);
-        return fixtures;
     }
 
     /**
@@ -186,8 +190,9 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testGetCurrentUser() {
-        EnvironmentBuilder adminContext = getAdminContext();
-        adminContext.bearerToken();
+        ApplicationContext adminContext = getAdminContext().getBuilder()
+                .bearerToken()
+                .build();
 
         Mockito.doReturn(getAdminContext().getToken())
                 .when(mockContext).getUserPrincipal();
@@ -204,9 +209,10 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testGetCurrentUserClientCredentials() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
-                .bearerToken();
+                .bearerToken()
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -237,17 +243,20 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
     @Test
     public void testAssertCanAccessAsOwner() {
         // Add a new, non-admin user, and make it the owner of the user app
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .role("lol")
                 .user()
                 .identity("not_admin")
-                .bearerToken();
-        userApp.owner(adminContext.getUser());
+                .bearerToken()
+                .build();
+        ApplicationContext userContext = userApp.getBuilder()
+                .owner(adminContext.getUser())
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
 
-        service.assertCanAccess(userApp.getApplication(),
+        service.assertCanAccess(userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
         Assert.assertTrue(true);
     }
@@ -258,8 +267,9 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testAssertCanAccessNotOwnerValidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
-                .bearerToken(Scope.APPLICATION_ADMIN);
+        ApplicationContext adminContext = getAdminContext().getBuilder()
+                .bearerToken(Scope.APPLICATION_ADMIN)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -277,8 +287,9 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = HttpNotFoundException.class)
     public void testAssertCanAccessNotOwnerInvalidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
-                .bearerToken(Scope.APPLICATION);
+        ApplicationContext adminContext = getAdminContext().getBuilder()
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -295,10 +306,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testAssertCanAccessClientCredentialsValidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION_ADMIN);
+                .bearerToken(Scope.APPLICATION_ADMIN)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -316,10 +328,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = HttpNotFoundException.class)
     public void testAssertCanAccessClientCredentialsInvalidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -335,10 +348,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterAdminNoFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -354,11 +368,12 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = HttpStatusException.class)
     public void testRequestInvalidUserFilterAdminFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .bearerToken(Scope.APPLICATION)
-                .user();
+                .user()
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -373,11 +388,12 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterAdminFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .bearerToken(Scope.APPLICATION)
-                .user();
+                .user()
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -394,10 +410,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterNonAdminNoFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -414,11 +431,12 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testRequestUserFilterNonAdminFilter() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
                 .bearerToken(Scope.APPLICATION)
-                .user();
+                .user()
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -434,10 +452,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testRequestUserFilterNonAdminFilterSelf() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -455,10 +474,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testRequestUserFilterNonAdminClientCredentials() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -489,10 +509,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testRequireValidEntity() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -510,10 +531,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityNoEntityAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -530,10 +552,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = HttpStatusException.class)
     public void testResolveFilterEntityNonexistentEntityIdAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -548,10 +571,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityValidEntityIdAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -569,10 +593,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testResolveFilterEntityInvalidScope() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -588,10 +613,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityNullEntityIdNonAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -608,10 +634,11 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = HttpStatusException.class)
     public void testResolveFilterEntityNonexistentEntityIdNonAdmin() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
                 .authenticator("test")
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -627,9 +654,10 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test(expected = InvalidScopeException.class)
     public void testResolveFilterEntityNoTokenIdentity() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
-                .bearerToken(Scope.APPLICATION);
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -647,13 +675,17 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
     @Test(expected = HttpStatusException.class)
     public void testResolveFilterEntityNonAdminNonOwner() {
         // Set up an owner for the user app.
-        EnvironmentBuilder adminContext = getAdminContext()
-                .user().identity();
-        userApp.owner(adminContext.getUser());
-
-        // Add a user for the token.
-        adminContext.user().identity()
-                .bearerToken(Scope.APPLICATION);
+        ApplicationContext adminContext = getAdminContext().getBuilder()
+                .user().identity()
+                .build();
+        ApplicationContext userContext = userApp.getBuilder()
+                .owner(adminContext.getUser())
+                .build();
+        adminContext = adminContext.getBuilder()
+                .user()
+                .identity()
+                .bearerToken(Scope.APPLICATION)
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -661,7 +693,7 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
                 .isUserInRole(Scope.APPLICATION);
 
         service.resolveFilterEntity(Application.class,
-                userApp.getApplication().getId());
+                userContext.getApplication().getId());
     }
 
     /**
@@ -669,10 +701,13 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
      */
     @Test
     public void testResolveFilterEntityNonAdminOwner() {
-        EnvironmentBuilder adminContext = getAdminContext()
+        ApplicationContext adminContext = getAdminContext().getBuilder()
                 .user().identity()
-                .bearerToken(Scope.APPLICATION);
-        userApp.owner(adminContext.getUser());
+                .bearerToken(Scope.APPLICATION)
+                .build();
+        ApplicationContext userContext = userApp.getBuilder()
+                .owner(adminContext.getUser())
+                .build();
 
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
@@ -681,7 +716,7 @@ public final class DAbstractServiceTest extends DAbstractResourceTest {
 
         Application a =
                 service.resolveFilterEntity(Application.class,
-                        userApp.getApplication().getId());
+                        userContext.getApplication().getId());
         Assert.assertEquals(adminContext.getUser(), a.getOwner());
     }
 

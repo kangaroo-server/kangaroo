@@ -223,24 +223,28 @@ public final class TestDataResource
                 .identity()
                 .claim("name", "Single User")
                 .redirect("http://single.token.example.com/")
+                .referrer("http://single.token.example.com/")
                 .authToken()
                 .bearerToken();
         builder.user()
                 .identity()
                 .claim("name", "Second User - many")
                 .redirect("http://second.token.example.com/many")
+                .referrer("http://second.token.example.com/many")
                 .authToken()
                 .bearerToken();
         builder.user()
                 .identity()
                 .claim("name", "Third User - many")
                 .redirect("http://third.token.example.com/many")
+                .referrer("http://third.token.example.com/many")
                 .authToken()
                 .bearerToken();
         builder.user()
                 .identity()
                 .claim("name", "Fourth User - many")
                 .redirect("http://fourth.token.example.com/many")
+                .referrer("http://fourth.token.example.com/many")
                 .authToken()
                 .bearerToken();
     }

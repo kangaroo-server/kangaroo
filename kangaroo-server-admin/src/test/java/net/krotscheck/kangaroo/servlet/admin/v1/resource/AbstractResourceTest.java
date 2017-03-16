@@ -31,6 +31,7 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.TestAuthenticator;
+import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.collection.internal.PersistentSortedMap;
@@ -106,6 +107,15 @@ public abstract class AbstractResourceTest extends ContainerTest {
      */
     protected final ApplicationContext getSecondaryContext() {
         return TEST_DATA_RESOURCE.getSecondaryApplication();
+    }
+
+    /**
+     * Return the system configuration.
+     *
+     * @return The secondary context in this test.
+     */
+    protected final Configuration getSystemConfig() {
+        return TEST_DATA_RESOURCE.getSystemConfiguration();
     }
 
     /**
