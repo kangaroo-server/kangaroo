@@ -23,8 +23,9 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.Binder;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter.OAuthTokenContext;
-import net.krotscheck.kangaroo.servlet.admin.v1.resource.DAbstractResourceTest;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.servlet.admin.v1.resource.AbstractResourceTest;
+import net.krotscheck.kangaroo.test.ApplicationBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -32,6 +33,7 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.inject.Singleton;
@@ -39,7 +41,6 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +50,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 public final class OAuth2AuthorizationFilterTest
-        extends DAbstractResourceTest {
+        extends AbstractResourceTest {
 
     /**
      * A valid, non-expired, bearer token.
@@ -94,39 +95,40 @@ public final class OAuth2AuthorizationFilterTest
     /**
      * Provided the admin context, build a list of all additional
      * applications required for this test.
-     *
-     * @param adminContext The admin context
-     * @return A list of fixtures.
-     * @throws Exception Thrown if something untoward happens.
      */
-    @Override
-    public List<EnvironmentBuilder> fixtures(
-            final EnvironmentBuilder adminContext)
-            throws Exception {
+    @Before
+    public void setupData() {
+        ApplicationContext adminContext = getAdminContext();
+
         // Create a new user.
-        adminContext
+        ApplicationBuilder b = adminContext.getBuilder()
                 .user(null)
                 .identity("remote_identity");
 
         // Valid token
-        adminContext
-                .token(OAuthTokenType.Bearer, false, Scope.USER, null, null);
-        validBearerToken = adminContext.getToken();
+        ApplicationContext testContext = b
+                .token(OAuthTokenType.Bearer, false, Scope.USER, null, null)
+                .build();
+        validBearerToken = testContext.getToken();
 
         // Valid token, no scope.
-        adminContext.token(OAuthTokenType.Bearer, false, null, null, null);
-        noScopeBearerToken = adminContext.getToken();
+        testContext = b
+                .token(OAuthTokenType.Bearer, false, null, null, null)
+                .build();
+        noScopeBearerToken = testContext.getToken();
 
         // Expired token.
-        adminContext.token(OAuthTokenType.Bearer, true, Scope.USER, null, null);
-        expiredBearerToken = adminContext.getToken();
+        testContext = b
+                .token(OAuthTokenType.Bearer, true, Scope.USER, null, null)
+                .build();
+        expiredBearerToken = testContext.getToken();
 
         // Auth token.
-        adminContext.token(OAuthTokenType.Authorization, false, Scope.USER,
-                null, null);
-        authToken = adminContext.getToken();
-
-        return new ArrayList<>();
+        testContext = b
+                .token(OAuthTokenType.Authorization, false, Scope.USER,
+                        null, null)
+                .build();
+        authToken = testContext.getToken();
     }
 
     /**
