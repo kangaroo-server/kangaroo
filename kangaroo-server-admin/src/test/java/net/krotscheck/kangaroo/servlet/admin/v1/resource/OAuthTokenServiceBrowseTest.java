@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class OAuthTokenServiceBrowseTest
-        extends DAbstractServiceBrowseTest<OAuthToken> {
+        extends AbstractServiceBrowseTest<OAuthToken> {
 
     /**
      * Generic type declaration for list decoding.
@@ -114,8 +114,9 @@ public final class OAuthTokenServiceBrowseTest
     protected List<OAuthToken> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
