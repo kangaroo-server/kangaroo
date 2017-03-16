@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(Parameterized.class)
 public final class AuthenticatorServiceBrowseTest
-        extends DAbstractServiceBrowseTest<Authenticator> {
+        extends AbstractServiceBrowseTest<Authenticator> {
 
     /**
      * Generic type declaration for list decoding.
@@ -116,8 +116,9 @@ public final class AuthenticatorServiceBrowseTest
             final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -139,13 +140,13 @@ public final class AuthenticatorServiceBrowseTest
      */
     @Override
     protected List<Authenticator> getOwnedEntities(final User owner) {
-
         // Get all the owned clients.
-        return owner.getApplications()
+        List<Authenticator> aList = owner.getApplications()
                 .stream()
                 .flatMap(a -> a.getClients().stream())
                 .flatMap(c -> c.getAuthenticators().stream())
                 .collect(Collectors.toList());
+        return aList;
     }
 
     /**

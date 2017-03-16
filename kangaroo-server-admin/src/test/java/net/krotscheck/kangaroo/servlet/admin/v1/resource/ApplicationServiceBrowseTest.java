@@ -42,7 +42,7 @@ import java.util.List;
  */
 @RunWith(Parameterized.class)
 public final class ApplicationServiceBrowseTest
-        extends DAbstractServiceBrowseTest<Application> {
+        extends AbstractServiceBrowseTest<Application> {
 
     /**
      * Convenience generic type for response decoding.
@@ -86,8 +86,9 @@ public final class ApplicationServiceBrowseTest
     protected List<Application> getAccessibleEntities(final OAuthToken token) {
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
-        if (!token.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(token);
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
         }
 
         // We know you're an admin. Get all applications in the system.
@@ -105,7 +106,7 @@ public final class ApplicationServiceBrowseTest
      */
     @Override
     protected List<Application> getOwnedEntities(final User owner) {
-        return owner.getApplications();
+        return getAttached(owner).getApplications();
     }
 
     /**
