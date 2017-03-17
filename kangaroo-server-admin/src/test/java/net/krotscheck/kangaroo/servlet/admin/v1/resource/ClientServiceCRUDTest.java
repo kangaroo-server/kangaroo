@@ -25,7 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import net.krotscheck.kangaroo.test.EnvironmentBuilder;
+import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +45,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 public final class ClientServiceCRUDTest
-        extends DAbstractServiceCRUDTest<Client> {
+        extends AbstractServiceCRUDTest<Client> {
 
     /**
      * Create a new instance of this parameterized test.
@@ -69,44 +69,43 @@ public final class ClientServiceCRUDTest
      */
     @Parameterized.Parameters
     public static Collection parameters() {
-        return Arrays.asList(new Object[][]{
-                {
+        return Arrays.asList(
+                new Object[]{
                         ClientType.Implicit,
                         Scope.CLIENT_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.CLIENT,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.CLIENT_ADMIN,
                         true,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.Implicit,
                         Scope.CLIENT,
                         true,
                         false
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.CLIENT_ADMIN,
                         false,
                         true
                 },
-                {
+                new Object[]{
                         ClientType.ClientCredentials,
                         Scope.CLIENT,
                         false,
                         false
-                }
-        });
+                });
     }
 
     /**
@@ -144,7 +143,7 @@ public final class ClientServiceCRUDTest
      * @return The client currently active in the admin app.
      */
     @Override
-    protected Client getEntity(final EnvironmentBuilder context) {
+    protected Client getEntity(final ApplicationContext context) {
         return context.getClient();
     }
 
@@ -186,27 +185,12 @@ public final class ClientServiceCRUDTest
      * @return A valid, but unsaved, entity.
      */
     @Override
-    protected Client createValidEntity(final EnvironmentBuilder context) {
+    protected Client createValidEntity(final ApplicationContext context) {
         Client c = new Client();
         c.setApplication(context.getApplication());
         c.setName(RandomStringUtils.randomAlphanumeric(10));
         c.setClientSecret(RandomStringUtils.randomAlphanumeric(10));
         c.setType(ClientType.ClientCredentials);
-
-        ClientRedirect redirect1 = new ClientRedirect();
-        redirect1.setUri(URI.create("http://example.com/redirect1"));
-        ClientRedirect redirect2 = new ClientRedirect();
-        redirect2.setUri(URI.create("http://example.com/redirect2"));
-
-        ClientReferrer referrer1 = new ClientReferrer();
-        referrer1.setUri(URI.create("http://example.com/redirect1"));
-        ClientReferrer referrer2 = new ClientReferrer();
-        referrer2.setUri(URI.create("http://example.com/redirect2"));
-
-        c.getRedirects().add(redirect1);
-        c.getRedirects().add(redirect2);
-        c.getReferrers().add(referrer1);
-        c.getReferrers().add(referrer2);
 
         c.getConfiguration().put("foo", "bar");
         c.getConfiguration().put("lol", "cat");
@@ -290,9 +274,14 @@ public final class ClientServiceCRUDTest
     @Test
     public void testPutCannotModifyCurrentClient() throws Exception {
         Client client = getAdminToken().getClient();
-        client.setName("New Name");
+        Client newClient = new Client();
+        newClient.setId(client.getId());
+        newClient.setName("New Name");
+        newClient.setApplication(client.getApplication());
+        newClient.setClientSecret(client.getClientSecret());
+        newClient.setType(client.getType());
 
-        Response r = putEntity(client, getAdminToken());
+        Response r = putEntity(newClient, getAdminToken());
 
         if (shouldSucceed()) {
             assertErrorResponse(r, Status.CONFLICT);
@@ -310,12 +299,12 @@ public final class ClientServiceCRUDTest
     @Test
     public void testPutRegularEntity() throws Exception {
         Client a = getEntity(getSecondaryContext());
-        a.setName("Test New Name");
+        a.setName(UUID.randomUUID().toString());
         a.setType(ClientType.OwnerCredentials);
         a.setClientSecret(UUID.randomUUID().toString());
         Response r = putEntity(a, getAdminToken());
 
-        if (shouldSucceed()) {
+        if (isAccessible(a, getAdminToken())) {
             Client response = r.readEntity(Client.class);
             Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Assert.assertEquals(a, response);
@@ -342,7 +331,7 @@ public final class ClientServiceCRUDTest
 
         // Issue the request.
         Response r = putEntity(client, getAdminToken());
-        if (shouldSucceed()) {
+        if (isAccessible(entity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
