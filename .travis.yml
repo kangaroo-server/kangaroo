@@ -3,6 +3,11 @@ jdk:
 - oraclejdk8
 dist: trusty
 sudo: required
+env:
+  - PROFILE=mysql
+  - PROFILE=h2
+services:
+  - mysql
 branches:
   only:
   - master
@@ -10,7 +15,10 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS oid;'
+  - mysql -e 'GRANT ALL ON oid.* TO oid@localhost identified by "oid";'
 script:
-  - mvn clean install -Ptravis
+  - mvn clean install -Ptravis -P$PROFILE
 after_success:
   - mvn coveralls:report -Ptravis
