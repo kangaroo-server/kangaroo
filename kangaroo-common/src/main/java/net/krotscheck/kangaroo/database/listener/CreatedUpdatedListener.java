@@ -57,9 +57,13 @@ public final class CreatedUpdatedListener
                     .getPropertyNames();
             Object[] state = event.getState();
 
+            // Not all databases support milliseconds, let's just drop them.
+            Calendar now = Calendar.getInstance(timeZone);
+            now.set(Calendar.MILLISECOND, 0);
+
             AbstractEntity persistingEntity = (AbstractEntity) entity;
-            persistingEntity.setCreatedDate(Calendar.getInstance(timeZone));
-            persistingEntity.setModifiedDate(Calendar.getInstance(timeZone));
+            persistingEntity.setCreatedDate(now);
+            persistingEntity.setModifiedDate(now);
 
             setValue(state, propertyNames, "createdDate",
                     persistingEntity.getCreatedDate());
@@ -84,8 +88,12 @@ public final class CreatedUpdatedListener
                     .getPropertyNames();
             Object[] state = event.getState();
 
+            // Not all databases support milliseconds, let's just drop them.
+            Calendar now = Calendar.getInstance(timeZone);
+            now.set(Calendar.MILLISECOND, 0);
+
             AbstractEntity persistingEntity = (AbstractEntity) entity;
-            persistingEntity.setModifiedDate(Calendar.getInstance(timeZone));
+            persistingEntity.setModifiedDate(now);
 
             setValue(state, propertyNames, "modifiedDate",
                     persistingEntity.getModifiedDate());

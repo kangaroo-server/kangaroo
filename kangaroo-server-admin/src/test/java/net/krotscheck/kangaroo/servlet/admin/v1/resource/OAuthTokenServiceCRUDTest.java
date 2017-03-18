@@ -19,6 +19,8 @@
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
+import net.krotscheck.kangaroo.database.entity.Application;
+import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
@@ -27,7 +29,6 @@ import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.hibernate.Session;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -289,17 +290,30 @@ public final class OAuthTokenServiceCRUDTest
      */
     private OAuthToken createAuthorizationToken(
             final ApplicationContext context) {
-        Client client = getAttached(context.getApplication()).getClients()
-                .stream()
+        Application a = getAttached(context.getApplication());
+
+        // Get all matching clients in this context.
+        List<Client> clients = a.getClients().stream()
                 .filter(c -> c.getType().equals(getClientType()))
-                .collect(Collectors.toList())
-                .get(0);
+                .collect(Collectors.toList());
+
+        // Get any clients from the above list that have identities.
+        List<Client> identityClients = clients.stream()
+                .flatMap(c -> c.getAuthenticators().stream())
+                .flatMap(auth -> auth.getIdentities().stream())
+                .map(UserIdentity::getAuthenticator)
+                .map(Authenticator::getClient)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Choose one of the two, preferring one with an identity.
+        Client client = identityClients.size() > 0 ? identityClients.get(0)
+                : clients.get(0);
 
         // Get an identity from the client authenticator, if available.
         List<UserIdentity> identities = client.getAuthenticators().stream()
                 .flatMap(ate -> ate.getIdentities().stream())
                 .collect(Collectors.toList());
-
 
         // If there are redirects available...
         URI redirect = UriBuilder.fromPath("http://invalid.example.com/")
