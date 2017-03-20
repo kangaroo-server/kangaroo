@@ -36,7 +36,6 @@ import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -158,7 +157,7 @@ public final class ApplicationBuilder {
     public static ApplicationBuilder fromApplication(final Session session,
                                                      final UUID id) {
         // Start a transaction.
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
 
         // Find various pieces of data that can be easily accessed.
         Application application = session.get(Application.class, id);
@@ -194,7 +193,7 @@ public final class ApplicationBuilder {
         }
 
         // We're done with the session, close the transaction.
-        t.commit();
+        session.getTransaction().commit();
 
         // Build the context.
         ApplicationContext context = new ApplicationContext(session);
@@ -736,21 +735,18 @@ public final class ApplicationBuilder {
         Session session = context.session;
 
         // Persist/update
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
         for (AbstractEntity e : trackedEntities) {
             session.saveOrUpdate(e);
         }
-        t.commit();
-
-        // Persist all entities.
-        session.flush();
+        session.getTransaction().commit();
 
         // Refresh
-        Transaction t2 = session.beginTransaction();
+        session.getTransaction().begin();
         for (AbstractEntity e : trackedEntities) {
             session.refresh(e);
         }
-        t2.commit();
+        session.getTransaction().commit();
 
         return this.context.copy();
     }

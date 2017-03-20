@@ -25,10 +25,11 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.test.LuceneTestUtil;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -193,10 +194,10 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         Session s = getSession();
 
         // We know you're an admin. Get all applications in the system.
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         OAuthToken attachedToken = s.get(OAuthToken.class, token.getId());
         Set<String> scopes = attachedToken.getScopes().keySet();
-        t.commit();
+        s.getTransaction().commit();
 
         // If you're an admin, you get to see everything. If you're not, you
         // only get to see what you own.
@@ -205,12 +206,12 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         }
 
         List<T> clients;
-        t = s.beginTransaction();
+        s.getTransaction().begin();
         try {
             Criteria c = getSession().createCriteria(typingClass);
             clients = c.list();
         } finally {
-            t.commit();
+            s.getTransaction().commit();
         }
         return clients;
     }
@@ -304,7 +305,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
     @Test
     public final void testSearchStopWord() {
         Map<String, String> params = new HashMap<>();
-        params.put("q", "with");
+        params.put("q", "and");
 
         Response r = search(params, getAdminToken());
         assertErrorResponse(r, Status.BAD_REQUEST);

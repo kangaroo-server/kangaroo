@@ -25,7 +25,8 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
+import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -284,9 +285,9 @@ public final class AuthenticatorServiceCRUDTest
         // Create an entity to update
         Authenticator a = createValidEntity(getSecondaryContext());
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(a);
-        t.commit();
+        s.getTransaction().commit();
 
         // Update the entity
         a.getConfiguration().put("foo", "baz");
@@ -303,9 +304,9 @@ public final class AuthenticatorServiceCRUDTest
         }
 
         // Cleanup the authenticator
-        Transaction t2 = s.beginTransaction();
+        s.getTransaction().begin();
         s.delete(a);
-        t2.commit();
+        s.getTransaction().commit();
     }
 
     /**

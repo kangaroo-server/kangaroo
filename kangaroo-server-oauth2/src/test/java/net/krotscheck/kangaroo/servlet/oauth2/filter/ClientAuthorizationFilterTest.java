@@ -29,14 +29,13 @@ import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory.Credent
 import net.krotscheck.kangaroo.test.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.UUID;
 import javax.ws.rs.container.ContainerRequestContext;
+import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -97,11 +96,11 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
         publicClient.setName("Public");
         publicClient.setType(ClientType.AuthorizationGrant);
 
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
         session.save(application);
         session.save(privateClient);
         session.save(publicClient);
-        t.commit();
+        session.getTransaction().commit();
     }
 
     /**
@@ -109,11 +108,11 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @After
     public void teardown() {
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
         session.delete(privateClient);
         session.delete(publicClient);
         session.delete(application);
-        t.commit();
+        session.getTransaction().commit();
 
         privateClient = null;
         publicClient = null;

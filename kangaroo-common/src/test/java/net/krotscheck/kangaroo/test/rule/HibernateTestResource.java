@@ -127,7 +127,7 @@ public class HibernateTestResource implements TestRule {
      * Start a transaction.
      */
     private void startTransaction() {
-        getSession().beginTransaction();
+        getSession().getTransaction();
     }
 
     /**

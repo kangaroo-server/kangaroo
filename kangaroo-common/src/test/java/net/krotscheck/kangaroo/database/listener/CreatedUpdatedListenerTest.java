@@ -21,7 +21,6 @@ import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.event.service.spi.EventListenerRegistrationException;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -85,9 +84,9 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
         Assert.assertNull(a.getModifiedDate());
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.saveOrUpdate(a);
-        t.commit();
+        s.getTransaction().commit();
 
         Assert.assertNotNull(a.getCreatedDate());
         Assert.assertNotNull(a.getModifiedDate());
@@ -110,9 +109,9 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
         a.setName("foo");
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.saveOrUpdate(a);
-        t.commit();
+        s.getTransaction().commit();
 
         Calendar created = a.getCreatedDate();
         Calendar modified = a.getModifiedDate();
@@ -121,9 +120,9 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
         Assert.assertEquals(modified, a.getModifiedDate());
 
         a.setName("bar");
-        Transaction t2 = s.beginTransaction();
+        s.getTransaction().begin();
         s.saveOrUpdate(a);
-        t2.commit();
+        s.getTransaction().commit();
 
         Assert.assertEquals(created, a.getCreatedDate());
         Assert.assertNotEquals(modified, a.getModifiedDate());

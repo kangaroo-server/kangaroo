@@ -29,7 +29,7 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -362,9 +362,9 @@ public final class ScopeServiceCRUDTest
         // Create an entity to edit.
         ApplicationScope scope = createValidEntity(getSecondaryContext());
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(scope);
-        t.commit();
+        s.getTransaction().commit();
 
         String newName = UUID.randomUUID().toString();
         scope.setName(newName);
@@ -444,9 +444,9 @@ public final class ScopeServiceCRUDTest
         // Create an entity to delete.
         ApplicationScope scope = createValidEntity(getSecondaryContext());
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(scope);
-        t.commit();
+        s.getTransaction().commit();
 
         // Issue the request.
         Response r = deleteEntity(scope, getAdminToken());

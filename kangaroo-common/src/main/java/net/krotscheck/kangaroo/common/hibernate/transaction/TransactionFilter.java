@@ -74,8 +74,7 @@ public final class TransactionFilter
     public void filter(final ContainerRequestContext requestContext)
             throws IOException {
         Session s = sessionProvider.get();
-        Transaction t = s.getTransaction();
-        t.begin();
+        s.getTransaction().begin();
     }
 
     /**
@@ -94,7 +93,7 @@ public final class TransactionFilter
 
         try {
             if (t.getStatus().equals(TransactionStatus.ACTIVE)) {
-                t.commit();
+                s.getTransaction().commit();
             }
         } catch (HibernateException he) {
             t.rollback();

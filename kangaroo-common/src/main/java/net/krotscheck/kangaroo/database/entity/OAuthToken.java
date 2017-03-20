@@ -31,6 +31,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.FilterCacheModeType;
 import org.hibernate.search.annotations.FullTextFilterDef;
 import org.hibernate.search.annotations.FullTextFilterDefs;
@@ -38,6 +39,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -123,7 +125,8 @@ public final class OAuthToken extends AbstractEntity implements Principal {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "tokenType", nullable = false)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
+            bridge = @FieldBridge(impl = EnumBridge.class))
     private OAuthTokenType tokenType;
 
     /**
