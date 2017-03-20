@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,14 +98,14 @@ public final class ClientServiceSearchTest
     protected List<Client> getOwnedEntities(final User owner) {
         // Get all the owned clients.
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         try {
             return getAttached(owner).getApplications()
                     .stream()
                     .flatMap(a -> a.getClients().stream())
                     .collect(Collectors.toList());
         } finally {
-            t.commit();
+            s.getTransaction().commit();
         }
     }
 

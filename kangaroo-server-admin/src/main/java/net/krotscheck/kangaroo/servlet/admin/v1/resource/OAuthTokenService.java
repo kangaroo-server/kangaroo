@@ -104,7 +104,7 @@ public final class OAuthTokenService extends AbstractService {
 
         // Fact is we can really only search on the redirect.
         FullTextQuery query = buildQuery(OAuthToken.class,
-                new String[]{"redirect"},
+                new String[]{"redirect", "tokenType"},
                 queryString);
 
         // Attach an ownership filter.

@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -354,9 +354,9 @@ public final class ApplicationServiceCRUDTest
         Application newApp = createValidEntity(getAdminContext());
         newApp.setOwner(oldOwner);
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(newApp);
-        t.commit();
+        s.getTransaction().commit();
 
         // Try to change the ownership to the admin user.
         User newOwner = getSecondaryContext().getOwner();

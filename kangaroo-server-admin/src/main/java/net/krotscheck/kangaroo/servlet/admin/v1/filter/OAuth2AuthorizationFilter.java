@@ -28,7 +28,7 @@ import org.apache.http.HttpHeaders;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.hibernate.criterion.Restrictions;
 
 import javax.annotation.Priority;
@@ -98,7 +98,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         Application a = loadAdminApplication();
 
         Session session = sessionProvider.get();
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
 
         Criteria c = session.createCriteria(OAuthToken.class)
                 .createAlias("client", "c")
@@ -116,7 +116,7 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
             SecurityContext context = new OAuthTokenContext(token, isSecure);
             requestContext.setSecurityContext(context);
         }
-        t.commit();
+        session.getTransaction().commit();
     }
 
     /**

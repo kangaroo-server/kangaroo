@@ -93,7 +93,7 @@ public final class TransactionFilterTest {
 
         Mockito.doReturn(mockSession).when(mockSessionProvider).get();
         Mockito.doReturn(mockTransaction).when(mockSession).getTransaction();
-        Mockito.doReturn(mockTransaction).when(mockSession).beginTransaction();
+        Mockito.doReturn(mockTransaction).when(mockSession).getTransaction();
         Mockito.doReturn(TransactionStatus.ACTIVE).when(mockTransaction)
                 .getStatus();
     }

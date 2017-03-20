@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpStatus;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -139,14 +139,14 @@ public final class ClientReferrerServiceCRUDTest
         String parentId = "";
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         try {
             ClientReferrer r = s.get(ClientReferrer.class, UUID.fromString(id));
             parentId = r.getClient().getId().toString();
         } catch (Exception e) {
             parentId = getParentEntity(getAdminContext()).getId().toString();
         } finally {
-            t.rollback();
+            s.getTransaction().commit();
         }
 
         return getUrlForEntity(parentId, id);

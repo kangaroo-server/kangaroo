@@ -28,7 +28,7 @@ import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.hibernate.criterion.Restrictions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -210,14 +210,14 @@ public final class ClientRedirectServiceBrowseTest
         String parentId = "";
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         try {
             ClientRedirect r = s.get(ClientRedirect.class, UUID.fromString(id));
             parentId = r.getClient().getId().toString();
         } catch (Exception e) {
             parentId = getParentEntity(getAdminContext()).getId().toString();
         } finally {
-            t.rollback();
+            s.getTransaction().commit();
         }
 
         return getUrlForEntity(parentId, id);

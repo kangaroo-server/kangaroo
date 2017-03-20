@@ -33,7 +33,7 @@ import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +154,7 @@ public final class FirstRunContainerLifecycleListener
         adminIdentity.setPassword(
                 PasswordUtil.hash("admin", adminIdentity.getSalt()));
 
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(servletApp);
         s.save(servletClient);
         s.save(passwordAuth);
@@ -164,7 +164,7 @@ public final class FirstRunContainerLifecycleListener
         s.save(memberRole);
         s.save(adminUser);
         s.save(adminIdentity);
-        t.commit();
+        s.getTransaction().commit();
 
         logger.debug(String.format("Application ID: %s",
                 servletApp.getId()));

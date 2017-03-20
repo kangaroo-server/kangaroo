@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.test.rule;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -108,10 +107,10 @@ public abstract class TestDataResource implements TestRule {
         Query removeConfiguration =
                 session.createQuery("DELETE FROM ConfigurationEntry");
 
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
         removeOwners.executeUpdate();
         removeApplications.executeUpdate();
         removeConfiguration.executeUpdate();
-        t.commit();
+        session.getTransaction().commit();
     }
 }

@@ -23,7 +23,6 @@ import org.apache.commons.configuration.Configuration;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
 import java.util.Collections;
@@ -89,10 +88,9 @@ public final class HibernateConfiguration
 
         // Open a new session, save the data, and close the session.
         Session s = factory.openSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(e);
-        t.commit();
-        s.close();
+        s.getTransaction().commit();
 
         // Clear the existing configuration
         configurationCache = null;
@@ -162,11 +160,11 @@ public final class HibernateConfiguration
         c.add(Restrictions.eq("section", section));
         c.add(Restrictions.eq("key", key));
 
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         for (ConfigurationEntry entry : (List<ConfigurationEntry>) c.list()) {
             s.delete(entry);
         }
-        t.commit();
+        s.getTransaction().commit();
 
         // Close the session.
         s.close();
@@ -189,11 +187,11 @@ public final class HibernateConfiguration
         Criteria c = s.createCriteria(ConfigurationEntry.class);
         c.add(Restrictions.eq("section", section));
 
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         for (ConfigurationEntry entry : (List<ConfigurationEntry>) c.list()) {
             s.delete(entry);
         }
-        t.commit();
+        s.getTransaction().commit();
 
         // Close the session.
         s.close();

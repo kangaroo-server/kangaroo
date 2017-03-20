@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -503,9 +502,9 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
         // Create an entity to test with
         Session s = getSession();
         T testEntity = createValidEntity(getSecondaryContext());
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(testEntity);
-        t.commit();
+        s.getTransaction().commit();
 
         // Evict so we can use it.
         s.evict(testEntity);
@@ -591,9 +590,9 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
         T testingEntity = createValidEntity(getSecondaryContext());
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(testingEntity);
-        t.commit();
+        s.getTransaction().commit();
 
         // Issue the request.
         Response r = deleteEntity(testingEntity, adminAppToken);
@@ -634,9 +633,9 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
         T testingEntity = createValidEntity(getSecondaryContext());
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(testingEntity);
-        t.commit();
+        s.getTransaction().commit();
 
         Response r = deleteEntity(testingEntity, null);
         assertErrorResponse(r, Status.FORBIDDEN);

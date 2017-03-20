@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -184,9 +184,9 @@ public final class OAuthTokenServiceCRUDTest
         }
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(token);
-        t.commit();
+        s.getTransaction().commit();
 
         return token;
     }
