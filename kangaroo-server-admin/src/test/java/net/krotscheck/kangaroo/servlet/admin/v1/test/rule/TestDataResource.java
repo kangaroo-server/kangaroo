@@ -30,7 +30,7 @@ import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,9 +169,9 @@ public final class TestDataResource
         singleTwo.setOwner(secondContext.getOwner());
         applications.add(singleTwo);
 
-        Transaction t = session.beginTransaction();
+        session.getTransaction().begin();
         applications.forEach(session::save);
-        t.commit();
+        session.getTransaction().commit();
     }
 
     /**

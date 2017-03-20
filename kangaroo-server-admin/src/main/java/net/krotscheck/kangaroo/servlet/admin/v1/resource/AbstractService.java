@@ -430,6 +430,7 @@ public abstract class AbstractService {
                 .keyword()
                 .fuzzy()
                 .onFields(queryFields)
+                .ignoreFieldBridge()
                 .matching(query)
                 .createQuery();
 

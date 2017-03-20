@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -24,6 +24,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.inject.Singleton;
+import javax.persistence.PersistenceException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
@@ -33,8 +34,8 @@ import javax.ws.rs.ext.ExceptionMapper;
  *
  * @author Michael Krotscheck
  */
-public final class HibernateConstraintExceptionMapper
-        implements ExceptionMapper<ConstraintViolationException> {
+public final class PersistenceExceptionMapper
+        implements ExceptionMapper<PersistenceException> {
 
     /**
      * Convert to response.
@@ -42,9 +43,17 @@ public final class HibernateConstraintExceptionMapper
      * @param exception The exception to convert.
      * @return A Response instance for this error.
      */
-    public Response toResponse(final ConstraintViolationException exception) {
+    public Response toResponse(final PersistenceException exception) {
+        // Causes...
+        Throwable cause = exception.getCause();
+        if (cause instanceof ConstraintViolationException) {
+            return ErrorResponseBuilder
+                    .from(HttpStatus.SC_CONFLICT)
+                    .build();
+        }
+
         return ErrorResponseBuilder
-                .from(HttpStatus.SC_CONFLICT)
+                .from(exception)
                 .build();
     }
 
@@ -55,7 +64,7 @@ public final class HibernateConstraintExceptionMapper
 
         @Override
         protected void configure() {
-            bind(HibernateConstraintExceptionMapper.class)
+            bind(PersistenceExceptionMapper.class)
                     .to(ExceptionMapper.class)
                     .in(Singleton.class);
         }

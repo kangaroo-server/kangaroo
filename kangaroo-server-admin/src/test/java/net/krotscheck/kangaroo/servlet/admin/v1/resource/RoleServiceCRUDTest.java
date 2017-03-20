@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -399,10 +398,10 @@ public final class RoleServiceCRUDTest
                     .contains(testContext.getScope()));
 
             // Cleanup
-            Transaction t = s.beginTransaction();
+            s.getTransaction().begin();
             role.getScopes().remove(testContext.getScope().getName());
             s.update(role);
-            t.commit();
+            s.getTransaction().commit();
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -426,10 +425,10 @@ public final class RoleServiceCRUDTest
         editedRole.getScopes().put(newScope.getName(), newScope);
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(newScope);
         s.update(editedRole);
-        t.commit();
+        s.getTransaction().commit();
 
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
@@ -459,9 +458,9 @@ public final class RoleServiceCRUDTest
         }
 
         // Cleanup
-        Transaction t2 = s.beginTransaction();
+        s.getTransaction().begin();
         s.delete(newScope);
-        t2.commit();
+        s.getTransaction().commit();
     }
 
     /**
@@ -661,10 +660,10 @@ public final class RoleServiceCRUDTest
             Assert.assertTrue(role.getScopes().values().contains(scope));
 
             // Cleanup
-            Transaction t = s.beginTransaction();
+            s.getTransaction().begin();
             role.getScopes().remove(scope.getName());
             s.update(role);
-            t.commit();
+            s.getTransaction().commit();
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -730,10 +729,10 @@ public final class RoleServiceCRUDTest
         editedRole.getScopes().put(newScope.getName(), newScope);
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(newScope);
         s.update(editedRole);
-        t.commit();
+        s.getTransaction().commit();
 
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
@@ -768,9 +767,9 @@ public final class RoleServiceCRUDTest
         }
 
         // Cleanup
-        Transaction t2 = s.beginTransaction();
+        s.getTransaction().begin();
         s.delete(newScope);
-        t2.commit();
+        s.getTransaction().commit();
     }
 
     /**
@@ -955,10 +954,10 @@ public final class RoleServiceCRUDTest
         editedRole.getScopes().put(newScope.getName(), newScope);
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(newScope);
         s.update(editedRole);
-        t.commit();
+        s.getTransaction().commit();
 
         // We're using an admin auth token here, but we're modifying an app
         // other than the admin app.
@@ -997,9 +996,9 @@ public final class RoleServiceCRUDTest
         }
 
         // Cleanup
-        Transaction t2 = s.beginTransaction();
+        s.getTransaction().begin();
         s.delete(newScope);
-        t2.commit();
+        s.getTransaction().commit();
     }
 
     /**

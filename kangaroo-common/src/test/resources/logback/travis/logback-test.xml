@@ -31,5 +31,6 @@
   </root>
 
   <logger name="org.hibernate.internal.SessionImpl" level="OFF"/>
+  <logger name="org.hibernate.orm.deprecation" level="OFF"/>
 
 </configuration>

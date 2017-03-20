@@ -29,7 +29,7 @@ import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -185,9 +185,9 @@ public final class AuthorizationServiceTest extends ContainerTest {
         state.setClientRedirect(new URI("http://valid.example.com/redirect"));
 
         Session s = getSession();
-        Transaction t = s.beginTransaction();
+        s.getTransaction().begin();
         s.save(state);
-        t.commit();
+        s.getTransaction().commit();
 
         Response r = target("/authorize/callback")
                 .queryParam("state", state.getId().toString())

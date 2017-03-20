@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,6 +13,7 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package net.krotscheck.kangaroo.database.mapper;
@@ -23,27 +24,28 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.persistence.PersistenceException;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 
 /**
- * Test the constraint violation exception mapping.
+ * Unit tests for the hibernate exception mapper. exception mapper.
  *
  * @author Michael Krotscheck
  */
-public final class HibernateConstraintExceptionMapperTest {
+public final class PersistenceExceptionMapperTest {
 
     /**
-     * Assert that an usual search exceptions map to a 500.
+     * Assert that an exception with a cause is properly passed on.
      */
     @Test
     public void testToResponse() {
-
-        HibernateConstraintExceptionMapper mapper =
-                new HibernateConstraintExceptionMapper();
-        ConstraintViolationException e = new ConstraintViolationException(
+        ConstraintViolationException cause = new ConstraintViolationException(
                 "Test Exception", new SQLException(), "constraintName"
         );
+        PersistenceException e = new PersistenceException("Test", cause);
+
+        PersistenceExceptionMapper mapper = new PersistenceExceptionMapper();
 
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
@@ -54,4 +56,20 @@ public final class HibernateConstraintExceptionMapperTest {
         Assert.assertNull(er.getRedirectUrl());
     }
 
+    /**
+     * Assert that an exception without a cause is mapped to a 500.
+     */
+    @Test
+    public void testToResponseNoCause() {
+        PersistenceExceptionMapper mapper = new PersistenceExceptionMapper();
+        PersistenceException e = new PersistenceException("test");
+
+        Response r = mapper.toResponse(e);
+        ErrorResponse er = (ErrorResponse) r.getEntity();
+
+        Assert.assertEquals(500, r.getStatus());
+        Assert.assertEquals(500, er.getHttpStatus());
+        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
+        Assert.assertNull(er.getRedirectUrl());
+    }
 }

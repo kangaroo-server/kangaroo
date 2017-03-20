@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
-import com.carrotsearch.ant.tasks.junit4.dependencies.com.google.common.base.Strings;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
@@ -32,6 +31,7 @@ import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.TestAuthenticator;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.collection.internal.PersistentSortedMap;
@@ -195,7 +195,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
                                        final String authHeader) {
         Builder t = target(location.getPath()).request();
 
-        if (!Strings.isNullOrEmpty(authHeader)) {
+        if (!StringUtils.isEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
         return t.get();
@@ -245,7 +245,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
         // Issue the request.
         Builder t = target(location.getPath()).request();
 
-        if (!Strings.isNullOrEmpty(authHeader)) {
+        if (!StringUtils.isEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
 
@@ -303,7 +303,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
                                        final String authHeader) {
         Builder t = target(location.getPath()).request();
 
-        if (!Strings.isNullOrEmpty(authHeader)) {
+        if (!StringUtils.isEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
 
@@ -357,7 +357,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
                                           final String authHeader) {
         Builder t = target(location.getPath()).request();
 
-        if (!Strings.isNullOrEmpty(authHeader)) {
+        if (!StringUtils.isEmpty(authHeader)) {
             t.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
         return t.delete();
