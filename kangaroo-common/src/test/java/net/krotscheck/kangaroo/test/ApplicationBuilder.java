@@ -250,7 +250,6 @@ public final class ApplicationBuilder {
         context.role.setApplication(context.application);
 
         // Attach all the scopes.
-        SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
         for (String scopeName : scopeNames) {
             if (context.scopes.containsKey(scopeName)) {
                 ApplicationScope scope = context.scopes.get(scopeName);
@@ -731,7 +730,6 @@ public final class ApplicationBuilder {
      * @return The constructed context, detached from the hibernate session.
      */
     public ApplicationContext build() {
-
         Session session = context.session;
 
         // Persist/update
@@ -978,41 +976,6 @@ public final class ApplicationBuilder {
             snapshot.referrer = referrer;
 
             return snapshot;
-        }
-
-        /**
-         * Return a list of all entities for easy iteration.
-         *
-         * @return A list of all entities associated with this builder.
-         */
-        private List<AbstractEntity> getAllEntities() {
-            List<AbstractEntity> entities = new ArrayList<>();
-            nullSafeAdd(entities, application);
-            nullSafeAdd(entities, client);
-            nullSafeAdd(entities, authenticator);
-            nullSafeAdd(entities, authenticatorState);
-            nullSafeAdd(entities, role);
-            nullSafeAdd(entities, user);
-            nullSafeAdd(entities, userIdentity);
-            nullSafeAdd(entities, token);
-            nullSafeAdd(entities, redirect);
-            nullSafeAdd(entities, referrer);
-            entities.addAll(scopes.values());
-
-            return entities;
-        }
-
-        /**
-         * Check for null on an instance, and if not null add it to the list.
-         *
-         * @param list The list to add to.
-         * @param item The item to check for null.
-         * @param <T>  The type.
-         */
-        private <T> void nullSafeAdd(final List<T> list, final T item) {
-            if (item != null) {
-                list.add(item);
-            }
         }
     }
 }

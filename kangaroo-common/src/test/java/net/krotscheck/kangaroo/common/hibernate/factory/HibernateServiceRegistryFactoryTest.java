@@ -19,12 +19,14 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 
+import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -57,20 +59,34 @@ public final class HibernateServiceRegistryFactoryTest {
 
         ServiceRegistry serviceRegistry = factory.provide();
 
+        String dbDriver = TestConfig.getDbDriver();
         Dialect d = new MetadataSources(serviceRegistry)
-                .buildMetadata().getDatabase().getDialect();
-        Assert.assertTrue(d instanceof H2Dialect);
+                .buildMetadata()
+                .getDatabase()
+                .getDialect();
 
-        // This shouldn't actually do anything, but is included here for
-        // coverage.
+        switch (dbDriver) {
+            case "org.h2.Driver":
+                Assert.assertTrue(d instanceof H2Dialect);
+                break;
+            case "com.mysql.jdbc.Driver":
+                Assert.assertTrue(d instanceof MySQLDialect);
+                break;
+            default:
+                Assert.fail(String.format("Unrecognized driver: %s", dbDriver));
+        }
+
+        // Dispose of the registry.
         factory.dispose(serviceRegistry);
     }
 
     /**
      * Test the application binder.
+     *
+     * @throws ClassNotFoundException Thrown if the driver class is not found.
      */
     @Test
-    public void testBinder() {
+    public void testBinder() throws ClassNotFoundException {
 
         ResourceConfig config = new ResourceConfig();
         config.register(TestFeature.class);
@@ -85,13 +101,25 @@ public final class HibernateServiceRegistryFactoryTest {
         Assert.assertNotNull(serviceRegistry);
 
         // Make sure it's reading from the same place.
+        String dbDriver = TestConfig.getDbDriver();
         Dialect d = new MetadataSources(serviceRegistry)
                 .buildMetadata().getDatabase().getDialect();
-        Assert.assertTrue(d instanceof H2Dialect);
+
+        switch (dbDriver) {
+            case "org.h2.Driver":
+                Assert.assertTrue(d instanceof H2Dialect);
+                break;
+            case "com.mysql.jdbc.Driver":
+                Assert.assertTrue(d instanceof MySQLDialect);
+                break;
+            default:
+                Assert.fail(String.format("Unrecognized driver: %s", dbDriver));
+        }
 
         // Make sure it's a singleton...
         ServiceRegistry serviceRegistry2 = handler
-                .getServiceLocator().getService(ServiceRegistry.class);
+                .getServiceLocator()
+                .getService(ServiceRegistry.class);
         Assert.assertSame(serviceRegistry, serviceRegistry2);
     }
 

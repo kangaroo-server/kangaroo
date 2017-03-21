@@ -285,6 +285,7 @@ public final class OAuthTokenService extends AbstractService {
         // Yay, we're valid! Save it.
         Session s = getSession();
         s.save(validToken);
+        s.getTransaction().commit();
 
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()

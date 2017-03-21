@@ -102,37 +102,57 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
 
     /**
      * Assert that a record has its modified date updated during an update.
+     *
+     * @throws InterruptedException Thrown if the thread is interrupted (it
+     *                              shouldn't be).
      */
     @Test
-    public void testOnPreUpdate() {
+    public synchronized void testOnPreUpdate() throws InterruptedException {
         Application a = new Application();
         a.setName("foo");
 
+        // Save, generate the dates.
         Session s = getSession();
         s.getTransaction().begin();
         s.saveOrUpdate(a);
         s.getTransaction().commit();
 
+        // Load values back in from the database - some databases drop the
+        // miliseconds, so we make sure we test with a clean, database-native
+        // value.
+        s.evict(a);
+
+        s.getTransaction().begin();
+        a = s.get(Application.class, a.getId());
+        s.getTransaction().commit();
+
+        // Store our dates for later checking.
         Calendar created = a.getCreatedDate();
         Calendar modified = a.getModifiedDate();
 
-        Assert.assertEquals(created, a.getCreatedDate());
-        Assert.assertEquals(modified, a.getModifiedDate());
+        // Wait for 1 second, since time resolution is not precise in some
+        // databases.
+        this.wait(1000);
 
+        // Run an update.
         a.setName("bar");
         s.getTransaction().begin();
         s.saveOrUpdate(a);
         s.getTransaction().commit();
 
+        // Make sure that the createdDate has not changed, but the modified
+        // date has.
         Assert.assertEquals(created, a.getCreatedDate());
         Assert.assertNotEquals(modified, a.getModifiedDate());
+        Calendar newModifiedDate = a.getModifiedDate();
 
+        // Evict and refresh, make sure that the above values have persisted.
         s.evict(a);
-
         Application readApplication =
                 s.get(Application.class, a.getId());
 
         Assert.assertEquals(created, readApplication.getCreatedDate());
+        Assert.assertEquals(newModifiedDate, readApplication.getModifiedDate());
         Assert.assertNotEquals(modified, readApplication.getModifiedDate());
     }
 
