@@ -70,11 +70,4 @@
       liquibase.integration.servlet.LiquibaseServletListener
     </listener-class>
   </listener>
-
-  <!-- Hibernate Search Lucene Index Rebuild -->
-  <listener>
-    <listener-class>
-      net.krotscheck.kangaroo.common.hibernate.context.SearchIndexContextListener
-    </listener-class>
-  </listener>
 </web-app>
