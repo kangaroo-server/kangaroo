@@ -19,4 +19,4 @@
 /**
  * Container context listeners available for hibernate.
  */
-package net.krotscheck.kangaroo.common.hibernate.context;
+package net.krotscheck.kangaroo.common.hibernate.lifecycle;

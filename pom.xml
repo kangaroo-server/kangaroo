@@ -154,7 +154,7 @@
     <jersey2-toolkit.version>2.1.1</jersey2-toolkit.version>
     <slf4j.version>1.7.13</slf4j.version>
     <powermock.version>1.6.6</powermock.version>
-    <jacoco.version>0.7.7.201606060606</jacoco.version>
+    <jacoco.version>0.7.9</jacoco.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -576,6 +576,11 @@
     </dependency>
 
     <!-- JUnit -->
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4-rule-agent</artifactId>
+      <version>${powermock.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>

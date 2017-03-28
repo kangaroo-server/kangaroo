@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.common.hibernate.factory.FulltextSessionFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
+import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
 import net.krotscheck.kangaroo.common.hibernate.transaction.TransactionFilter;
 
 import javax.ws.rs.core.Feature;
@@ -49,6 +50,9 @@ public final class HibernateFeature implements Feature {
      */
     @Override
     public boolean configure(final FeatureContext context) {
+
+        // Search index construction
+        context.register(new SearchIndexContainerLifecycleListener.Binder());
 
         // Hibernate configuration.
         context.register(new HibernateSessionFactory.Binder());
