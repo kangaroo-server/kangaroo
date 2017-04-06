@@ -40,23 +40,8 @@ public final class SystemConfigurationTest {
     public void testConfigurationDefaults() {
         ServletContext context = mock(ServletContext.class);
 
-        SystemConfiguration config = new SystemConfiguration(context);
+        SystemConfiguration config = new SystemConfiguration();
 
-        Assert.assertEquals("dev", config.getVersion());
         Assert.assertEquals(TimeZone.getTimeZone("UTC"), config.getTimezone());
-    }
-
-    /**
-     * Test that a file configuration is parsed.
-     */
-    @Test
-    public void testConfigurationFromFile() {
-        ServletContext context = mock(ServletContext.class);
-        when(context.getRealPath("/META-INF/MANIFEST.MF"))
-                .thenReturn("src/test/resources/META-INF/MANIFEST.MF");
-
-        SystemConfiguration config = new SystemConfiguration(context);
-
-        Assert.assertEquals("test", config.getVersion());
     }
 }

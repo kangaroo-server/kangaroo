@@ -20,16 +20,12 @@ package net.krotscheck.kangaroo.common.config;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.TimeZone;
 import javax.inject.Singleton;
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.Context;
+import java.util.TimeZone;
 
 /**
  * Provides our configuration object, composite from various sources.
@@ -46,35 +42,15 @@ public final class SystemConfiguration extends CompositeConfiguration {
 
     /**
      * Create an instance of the configuration provider.
-     *
-     * @param context The application servlet context.
      */
-    public SystemConfiguration(@Context final ServletContext context) {
+    public SystemConfiguration() {
 
         logger.debug("Adding system configuration");
         addConfiguration(
                 new org.apache.commons.configuration.SystemConfiguration());
 
-        try {
-            logger.debug("Adding Servlet Context Metadata");
-            String path = context.getRealPath("/META-INF/MANIFEST.MF");
-            addConfiguration(new PropertiesConfiguration(path));
-        } catch (ConfigurationException | NullPointerException ce) {
-            logger.debug("Cannot load global properties file, does not exist "
-                    + "or not readable.");
-        }
-
         // Run the global configuration.
         configureGlobal();
-    }
-
-    /**
-     * Return the current version of the system.
-     *
-     * @return A string representing the current version.
-     */
-    public String getVersion() {
-        return getString("Implementation-Version", "dev");
     }
 
     /**
