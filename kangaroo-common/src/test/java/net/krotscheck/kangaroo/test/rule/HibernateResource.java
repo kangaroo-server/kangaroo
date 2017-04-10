@@ -106,6 +106,12 @@ public class HibernateResource implements TestRule {
                 name);
         System.setProperty("hibernate.search.default.exclusive_index_use",
                 "false");
+
+        // C3P0 Overrides for testing only
+        System.setProperty("initialPoolSize", "0");
+        System.setProperty("maxIdleTime", "0");
+        System.setProperty("maxPoolSize", "5");
+        System.setProperty("minPoolSize", "0");
     }
 
     /**
@@ -114,6 +120,11 @@ public class HibernateResource implements TestRule {
     private void resetSearchIndexProvider() {
         System.clearProperty("hibernate.search.default.directory_provider");
         System.clearProperty("hibernate.search.default.exclusive_index_use");
+
+        System.clearProperty("initialPoolSize");
+        System.clearProperty("maxIdleTime");
+        System.clearProperty("maxPoolSize");
+        System.clearProperty("minPoolSize");
     }
 
     /**

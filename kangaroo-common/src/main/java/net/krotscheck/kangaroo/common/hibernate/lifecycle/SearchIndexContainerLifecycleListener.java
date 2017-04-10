@@ -71,7 +71,7 @@ public final class SearchIndexContainerLifecycleListener
      */
     @Override
     public void onStartup(final Container container) {
-        logger.info("Rebuilding Search Index...");
+        logger.debug("Rebuilding Search Index...");
 
         Session s = sessionFactory.openSession();
         try {

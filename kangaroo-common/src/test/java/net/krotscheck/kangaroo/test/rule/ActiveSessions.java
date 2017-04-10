@@ -18,25 +18,17 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
-import net.krotscheck.kangaroo.test.TestConfig;
-import org.apache.commons.dbcp2.BasicDataSource;
+import com.mchange.v2.c3p0.PooledDataSource;
+import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.service.internal.SessionFactoryServiceRegistryImpl;
 import org.junit.Assert;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.naming.InitialContext;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * This JUnit4 rule provides a few handy methods that allow one to mark(),
@@ -48,115 +40,55 @@ import java.util.stream.Collectors;
 public final class ActiveSessions implements TestRule {
 
     /**
-     * Logger instance.
+     * The hibernate resource, which we use to grab our connection provider.
      */
-    private static Logger logger =
-            LoggerFactory.getLogger(ActiveSessions.class);
+    private final HibernateResource hibernateResource;
 
     /**
-     * THe marked list of initial sessions.
+     * Create a new instance of the active sessions rule, connected to the
+     * database created by the provided resource.
+     *
+     * @param hibernateResource The hibernate resource we use to grab the
+     *                          pooled connection provider.
      */
-    private List<Map<String, String>> initialSessions = new ArrayList<>();
+    public ActiveSessions(final HibernateResource hibernateResource) {
+        this.hibernateResource = hibernateResource;
+    }
 
     /**
-     * Mark the current number of active sessions.
+     * Retrieve the datasource from which we can calculate the active sessions.
+     *
+     * @return Data Source.
      */
-    private void mark() {
-        initialSessions = getActiveSessions();
+    private PooledDataSource getDataSource() {
+        SessionFactoryImpl sfi = (SessionFactoryImpl) hibernateResource
+                .getSessionFactory();
+        SessionFactoryServiceRegistryImpl src =
+                (SessionFactoryServiceRegistryImpl) sfi.getServiceRegistry();
+        C3P0ConnectionProvider cp = (C3P0ConnectionProvider)
+                src.getService(ConnectionProvider.class);
+        return cp.unwrap(PooledDataSource.class);
     }
 
     /**
      * Check that the previously marked number of active sessions has not
      * been modified.
-     *
-     * @return Whether there are extra, lingering sessions.
      */
-    private Boolean check() {
-        List<Map<String, String>> currentSessions = getActiveSessions();
-        List<Map<String, String>> lingeringSessions = currentSessions
-                .stream()
-                .filter(row -> !initialSessions.contains(row))
-                .collect(Collectors.toList());
-        if (lingeringSessions.size() > 0) {
-            String message = String.format("Database sessions did not clean "
-                    + "up after themselves. %s extra sessions "
-                    + "detected.", lingeringSessions.size());
-            // Log out the problems.
-            logger.error(message);
-            lingeringSessions.forEach((item) -> logger.error(item.toString()));
-            return true;
-        }
-        return false;
-    }
+    private void check() {
+        PooledDataSource ds = getDataSource();
 
-    /**
-     * Retrieve the current number of active sessions.
-     *
-     * @return The number of active connections.
-     */
-    private List<Map<String, String>> getActiveSessions() {
+        // Make sure we're starting clean.
+        int unclosedOrphaned = 0;
+
         try {
-            switch (TestConfig.getDbDriver()) {
-                case "com.mysql.jdbc.Driver":
-                    return new ArrayList<>();
-                case "org.h2.Driver":
-                default:
-                    String query = "select ID, STATEMENT, SESSION_START, "
-                            + "USER_NAME, CONTAINS_UNCOMMITTED "
-                            + "from information_schema.sessions";
-                    List<Map<String, String>> results = executeQuery(query)
-                            .stream()
-                            .filter(row -> !query.equals(row.get("STATEMENT")))
-                            .collect(Collectors.toList());
-                    return results;
-            }
-        } catch (Throwable sqle) {
-            // Don't do this. Fix it.
-            throw new RuntimeException(sqle);
+            unclosedOrphaned =
+                    ds.getNumUnclosedOrphanedConnectionsDefaultUser();
+        } catch (SQLException e) {
+            Assert.fail(e.getMessage());
         }
-    }
 
-    /**
-     * Execute a query against the current database, and return the results.
-     *
-     * @param query The query to execute.
-     * @return A map of the results.
-     * @throws Throwable Thrown if the query borks.
-     */
-    private List<Map<String, String>> executeQuery(final String query)
-            throws Throwable {
-        InitialContext ctx = new InitialContext();
-        BasicDataSource dataSource =
-                (BasicDataSource) ctx.lookup(TestConfig.getDbJndiPath());
-
-        try (
-                Connection conn = dataSource.getConnection();
-                java.sql.Statement stmt = conn.createStatement()
-        ) {
-            ResultSet rs = stmt.executeQuery(query);
-
-            List<Map<String, String>> results = new ArrayList<>();
-
-            ResultSetMetaData metaData = rs.getMetaData();
-            List<String> columnNames = new ArrayList<>();
-            for (Integer i = 1; i <= metaData.getColumnCount(); i++) {
-                columnNames.add(metaData.getColumnLabel(i));
-            }
-
-            while (rs.next()) {
-                Map<String, String> row = new HashMap<>();
-                columnNames.forEach((name) -> {
-                    try {
-                        row.put(name, rs.getString(name));
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                });
-                results.add(row);
-            }
-            rs.close();
-            return results;
-        }
+        Assert.assertEquals(String.format("%s Orphaned Connections found",
+                unclosedOrphaned), 0, unclosedOrphaned);
     }
 
     /**
@@ -176,10 +108,9 @@ public final class ActiveSessions implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
-                mark();
+                check();
                 base.evaluate();
-                Assert.assertFalse("Zombie DB Sessions Detected",
-                        check());
+                check();
             }
         };
     }
