@@ -21,10 +21,11 @@
 
 <hibernate-configuration>
   <session-factory>
-    <!-- Connection properties -->
-    <property name="connection.datasource">
-      java://comp/env/jdbc/OIDServerDB
-    </property>
+    <property name="hibernate.connection.url">jdbc:h2:mem:target/test/db/h2/hibernate</property>
+    <property name="hibernate.connection.username">oid</property>
+    <property name="hibernate.connection.password">oid</property>
+    <property name="hibernate.connection.driver_class">org.h2.Driver</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
 
     <!-- Generic hibernate configuration -->
     <property name="current_session_context_class">
@@ -37,6 +38,13 @@
     <property name="max_fetch_depth">1</property>
     <property name="default_batch_fetch_size">8</property>
     <property name="connection.handling_mode">DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION</property>
+
+    <!-- Connection pool -->
+    <property name="hibernate.c3p0.min_size">3</property>
+    <property name="hibernate.c3p0.max_size">20</property>
+    <property name="hibernate.c3p0.timeout">300</property>
+    <property name="hibernate.c3p0.max_statements">50</property>
+    <property name="hibernate.c3p0.idle_test_period">3000</property>
 
     <!-- Hibernate Search Configuration -->
     <property name="search.default.directory_provider">ram</property>

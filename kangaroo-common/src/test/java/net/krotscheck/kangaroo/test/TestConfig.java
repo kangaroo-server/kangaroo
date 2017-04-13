@@ -18,6 +18,11 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.test.rule.database.TestDB;
+import org.hibernate.dialect.H2Dialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class exposes all runtime parameters that may be used to configure
  * the test suites.
@@ -27,13 +32,17 @@ package net.krotscheck.kangaroo.test;
 public final class TestConfig {
 
     /**
-     * Fully qualified jndi path for the database.
+     * Logger instance.
+     */
+    private static Logger logger = LoggerFactory.getLogger(TestConfig.class);
+
+    /**
+     * Get the database type under test.
      *
      * @return The path.
      */
-    public static String getDbJndiPath() {
-        return System.getProperty("test.db.jndiPath",
-                "java://comp/env/jdbc/OIDServerDB");
+    public static TestDB getDatabase() {
+        return TestDB.fromDialect(getDbDialect());
     }
 
     /**
@@ -42,7 +51,7 @@ public final class TestConfig {
      * @return The test database address.
      */
     public static String getDbJdbcPath() {
-        return System.getProperty("test.db.jdbc",
+        return System.getProperty("hibernate.connection.url",
                 "jdbc:h2:mem:target/test/db/h2/hibernate");
     }
 
@@ -52,7 +61,8 @@ public final class TestConfig {
      * @return The test database driver class as a string.
      */
     public static String getDbDriver() {
-        return System.getProperty("test.db.driver", "org.h2.Driver");
+        return System.getProperty("hibernate.connection.driver_class",
+                "org.h2.Driver");
     }
 
     /**
@@ -61,7 +71,7 @@ public final class TestConfig {
      * @return The test database login.
      */
     public static String getDbLogin() {
-        return System.getProperty("test.db.user", "oid");
+        return System.getProperty("hibernate.connection.username", "oid");
     }
 
     /**
@@ -70,7 +80,17 @@ public final class TestConfig {
      * @return The test database password.
      */
     public static String getDbPassword() {
-        return System.getProperty("test.db.password", "oid");
+        return System.getProperty("hibernate.connection.password", "oid");
+    }
+
+    /**
+     * Evaluate the Test Database Password.
+     *
+     * @return The test database password.
+     */
+    public static String getDbDialect() {
+        return System.getProperty("hibernate.dialect",
+                H2Dialect.class.getSimpleName());
     }
 
     /**

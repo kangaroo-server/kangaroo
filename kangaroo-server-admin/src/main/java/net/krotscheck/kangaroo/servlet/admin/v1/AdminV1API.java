@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
-import net.krotscheck.kangaroo.common.version.VersionFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ApplicationService;
@@ -67,7 +66,6 @@ public final class AdminV1API extends ResourceConfig {
         register(JacksonFeature.class);          // Data Type de/serialization.
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
-        register(VersionFeature.class);          // Version response attachment.
         register(StatusFeature.class);           // Heartbeat service.
 
         // Authenticators, for validation

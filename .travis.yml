@@ -15,9 +15,6 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
-before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS oid;'
-  - mysql -e 'GRANT ALL ON oid.* TO oid@localhost identified by "oid";'
 script:
   - mvn clean install -Ptravis -P$PROFILE
 after_success:

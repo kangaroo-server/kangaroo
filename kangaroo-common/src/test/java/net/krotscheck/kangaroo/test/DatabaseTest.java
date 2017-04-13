@@ -72,7 +72,8 @@ public abstract class DatabaseTest {
     /**
      * Make the # of active DB sessions available in every test.
      */
-    private final ActiveSessions sessionCount = new ActiveSessions();
+    private final ActiveSessions sessionCount =
+            new ActiveSessions(HIBERNATE_RESOURCE);
 
     /**
      * Ensure that a JDNI resource is set up for this suite.

@@ -92,7 +92,7 @@ public final class ConfigurationFeatureTest extends KangarooJerseyTest {
         public Response status() {
             return Response
                     .status(HttpStatus.SC_OK)
-                    .entity(config.getVersion())
+                    .entity("dev")
                     .build();
         }
     }
