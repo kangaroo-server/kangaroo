@@ -57,15 +57,17 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <jndi.datasource>jdbc:h2:mem:target/test/db/h2/hibernate</jndi.datasource>
-        <jndi.driver>org.h2.Driver</jndi.driver>
+        <hibernate.connection.url>jdbc:h2:mem:target/test/db/h2/hibernate</hibernate.connection.url>
+        <hibernate.connection.driver_class>org.h2.Driver</hibernate.connection.driver_class>
+        <hibernate.dialect>org.hibernate.dialect.H2Dialect</hibernate.dialect>
       </properties>
     </profile>
     <profile>
       <id>mysql</id>
       <properties>
-        <jndi.datasource>jdbc:mysql://127.0.0.1:3306/oid?useUnicode=yes</jndi.datasource>
-        <jndi.driver>com.mysql.jdbc.Driver</jndi.driver>
+        <hibernate.connection.url>jdbc:mysql://127.0.0.1:3306/oid?useUnicode=yes</hibernate.connection.url>
+        <hibernate.connection.driver_class>com.mysql.jdbc.Driver</hibernate.connection.driver_class>
+        <hibernate.dialect>org.hibernate.dialect.MySQL55Dialect</hibernate.dialect>
       </properties>
     </profile>
   </profiles>
@@ -275,27 +277,15 @@
 
             <systemProperties>
               <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-              <property>
-                <name>test.db.jdbc</name>
-                <value>${jndi.datasource}</value>
-              </property>
-              <property>
-                <name>test.db.driver</name>
-                <value>${jndi.driver}</value>
-              </property>
-              <property>
-                <name>test.db.user</name>
-                <value>oid</value>
-              </property>
-              <property>
-                <name>test.db.password</name>
-                <value>oid</value>
-              </property>
-              <property>
-                <name>test.db.jndiPath</name>
-                <value>java://comp/env/jdbc/OIDServerDB</value>
-              </property>
             </systemProperties>
+
+            <systemPropertyVariables>
+              <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
+              <hibernate.connection.username>oid</hibernate.connection.username>
+              <hibernate.connection.password>oid</hibernate.connection.password>
+              <hibernate.connection.driver_class>${hibernate.connection.driver_class}</hibernate.connection.driver_class>
+              <hibernate.dialect>${hibernate.dialect}</hibernate.dialect>
+            </systemPropertyVariables>
           </configuration>
         </plugin>
 
@@ -637,14 +627,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Apache Commons -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
-      <version>2.1.1</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- H2 database, used for testing. -->
     <dependency>
       <groupId>com.h2database</groupId>
@@ -725,6 +707,11 @@
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-c3p0</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
         <artifactId>hibernate-java8</artifactId>
         <version>${hibernate.version}</version>
       </dependency>
@@ -774,6 +761,13 @@
         <groupId>org.glassfish.web</groupId>
         <artifactId>javax.el</artifactId>
         <version>2.2.4</version>
+      </dependency>
+
+      <!-- c3p0 -->
+      <dependency>
+        <groupId>com.mchange</groupId>
+        <artifactId>c3p0</artifactId>
+        <version>0.9.5.2</version>
       </dependency>
 
       <!-- Liquibase Migrations -->

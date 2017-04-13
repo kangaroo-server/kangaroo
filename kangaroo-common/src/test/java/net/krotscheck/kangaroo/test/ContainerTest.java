@@ -70,6 +70,12 @@ public abstract class ContainerTest extends KangarooJerseyTest {
                     HttpStatus.SC_MOVED_TEMPORARILY);
 
     /**
+     * The database test rule. Private, so it can be wrapped below.
+     */
+    private static final DatabaseResource DATABASE_RESOURCE =
+            new DatabaseResource();
+
+    /**
      * The hibernate rule, explicitly created so we can reference it later.
      */
     public static final HibernateResource HIBERNATE_RESOURCE =
@@ -80,7 +86,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      */
     @ClassRule
     public static final TestRule CLASS_RULES = RuleChain
-            .outerRule(new DatabaseResource())
+            .outerRule(DATABASE_RESOURCE)
             .around(HIBERNATE_RESOURCE);
 
     /**
@@ -97,7 +103,8 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     /**
      * Make the # of active DB sessions available in every test.
      */
-    private final ActiveSessions sessionCount = new ActiveSessions();
+    private final ActiveSessions sessionCount =
+            new ActiveSessions(HIBERNATE_RESOURCE);
 
     /**
      * Ensure that a JDNI resource is set up for this suite.

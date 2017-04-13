@@ -32,5 +32,6 @@
 
   <logger name="org.hibernate.internal.SessionImpl" level="OFF"/>
   <logger name="org.hibernate.orm.deprecation" level="OFF"/>
+  <logger name="net.krotscheck.kangaroo" level="INFO" />
 
 </configuration>

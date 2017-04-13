@@ -21,10 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.TimeZone;
-import javax.servlet.ServletContext;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the system configuration component.
@@ -38,25 +34,8 @@ public final class SystemConfigurationTest {
      */
     @Test
     public void testConfigurationDefaults() {
-        ServletContext context = mock(ServletContext.class);
+        SystemConfiguration config = new SystemConfiguration();
 
-        SystemConfiguration config = new SystemConfiguration(context);
-
-        Assert.assertEquals("dev", config.getVersion());
         Assert.assertEquals(TimeZone.getTimeZone("UTC"), config.getTimezone());
-    }
-
-    /**
-     * Test that a file configuration is parsed.
-     */
-    @Test
-    public void testConfigurationFromFile() {
-        ServletContext context = mock(ServletContext.class);
-        when(context.getRealPath("/META-INF/MANIFEST.MF"))
-                .thenReturn("src/test/resources/META-INF/MANIFEST.MF");
-
-        SystemConfiguration config = new SystemConfiguration(context);
-
-        Assert.assertEquals("test", config.getVersion());
     }
 }

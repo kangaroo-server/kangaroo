@@ -286,9 +286,15 @@ public final class UserIdentityServiceCRUDTest
             Assert.assertNull(response.getPassword());
             Assert.assertNull(response.getSalt());
 
+            // Load all entities. This seems to add just enough lag into the
+            // test that we can correctly load the dbEntity later.
+            getSession().createCriteria(UserIdentity.class).list();
+
             // Resolve the entity from the session so we get all the bits.
-            UserIdentity dbEntity = getSession().get(UserIdentity.class,
-                    response.getId());
+            getSession().getTransaction().begin();
+            UserIdentity dbEntity = getSession()
+                    .byId(UserIdentity.class)
+                    .load(response.getId());
 
             Assert.assertNotNull(dbEntity.getPassword());
             Assert.assertNotNull(dbEntity.getSalt());
