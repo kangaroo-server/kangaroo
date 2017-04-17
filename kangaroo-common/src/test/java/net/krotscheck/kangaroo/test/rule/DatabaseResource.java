@@ -23,7 +23,6 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.rule.database.H2TestDatabase;
@@ -58,8 +57,10 @@ public final class DatabaseResource implements TestRule {
 
     /**
      * Pull configuration settings from the system configuration.
+     *
+     * @return A database interface for the current database.
      */
-    private ITestDatabase createDatabase() {
+    public ITestDatabase createDatabase() {
         switch (TestConfig.getDatabase()) {
             case MYSQL:
                 database = new MySQLTestDatabase("");
@@ -70,27 +71,6 @@ public final class DatabaseResource implements TestRule {
         }
         database.create();
         return database;
-    }
-
-    /**
-     * Migrate the current database using the existing liquibase schema.
-     *
-     * @param testDatabase Reference to the database we're using.
-     * @throws Throwable Exceptions thrown during migration. If these fail,
-     *                   fix your tests!
-     */
-    private void setupDatabase(final ITestDatabase testDatabase)
-            throws Throwable {
-        try (Connection conn = testDatabase.getConnection()) {
-            JdbcConnection connection = new JdbcConnection(conn);
-            Database database = DatabaseFactory.getInstance()
-                    .findCorrectDatabaseImplementation(connection);
-            Liquibase liquibase = new Liquibase(TestConfig.getDbChangelog(),
-                    new ClassLoaderResourceAccessor(), database);
-            liquibase.update(new Contexts());
-        } catch (LiquibaseException lbe) {
-            throw new RuntimeException(lbe);
-        }
     }
 
     /**
@@ -119,13 +99,26 @@ public final class DatabaseResource implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
-                try (ITestDatabase db = createDatabase()) {
+                try (ITestDatabase db = createDatabase();
+                     Connection c = db.getConnection()) {
+
+                    // Create the liquibase bits.
+                    JdbcConnection connection = new JdbcConnection(c);
+                    Database database = DatabaseFactory.getInstance()
+                            .findCorrectDatabaseImplementation(connection);
+                    Liquibase liquibase =
+                            new Liquibase(TestConfig.getDbChangelog(),
+                                    new ClassLoaderResourceAccessor(),
+                                    database);
 
                     // Migrate the database.
-                    setupDatabase(db);
+                    liquibase.update(new Contexts());
 
                     // Evaluate the next round of tests.
                     base.evaluate();
+
+                    // Teardown the database.
+                    liquibase.rollback(10000, "");
                 }
             }
         };
