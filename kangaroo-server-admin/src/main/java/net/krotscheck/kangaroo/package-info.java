@@ -17,6 +17,6 @@
  */
 
 /**
- * Unit tests for server and server configuration helper classes.
+ * Root namespace for the kangaroo server project.
  */
-package net.krotscheck.kangaroo.server;
+package net.krotscheck.kangaroo;

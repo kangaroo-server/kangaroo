@@ -27,7 +27,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>kangaroo-server-admin</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <name>kangaroo-server-admin</name>
   <description>Kangaroo's Administration API.</description>
 
@@ -52,6 +52,11 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>net/krotscheck/kangaroo/AuthzAdminServer.*</exclude>
+          </excludes>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -62,6 +67,29 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assembly/src.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifest>
+              <mainClass>net.krotscheck.kangaroo.AuthzAdminServer</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>

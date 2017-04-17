@@ -151,9 +151,8 @@
     <jdk.version>1.8</jdk.version>
     <hibernate.version>5.2.9.Final</hibernate.version>
     <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
-    <hibernate-search.version>5.7.0.Final</hibernate-search.version>
+    <hibernate-search.version>5.8.0.Beta1 </hibernate-search.version>
     <jersey.version>2.25.1</jersey.version>
-    <jersey2-toolkit.version>2.1.1</jersey2-toolkit.version>
     <slf4j.version>1.7.13</slf4j.version>
     <powermock.version>1.6.6</powermock.version>
     <jacoco.version>0.7.9</jacoco.version>
@@ -258,6 +257,12 @@
               </manifest>
             </archive>
           </configuration>
+        </plugin>
+
+        <!-- Assembler -->
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>3.0.0</version>
         </plugin>
 
         <!-- Surefire reporting -->
@@ -570,16 +575,19 @@
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4-rule-agent</artifactId>
       <version>${powermock.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
       <version>${powermock.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
       <version>${powermock.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jacoco</groupId>
@@ -592,11 +600,13 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.10.19</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- Jetty test environment -->
@@ -612,12 +622,6 @@
       <version>${jersey.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-catalina</artifactId>
-      <version>8.5.9</version>
-      <scope>test</scope>
-    </dependency>
 
     <!-- Lucene test harness -->
     <dependency>
@@ -631,7 +635,6 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
   </dependencies>
@@ -639,24 +642,10 @@
   <dependencyManagement>
     <dependencies>
 
-      <!-- The servlet API -->
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>3.1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>1.2</version>
-        <scope>runtime</scope>
-      </dependency>
-
       <!-- Jersey (JAX-RS) -->
       <dependency>
         <groupId>org.glassfish.jersey.containers</groupId>
-        <artifactId>jersey-container-servlet</artifactId>
+        <artifactId>jersey-container-grizzly2-servlet</artifactId>
         <version>${jersey.version}</version>
       </dependency>
       <dependency>
@@ -807,13 +796,11 @@
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>1.4.190</version>
-        <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.31</version>
-        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
