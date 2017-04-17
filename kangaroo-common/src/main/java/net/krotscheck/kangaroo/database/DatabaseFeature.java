@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.database.mapper.PropertyValueExceptionMapper;
 import net.krotscheck.kangaroo.database.mapper.QueryExceptionMapper;
 import net.krotscheck.kangaroo.database.mapper.SearchExceptionMapper;
 import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
+import net.krotscheck.kangaroo.database.migration.LiquibaseMigrationContainerListener;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
@@ -55,6 +56,7 @@ public final class DatabaseFeature implements Feature {
         context.register(new PersistenceExceptionMapper.Binder());
         context.register(new PropertyValueExceptionMapper.Binder());
         context.register(new SearchExceptionMapper.Binder());
+        context.register(new LiquibaseMigrationContainerListener.Binder());
 
         return true;
     }

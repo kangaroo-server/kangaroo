@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.common.hibernate.factory.FulltextSessionFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.PooledDataSourceFactory;
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
 import net.krotscheck.kangaroo.common.hibernate.transaction.TransactionFilter;
 
@@ -60,6 +61,7 @@ public final class HibernateFeature implements Feature {
         context.register(new HibernateServiceRegistryFactory.Binder());
         context.register(new FulltextSearchFactoryFactory.Binder());
         context.register(new FulltextSessionFactory.Binder());
+        context.register(new PooledDataSourceFactory.Binder());
 
         // Permit the @Transactional annotation.
         context.register(new TransactionFilter.Binder());
