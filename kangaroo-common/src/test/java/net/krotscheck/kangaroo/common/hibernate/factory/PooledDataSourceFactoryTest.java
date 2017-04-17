@@ -47,7 +47,7 @@ public final class PooledDataSourceFactoryTest extends DatabaseTest {
     }
 
     /**
-     * Assert that disposal does nothing (is left to C3P0)
+     * Assert that disposal does nothing (is left to C3P0).
      */
     @Test
     public void testDispose() {
@@ -58,6 +58,4 @@ public final class PooledDataSourceFactoryTest extends DatabaseTest {
         factory.dispose(mockDS);
         Mockito.verifyNoMoreInteractions(mockDS);
     }
-
-
 }

@@ -24,8 +24,6 @@ import org.hibernate.dialect.MySQL55Dialect;
 import org.hibernate.dialect.MySQL57Dialect;
 import org.hibernate.dialect.MySQL5Dialect;
 import org.hibernate.dialect.MySQLDialect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
