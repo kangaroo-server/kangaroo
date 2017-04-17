@@ -4,8 +4,12 @@ jdk:
 dist: trusty
 sudo: required
 env:
-  - PROFILE=mysql
-  - PROFILE=h2
+  - PROFILE=mysql PROJECT=kangaroo-common
+  - PROFILE=mysql PROJECT=kangaroo-server-admin
+  - PROFILE=mysql PROJECT=kangaroo-server-oauth2
+  - PROFILE=h2 PROJECT=kangaroo-common
+  - PROFILE=h2 PROJECT=kangaroo-server-admin
+  - PROFILE=h2 PROJECT=kangaroo-server-oauth2
 services:
   - mysql
 branches:
@@ -15,7 +19,9 @@ branches:
   - /^feature\/.*$/
   - /^hotfix\/.*$/
   - /^release\/.*$/
+install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Ptravis
 script:
-  - mvn clean install -Ptravis -P$PROFILE
+  - mvn install -Ptravis -P$PROFILE -pl $PROJECT
 after_success:
   - mvn coveralls:report -Ptravis
