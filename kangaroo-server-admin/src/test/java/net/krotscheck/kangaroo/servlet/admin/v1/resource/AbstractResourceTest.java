@@ -80,15 +80,22 @@ public abstract class AbstractResourceTest extends ContainerTest {
             new TestDataResource(HIBERNATE_RESOURCE);
 
     /**
+     * The current running test application.
+     */
+    private ResourceConfig testApplication;
+
+    /**
      * Create the application under test.
      *
      * @return A configured api servlet.
      */
     @Override
     protected final ResourceConfig createApplication() {
-        ResourceConfig v1Api = new AdminV1API();
-        v1Api.register(new TestAuthenticator.Binder());
-        return v1Api;
+        if (testApplication == null) {
+            testApplication = new AdminV1API();
+            testApplication.register(new TestAuthenticator.Binder());
+        }
+        return testApplication;
     }
 
     /**

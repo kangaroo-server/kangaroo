@@ -20,10 +20,15 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.servlet.admin.v1.test.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
+import org.glassfish.jersey.test.spi.TestContainerException;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -37,6 +42,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 @RunWith(Parameterized.class)
+@UseParametersRunnerFactory(ParameterizedSingleInstanceTestRunnerFactory.class)
 public abstract class AbstractSubserviceCRUDTest<K extends AbstractEntity,
         T extends AbstractEntity> extends AbstractServiceCRUDTest<T> {
 
@@ -44,6 +50,11 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractEntity,
      * Class reference for this class' parent type, used in casting.
      */
     private final Class<K> parentClass;
+
+    /**
+     * Test container factory.
+     */
+    private SingletonTestContainerFactory testContainerFactory;
 
     /**
      * Create a new instance of this parameterized test.
@@ -63,6 +74,28 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractEntity,
                                       final Boolean shouldSucceed) {
         super(childClass, clientType, tokenScope, createUser, shouldSucceed);
         this.parentClass = parentClass;
+    }
+
+    /**
+     * This method overrides the underlying default test container provider,
+     * with one that provides a singleton instance. This allows us to
+     * circumvent the often expensive initialization routines that come from
+     * bootstrapping our services.
+     *
+     * @return an instance of {@link TestContainerFactory} class.
+     * @throws TestContainerException if the initialization of
+     *                                {@link TestContainerFactory} instance
+     *                                is not successful.
+     */
+    protected TestContainerFactory getTestContainerFactory()
+            throws TestContainerException {
+        if (this.testContainerFactory == null) {
+            this.testContainerFactory =
+                    new SingletonTestContainerFactory(
+                            super.getTestContainerFactory(),
+                            this.getClass());
+        }
+        return testContainerFactory;
     }
 
     /**

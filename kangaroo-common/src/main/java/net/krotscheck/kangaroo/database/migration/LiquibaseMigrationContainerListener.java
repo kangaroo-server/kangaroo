@@ -126,7 +126,7 @@ public final class LiquibaseMigrationContainerListener
 
         @Override
         protected void configure() {
-            bind(SearchIndexContainerLifecycleListener.class)
+            bind(LiquibaseMigrationContainerListener.class)
                     .to(ContainerLifecycleListener.class)
                     .in(Singleton.class);
         }

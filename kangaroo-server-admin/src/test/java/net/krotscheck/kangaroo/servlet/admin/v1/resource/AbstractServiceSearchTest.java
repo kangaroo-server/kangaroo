@@ -24,18 +24,21 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.servlet.admin.v1.test.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.LuceneTestUtil;
+import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.apache.lucene.search.Query;
+import org.glassfish.jersey.test.spi.TestContainerException;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -55,6 +58,7 @@ import java.util.stream.Collectors;
  * @author Michael Krotscheck
  */
 @RunWith(Parameterized.class)
+@UseParametersRunnerFactory(ParameterizedSingleInstanceTestRunnerFactory.class)
 public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         extends AbstractResourceTest {
 
@@ -90,6 +94,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
     private OAuthToken adminAppToken;
 
     /**
+     * Test container factory.
+     */
+    private SingletonTestContainerFactory testContainerFactory;
+
+    /**
      * Create a new instance of this parameterized test.
      *
      * @param typingClass The raw class type, used for type-based parsing.
@@ -105,6 +114,28 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
         this.tokenScope = tokenScope;
         this.clientType = clientType;
         this.createUser = createUser;
+    }
+
+    /**
+     * This method overrides the underlying default test container provider,
+     * with one that provides a singleton instance. This allows us to
+     * circumvent the often expensive initialization routines that come from
+     * bootstrapping our services.
+     *
+     * @return an instance of {@link TestContainerFactory} class.
+     * @throws TestContainerException if the initialization of
+     *                                {@link TestContainerFactory} instance
+     *                                is not successful.
+     */
+    protected TestContainerFactory getTestContainerFactory()
+            throws TestContainerException {
+        if (this.testContainerFactory == null) {
+            this.testContainerFactory =
+                    new SingletonTestContainerFactory(
+                            super.getTestContainerFactory(),
+                            this.getClass());
+        }
+        return testContainerFactory;
     }
 
     /**
