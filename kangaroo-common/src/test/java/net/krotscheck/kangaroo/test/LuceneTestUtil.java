@@ -30,8 +30,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.hibernate.search.spi.BuildContext;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Lucene index introspection helper.
@@ -41,10 +39,10 @@ import org.slf4j.LoggerFactory;
 public final class LuceneTestUtil {
 
     /**
-     * Logger instance.
+     * Utility class, private constructor.
      */
-    private static Logger logger =
-            LoggerFactory.getLogger(LuceneTestUtil.class);
+    private LuceneTestUtil() {
+    }
 
     /**
      * Output the lucene index to the logger.
