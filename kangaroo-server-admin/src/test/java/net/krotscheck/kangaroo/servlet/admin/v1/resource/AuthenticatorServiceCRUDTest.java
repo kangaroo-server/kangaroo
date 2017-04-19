@@ -25,8 +25,6 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.hibernate.Session;
-
-import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;

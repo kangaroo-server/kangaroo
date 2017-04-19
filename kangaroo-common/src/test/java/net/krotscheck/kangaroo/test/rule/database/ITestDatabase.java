@@ -18,11 +18,7 @@
 
 package net.krotscheck.kangaroo.test.rule.database;
 
-import org.hibernate.dialect.Dialect;
-
 import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This interface describes a class by which a test database may be

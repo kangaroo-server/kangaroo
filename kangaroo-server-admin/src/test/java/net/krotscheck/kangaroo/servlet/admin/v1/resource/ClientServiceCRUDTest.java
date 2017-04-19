@@ -21,8 +21,6 @@ package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
-import net.krotscheck.kangaroo.database.entity.ClientRedirect;
-import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;

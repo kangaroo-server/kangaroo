@@ -25,7 +25,6 @@ import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
-import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
