@@ -21,6 +21,7 @@ import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.AccessDeniedException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
 import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
+import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -47,7 +48,7 @@ import static org.mockito.Mockito.mock;
 public final class ClientAuthorizationFilterTest extends ContainerTest {
 
     /**
-     * Test cpplication.
+     * Test application.
      */
     private Application application;
 
@@ -70,6 +71,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
     protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
         config.register(ConfigurationFeature.class);
+        config.register(DatabaseFeature.class);
         config.register(HibernateFeature.class);
 
         return config;

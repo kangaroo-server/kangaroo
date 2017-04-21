@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.util.PasswordUtil;
 import org.apache.commons.configuration.Configuration;
@@ -33,15 +34,14 @@ import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * This container lifecycle listener runs once, and only once, when the
@@ -71,18 +71,29 @@ public final class FirstRunContainerLifecycleListener
     private final Configuration servletConfig;
 
     /**
+     * The migration state. Currently injected in order to ensure an
+     * order-of-operations: The migration must happen before we build the
+     * first application data.
+     */
+    @SuppressWarnings("PMD")
+    private final DatabaseMigrationState migrationState;
+
+    /**
      * Create a new instance of this factory.
      *
      * @param sessionFactory The session factory.
      * @param servletConfig  The servlet's database-persisted configuration.
+     * @param migrationState        The database migration state.
      */
     @Inject
     public FirstRunContainerLifecycleListener(
             final SessionFactory sessionFactory,
             @Named(ServletConfigFactory.GROUP_NAME)
-            final Configuration servletConfig) {
+            final Configuration servletConfig,
+            final DatabaseMigrationState migrationState) {
         this.sessionFactory = sessionFactory;
         this.servletConfig = servletConfig;
+        this.migrationState = migrationState;
     }
 
     /**

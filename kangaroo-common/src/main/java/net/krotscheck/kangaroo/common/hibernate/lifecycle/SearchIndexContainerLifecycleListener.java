@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.lifecycle;
 
+import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
@@ -52,16 +53,26 @@ public final class SearchIndexContainerLifecycleListener
     private final SessionFactory sessionFactory;
 
     /**
+     * The migration state.
+     */
+    @SuppressWarnings("PMD")
+    private final DatabaseMigrationState migrationState;
+
+    /**
      * Create a new instance of the lifecycle listener, with an
      * injected registry.
      *
      * @param sessionFactory Hibernate session factory, provided
      *                       by the injector.
+     * @param migrationState Indicator about whether
+     *                       the database was migrated.
      */
     @Inject
     public SearchIndexContainerLifecycleListener(
-            final SessionFactory sessionFactory) {
+            final SessionFactory sessionFactory,
+            final DatabaseMigrationState migrationState) {
         this.sessionFactory = sessionFactory;
+        this.migrationState = migrationState;
     }
 
     /**
