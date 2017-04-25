@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.test.rule;
 
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
+import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener;
@@ -30,7 +31,6 @@ import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +112,8 @@ public final class TestDataResource
 
         // Initialize the application.
         FirstRunContainerLifecycleListener listener =
-                new FirstRunContainerLifecycleListener(factory, systemConfig);
+                new FirstRunContainerLifecycleListener(factory, systemConfig,
+                        new DatabaseMigrationState());
         listener.onStartup(null);
         listener.onShutdown(null);
 
