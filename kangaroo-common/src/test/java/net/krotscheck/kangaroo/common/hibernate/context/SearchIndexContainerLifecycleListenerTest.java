@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.context;
 
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
+import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
 import org.glassfish.jersey.server.spi.Container;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -97,7 +98,8 @@ public final class SearchIndexContainerLifecycleListenerTest {
         when(Search.getFullTextSession(mockSession))
                 .thenReturn(mockFtSession);
 
-        listener = new SearchIndexContainerLifecycleListener(mockFactory);
+        listener = new SearchIndexContainerLifecycleListener(mockFactory,
+                new DatabaseMigrationState());
         container = mock(Container.class);
     }
 

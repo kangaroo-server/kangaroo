@@ -19,6 +19,7 @@ package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.database.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.database.entity.Application;
+import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.FirstRunContainerLifecycleListener.Binder;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
@@ -63,7 +64,7 @@ public final class FirstRunContainerLifecycleListenerTest
 
         ContainerLifecycleListener l =
                 new FirstRunContainerLifecycleListener(
-                        mockFactory, test);
+                        mockFactory, test, new DatabaseMigrationState());
         l.onStartup(mockContainer);
 
         Mockito.verifyNoMoreInteractions(mockFactory);
@@ -81,7 +82,8 @@ public final class FirstRunContainerLifecycleListenerTest
 
         ContainerLifecycleListener l =
                 new FirstRunContainerLifecycleListener(
-                        getSessionFactory(), testConfig);
+                        getSessionFactory(), testConfig,
+                        new DatabaseMigrationState());
         l.onStartup(mockContainer);
 
         // Make sure we have an application ID.
@@ -111,7 +113,8 @@ public final class FirstRunContainerLifecycleListenerTest
 
         ContainerLifecycleListener l =
                 new FirstRunContainerLifecycleListener(
-                        getSessionFactory(), test);
+                        getSessionFactory(), test,
+                        new DatabaseMigrationState());
 
         // Try shutdown.
         l.onShutdown(mockContainer);
