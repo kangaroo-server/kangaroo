@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.apache.http.HttpStatus;
 import org.hibernate.Session;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -37,6 +36,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -125,7 +125,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_OK, r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -155,7 +155,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -181,7 +181,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -205,7 +205,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -235,7 +235,7 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_OK, r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -268,7 +268,7 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -296,7 +296,7 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -328,7 +328,7 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -359,7 +359,7 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_OK, r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -394,7 +394,7 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -419,7 +419,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -444,7 +444,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -469,7 +469,7 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.

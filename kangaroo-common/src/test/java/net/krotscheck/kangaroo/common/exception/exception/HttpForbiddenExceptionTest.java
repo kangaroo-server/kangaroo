@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.common.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
@@ -37,7 +38,7 @@ public final class HttpForbiddenExceptionTest {
     public void testBasicExceptions() {
         HttpForbiddenException e = new HttpForbiddenException();
 
-        Assert.assertEquals(403, e.getHttpStatus());
+        Assert.assertEquals(Status.FORBIDDEN, e.getHttpStatus());
         Assert.assertEquals("Forbidden", e.getMessage());
         Assert.assertEquals("forbidden", e.getErrorCode());
         Assert.assertEquals(null, e.getRedirect());
@@ -51,7 +52,7 @@ public final class HttpForbiddenExceptionTest {
         URI redirect = UriBuilder.fromPath("http://www.example.com").build();
         HttpForbiddenException e = new HttpForbiddenException(redirect);
 
-        Assert.assertEquals(403, e.getHttpStatus());
+        Assert.assertEquals(Status.FORBIDDEN, e.getHttpStatus());
         Assert.assertEquals("Forbidden", e.getMessage());
         Assert.assertEquals("forbidden", e.getErrorCode());
         Assert.assertEquals(redirect, e.getRedirect());

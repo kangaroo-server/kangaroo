@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.common.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
@@ -37,7 +38,7 @@ public final class HttpUnauthorizedExceptionTest {
     public void testBasicExceptions() {
         HttpUnauthorizedException e = new HttpUnauthorizedException();
 
-        Assert.assertEquals(401, e.getHttpStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED, e.getHttpStatus());
         Assert.assertEquals("Unauthorized", e.getMessage());
         Assert.assertEquals("unauthorized", e.getErrorCode());
         Assert.assertEquals(null, e.getRedirect());
@@ -51,7 +52,7 @@ public final class HttpUnauthorizedExceptionTest {
         URI redirect = UriBuilder.fromPath("http://www.example.com").build();
         HttpUnauthorizedException e = new HttpUnauthorizedException(redirect);
 
-        Assert.assertEquals(401, e.getHttpStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED, e.getHttpStatus());
         Assert.assertEquals("Unauthorized", e.getMessage());
         Assert.assertEquals("unauthorized", e.getErrorCode());
         Assert.assertEquals(redirect, e.getRedirect());

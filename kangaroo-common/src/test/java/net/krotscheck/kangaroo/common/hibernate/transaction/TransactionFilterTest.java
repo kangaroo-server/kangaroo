@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.common.hibernate.transaction;
 
 import net.krotscheck.kangaroo.common.hibernate.transaction.TransactionFilter.Binder;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -41,6 +40,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.Response.Status;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -176,7 +176,7 @@ public final class TransactionFilterTest {
         Mockito.verify(responseContext, times(1))
                 .setEntity(Matchers.any());
         Mockito.verify(responseContext, times(1))
-                .setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                .setStatus(Status.INTERNAL_SERVER_ERROR.getStatusCode());
         Mockito.verify(responseContext, times(1))
                 .setEntity(Matchers.any());
 

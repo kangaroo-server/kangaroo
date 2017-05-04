@@ -17,8 +17,7 @@
 
 package net.krotscheck.kangaroo.common.exception.exception;
 
-import org.apache.http.HttpStatus;
-
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
 /**
@@ -53,7 +52,7 @@ public final class HttpInvalidFieldException extends HttpStatusException {
      */
     public HttpInvalidFieldException(final String invalidFieldName,
                                      final URI redirect) {
-        super(HttpStatus.SC_BAD_REQUEST,
+        super(Status.BAD_REQUEST,
                 "Invalid Field: " + invalidFieldName,
                 redirect);
         this.invalidField = "foo";

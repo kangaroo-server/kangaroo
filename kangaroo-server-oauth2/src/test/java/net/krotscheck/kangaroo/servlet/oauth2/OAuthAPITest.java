@@ -19,12 +19,12 @@ package net.krotscheck.kangaroo.servlet.oauth2;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.ContainerTest;
-import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Smoke test that the OAuthAPI can be loaded.
@@ -57,6 +57,7 @@ public final class OAuthAPITest extends ContainerTest {
         Assert.assertEquals("Not Found", e.getErrorDescription());
 
         // Root should be 404
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                response.getStatus());
     }
 }

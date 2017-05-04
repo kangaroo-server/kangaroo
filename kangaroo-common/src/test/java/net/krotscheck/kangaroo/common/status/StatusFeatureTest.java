@@ -18,13 +18,13 @@
 
 package net.krotscheck.kangaroo.common.status;
 
-import org.apache.http.HttpStatus;
-import org.glassfish.jersey.server.ResourceConfig;
 import net.krotscheck.kangaroo.test.KangarooJerseyTest;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * General smoke test for the status feature.
@@ -51,6 +51,6 @@ public final class StatusFeatureTest extends KangarooJerseyTest {
     @Test
     public void testSimpleRequest() {
         Response r = target("/status").request().get();
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
     }
 }

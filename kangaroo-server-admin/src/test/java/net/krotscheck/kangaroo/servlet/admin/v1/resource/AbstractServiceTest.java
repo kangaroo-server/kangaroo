@@ -44,6 +44,7 @@ import org.junit.rules.TestRule;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -732,7 +733,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Assert.assertEquals("name:kangaroo~2", q.getQueryString());
 
         Response results = service.executeQuery(q, 0, 10);
-        Assert.assertEquals(HttpStatus.SC_OK, results.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), results.getStatus());
         Assert.assertEquals("1", results.getHeaderString("Total"));
         Assert.assertEquals("0", results.getHeaderString("Offset"));
         Assert.assertEquals("10", results.getHeaderString("Limit"));

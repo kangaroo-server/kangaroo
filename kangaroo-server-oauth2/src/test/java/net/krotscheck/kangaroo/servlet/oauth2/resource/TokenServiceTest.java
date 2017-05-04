@@ -26,7 +26,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -38,6 +37,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Unit tests for the /token endpoint. Note that this is not a
@@ -97,7 +97,8 @@ public final class TokenServiceTest extends ContainerTest {
                 .post(testEntity);
 
         ErrorResponse error = response.readEntity(ErrorResponse.class);
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                response.getStatus());
         Assert.assertEquals("invalid_grant", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
     }

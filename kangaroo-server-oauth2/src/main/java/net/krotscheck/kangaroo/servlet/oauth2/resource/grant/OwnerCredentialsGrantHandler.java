@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.util.ValidationUtil;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -38,6 +37,7 @@ import org.hibernate.Session;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.Status;
 import java.util.SortedMap;
 
 /**
@@ -100,7 +100,7 @@ public final class OwnerCredentialsGrantHandler implements IGrantTypeHandler {
         // Try to resolve a user identity.
         identity = authenticator.authenticate(authConfig, formData);
         if (identity == null) {
-            throw new HttpStatusException(HttpStatus.SC_UNAUTHORIZED);
+            throw new HttpStatusException(Status.UNAUTHORIZED);
         }
 
         // Make sure all requested scopes are permitted for this user.

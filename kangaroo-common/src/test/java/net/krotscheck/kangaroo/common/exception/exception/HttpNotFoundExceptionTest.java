@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.common.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
@@ -37,7 +38,7 @@ public final class HttpNotFoundExceptionTest {
     public void testBasicExceptions() {
         HttpNotFoundException e = new HttpNotFoundException();
 
-        Assert.assertEquals(404, e.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND, e.getHttpStatus());
         Assert.assertEquals("Not Found", e.getMessage());
         Assert.assertEquals("not_found", e.getErrorCode());
         Assert.assertEquals(null, e.getRedirect());
@@ -51,7 +52,7 @@ public final class HttpNotFoundExceptionTest {
         URI redirect = UriBuilder.fromPath("http://www.example.com").build();
         HttpNotFoundException e = new HttpNotFoundException(redirect);
 
-        Assert.assertEquals(404, e.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND, e.getHttpStatus());
         Assert.assertEquals("Not Found", e.getMessage());
         Assert.assertEquals("not_found", e.getErrorCode());
         Assert.assertEquals(redirect, e.getRedirect());

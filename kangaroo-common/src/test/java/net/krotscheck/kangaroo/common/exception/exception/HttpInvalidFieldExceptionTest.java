@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.common.exception.exception;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
@@ -37,7 +38,7 @@ public final class HttpInvalidFieldExceptionTest {
     public void testBasicExceptions() {
         HttpInvalidFieldException e = new HttpInvalidFieldException("foo");
 
-        Assert.assertEquals(400, e.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, e.getHttpStatus());
         Assert.assertEquals("Invalid Field: foo", e.getMessage());
         Assert.assertEquals("foo", e.getInvalidField());
         Assert.assertEquals("bad_request", e.getErrorCode());
@@ -53,7 +54,7 @@ public final class HttpInvalidFieldExceptionTest {
         HttpInvalidFieldException e =
                 new HttpInvalidFieldException("foo", redirect);
 
-        Assert.assertEquals(400, e.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, e.getHttpStatus());
         Assert.assertEquals("Invalid Field: foo", e.getMessage());
         Assert.assertEquals("foo", e.getInvalidField());
         Assert.assertEquals("bad_request", e.getErrorCode());

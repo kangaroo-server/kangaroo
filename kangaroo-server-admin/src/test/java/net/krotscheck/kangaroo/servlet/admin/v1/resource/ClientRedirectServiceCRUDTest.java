@@ -25,9 +25,7 @@ import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.http.HttpStatus;
 import org.hibernate.Session;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -326,7 +324,7 @@ public final class ClientRedirectServiceCRUDTest
         Response r = putEntity(cr, getAdminToken());
         if (shouldSucceed()) {
             ClientRedirect response = r.readEntity(ClientRedirect.class);
-            Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Assert.assertEquals(cr, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

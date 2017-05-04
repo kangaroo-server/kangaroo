@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import static org.mockito.Mockito.mock;
 
@@ -47,8 +48,8 @@ public final class JsonParseExceptionMapperTest {
         Response r = mapper.toResponse(jpe);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(400, r.getStatus());
-        Assert.assertEquals(400, er.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals(null, er.getRedirectUrl());
     }
 }
