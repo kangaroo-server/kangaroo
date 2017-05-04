@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Test that jersey exceptions are caught and rewritten into appropriate
@@ -43,8 +44,9 @@ public final class JerseyExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(500, r.getStatus());
-        Assert.assertEquals(500, er.getHttpStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }

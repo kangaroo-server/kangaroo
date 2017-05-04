@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -40,6 +39,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -261,7 +261,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -285,7 +285,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -309,7 +309,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -334,7 +334,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -357,7 +357,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -387,7 +387,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -441,7 +441,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -472,7 +472,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -502,7 +502,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -659,7 +659,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -685,7 +685,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -711,7 +711,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -801,7 +801,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -826,7 +826,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
@@ -859,7 +859,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
@@ -893,7 +893,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
@@ -931,7 +931,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -964,7 +964,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -988,7 +988,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1023,7 +1023,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1052,7 +1052,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1081,7 +1081,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1115,7 +1115,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1154,7 +1154,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1181,7 +1181,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1218,7 +1218,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1250,7 +1250,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1289,7 +1289,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1319,7 +1319,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1349,7 +1349,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1379,7 +1379,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1409,7 +1409,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1439,7 +1439,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1464,7 +1464,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1489,7 +1489,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1520,7 +1520,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1551,7 +1551,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1582,7 +1582,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1614,7 +1614,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1645,7 +1645,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1684,7 +1684,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1723,7 +1723,7 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1754,7 +1754,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1788,7 +1788,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1828,7 +1828,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1859,7 +1859,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
@@ -1911,7 +1911,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response tr = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_OK, tr.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), tr.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, tr.getMediaType());
 
         // Validate the query parameters received.

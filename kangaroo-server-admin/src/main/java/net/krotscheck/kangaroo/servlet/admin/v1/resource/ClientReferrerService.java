@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
-import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -50,6 +49,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -92,17 +92,13 @@ public final class ClientReferrerService extends AbstractService {
     @SuppressWarnings("CPD-START")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
-            @DefaultValue(ApiParam.OFFSET_DEFAULT)
-            final int offset,
+            @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
             @QueryParam(ApiParam.LIMIT_QUERY)
-            @DefaultValue(ApiParam.LIMIT_DEFAULT)
-            final int limit,
+            @DefaultValue(ApiParam.LIMIT_DEFAULT) final int limit,
             @QueryParam(ApiParam.SORT_QUERY)
-            @DefaultValue(ApiParam.SORT_DEFAULT)
-            final String sort,
+            @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
-            @DefaultValue(ApiParam.ORDER_DEFAULT)
-            final SortOrder order) {
+            @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order) {
         Session s = getSession();
 
         // Make sure we can read the client.
@@ -181,13 +177,13 @@ public final class ClientReferrerService extends AbstractService {
 
         // Input value checks.
         if (referrer == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (referrer.getId() != null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (referrer.getUri() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Check for duplicates
@@ -195,7 +191,7 @@ public final class ClientReferrerService extends AbstractService {
                 .map(AbstractClientUri::getUri)
                 .anyMatch(uri -> uri.equals(referrer.getUri()));
         if (duplicate) {
-            throw new HttpStatusException(HttpStatus.SC_CONFLICT);
+            throw new HttpStatusException(Status.CONFLICT);
         }
 
         // Save it all.
@@ -235,7 +231,7 @@ public final class ClientReferrerService extends AbstractService {
         // Make sure the old instance exists.
         ClientReferrer currentReferrer = s.get(ClientReferrer.class, id);
         if (currentReferrer == null) {
-            throw new HttpStatusException(HttpStatus.SC_NOT_FOUND);
+            throw new HttpStatusException(Status.NOT_FOUND);
         }
         // Make sure the parent ID's match
         if (!currentReferrer.getClient().equals(client)) {
@@ -244,11 +240,11 @@ public final class ClientReferrerService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentReferrer.equals(referrer)) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         // Make sure we're not trying to null the redirect.
         if (referrer.getUri() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Make sure we're not creating a duplicate.
@@ -256,7 +252,7 @@ public final class ClientReferrerService extends AbstractService {
                 .filter(r -> !currentReferrer.equals(r))
                 .anyMatch(r -> r.getUri().equals(referrer.getUri()));
         if (duplicate) {
-            throw new HttpStatusException(HttpStatus.SC_CONFLICT);
+            throw new HttpStatusException(Status.CONFLICT);
         }
 
         // Transfer all the values we're allowed to edit.
@@ -286,7 +282,7 @@ public final class ClientReferrerService extends AbstractService {
         // Hydrate the referrer
         ClientReferrer referrer = s.get(ClientReferrer.class, referrerId);
         if (referrer == null) {
-            throw new HttpStatusException(HttpStatus.SC_NOT_FOUND);
+            throw new HttpStatusException(Status.NOT_FOUND);
         }
         // Make sure the parent ID's match
         if (!referrer.getClient().equals(client)) {
@@ -295,7 +291,7 @@ public final class ClientReferrerService extends AbstractService {
 
         // If we're in the admin app, we can't modify anything.
         if (getAdminApplication().equals(client.getApplication())) {
-            throw new HttpStatusException(HttpStatus.SC_FORBIDDEN);
+            throw new HttpStatusException(Status.FORBIDDEN);
         }
 
         // Execute the command.

@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.common.hibernate.transaction;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -36,6 +35,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 
 /**
@@ -100,7 +100,8 @@ public final class TransactionFilter
             Response r = ErrorResponseBuilder
                     .from(he)
                     .build();
-            responseContext.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            responseContext
+                    .setStatus(Status.INTERNAL_SERVER_ERROR.getStatusCode());
             responseContext.setEntity(r.getEntity());
         }
     }

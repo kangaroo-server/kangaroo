@@ -25,7 +25,6 @@ import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScope;
 import org.hibernate.Session;
@@ -36,6 +35,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import java.util.UUID;
 
@@ -91,17 +91,17 @@ public final class RoleScopeService extends AbstractService {
 
         // If the parent application doesn't match, error.
         if (!role.getApplication().equals(scope.getApplication())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // If the role is already linked to this scope, error.
         if (role.getScopes().values().contains(scope)) {
-            throw new HttpStatusException(HttpStatus.SC_CONFLICT);
+            throw new HttpStatusException(Status.CONFLICT);
         }
 
         // If we're trying to modify the admin application, error.
         if (role.getApplication().equals(getAdminApplication())) {
-            throw new HttpStatusException(HttpStatus.SC_FORBIDDEN);
+            throw new HttpStatusException(Status.FORBIDDEN);
         }
 
         // Create the link.
@@ -140,12 +140,12 @@ public final class RoleScopeService extends AbstractService {
 
         // If the scope's not assigned to the role, error.
         if (!role.getScopes().values().contains(scope)) {
-            throw new HttpStatusException(HttpStatus.SC_NOT_FOUND);
+            throw new HttpStatusException(Status.NOT_FOUND);
         }
 
         // If we're in the admin app, we can't modify anything.
         if (getAdminApplication().equals(role.getApplication())) {
-            throw new HttpStatusException(HttpStatus.SC_FORBIDDEN);
+            throw new HttpStatusException(Status.FORBIDDEN);
         }
 
         // Execute the command.

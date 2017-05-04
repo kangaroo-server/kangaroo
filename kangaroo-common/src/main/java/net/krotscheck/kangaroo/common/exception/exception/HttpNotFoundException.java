@@ -17,8 +17,7 @@
 
 package net.krotscheck.kangaroo.common.exception.exception;
 
-import org.apache.http.HttpStatus;
-
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
 /**
@@ -32,7 +31,7 @@ public final class HttpNotFoundException extends HttpStatusException {
      * Create a new HttpNotFoundException.
      */
     public HttpNotFoundException() {
-        super(HttpStatus.SC_NOT_FOUND);
+        super(Status.NOT_FOUND);
     }
 
     /**
@@ -41,6 +40,6 @@ public final class HttpNotFoundException extends HttpStatusException {
      * @param redirect The URI to send the user agent to.
      */
     public HttpNotFoundException(final URI redirect) {
-        super(HttpStatus.SC_NOT_FOUND, redirect);
+        super(Status.NOT_FOUND, redirect);
     }
 }

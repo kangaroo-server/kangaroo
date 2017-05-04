@@ -27,15 +27,14 @@ import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.http.HttpStatus;
 import org.hibernate.Session;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
@@ -223,11 +222,13 @@ public final class ScopeServiceCRUDTest
 
         if (shouldSucceed()) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_CONFLICT, r.getStatus());
+            Assert.assertEquals(Status.CONFLICT.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("conflict", response.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+            Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("bad_request", response.getError());
         }
     }
@@ -247,7 +248,8 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, token);
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
         Assert.assertEquals("bad_request", response.getError());
     }
 
@@ -268,7 +270,8 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, getAdminToken());
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
         Assert.assertEquals("bad_request", response.getError());
     }
 
@@ -286,7 +289,8 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, getAdminToken());
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
         Assert.assertEquals("bad_request", response.getError());
     }
 
@@ -310,7 +314,8 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, token);
 
         if (getTokenScope().equals(getAdminScope())) {
-            Assert.assertEquals(HttpStatus.SC_CREATED, r.getStatus());
+            Assert.assertEquals(Status.CREATED.getStatusCode(),
+                    r.getStatus());
             Assert.assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), token);
@@ -322,7 +327,8 @@ public final class ScopeServiceCRUDTest
                     response.getApplication());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+            Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("bad_request", response.getError());
         }
     }
@@ -341,12 +347,14 @@ public final class ScopeServiceCRUDTest
         Response r = putEntity(scope, getAdminToken());
 
         if (shouldSucceed()) {
-            Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+            Assert.assertEquals(Status.FORBIDDEN.getStatusCode(),
+                    r.getStatus());
             ErrorResponse result = r.readEntity(ErrorResponse.class);
             Assert.assertEquals("forbidden", result.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
+            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("not_found", response.getError());
         }
     }
@@ -372,11 +380,13 @@ public final class ScopeServiceCRUDTest
 
         if (isAccessible(scope, getAdminToken())) {
             ApplicationScope response = r.readEntity(ApplicationScope.class);
-            Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+            Assert.assertEquals(Status.OK.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals(newName, response.getName());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
+            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("not_found", response.getError());
         }
     }
@@ -400,11 +410,13 @@ public final class ScopeServiceCRUDTest
 
         if (isAccessible(getSecondaryContext().getScope(), getAdminToken())) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+            Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("bad_request", response.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
+            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("not_found", response.getError());
         }
     }
@@ -424,11 +436,13 @@ public final class ScopeServiceCRUDTest
 
         if (shouldSucceed()) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+            Assert.assertEquals(Status.FORBIDDEN.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("forbidden", response.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
+            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("not_found", response.getError());
         }
     }
@@ -452,10 +466,12 @@ public final class ScopeServiceCRUDTest
         Response r = deleteEntity(scope, getAdminToken());
 
         if (isAccessible(scope, getAdminToken())) {
-            Assert.assertEquals(HttpStatus.SC_NO_CONTENT, r.getStatus());
+            Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
+                    r.getStatus());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
+            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    r.getStatus());
             Assert.assertEquals("not_found", response.getError());
         }
     }

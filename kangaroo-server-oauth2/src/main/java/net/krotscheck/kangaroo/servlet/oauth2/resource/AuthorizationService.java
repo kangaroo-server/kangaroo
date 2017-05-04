@@ -34,7 +34,6 @@ import net.krotscheck.kangaroo.servlet.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -51,6 +50,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
@@ -119,18 +119,12 @@ public final class AuthorizationService {
     @Produces(MediaType.APPLICATION_JSON)
     @OAuthFilterChain
     public Response authorizationRequest(
-            @Context
-            final UriInfo uriInfo,
-            @Optional @QueryParam("authenticator")
-            final String authenticator,
-            @Optional @QueryParam("response_type")
-            final String responseType,
-            @Optional @QueryParam("redirect_uri")
-            final String redirectUrl,
-            @Optional @QueryParam("scope")
-            final String scope,
-            @Optional @QueryParam("state")
-            final String state) {
+            @Context final UriInfo uriInfo,
+            @Optional @QueryParam("authenticator") final String authenticator,
+            @Optional @QueryParam("response_type") final String responseType,
+            @Optional @QueryParam("redirect_uri") final String redirectUrl,
+            @Optional @QueryParam("scope") final String scope,
+            @Optional @QueryParam("state") final String state) {
 
         // Make sure the kind of request we have is permitted for this client.
         Client client = session.get(Client.class, credentials.getLogin());
@@ -201,10 +195,10 @@ public final class AuthorizationService {
     @Path("/callback")
     @Produces(MediaType.APPLICATION_JSON)
     public Response authorizationCallback(
-            @Context
-            final UriInfo uriInfo,
-            @Optional @DefaultValue("") @QueryParam("state")
-            final String state) {
+            @Context final UriInfo uriInfo,
+            @Optional
+            @DefaultValue("")
+            @QueryParam("state") final String state) {
         // Resolve various necessary components.
         AuthenticatorState s = getAuthenticatorState(state);
         Client c = s.getAuthenticator().getClient();
@@ -281,7 +275,7 @@ public final class AuthorizationService {
         }
         responseBuilder.fragment(URLEncodedUtils.format(params, "UTF-8"));
 
-        return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
+        return Response.status(Status.FOUND)
                 .location(responseBuilder.build())
                 .build();
     }
@@ -318,7 +312,7 @@ public final class AuthorizationService {
             responseBuilder.queryParam("state", s.getClientState());
         }
 
-        return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
+        return Response.status(Status.FOUND)
                 .location(responseBuilder.build())
                 .build();
     }

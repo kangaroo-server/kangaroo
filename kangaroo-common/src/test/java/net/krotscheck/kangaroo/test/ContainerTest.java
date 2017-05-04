@@ -22,7 +22,6 @@ import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import net.krotscheck.kangaroo.test.rule.HibernateTestResource;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.hibernate.Session;
@@ -42,6 +41,7 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -64,10 +64,10 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     /**
      * A list of HTTP status codes that are valid for redirects.
      */
-    private static final List<Integer> VALID_REDIRECT_CODES =
-            Arrays.asList(HttpStatus.SC_SEE_OTHER, HttpStatus.SC_CREATED,
-                    HttpStatus.SC_MOVED_PERMANENTLY,
-                    HttpStatus.SC_MOVED_TEMPORARILY);
+    private static final List<Status> VALID_REDIRECT_CODES =
+            Arrays.asList(Status.SEE_OTHER, Status.CREATED,
+                    Status.MOVED_PERMANENTLY,
+                    Status.FOUND);
 
     /**
      * The database test rule. Private, so it can be wrapped below.
@@ -182,7 +182,8 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      */
     protected final Response followRedirect(final Response original,
                                             final String authHeader) {
-        assertTrue(VALID_REDIRECT_CODES.contains(original.getStatus()));
+        assertTrue(VALID_REDIRECT_CODES
+                .contains(Status.fromStatusCode(original.getStatus())));
 
         URI uri = original.getLocation();
         WebTarget target = target().path(uri.getPath());

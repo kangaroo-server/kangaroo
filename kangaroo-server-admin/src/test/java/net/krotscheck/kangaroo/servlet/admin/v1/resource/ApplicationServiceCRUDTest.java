@@ -25,9 +25,7 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.http.HttpStatus;
 import org.hibernate.Session;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,7 +143,7 @@ public final class ApplicationServiceCRUDTest
     @Override
     protected URI getUrlForEntity(final AbstractEntity entity) {
         if (entity == null || entity.getId() == null) {
-            return getUrlForId((String) null);
+            return getUrlForId(null);
         }
         return getUrlForId(entity.getId().toString());
     }
@@ -250,7 +248,7 @@ public final class ApplicationServiceCRUDTest
         Response r = postEntity(newApp, token);
 
         if (!token.getClient().getType().equals(ClientType.ClientCredentials)) {
-            Assert.assertEquals(HttpStatus.SC_CREATED, r.getStatus());
+            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
             Assert.assertNotNull(r.getLocation());
 
             Response getResponse =
@@ -287,7 +285,7 @@ public final class ApplicationServiceCRUDTest
         Response r = postEntity(newApp, token);
 
         if (getTokenScope().equals(Scope.APPLICATION_ADMIN)) {
-            Assert.assertEquals(HttpStatus.SC_CREATED, r.getStatus());
+            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
             Assert.assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
@@ -334,7 +332,7 @@ public final class ApplicationServiceCRUDTest
 
         if (isAccessible(a, getAdminToken())) {
             Application response = r.readEntity(Application.class);
-            Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Assert.assertEquals(a, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

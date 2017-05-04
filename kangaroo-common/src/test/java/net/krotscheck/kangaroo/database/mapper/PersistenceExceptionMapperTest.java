@@ -19,13 +19,13 @@
 package net.krotscheck.kangaroo.database.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.apache.http.HttpStatus;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.persistence.PersistenceException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.sql.SQLException;
 
 /**
@@ -50,8 +50,8 @@ public final class PersistenceExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_CONFLICT, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_CONFLICT, er.getHttpStatus());
+        Assert.assertEquals(Status.CONFLICT.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.CONFLICT, er.getHttpStatus());
         Assert.assertEquals("Conflict", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }
@@ -67,8 +67,9 @@ public final class PersistenceExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(500, r.getStatus());
-        Assert.assertEquals(500, er.getHttpStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }

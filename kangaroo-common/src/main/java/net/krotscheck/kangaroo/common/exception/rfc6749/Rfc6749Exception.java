@@ -18,8 +18,8 @@
 package net.krotscheck.kangaroo.common.exception.rfc6749;
 
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import org.apache.http.HttpStatus;
 
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
 /**
@@ -64,7 +64,7 @@ public final class Rfc6749Exception extends Exception {
          */
         public InvalidRequestException(final String message,
                                        final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.INVALID_REQUEST,
                     redirect);
@@ -104,7 +104,7 @@ public final class Rfc6749Exception extends Exception {
          */
         public UnauthorizedClientException(final String message,
                                            final URI redirect) {
-            super(HttpStatus.SC_UNAUTHORIZED,
+            super(Status.UNAUTHORIZED,
                     message,
                     ErrorCode.UNAUTHORIZED_CLIENT,
                     redirect);
@@ -143,7 +143,7 @@ public final class Rfc6749Exception extends Exception {
          */
         public AccessDeniedException(final String message,
                                      final URI redirect) {
-            super(HttpStatus.SC_UNAUTHORIZED,
+            super(Status.UNAUTHORIZED,
                     message,
                     ErrorCode.ACCESS_DENIED,
                     redirect);
@@ -179,12 +179,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public UnsupportedResponseType(final String message,
                                        final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.UNSUPPORTED_RESPONSE_TYPE,
                     redirect);
@@ -218,12 +218,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public InvalidScopeException(final String message,
                                      final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.INVALID_SCOPE,
                     redirect);
@@ -257,12 +257,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public InvalidClientException(final String message,
                                       final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.INVALID_CLIENT,
                     redirect);
@@ -296,12 +296,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public InvalidGrantException(final String message,
                                      final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.INVALID_GRANT,
                     redirect);
@@ -335,12 +335,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public UnsupportedGrantTypeException(final String message,
                                              final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.UNSUPPORTED_GRANT_TYPE,
                     redirect);
@@ -377,12 +377,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public ServerErrorException(final String message,
                                     final URI redirect) {
-            super(HttpStatus.SC_INTERNAL_SERVER_ERROR,
+            super(Status.INTERNAL_SERVER_ERROR,
                     message,
                     ErrorCode.SERVER_ERROR,
                     redirect);
@@ -420,12 +420,12 @@ public final class Rfc6749Exception extends Exception {
         /**
          * Create a new exception with a custom message.
          *
-         * @param message A user-friendly message.
+         * @param message  A user-friendly message.
          * @param redirect The URI to redirect the user to.
          */
         public TemporarilyUnavailableException(final String message,
                                                final URI redirect) {
-            super(HttpStatus.SC_BAD_REQUEST,
+            super(Status.BAD_REQUEST,
                     message,
                     ErrorCode.TEMPORARILY_UNAVAILABLE,
                     redirect);

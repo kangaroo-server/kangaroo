@@ -19,9 +19,10 @@ package net.krotscheck.kangaroo.common.exception.exception;
 
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
+import javax.ws.rs.core.Response.Status;
+import javax.xml.ws.WebServiceException;
 import java.net.URI;
 import java.util.Locale;
-import javax.xml.ws.WebServiceException;
 
 /**
  * A generic HTTP httpStatus requestMapping, which can be intercepted to
@@ -34,7 +35,7 @@ public class HttpStatusException extends WebServiceException {
     /**
      * The HTTP httpStatus code for this requestMapping.
      */
-    private final int httpStatus;
+    private final Status httpStatus;
 
     /**
      * An optional redirection URI.
@@ -52,9 +53,10 @@ public class HttpStatusException extends WebServiceException {
      *
      * @param httpResponseStatus The HTTP Status code thrown by this error.
      */
-    public HttpStatusException(final int httpResponseStatus) {
+    public HttpStatusException(final Status httpResponseStatus) {
         this(httpResponseStatus, EnglishReasonPhraseCatalog.INSTANCE
-                .getReason(httpResponseStatus, Locale.getDefault()));
+                .getReason(httpResponseStatus.getStatusCode(),
+                        Locale.getDefault()));
     }
 
     /**
@@ -65,11 +67,12 @@ public class HttpStatusException extends WebServiceException {
      * @param redirect           The redirection URI to which we're supposed
      *                           to send the user.
      */
-    public HttpStatusException(final int httpResponseStatus,
+    public HttpStatusException(final Status httpResponseStatus,
                                final URI redirect) {
         this(httpResponseStatus,
                 EnglishReasonPhraseCatalog.INSTANCE
-                        .getReason(httpResponseStatus, Locale.getDefault()),
+                        .getReason(httpResponseStatus.getStatusCode(),
+                                Locale.getDefault()),
                 redirect);
     }
 
@@ -81,12 +84,13 @@ public class HttpStatusException extends WebServiceException {
      * @param message            The detail message which is later retrieved
      *                           using the getMessage method
      */
-    public HttpStatusException(final int httpResponseStatus,
+    public HttpStatusException(final Status httpResponseStatus,
                                final String message) {
         this(httpResponseStatus,
                 message,
                 EnglishReasonPhraseCatalog.INSTANCE
-                        .getReason(httpResponseStatus, Locale.getDefault())
+                        .getReason(httpResponseStatus.getStatusCode(),
+                                Locale.getDefault())
                         .toLowerCase().replace(" ", "_"),
                 null);
     }
@@ -101,13 +105,14 @@ public class HttpStatusException extends WebServiceException {
      * @param redirect           The redirection URI to which we're supposed
      *                           to send the user.
      */
-    public HttpStatusException(final int httpResponseStatus,
+    public HttpStatusException(final Status httpResponseStatus,
                                final String message,
                                final URI redirect) {
         this(httpResponseStatus,
                 message,
                 EnglishReasonPhraseCatalog.INSTANCE
-                        .getReason(httpResponseStatus, Locale.getDefault())
+                        .getReason(httpResponseStatus.getStatusCode(),
+                                Locale.getDefault())
                         .toLowerCase().replace(" ", "_"),
                 redirect);
     }
@@ -121,7 +126,7 @@ public class HttpStatusException extends WebServiceException {
      *                           using the getMessage method
      * @param errorCode          A short-form error code.
      */
-    public HttpStatusException(final int httpResponseStatus,
+    public HttpStatusException(final Status httpResponseStatus,
                                final String message,
                                final String errorCode) {
         this(httpResponseStatus, message, errorCode, null);
@@ -139,7 +144,7 @@ public class HttpStatusException extends WebServiceException {
      * @param redirect           The redirection URI to which we're supposed
      *                           to send the user.
      */
-    public HttpStatusException(final int httpResponseStatus,
+    public HttpStatusException(final Status httpResponseStatus,
                                final String message,
                                final String errorCode,
                                final URI redirect) {
@@ -154,7 +159,7 @@ public class HttpStatusException extends WebServiceException {
      *
      * @return The HTTP Status for this response.
      */
-    public final int getHttpStatus() {
+    public final Status getHttpStatus() {
         return httpStatus;
     }
 

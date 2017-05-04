@@ -26,7 +26,6 @@ import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.AbstractResourceTest;
 import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -40,6 +39,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -141,7 +141,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", validBearerToken.getId()))
                 .get();
-        Assert.assertEquals(HttpStatus.SC_OK, r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -152,7 +152,7 @@ public final class OAuth2AuthorizationFilterTest
         Response r = target("/user")
                 .request()
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -165,7 +165,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", noScopeBearerToken.getId()))
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -178,7 +178,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", expiredBearerToken.getId()))
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -191,7 +191,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", UUID.randomUUID()))
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -203,7 +203,7 @@ public final class OAuth2AuthorizationFilterTest
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer YUIIUYIY")
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -217,7 +217,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", authToken.getId()))
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -230,7 +230,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("HMAC %s", authToken.getId()))
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -242,7 +242,7 @@ public final class OAuth2AuthorizationFilterTest
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OMGOMGOMG")
                 .get();
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**

@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Smoke test for the Property Value Exception Mapper.
@@ -45,8 +46,8 @@ public final class PropertyValueExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("Property \"name\" is invalid.",
                 er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());

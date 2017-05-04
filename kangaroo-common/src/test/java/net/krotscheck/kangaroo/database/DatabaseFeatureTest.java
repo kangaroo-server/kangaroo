@@ -19,7 +19,6 @@ package net.krotscheck.kangaroo.database;
 
 import net.krotscheck.kangaroo.database.listener.CreatedUpdatedListener;
 import net.krotscheck.kangaroo.test.ContainerTest;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.event.spi.PreInsertEventListener;
@@ -33,6 +32,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
 /**
@@ -109,7 +109,7 @@ public final class DatabaseFeatureTest extends ContainerTest {
                     .isInstance(updateListeners.get(0)));
 
             return Response
-                    .status(HttpStatus.SC_OK)
+                    .status(Status.OK)
                     .entity(true)
                     .build();
         }

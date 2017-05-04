@@ -19,13 +19,13 @@
 package net.krotscheck.kangaroo.database.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.inject.Singleton;
 import javax.persistence.PersistenceException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
@@ -48,7 +48,7 @@ public final class PersistenceExceptionMapper
         Throwable cause = exception.getCause();
         if (cause instanceof ConstraintViolationException) {
             return ErrorResponseBuilder
-                    .from(HttpStatus.SC_CONFLICT)
+                    .from(Status.CONFLICT)
                     .build();
         }
 

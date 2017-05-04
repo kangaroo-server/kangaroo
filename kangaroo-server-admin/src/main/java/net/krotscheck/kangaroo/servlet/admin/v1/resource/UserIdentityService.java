@@ -33,7 +33,6 @@ import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.util.PasswordUtil;
-import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -54,6 +53,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -84,18 +84,12 @@ public final class UserIdentityService extends AbstractService {
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
     public Response search(
-            @DefaultValue("0") @QueryParam("offset")
-            final Integer offset,
-            @DefaultValue("10") @QueryParam("limit")
-            final Integer limit,
-            @DefaultValue("") @QueryParam("q")
-            final String queryString,
-            @Optional @QueryParam("owner")
-            final UUID ownerId,
-            @Optional @QueryParam("user")
-            final UUID userId,
-            @Optional @QueryParam("authenticator")
-            final UUID authenticatorId) {
+            @DefaultValue("0") @QueryParam("offset") final Integer offset,
+            @DefaultValue("10") @QueryParam("limit") final Integer limit,
+            @DefaultValue("") @QueryParam("q") final String queryString,
+            @Optional @QueryParam("owner") final UUID ownerId,
+            @Optional @QueryParam("user") final UUID userId,
+            @Optional @QueryParam("authenticator") final UUID authenticatorId) {
 
         FullTextQuery query = buildQuery(UserIdentity.class,
                 new String[]{"claims", "remoteId"},
@@ -150,23 +144,16 @@ public final class UserIdentityService extends AbstractService {
     @JsonView(Views.Public.class)
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
-            @DefaultValue(ApiParam.OFFSET_DEFAULT)
-            final int offset,
+            @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
             @QueryParam(ApiParam.LIMIT_QUERY)
-            @DefaultValue(ApiParam.LIMIT_DEFAULT)
-            final int limit,
+            @DefaultValue(ApiParam.LIMIT_DEFAULT) final int limit,
             @QueryParam(ApiParam.SORT_QUERY)
-            @DefaultValue(ApiParam.SORT_DEFAULT)
-            final String sort,
+            @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
-            @DefaultValue(ApiParam.ORDER_DEFAULT)
-            final SortOrder order,
-            @Optional @QueryParam("owner")
-            final UUID ownerId,
-            @Optional @QueryParam("user")
-            final UUID userId,
-            @Optional @QueryParam("authenticator")
-            final UUID authenticatorId) {
+            @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @Optional @QueryParam("owner") final UUID ownerId,
+            @Optional @QueryParam("user") final UUID userId,
+            @Optional @QueryParam("authenticator") final UUID authenticatorId) {
 
         // Validate the incoming filters.
         User filterByOwner =
@@ -259,28 +246,28 @@ public final class UserIdentityService extends AbstractService {
 
         // Input value checks.
         if (identity == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (identity.getId() != null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (identity.getAuthenticator() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (identity.getUser() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (identity.getRemoteId() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (identity.getPassword() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Resolve the parent identity
         User parent = getSession().get(User.class, identity.getUser().getId());
         if (parent == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Assert that we can create an identity in this application.
@@ -288,7 +275,7 @@ public final class UserIdentityService extends AbstractService {
             Application scopeApp = parent.getApplication();
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+                throw new HttpStatusException(Status.BAD_REQUEST);
             }
         }
 
@@ -297,12 +284,12 @@ public final class UserIdentityService extends AbstractService {
                 getSession().get(Authenticator.class,
                         identity.getAuthenticator().getId());
         if (authenticator == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Now make sure that we're creating a password
         if (!authenticator.getType().equals("password")) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Encrypt the password.
@@ -347,17 +334,17 @@ public final class UserIdentityService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(identity)) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getUser().equals(identity.getUser())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Make sure we're not trying to change the authenticator.
         if (!current.getAuthenticator().equals(identity.getAuthenticator())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
 
