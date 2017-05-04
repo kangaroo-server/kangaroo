@@ -12,6 +12,7 @@ env:
   - PROFILE=h2 PROJECT=kangaroo-server-oauth2
 services:
   - mysql
+  - docker
 branches:
   only:
   - master
@@ -22,6 +23,6 @@ branches:
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Ptravis
 script:
-  - mvn install -Ptravis -P$PROFILE -pl $PROJECT
+  - mvn install -P$PROFILE -pl $PROJECT
 after_success:
   - mvn coveralls:report -Ptravis
