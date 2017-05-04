@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Query exception mapping.
@@ -40,8 +41,8 @@ public final class QueryExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(400, r.getStatus());
-        Assert.assertEquals(400, er.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("Bad Request", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }

@@ -17,11 +17,11 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
-import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * These tests assert that the expected endpoints defined in Section 3 exist.
@@ -36,7 +36,7 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
     @Test
     public void testAuthorizationEndpoint() {
         Response response = target("/authorize").request().get();
-        Assert.assertNotEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
+        Assert.assertNotEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     /**
@@ -45,6 +45,6 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
     @Test
     public void testTokenEndpoint() {
         Response response = target("/token").request().get();
-        Assert.assertNotEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
+        Assert.assertNotEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }

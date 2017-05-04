@@ -26,10 +26,8 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
-
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -37,6 +35,7 @@ import org.junit.rules.TestRule;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -106,7 +105,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         URI location = r.getLocation();
         MultivaluedMap<String, String> params =
@@ -149,7 +148,8 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
         ErrorResponse e = r.readEntity(ErrorResponse.class);
         Assert.assertEquals("invalid_request", e.getError());
         Assert.assertNotNull(e.getErrorDescription());
@@ -165,7 +165,8 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
         ErrorResponse e = r.readEntity(ErrorResponse.class);
         Assert.assertEquals("invalid_request", e.getError());
         Assert.assertNotNull(e.getErrorDescription());

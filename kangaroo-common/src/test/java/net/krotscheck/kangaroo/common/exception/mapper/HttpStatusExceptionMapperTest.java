@@ -21,11 +21,11 @@ import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorRespon
 import net.krotscheck.kangaroo.common.exception.exception.HttpForbiddenException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpUnauthorizedException;
-import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Test that jersey exceptions are caught and rewritten into appropriate
@@ -46,8 +46,8 @@ public final class HttpStatusExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_FORBIDDEN, er.getHttpStatus());
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN, er.getHttpStatus());
         Assert.assertEquals("Forbidden", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("forbidden", er.getError());
@@ -64,8 +64,8 @@ public final class HttpStatusExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("Not Found", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
@@ -82,8 +82,8 @@ public final class HttpStatusExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, er.getHttpStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED, er.getHttpStatus());
         Assert.assertEquals("Unauthorized", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("unauthorized", er.getError());

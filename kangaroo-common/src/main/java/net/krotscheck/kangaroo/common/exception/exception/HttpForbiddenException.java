@@ -17,8 +17,7 @@
 
 package net.krotscheck.kangaroo.common.exception.exception;
 
-import org.apache.http.HttpStatus;
-
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
 /**
@@ -32,7 +31,7 @@ public final class HttpForbiddenException extends HttpStatusException {
      * Create a new HttpForbiddenException.
      */
     public HttpForbiddenException() {
-        super(HttpStatus.SC_FORBIDDEN);
+        super(Status.FORBIDDEN);
     }
 
     /**
@@ -41,6 +40,6 @@ public final class HttpForbiddenException extends HttpStatusException {
      * @param redirect The URI to send the user agent to.
      */
     public HttpForbiddenException(final URI redirect) {
-        super(HttpStatus.SC_FORBIDDEN, redirect);
+        super(Status.FORBIDDEN, redirect);
     }
 }

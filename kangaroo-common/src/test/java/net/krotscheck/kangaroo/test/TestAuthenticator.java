@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Criteria;
@@ -34,6 +33,7 @@ import org.hibernate.criterion.Restrictions;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.List;
 
@@ -80,7 +80,7 @@ public final class TestAuthenticator
     public Response delegate(final Authenticator configuration,
                              final URI callback) {
         return Response
-                .status(HttpStatus.SC_MOVED_TEMPORARILY)
+                .status(Status.FOUND)
                 .location(callback)
                 .build();
     }

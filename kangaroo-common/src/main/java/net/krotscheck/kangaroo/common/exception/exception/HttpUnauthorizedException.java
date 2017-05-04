@@ -17,8 +17,7 @@
 
 package net.krotscheck.kangaroo.common.exception.exception;
 
-import org.apache.http.HttpStatus;
-
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
 /**
@@ -32,7 +31,7 @@ public final class HttpUnauthorizedException extends HttpStatusException {
      * Create a new HttpUnauthorizedException.
      */
     public HttpUnauthorizedException() {
-        super(HttpStatus.SC_UNAUTHORIZED);
+        super(Status.UNAUTHORIZED);
     }
 
     /**
@@ -41,6 +40,6 @@ public final class HttpUnauthorizedException extends HttpStatusException {
      * @param redirect The URI to send the user agent to.
      */
     public HttpUnauthorizedException(final URI redirect) {
-        super(HttpStatus.SC_UNAUTHORIZED, redirect);
+        super(Status.UNAUTHORIZED, redirect);
     }
 }

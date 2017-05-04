@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
-import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -51,6 +50,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -80,18 +80,12 @@ public final class ScopeService extends AbstractService {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     public Response search(
-            @DefaultValue("0") @QueryParam("offset")
-            final Integer offset,
-            @DefaultValue("10") @QueryParam("limit")
-            final Integer limit,
-            @DefaultValue("") @QueryParam("q")
-            final String queryString,
-            @Optional @QueryParam("owner")
-            final UUID ownerId,
-            @Optional @QueryParam("application")
-            final UUID applicationId,
-            @Optional @QueryParam("role")
-            final UUID roleId) {
+            @DefaultValue("0") @QueryParam("offset") final Integer offset,
+            @DefaultValue("10") @QueryParam("limit") final Integer limit,
+            @DefaultValue("") @QueryParam("q") final String queryString,
+            @Optional @QueryParam("owner") final UUID ownerId,
+            @Optional @QueryParam("application") final UUID applicationId,
+            @Optional @QueryParam("role") final UUID roleId) {
 
         FullTextQuery query = buildQuery(ApplicationScope.class,
                 new String[]{"name"},
@@ -136,23 +130,16 @@ public final class ScopeService extends AbstractService {
     @SuppressWarnings("CPD-START")
     public Response browseScopes(
             @QueryParam(ApiParam.OFFSET_QUERY)
-            @DefaultValue(ApiParam.OFFSET_DEFAULT)
-            final int offset,
+            @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
             @QueryParam(ApiParam.LIMIT_QUERY)
-            @DefaultValue(ApiParam.LIMIT_DEFAULT)
-            final int limit,
+            @DefaultValue(ApiParam.LIMIT_DEFAULT) final int limit,
             @QueryParam(ApiParam.SORT_QUERY)
-            @DefaultValue(ApiParam.SORT_DEFAULT)
-            final String sort,
+            @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
-            @DefaultValue(ApiParam.ORDER_DEFAULT)
-            final SortOrder order,
-            @Optional @QueryParam("owner")
-            final UUID ownerId,
-            @Optional @QueryParam("application")
-            final UUID applicationId,
-            @Optional @QueryParam("role")
-            final UUID roleId) {
+            @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @Optional @QueryParam("owner") final UUID ownerId,
+            @Optional @QueryParam("application") final UUID applicationId,
+            @Optional @QueryParam("role") final UUID roleId) {
 
         // Validate the incoming filters.
         User filterByOwner = resolveOwnershipFilter(ownerId);
@@ -237,13 +224,13 @@ public final class ScopeService extends AbstractService {
 
         // Input value checks.
         if (scope == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (scope.getId() != null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (scope.getApplication() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Assert that we can create a scope in this application.
@@ -253,7 +240,7 @@ public final class ScopeService extends AbstractService {
                             scope.getApplication().getId());
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+                throw new HttpStatusException(Status.BAD_REQUEST);
             }
         }
 
@@ -299,12 +286,12 @@ public final class ScopeService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentScope.equals(scope)) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentScope.getApplication().equals(scope.getApplication())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Transfer all the values we're allowed to edit.

@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.apache.http.HttpStatus;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -34,6 +33,7 @@ import org.junit.rules.TestRule;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -183,7 +183,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -211,7 +211,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertNull(r.getLocation());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -266,7 +266,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -295,7 +295,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
@@ -426,7 +426,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertNull(r.getLocation());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -451,7 +451,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertNull(r.getLocation());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -476,7 +476,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertNull(r.getLocation());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -500,7 +500,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
@@ -536,7 +536,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         assertNull(r.getLocation());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
@@ -561,7 +561,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
@@ -604,7 +604,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
@@ -636,7 +636,7 @@ public final class Section420ImplicitGrantTest
                 .get();
 
         // We expect this response to head to /authorize/redirect
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, first.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), first.getStatus());
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());

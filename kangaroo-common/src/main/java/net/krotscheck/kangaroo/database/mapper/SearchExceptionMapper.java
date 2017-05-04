@@ -18,13 +18,13 @@
 package net.krotscheck.kangaroo.database.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.search.exception.EmptyQueryException;
 import org.hibernate.search.exception.SearchException;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
@@ -44,7 +44,7 @@ public final class SearchExceptionMapper
     public Response toResponse(final SearchException exception) {
         if (exception instanceof EmptyQueryException) {
             return ErrorResponseBuilder
-                    .from(HttpStatus.SC_BAD_REQUEST)
+                    .from(Status.BAD_REQUEST)
                     .build();
         }
 

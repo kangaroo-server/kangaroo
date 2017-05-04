@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
-import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -49,6 +48,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -76,14 +76,10 @@ public final class ApplicationService extends AbstractService {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     public Response search(
-            @DefaultValue("0") @QueryParam("offset")
-            final Integer offset,
-            @DefaultValue("10") @QueryParam("limit")
-            final Integer limit,
-            @DefaultValue("") @QueryParam("q")
-            final String queryString,
-            @Optional @QueryParam("owner")
-            final UUID ownerId) {
+            @DefaultValue("0") @QueryParam("offset") final Integer offset,
+            @DefaultValue("10") @QueryParam("limit") final Integer limit,
+            @DefaultValue("") @QueryParam("q") final String queryString,
+            @Optional @QueryParam("owner") final UUID ownerId) {
 
         FullTextQuery query = buildQuery(Application.class,
                 new String[]{"name"},
@@ -115,19 +111,14 @@ public final class ApplicationService extends AbstractService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response browseApplications(
             @QueryParam(ApiParam.OFFSET_QUERY)
-            @DefaultValue(ApiParam.OFFSET_DEFAULT)
-            final int offset,
+            @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
             @QueryParam(ApiParam.LIMIT_QUERY)
-            @DefaultValue(ApiParam.LIMIT_DEFAULT)
-            final int limit,
+            @DefaultValue(ApiParam.LIMIT_DEFAULT) final int limit,
             @QueryParam(ApiParam.SORT_QUERY)
-            @DefaultValue(ApiParam.SORT_DEFAULT)
-            final String sort,
+            @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
-            @DefaultValue(ApiParam.ORDER_DEFAULT)
-            final SortOrder order,
-            @Optional @QueryParam("owner")
-            final UUID ownerId) {
+            @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @Optional @QueryParam("owner") final UUID ownerId) {
         // Validate the incoming owner id.
         User owner = resolveOwnershipFilter(ownerId);
 
@@ -183,20 +174,20 @@ public final class ApplicationService extends AbstractService {
     public Response createResource(final Application application) {
         // Validate that the ID is empty.
         if (application == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (application.getId() != null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Only admins can change the owner.
         if (application.getOwner() != null) {
             if (!getSecurityContext().isUserInRole(getAdminScope())
                     && !application.getOwner().equals(getCurrentUser())) {
-                throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+                throw new HttpStatusException(Status.BAD_REQUEST);
             }
         } else if (getCurrentUser() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         } else {
             application.setOwner(getCurrentUser());
         }
@@ -240,12 +231,12 @@ public final class ApplicationService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentApp.equals(application)) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentApp.getOwner().equals(application.getOwner())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Transfer all the values we're allowed to edit.

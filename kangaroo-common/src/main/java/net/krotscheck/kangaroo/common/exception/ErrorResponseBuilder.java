@@ -22,23 +22,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * An error response object that can be returned from our services. Jackson
@@ -66,7 +66,7 @@ public final class ErrorResponseBuilder {
      * @param httpStatus The HTTP Status code to return.
      * @return This builder.
      */
-    public static ErrorResponseBuilder from(final int httpStatus) {
+    public static ErrorResponseBuilder from(final Status httpStatus) {
         return from(httpStatus,
                 messageForCode(httpStatus),
                 errorForCode(httpStatus),
@@ -80,7 +80,7 @@ public final class ErrorResponseBuilder {
      * @param message    The error message to provide.
      * @return This builder.
      */
-    public static ErrorResponseBuilder from(final int httpStatus,
+    public static ErrorResponseBuilder from(final Status httpStatus,
                                             final String message) {
         return from(httpStatus,
                 message,
@@ -96,7 +96,7 @@ public final class ErrorResponseBuilder {
      * @param error      A short error code.
      * @return This builder.
      */
-    public static ErrorResponseBuilder from(final int httpStatus,
+    public static ErrorResponseBuilder from(final Status httpStatus,
                                             final String message,
                                             final String error) {
         return from(httpStatus, message, error, null);
@@ -112,7 +112,7 @@ public final class ErrorResponseBuilder {
      * @param redirectUrl The URL to redirect the request to.
      * @return This builder.
      */
-    public static ErrorResponseBuilder from(final int httpStatus,
+    public static ErrorResponseBuilder from(final Status httpStatus,
                                             final String message,
                                             final String error,
                                             final URI redirectUrl) {
@@ -133,9 +133,9 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final JsonParseException e) {
-        return from(HttpStatus.SC_BAD_REQUEST,
+        return from(Status.BAD_REQUEST,
                 e.getMessage(),
-                errorForCode(HttpStatus.SC_BAD_REQUEST));
+                errorForCode(Status.BAD_REQUEST));
     }
 
     /**
@@ -158,7 +158,7 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final WebApplicationException e) {
-        return from(e.getResponse().getStatus());
+        return from(Status.fromStatusCode(e.getResponse().getStatus()));
     }
 
     /**
@@ -172,10 +172,10 @@ public final class ErrorResponseBuilder {
             final ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         if (violations.size() > 0) {
-            return from(HttpStatus.SC_BAD_REQUEST,
+            return from(Status.BAD_REQUEST,
                     violations.iterator().next().getMessage());
         }
-        return from(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        return from(Status.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -186,7 +186,7 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final Exception e) {
-        return from(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        return from(Status.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -196,9 +196,9 @@ public final class ErrorResponseBuilder {
      * @param httpStatus The HTTP status.
      * @return The HTTP Phrase catalog for this status.
      */
-    private static String messageForCode(final int httpStatus) {
+    private static String messageForCode(final Status httpStatus) {
         return EnglishReasonPhraseCatalog.INSTANCE
-                .getReason(httpStatus, Locale.getDefault());
+                .getReason(httpStatus.getStatusCode(), Locale.getDefault());
     }
 
     /**
@@ -207,7 +207,7 @@ public final class ErrorResponseBuilder {
      * @param httpStatus The HTTP status.
      * @return The HTTP Phrase catalog for this status.
      */
-    private static String errorForCode(final int httpStatus) {
+    private static String errorForCode(final Status httpStatus) {
         return messageForCode(httpStatus)
                 .toLowerCase()
                 .replace(" ", "_");
@@ -254,7 +254,7 @@ public final class ErrorResponseBuilder {
 
             builder.fragment(URLEncodedUtils.format(params, "UTF-8"));
         }
-        return Response.status(HttpStatus.SC_MOVED_TEMPORARILY)
+        return Response.status(Status.FOUND)
                 .header(HttpHeaders.LOCATION, builder.build())
                 .build();
     }
@@ -287,7 +287,7 @@ public final class ErrorResponseBuilder {
          * The error code.
          */
         @JsonIgnore
-        private int httpStatus = HttpStatus.SC_BAD_REQUEST;
+        private Status httpStatus = Status.BAD_REQUEST;
 
         /**
          * Private constructor.
@@ -327,7 +327,7 @@ public final class ErrorResponseBuilder {
          *
          * @return The http status code of the response.
          */
-        public int getHttpStatus() {
+        public Status getHttpStatus() {
             return httpStatus;
         }
     }

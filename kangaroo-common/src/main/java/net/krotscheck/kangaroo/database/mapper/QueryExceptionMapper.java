@@ -18,12 +18,12 @@
 package net.krotscheck.kangaroo.database.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.QueryException;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
@@ -45,7 +45,7 @@ public final class QueryExceptionMapper
      */
     public Response toResponse(final QueryException exception) {
         return ErrorResponseBuilder
-                .from(HttpStatus.SC_BAD_REQUEST)
+                .from(Status.BAD_REQUEST)
                 .build();
     }
 

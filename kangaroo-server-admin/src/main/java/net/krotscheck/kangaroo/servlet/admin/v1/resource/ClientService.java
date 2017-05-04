@@ -31,7 +31,6 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
-import org.apache.http.HttpStatus;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -52,6 +51,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -80,16 +80,11 @@ public final class ClientService extends AbstractService {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     public Response search(
-            @DefaultValue("0") @QueryParam("offset")
-            final Integer offset,
-            @DefaultValue("10") @QueryParam("limit")
-            final Integer limit,
-            @DefaultValue("") @QueryParam("q")
-            final String queryString,
-            @Optional @QueryParam("owner")
-            final UUID ownerId,
-            @Optional @QueryParam("application")
-            final UUID applicationId) {
+            @DefaultValue("0") @QueryParam("offset") final Integer offset,
+            @DefaultValue("10") @QueryParam("limit") final Integer limit,
+            @DefaultValue("") @QueryParam("q") final String queryString,
+            @Optional @QueryParam("owner") final UUID ownerId,
+            @Optional @QueryParam("application") final UUID applicationId) {
 
         FullTextQuery query = buildQuery(Client.class,
                 new String[]{"name"},
@@ -134,23 +129,16 @@ public final class ClientService extends AbstractService {
     @SuppressWarnings("CPD-START")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
-            @DefaultValue(ApiParam.OFFSET_DEFAULT)
-            final int offset,
+            @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
             @QueryParam(ApiParam.LIMIT_QUERY)
-            @DefaultValue(ApiParam.LIMIT_DEFAULT)
-            final int limit,
+            @DefaultValue(ApiParam.LIMIT_DEFAULT) final int limit,
             @QueryParam(ApiParam.SORT_QUERY)
-            @DefaultValue(ApiParam.SORT_DEFAULT)
-            final String sort,
+            @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
-            @DefaultValue(ApiParam.ORDER_DEFAULT)
-            final SortOrder order,
-            @Optional @QueryParam("owner")
-            final UUID ownerId,
-            @Optional @QueryParam("application")
-            final UUID applicationId,
-            @Optional @QueryParam("type")
-            final ClientType clientType) {
+            @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @Optional @QueryParam("owner") final UUID ownerId,
+            @Optional @QueryParam("application") final UUID applicationId,
+            @Optional @QueryParam("type") final ClientType clientType) {
 
         // Validate the incoming filters.
         User filterByOwner = resolveOwnershipFilter(ownerId);
@@ -229,13 +217,13 @@ public final class ClientService extends AbstractService {
 
         // Input value checks.
         if (client == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (client.getId() != null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         if (client.getApplication() == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Assert that we can create a scope in this application.
@@ -245,7 +233,7 @@ public final class ClientService extends AbstractService {
                             client.getApplication().getId());
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+                throw new HttpStatusException(Status.BAD_REQUEST);
             }
         }
 
@@ -283,20 +271,20 @@ public final class ClientService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(client)) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Additional special case: We cannot modify the client we're
         // currently using to access this api.
         OAuthToken token = (OAuthToken) getSecurityContext().getUserPrincipal();
         if (token.getClient().equals(client)) {
-            throw new HttpStatusException(HttpStatus.SC_CONFLICT);
+            throw new HttpStatusException(Status.CONFLICT);
         }
 
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getApplication().equals(client.getApplication())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         // Transfer all the values we're allowed to edit.
@@ -327,7 +315,7 @@ public final class ClientService extends AbstractService {
         // currently using to access this api.
         OAuthToken token = (OAuthToken) getSecurityContext().getUserPrincipal();
         if (token.getClient().equals(client)) {
-            throw new HttpStatusException(HttpStatus.SC_CONFLICT);
+            throw new HttpStatusException(Status.CONFLICT);
         }
 
         // Let's hope they now what they're doing.

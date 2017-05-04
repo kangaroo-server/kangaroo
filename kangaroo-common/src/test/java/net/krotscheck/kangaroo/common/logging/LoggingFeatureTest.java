@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.common.logging;
 
 import net.krotscheck.kangaroo.test.KangarooJerseyTest;
-import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Unit tests for the logging feature. This test is really for coverage of
@@ -77,7 +77,7 @@ public final class LoggingFeatureTest extends KangarooJerseyTest {
         @Produces(MediaType.APPLICATION_JSON)
         public Response status() {
             return Response
-                    .status(HttpStatus.SC_OK)
+                    .status(Status.OK)
                     .entity(SLF4JBridgeHandler.isInstalled())
                     .build();
         }

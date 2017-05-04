@@ -23,21 +23,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 
@@ -54,11 +54,12 @@ public final class ErrorResponseBuilderTest {
     @Test
     public void testFromHttpStatusCode() {
         Response r = ErrorResponseBuilder.from(
-                HttpStatus.SC_NOT_FOUND).build();
+                Status.NOT_FOUND).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("Not Found", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
@@ -70,12 +71,13 @@ public final class ErrorResponseBuilderTest {
     @Test
     public void testFromStatusAndMessage() {
         Response r = ErrorResponseBuilder.from(
-                HttpStatus.SC_NOT_FOUND,
+                Status.NOT_FOUND,
                 "message").build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("message", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
@@ -87,12 +89,13 @@ public final class ErrorResponseBuilderTest {
     @Test
     public void testFromStatusCodeAndMessage() {
         Response r = ErrorResponseBuilder.from(
-                HttpStatus.SC_NOT_FOUND,
+                Status.NOT_FOUND,
                 "message", "test_code").build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("message", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("test_code", er.getError());
@@ -109,8 +112,9 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertTrue(er.getErrorDescription().indexOf("foo") > -1);
         Assert.assertEquals(null, er.getRedirectUrl());
         Assert.assertEquals("bad_request", er.getError());
@@ -122,13 +126,14 @@ public final class ErrorResponseBuilderTest {
     @Test
     public void testFromHttpStatusException() {
         HttpStatusException e =
-                new HttpStatusException(HttpStatus.SC_NOT_FOUND, "foo");
+                new HttpStatusException(Status.NOT_FOUND, "foo");
 
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_NOT_FOUND, er.getHttpStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("foo", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
@@ -141,12 +146,13 @@ public final class ErrorResponseBuilderTest {
     public void testRedirectException() {
         URI uri = UriBuilder.fromPath("http://example.com").build();
         HttpStatusException e =
-                new HttpStatusException(HttpStatus.SC_NOT_FOUND, "foo", uri);
+                new HttpStatusException(Status.NOT_FOUND, "foo", uri);
 
         Response r = ErrorResponseBuilder.from(e).build();
 
         URI location = r.getLocation();
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(),
+                r.getStatus());
         Assert.assertEquals("http://example.com/"
                 + "?error=not_found"
                 + "&error_description=foo", location.toString());
@@ -159,12 +165,13 @@ public final class ErrorResponseBuilderTest {
     public void testRedirectFragmentException() {
         URI uri = UriBuilder.fromPath("http://example.com").build();
         HttpStatusException e =
-                new HttpStatusException(HttpStatus.SC_NOT_FOUND, "foo", uri);
+                new HttpStatusException(Status.NOT_FOUND, "foo", uri);
 
         Response r = ErrorResponseBuilder.from(e).build(true);
 
         URI location = r.getLocation();
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(),
+                r.getStatus());
         Assert.assertEquals("http://example.com/"
                 + "#error=not_found"
                 + "&error_description=foo", location.toString());
@@ -180,9 +187,9 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                er.getHttpStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
@@ -204,8 +211,9 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("test 1", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("bad_request", er.getError());
@@ -223,9 +231,9 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                er.getHttpStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
@@ -241,9 +249,9 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                er.getHttpStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                r.getStatus());
+        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());

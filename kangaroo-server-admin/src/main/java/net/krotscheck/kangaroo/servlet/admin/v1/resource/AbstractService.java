@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.servlet.admin.v1.servlet.ServletConfigFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
@@ -41,6 +40,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
@@ -337,7 +337,7 @@ public abstract class AbstractService {
             }
             User owner = getSession().get(User.class, ownerId);
             if (owner == null) {
-                throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+                throw new HttpStatusException(Status.BAD_REQUEST);
             }
             return owner;
         }
@@ -400,7 +400,7 @@ public abstract class AbstractService {
         // above, as we cannot expose to an improperly scoped token that
         // an entity might exist.
         if (!currentUser.equals(entity.getOwner())) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
         return entity;
@@ -506,7 +506,7 @@ public abstract class AbstractService {
         // Attempt to resolve...
         K entity = getSession().get(requestedType, entityId);
         if (entity == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         return entity;
     }
@@ -525,7 +525,7 @@ public abstract class AbstractService {
             final K entity) {
         K resolved = resolveEntityInput(requestedType, entity);
         if (resolved == null) {
-            throw new HttpStatusException(HttpStatus.SC_BAD_REQUEST);
+            throw new HttpStatusException(Status.BAD_REQUEST);
         }
         return resolved;
     }

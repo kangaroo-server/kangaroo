@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.database.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,6 +27,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,8 +56,8 @@ public final class ConstraintViolationExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, r.getStatus());
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, er.getHttpStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("test 1", er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
     }
