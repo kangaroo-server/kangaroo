@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2AuthorizationFilter;
 import net.krotscheck.kangaroo.servlet.admin.v1.resource.ApplicationService;
@@ -67,6 +68,7 @@ public final class AdminV1API extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(StatusFeature.class);           // Heartbeat service.
+        register(TimedTasksFeature.class);       // Timed tasks service.
 
         // Authenticators, for validation
         register(new PasswordAuthenticator.Binder());
