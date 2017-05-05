@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import net.krotscheck.kangaroo.database.DatabaseFeature;
 import net.krotscheck.kangaroo.servlet.oauth2.factory.CredentialsFactory;
 import net.krotscheck.kangaroo.servlet.oauth2.filter.ClientAuthorizationFilter;
@@ -56,6 +57,7 @@ public class OAuthAPI extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(StatusFeature.class);           // Heartbeat service.
+        register(TimedTasksFeature.class);       // Timed tasks service.
 
         // Asset factories
         register(new CredentialsFactory.Binder());
