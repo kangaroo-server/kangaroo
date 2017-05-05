@@ -93,12 +93,14 @@ public abstract class AbstractEntity implements Cloneable {
      * The date this record was created.
      */
     @Column(name = "createdDate")
+    @Type(type = "net.krotscheck.kangaroo.database.type.CalendarTimestampType")
     private Calendar createdDate;
 
     /**
      * The date this record was last modified.
      */
     @Column(name = "modifiedDate")
+    @Type(type = "net.krotscheck.kangaroo.database.type.CalendarTimestampType")
     private Calendar modifiedDate;
 
     /**

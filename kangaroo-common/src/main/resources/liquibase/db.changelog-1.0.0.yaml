@@ -17,10 +17,10 @@ databaseChangeLog:
                   primaryKeyName: pk_configuration_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: section
                 type: varchar(255)
@@ -69,10 +69,10 @@ databaseChangeLog:
                   primaryKeyName: pk_applications_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: owner
                 type: BINARY(16)
@@ -95,10 +95,10 @@ databaseChangeLog:
                   primaryKeyName: pk_application_scopes_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: application
                 type: BINARY(16)
@@ -151,10 +151,10 @@ databaseChangeLog:
                   primaryKeyName: pk_roles_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: application
                 type: BINARY(16)
@@ -240,10 +240,10 @@ databaseChangeLog:
                   primaryKeyName: pk_users_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: application
                 type: BINARY(16)
@@ -295,10 +295,10 @@ databaseChangeLog:
                   primaryKeyName: pk_clients_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: application
                 type: BINARY(16)
@@ -344,10 +344,10 @@ databaseChangeLog:
                   primaryKeyName: pk_client_referrers_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: client
                 type: BINARY(16)
@@ -392,10 +392,10 @@ databaseChangeLog:
                   primaryKeyName: pk_client_redirects_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: client
                 type: BINARY(16)
@@ -489,10 +489,10 @@ databaseChangeLog:
                   primaryKeyName: pk_authenticators_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: client
                 type: BINARY(16)
@@ -576,10 +576,10 @@ databaseChangeLog:
                   primaryKeyName: pk_authenticator_states_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: authenticator
                 type: BINARY(16)
@@ -677,10 +677,10 @@ databaseChangeLog:
                   primaryKeyName: pk_user_identities_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: user
                 type: BINARY(16)
@@ -795,10 +795,10 @@ databaseChangeLog:
                   primaryKeyName: pk_oauth_tokens_id
             - column:
                 name: createdDate
-                type: datetime
+                type: bigint
             - column:
                 name: modifiedDate
-                type: datetime
+                type: bigint
             - column:
                 name: identity
                 type: BINARY(16)
