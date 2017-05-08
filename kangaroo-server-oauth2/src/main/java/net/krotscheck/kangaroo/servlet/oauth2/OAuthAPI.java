@@ -33,6 +33,7 @@ import net.krotscheck.kangaroo.servlet.oauth2.resource.grant.AuthorizationCodeGr
 import net.krotscheck.kangaroo.servlet.oauth2.resource.grant.ClientCredentialsGrantHandler;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.grant.OwnerCredentialsGrantHandler;
 import net.krotscheck.kangaroo.servlet.oauth2.resource.grant.RefreshTokenGrantHandler;
+import net.krotscheck.kangaroo.servlet.oauth2.tasks.TokenCleanupTask;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -73,6 +74,9 @@ public class OAuthAPI extends ResourceConfig {
         register(new RefreshTokenGrantHandler.Binder());
         register(new AuthorizationCodeGrantHandler.Binder());
         register(new OwnerCredentialsGrantHandler.Binder());
+
+        // Timed tasks
+        register(new TokenCleanupTask.Binder()); // Cleanup old tokens.
 
         // Resource services
         register(TokenService.class);

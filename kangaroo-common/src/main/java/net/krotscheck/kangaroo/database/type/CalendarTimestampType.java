@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 
 /**
@@ -109,7 +110,7 @@ public final class CalendarTimestampType implements UserType {
             return null;
         }
         Long timeInMillis = Long.valueOf(timeInMillisStr);
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTimeInMillis(timeInMillis);
         return calendar;
     }
@@ -195,7 +196,7 @@ public final class CalendarTimestampType implements UserType {
                            final Object owner) throws HibernateException {
         Long timeInMillis = (Long) cached;
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTimeInMillis(timeInMillis);
         return calendar;
     }
