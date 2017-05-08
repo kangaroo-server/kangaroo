@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.type;
 
-import org.hibernate.dialect.MySQL5Dialect;
+import org.hibernate.dialect.MariaDBDialect;
 import org.hibernate.type.DiscriminatorType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public final class URITypeTest {
     @Test
     public void testObjectToSQLString() throws Exception {
         URIType t = new URIType();
-        String sql = t.objectToSQLString(testUri, new MySQL5Dialect());
+        String sql = t.objectToSQLString(testUri, new MariaDBDialect());
         Assert.assertEquals("'http://example.com'", sql);
     }
 

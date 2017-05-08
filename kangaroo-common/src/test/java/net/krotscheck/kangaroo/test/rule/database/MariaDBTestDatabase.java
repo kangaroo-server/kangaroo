@@ -27,14 +27,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Create a new test database using the mysql driver. We assume that the
+ * Create a new test database using the mariadb driver. We assume that the
  * database is available on 127.0.0.1:3306, and that the root password is
  * blank. If this is not the case, your testing environment is likely not
  * ephemeral enough to be secure.
  *
+ * The reason we're using MariaDB instead of MySQL is because the mysql
+ * driver is GPL'd. Tough cookies, Oracle.
+ *
  * @author Michael Krotscheck
  */
-public final class MySQLTestDatabase extends AbstractTestDatabase
+public final class MariaDBTestDatabase extends AbstractTestDatabase
         implements ITestDatabase {
 
     /**
@@ -47,7 +50,7 @@ public final class MySQLTestDatabase extends AbstractTestDatabase
      *
      * @param rootPassword The root password for the database.
      */
-    public MySQLTestDatabase(final String rootPassword) {
+    public MariaDBTestDatabase(final String rootPassword) {
         this.rootPassword = rootPassword;
     }
 
@@ -86,7 +89,7 @@ public final class MySQLTestDatabase extends AbstractTestDatabase
                 stmt.executeBatch();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("cannot delete mysql database", e);
+            throw new RuntimeException("cannot delete maria database", e);
         }
     }
 
@@ -110,7 +113,7 @@ public final class MySQLTestDatabase extends AbstractTestDatabase
                 stmt.executeBatch();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("cannot create mysql database", e);
+            throw new RuntimeException("cannot create maria database", e);
         }
 
         return this;
@@ -130,7 +133,7 @@ public final class MySQLTestDatabase extends AbstractTestDatabase
                     getUser(),
                     getPassword());
         } catch (SQLException e) {
-            throw new RuntimeException("cannot connect to mysql database", e);
+            throw new RuntimeException("cannot connect to maria database", e);
         }
     }
 
@@ -154,7 +157,7 @@ public final class MySQLTestDatabase extends AbstractTestDatabase
             return DriverManager.getConnection(rootJdbc, "root",
                     rootPassword);
         } catch (SQLException e) {
-            throw new RuntimeException("cannot connect to mysql database",
+            throw new RuntimeException("cannot connect to maria database",
                     e);
         }
     }

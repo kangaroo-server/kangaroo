@@ -208,7 +208,7 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Override
     protected Client getParentEntity(final ApplicationContext context) {
-        return context.getClient();
+        return getAttached(context.getClient());
     }
 
     /**
@@ -237,7 +237,7 @@ public final class ClientReferrerServiceCRUDTest
     @Override
     protected Client createParentEntity(final ApplicationContext context) {
         Client c = new Client();
-        c.setApplication(context.getApplication());
+        c.setApplication(getAttached(context.getApplication()));
         c.setName(UUID.randomUUID().toString());
         c.setType(ClientType.AuthorizationGrant);
         return c;
@@ -251,7 +251,7 @@ public final class ClientReferrerServiceCRUDTest
      */
     @Override
     protected ClientReferrer getEntity(final ApplicationContext context) {
-        return context.getReferrer();
+        return getAttached(context.getReferrer());
     }
 
     /**
@@ -262,7 +262,7 @@ public final class ClientReferrerServiceCRUDTest
     @Override
     protected ClientReferrer getNewEntity() {
         ClientReferrer newEntity = new ClientReferrer();
-        newEntity.setClient(getAdminContext().getClient());
+        newEntity.setClient(getAttached(getAdminContext().getClient()));
         return newEntity;
     }
 

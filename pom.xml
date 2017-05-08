@@ -62,11 +62,11 @@
       </properties>
     </profile>
     <profile>
-      <id>mysql</id>
+      <id>mariadb</id>
       <properties>
-        <hibernate.connection.url>jdbc:mysql://127.0.0.1:3306/oid?useUnicode=yes</hibernate.connection.url>
-        <hibernate.connection.driver_class>com.mysql.jdbc.Driver</hibernate.connection.driver_class>
-        <hibernate.dialect>org.hibernate.dialect.MySQL55Dialect</hibernate.dialect>
+        <hibernate.connection.url>jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes</hibernate.connection.url>
+        <hibernate.connection.driver_class>org.mariadb.jdbc.Driver</hibernate.connection.driver_class>
+        <hibernate.dialect>org.hibernate.dialect.MariaDBDialect</hibernate.dialect>
       </properties>
     </profile>
   </profiles>
@@ -805,16 +805,16 @@
         <version>2.0.0</version>
       </dependency>
 
-      <!-- H2 database, used for testing. -->
+      <!-- Database drivers. -->
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>1.4.195</version>
       </dependency>
       <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.31</version>
+        <groupId>org.mariadb.jdbc</groupId>
+        <artifactId>mariadb-java-client</artifactId>
+        <version>1.5.9</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
