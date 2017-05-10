@@ -83,10 +83,8 @@ public class TimedTasksLifecycleListenerTest {
         listener.onShutdown(container);
         Mockito.verifyNoMoreInteractions(container);
 
-        // Each is executed once at the beginning, and then once after reach
-        // interval.
-        Assert.assertEquals(one.getTickCount(), 3);
-        Assert.assertEquals(two.getTickCount(), 2);
+        Assert.assertEquals(one.getTickCount(), 2);
+        Assert.assertEquals(two.getTickCount(), 1);
     }
 
     /**

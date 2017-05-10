@@ -42,11 +42,14 @@ public interface RepeatingTask {
     long getPeriod();
 
     /**
-     * Delay in milliseconds before task is to be executed.
+     * Delay in milliseconds before task is to be executed. By default, this
+     * is the interval period, which effectively means that these tasks will
+     * never run immediately, but start to tick after the first interval has
+     * passed.
      *
      * @return Delay in milliseconds before task is to be executed.
      */
     default long getDelay() {
-        return 0;
+        return getPeriod();
     }
 }
