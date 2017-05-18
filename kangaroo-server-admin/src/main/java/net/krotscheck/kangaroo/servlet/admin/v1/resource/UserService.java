@@ -28,11 +28,14 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
+import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -77,6 +80,7 @@ public final class UserService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings({"CPD-START"})
     public Response searchUsers(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
@@ -85,36 +89,60 @@ public final class UserService extends AbstractService {
             @Optional @QueryParam("application") final UUID applicationId,
             @Optional @QueryParam("role") final UUID roleId) {
 
-        FullTextQuery query = buildQuery(User.class,
-                new String[]{"identities.claims", "identities.remoteId"},
-                queryString);
+        // Start a query builder...
+        QueryBuilder builder = getSearchFactory()
+                .buildQueryBuilder()
+                .forEntity(User.class)
+                .get();
+        BooleanJunction junction = builder.bool();
+
+        Query fuzzy = builder.keyword()
+                .fuzzy()
+                .onFields(new String[]{
+                        "identities.claims",
+                        "identities.remoteId"
+                })
+                .matching(queryString)
+                .createQuery();
+        junction = junction.must(fuzzy);
 
         // Attach an ownership filter.
         User owner = resolveOwnershipFilter(ownerId);
         if (owner != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_user_owner")
-                    .setParameter("indexPath", "application.owner.id")
-                    .setParameter("uuid", owner.getId());
+            Query ownerQuery = builder
+                    .keyword()
+                    .onField("application.owner.id")
+                    .matching(owner.getId())
+                    .createQuery();
+            junction.must(ownerQuery);
         }
 
         // Attach an application filter.
-        Application filterByApp = resolveFilterEntity(
-                Application.class,
+        Application filterByApp = resolveFilterEntity(Application.class,
                 applicationId);
         if (filterByApp != null) {
-            query.enableFullTextFilter("uuid_user_application")
-                    .setParameter("indexPath", "application.id")
-                    .setParameter("uuid", filterByApp.getId());
+            Query userQuery = builder
+                    .keyword()
+                    .onField("application.id")
+                    .matching(filterByApp.getId())
+                    .createQuery();
+            junction.must(userQuery);
         }
 
-        // Attach a role filter.
+        // Attach an role filter.
         Role filterByRole = resolveFilterEntity(Role.class, roleId);
         if (filterByRole != null) {
-            query.enableFullTextFilter("uuid_user_role")
-                    .setParameter("indexPath", "role.id")
-                    .setParameter("uuid", filterByRole.getId());
+            Query userQuery = builder
+                    .keyword()
+                    .onField("role.id")
+                    .matching(filterByRole.getId())
+                    .createQuery();
+            junction.must(userQuery);
         }
+
+        FullTextQuery query = getFullTextSession()
+                .createFullTextQuery(junction.createQuery(),
+                        User.class);
 
         return executeQuery(query, offset, limit);
     }
@@ -131,6 +159,7 @@ public final class UserService extends AbstractService {
      * @param roleId        An optional role ID to filter by.
      * @return A response with the results of the passed parameters.
      */
+    @SuppressWarnings({"CPD-END"})
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response browse(
