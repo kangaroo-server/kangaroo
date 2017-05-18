@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientConfig;
@@ -65,7 +66,7 @@ public final class Section430OwnerPasswordTest
                             .scope("debug")
                             .role("debug", new String[]{"debug"})
                             .client(ClientType.OwnerCredentials)
-                            .authenticator("password")
+                            .authenticator(AuthenticatorType.Password)
                             .user()
                             .login(username, password)
                             .build();
@@ -73,7 +74,7 @@ public final class Section430OwnerPasswordTest
                             .scope("debug")
                             .role("debug", new String[]{"debug"})
                             .client(ClientType.OwnerCredentials, true)
-                            .authenticator("password")
+                            .authenticator(AuthenticatorType.Password)
                             .user()
                             .login(username, password)
                             .build();

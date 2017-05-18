@@ -405,7 +405,8 @@ public final class OAuthTokenService extends AbstractService {
         } else {
             UserIdentity identity = requireEntityInput(UserIdentity.class,
                     input.getIdentity());
-            if (!identity.getAuthenticator().getClient().equals(client)) {
+            if (!identity.getUser().getApplication()
+                    .equals(client.getApplication())) {
                 throw new HttpStatusException(Status.BAD_REQUEST);
             }
             input.setIdentity(identity);

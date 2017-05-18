@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.rfc6749;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.database.entity.ClientType;
@@ -71,28 +72,28 @@ public final class Section410AuthorizationCodeGrantTest
                             .scope("debug1")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                     bareContext = ApplicationBuilder
                             .newApplication(session)
                             .scope("debug")
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .build();
                     noScopeRoleContext = ApplicationBuilder
                             .newApplication(session)
                             .scope("debug")
                             .role("test", new String[]{})
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                     noUserRoleContext = ApplicationBuilder
                             .newApplication(session)
                             .scope("debug")
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                     authContext = ApplicationBuilder
@@ -100,7 +101,7 @@ public final class Section410AuthorizationCodeGrantTest
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.AuthorizationGrant, true)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
                             .redirect("http://redirect.example.com/redirect")
                             .user()
@@ -116,7 +117,7 @@ public final class Section410AuthorizationCodeGrantTest
                     misconfiguredAuthContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator("foo")
+                            .authenticator(AuthenticatorType.Password)
                             .redirect("http://valid.example.com/redirect")
                             .scope("debug")
                             .build();
@@ -125,7 +126,7 @@ public final class Section410AuthorizationCodeGrantTest
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .client(ClientType.Implicit)
-                            .authenticator("foo")
+                            .authenticator(AuthenticatorType.Password)
                             .redirect("http://valid.example.com/redirect")
                             .build();
 
@@ -462,8 +463,9 @@ public final class Section410AuthorizationCodeGrantTest
      * Assert that a client with an unimplemented authenticator fails.
      */
     @Test
-    public void testAuthorizeUnimplementedAuthenticator() {
+    public void testAuthorizeNotConfiguredAuthenticator() {
         Response r = target("/authorize")
+                .queryParam("authenticator", "Test")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         misconfiguredAuthContext.getClient().getId().toString())

@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.util;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
@@ -440,12 +441,12 @@ public final class ValidationUtil {
      * list of authenticators only contains one, this will default to that
      * authenticator.
      *
-     * @param authenticator  The requested authenticator string.
+     * @param type           The requested authenticator type.
      * @param authenticators The list of authenticators to test against.
      * @return The valid authenticator.
      */
     public static Authenticator validateAuthenticator(
-            final String authenticator,
+            final AuthenticatorType type,
             final List<Authenticator> authenticators) {
         // Quick exit
         if (authenticators.size() == 0) {
@@ -453,7 +454,7 @@ public final class ValidationUtil {
         }
 
         // Can we default?
-        if (StringUtils.isEmpty(authenticator)) {
+        if (type == null) {
             if (authenticators.size() == 1) {
                 return authenticators.get(0);
             } else {
@@ -463,7 +464,7 @@ public final class ValidationUtil {
 
         // Iterate through the set, comparing as we go.
         for (Authenticator test : authenticators) {
-            if (test.getType().equals(authenticator)) {
+            if (test.getType().equals(type)) {
                 return test;
             }
         }

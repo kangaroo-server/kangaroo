@@ -22,21 +22,20 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import net.krotscheck.kangaroo.database.filters.UUIDFilter;
 import net.krotscheck.kangaroo.database.jackson.Views;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FilterCacheModeType;
-import org.hibernate.search.annotations.FullTextFilterDef;
-import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -44,6 +43,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -51,6 +52,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,17 +68,6 @@ import java.util.Map;
 @Entity
 @Indexed(index = "user_identities")
 @Table(name = "user_identities")
-@FullTextFilterDefs({
-        @FullTextFilterDef(name = "uuid_identity_owner",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_identity_user",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_identity_authenticator",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY)
-})
 public final class UserIdentity extends AbstractEntity {
 
     /**
@@ -92,15 +83,18 @@ public final class UserIdentity extends AbstractEntity {
     private User user;
 
     /**
-     * The authenticator that provided this identity.
+     * The type of this identity, indicating the authenticator type that can
+     * provide this.
+     *
+     * @see {@link Authenticator#type}
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "authenticator", nullable = false, updatable = false)
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonDeserialize(using = Authenticator.Deserializer.class)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, updatable = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
+            bridge = @FieldBridge(impl = EnumBridge.class))
+    @NotNull
     @JsonView(Views.Public.class)
-    @IndexedEmbedded(includePaths = {"id"})
-    private Authenticator authenticator;
+    private AuthenticatorType type;
 
     /**
      * OAuth tokens issued to this identity.
@@ -175,24 +169,6 @@ public final class UserIdentity extends AbstractEntity {
     }
 
     /**
-     * The authenticator which provided this identity.
-     *
-     * @return The authenticator.
-     */
-    public Authenticator getAuthenticator() {
-        return authenticator;
-    }
-
-    /**
-     * Set the authenticator.
-     *
-     * @param authenticator A new authenticator.
-     */
-    public void setAuthenticator(final Authenticator authenticator) {
-        this.authenticator = authenticator;
-    }
-
-    /**
      * The remote ID by which the authenticator recognizes the user.
      *
      * @return A string, representing this authenticator.
@@ -226,6 +202,24 @@ public final class UserIdentity extends AbstractEntity {
      */
     public void setClaims(final Map<String, String> claims) {
         this.claims = new HashMap<>(claims);
+    }
+
+    /**
+     * The type of authenticator.
+     *
+     * @return The authenticator type.
+     */
+    public AuthenticatorType getType() {
+        return type;
+    }
+
+    /**
+     * Set the type of authenticator.
+     *
+     * @param authType The new authType.
+     */
+    public void setType(final AuthenticatorType authType) {
+        this.type = authType;
     }
 
     /**

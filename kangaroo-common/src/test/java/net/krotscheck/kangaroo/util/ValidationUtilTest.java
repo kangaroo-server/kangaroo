@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.util;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
@@ -915,14 +916,14 @@ public final class ValidationUtilTest {
         List<Authenticator> testList = new ArrayList<>();
 
         Authenticator one = new Authenticator();
-        one.setType("one");
+        one.setType(AuthenticatorType.Password);
         Authenticator two = new Authenticator();
-        two.setType("two");
+        two.setType(AuthenticatorType.Test);
         testList.add(one);
         testList.add(two);
 
-        Authenticator result = ValidationUtil.validateAuthenticator("two",
-                testList);
+        Authenticator result = ValidationUtil.validateAuthenticator(
+                AuthenticatorType.Test, testList);
         Assert.assertEquals(result, two);
     }
 
@@ -936,13 +937,11 @@ public final class ValidationUtilTest {
         List<Authenticator> testList = new ArrayList<>();
 
         Authenticator one = new Authenticator();
-        one.setType("one");
-        Authenticator two = new Authenticator();
-        two.setType("two");
+        one.setType(AuthenticatorType.Password);
         testList.add(one);
-        testList.add(two);
 
-        ValidationUtil.validateAuthenticator("three", testList);
+        ValidationUtil.validateAuthenticator(AuthenticatorType.Test,
+                testList);
     }
 
     /**
@@ -955,7 +954,7 @@ public final class ValidationUtilTest {
         List<Authenticator> testList = new ArrayList<>();
 
         Authenticator one = new Authenticator();
-        one.setType("one");
+        one.setType(AuthenticatorType.Password);
         testList.add(one);
 
         Authenticator result = ValidationUtil.validateAuthenticator(null,
@@ -973,9 +972,9 @@ public final class ValidationUtilTest {
         List<Authenticator> testList = new ArrayList<>();
 
         Authenticator one = new Authenticator();
-        one.setType("one");
+        one.setType(AuthenticatorType.Password);
         Authenticator two = new Authenticator();
-        two.setType("two");
+        one.setType(AuthenticatorType.Test);
         testList.add(one);
         testList.add(two);
 

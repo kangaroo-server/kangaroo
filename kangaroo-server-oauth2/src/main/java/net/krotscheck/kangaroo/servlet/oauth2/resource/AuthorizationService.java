@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
@@ -120,11 +121,16 @@ public final class AuthorizationService {
     @OAuthFilterChain
     public Response authorizationRequest(
             @Context final UriInfo uriInfo,
-            @Optional @QueryParam("authenticator") final String authenticator,
-            @Optional @QueryParam("response_type") final String responseType,
-            @Optional @QueryParam("redirect_uri") final String redirectUrl,
-            @Optional @QueryParam("scope") final String scope,
-            @Optional @QueryParam("state") final String state) {
+            @Optional @QueryParam("authenticator")
+            final AuthenticatorType authenticator,
+            @Optional @QueryParam("response_type")
+            final String responseType,
+            @Optional @QueryParam("redirect_uri")
+            final String redirectUrl,
+            @Optional @QueryParam("scope")
+            final String scope,
+            @Optional @QueryParam("state")
+            final String state) {
 
         // Make sure the kind of request we have is permitted for this client.
         Client client = session.get(Client.class, credentials.getLogin());
@@ -141,12 +147,9 @@ public final class AuthorizationService {
             Authenticator auth = ValidationUtil.validateAuthenticator(
                     authenticator, client.getAuthenticators());
 
-            // Ensure that we have a valid authenticator type.
+            // Retrieve the authenticator instance.
             IAuthenticator authImpl = locator.getService(
-                    IAuthenticator.class, auth.getType());
-            if (authImpl == null) {
-                throw new InvalidRequestException();
-            }
+                    IAuthenticator.class, auth.getType().name());
 
             // Validate the requested scopes.
             SortedMap<String, ApplicationScope> scopes =
@@ -326,12 +329,7 @@ public final class AuthorizationService {
      */
     private IAuthenticator getAuthenticator(final AuthenticatorState state) {
         Authenticator a = state.getAuthenticator();
-        IAuthenticator authenticator =
-                locator.getService(IAuthenticator.class, a.getType());
-        if (authenticator == null) {
-            throw new InvalidRequestException();
-        }
-        return authenticator;
+        return locator.getService(IAuthenticator.class, a.getType().name());
     }
 
     /**

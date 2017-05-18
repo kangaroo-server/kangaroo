@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.UserIdentity.Deserializer;
 import net.krotscheck.kangaroo.database.util.JacksonUtil;
 import org.junit.Assert;
@@ -70,13 +71,12 @@ public final class UserIdentityTest {
      * Test getting/setting the authenticator.
      */
     @Test
-    public void testGetSetAuthenticator() {
+    public void testGetSetType() {
         UserIdentity identity = new UserIdentity();
-        Authenticator authenticator = new Authenticator();
 
-        Assert.assertNull(identity.getAuthenticator());
-        identity.setAuthenticator(authenticator);
-        Assert.assertEquals(authenticator, identity.getAuthenticator());
+        Assert.assertNull(identity.getType());
+        identity.setType(AuthenticatorType.Test);
+        Assert.assertEquals(AuthenticatorType.Test, identity.getType());
     }
 
     /**
@@ -176,6 +176,7 @@ public final class UserIdentityTest {
         user.setId(UUID.randomUUID());
 
         Authenticator authenticator = new Authenticator();
+        authenticator.setType(AuthenticatorType.Test);
         authenticator.setId(UUID.randomUUID());
 
         List<OAuthToken> tokens = new ArrayList<>();
@@ -191,7 +192,7 @@ public final class UserIdentityTest {
         identity.setId(UUID.randomUUID());
         identity.setCreatedDate(Calendar.getInstance());
         identity.setModifiedDate(Calendar.getInstance());
-        identity.setAuthenticator(authenticator);
+        identity.setType(authenticator.getType());
         identity.setUser(user);
         identity.setTokens(tokens);
         identity.setClaims(claims);
@@ -216,8 +217,8 @@ public final class UserIdentityTest {
                 node.get("modifiedDate").asText());
 
         Assert.assertEquals(
-                identity.getAuthenticator().getId().toString(),
-                node.get("authenticator").asText());
+                identity.getType().toString(),
+                node.get("type").asText());
         Assert.assertEquals(
                 identity.getUser().getId().toString(),
                 node.get("user").asText());

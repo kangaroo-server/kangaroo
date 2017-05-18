@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
@@ -30,7 +31,6 @@ import net.krotscheck.kangaroo.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
-import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
@@ -71,7 +71,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
                 protected void loadTestData(final Session session) {
                     userApp = ApplicationBuilder.newApplication(session)
                             .client(ClientType.Implicit)
-                            .authenticator("password")
+                            .authenticator(AuthenticatorType.Password)
                             .user()
                             .role("foo")
                             .identity("test_identity")
@@ -309,7 +309,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testAssertCanAccessClientCredentialsValidScope() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION_ADMIN)
                 .build();
 
@@ -331,7 +331,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testAssertCanAccessClientCredentialsInvalidScope() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -351,7 +351,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestUserFilterAdminNoFilter() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -371,7 +371,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestInvalidUserFilterAdminFilter() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .user()
                 .build();
@@ -391,7 +391,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestUserFilterAdminFilter() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .user()
                 .build();
@@ -413,7 +413,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestUserFilterNonAdminNoFilter() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -434,7 +434,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestUserFilterNonAdminFilter() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .user()
                 .build();
@@ -455,7 +455,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestUserFilterNonAdminFilterSelf() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -477,7 +477,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequestUserFilterNonAdminClientCredentials() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -512,7 +512,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testRequireValidEntity() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -534,7 +534,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testResolveFilterEntityNoEntityAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -555,7 +555,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testResolveFilterEntityNonexistentEntityIdAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -574,7 +574,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testResolveFilterEntityValidEntityIdAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -596,7 +596,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testResolveFilterEntityInvalidScope() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -616,7 +616,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testResolveFilterEntityNullEntityIdNonAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 
@@ -637,7 +637,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     public void testResolveFilterEntityNonexistentEntityIdNonAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
-                .authenticator("test")
+                .authenticator(AuthenticatorType.Test)
                 .bearerToken(Scope.APPLICATION)
                 .build();
 

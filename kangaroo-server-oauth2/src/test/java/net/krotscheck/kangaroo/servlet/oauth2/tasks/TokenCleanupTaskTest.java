@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.tasks;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.test.ApplicationBuilder;
@@ -60,7 +61,7 @@ public class TokenCleanupTaskTest extends DatabaseTest {
                 protected void loadTestData(final Session session) {
                     context = ApplicationBuilder.newApplication(session)
                             .client(ClientType.Implicit)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .user()
                             .identity()
                             .build();

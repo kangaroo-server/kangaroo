@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.resource.grant;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authenticator.PasswordAuthenticator;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
@@ -94,7 +95,8 @@ public final class OwnerCredentialsGrantHandler implements IGrantTypeHandler {
 
         // Pull the password authenticator configuration.
         Authenticator authConfig = ValidationUtil
-                .validateAuthenticator("password", client.getAuthenticators());
+                .validateAuthenticator(AuthenticatorType.Password,
+                        client.getAuthenticators());
 
         UserIdentity identity;
         // Try to resolve a user identity.

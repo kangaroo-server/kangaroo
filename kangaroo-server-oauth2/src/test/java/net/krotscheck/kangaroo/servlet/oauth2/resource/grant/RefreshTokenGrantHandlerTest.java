@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.oauth2.resource.grant;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
 import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.kangaroo.database.entity.Client;
@@ -63,7 +64,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                     authGrantContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.AuthorizationGrant, true)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .scope("debug")
                             .scope("debug1")
                             .role("test", new String[]{"debug", "debug1"})
@@ -74,7 +75,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                     ownerCredsContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.OwnerCredentials, true)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .scope("debug")
                             .scope("debug1")
                             .role("test", new String[]{"debug", "debug1"})
@@ -85,7 +86,7 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                     implicitContext = ApplicationBuilder
                             .newApplication(session)
                             .client(ClientType.Implicit, true)
-                            .authenticator("test")
+                            .authenticator(AuthenticatorType.Test)
                             .scope("debug")
                             .role("test", new String[]{"debug"})
                             .build();
