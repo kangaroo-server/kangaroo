@@ -34,7 +34,6 @@ import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.query.dsl.QueryBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -404,38 +403,6 @@ public abstract class AbstractService {
         }
 
         return entity;
-    }
-
-    /**
-     * Build a search query.
-     *
-     * @param entityType  The entity type to use.
-     * @param queryFields The lucene index fields to query on.
-     * @param query       The query string.
-     * @param <T>         The type of entity to query.
-     * @return The constructed full text query for this entity type.
-     */
-    protected final <T extends AbstractEntity> FullTextQuery buildQuery(
-            final Class<T> entityType,
-            final String[] queryFields,
-            final String query) {
-
-        // Start a query builder...
-        QueryBuilder builder = getSearchFactory()
-                .buildQueryBuilder()
-                .forEntity(entityType)
-                .get();
-
-        org.apache.lucene.search.Query luceneQuery = builder
-                .keyword()
-                .fuzzy()
-                .onFields(queryFields)
-                .ignoreFieldBridge()
-                .matching(query)
-                .createQuery();
-
-        return getFullTextSession()
-                .createFullTextQuery(luceneQuery, entityType);
     }
 
     /**

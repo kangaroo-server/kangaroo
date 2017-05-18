@@ -722,24 +722,6 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     }
 
     /**
-     * Assert that we can create and execute a query on a given type.
-     */
-    @Test
-    public void testCreateQuery() {
-        FullTextQuery q = service.buildQuery(
-                Application.class,
-                new String[]{"name"},
-                "kangaroo");
-        Assert.assertEquals("name:kangaroo~2", q.getQueryString());
-
-        Response results = service.executeQuery(q, 0, 10);
-        Assert.assertEquals(Status.OK.getStatusCode(), results.getStatus());
-        Assert.assertEquals("1", results.getHeaderString("Total"));
-        Assert.assertEquals("0", results.getHeaderString("Offset"));
-        Assert.assertEquals("10", results.getHeaderString("Limit"));
-    }
-
-    /**
      * Concrete implementation of the abstract service, for testing.
      */
     public static final class TestService extends AbstractService {

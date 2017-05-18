@@ -22,12 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import net.krotscheck.kangaroo.database.filters.UUIDFilter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.search.annotations.FilterCacheModeType;
-import org.hibernate.search.annotations.FullTextFilterDef;
-import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
@@ -50,17 +47,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Indexed(index = "users")
-@FullTextFilterDefs({
-        @FullTextFilterDef(name = "uuid_user_owner",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_user_application",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_user_role",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY)
-})
+@Analyzer(definition = "entity_analyzer")
 public final class User extends AbstractEntity {
 
     /**

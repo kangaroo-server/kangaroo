@@ -28,11 +28,14 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
+import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -75,24 +78,41 @@ public final class ApplicationService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings({"CPD-START"})
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
             @Optional @QueryParam("owner") final UUID ownerId) {
 
-        FullTextQuery query = buildQuery(Application.class,
-                new String[]{"name"},
-                queryString);
+        // Start a query builder...
+        QueryBuilder builder = getSearchFactory()
+                .buildQueryBuilder()
+                .forEntity(Application.class)
+                .get();
+        BooleanJunction junction = builder.bool();
 
-        // Add an ownership filter.
+        Query fuzzy = builder.keyword()
+                .fuzzy()
+                .onFields(new String[]{"name"})
+                .matching(queryString)
+                .createQuery();
+        junction = junction.must(fuzzy);
+
+        // Attach an ownership filter.
         User owner = resolveOwnershipFilter(ownerId);
         if (owner != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_application_owner")
-                    .setParameter("indexPath", "owner.id")
-                    .setParameter("uuid", owner.getId());
+            Query ownerQuery = builder
+                    .keyword()
+                    .onField("owner.id")
+                    .matching(owner.getId())
+                    .createQuery();
+            junction.must(ownerQuery);
         }
+
+        FullTextQuery query = getFullTextSession()
+                .createFullTextQuery(junction.createQuery(),
+                        Application.class);
 
         return executeQuery(query, offset, limit);
     }
@@ -107,6 +127,7 @@ public final class ApplicationService extends AbstractService {
      * @param ownerId An optional user ID to filter by.
      * @return A list of search results.
      */
+    @SuppressWarnings({"CPD-END"})
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response browseApplications(

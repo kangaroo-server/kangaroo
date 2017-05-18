@@ -86,6 +86,7 @@ public final class UserIdentityService extends AbstractService {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
+    @SuppressWarnings({"CPD-START"})
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
@@ -160,7 +161,6 @@ public final class UserIdentityService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @SuppressWarnings("CPD-START")
     @JsonView(Views.Public.class)
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)

@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
@@ -108,7 +109,7 @@ public final class OAuthTokenServiceSearchTest
      * @return An array of field names.
      */
     protected String[] getSearchIndexFields() {
-        return new String[]{"redirect"};
+        return new String[]{"identity.remoteId", "identity.claims"};
     }
 
     /**
@@ -448,6 +449,66 @@ public final class OAuthTokenServiceSearchTest
         params.put("client", "malformed");
 
         Response r = search(params, getAdminToken());
+        assertErrorResponse(r, Status.NOT_FOUND);
+    }
+
+    /**
+     * Test that we can filter a search by an client ID.
+     */
+    @Test
+    public void testSearchByType() {
+        String query = "many";
+        OAuthTokenType type = OAuthTokenType.Bearer;
+
+        OAuthToken token = getAdminToken();
+        Map<String, String> params = new HashMap<>();
+        params.put("q", query);
+        params.put("type", type.toString());
+        Response r = search(params, token);
+
+        // Determine result set.
+        List<OAuthToken> searchResults = getSearchResults(query);
+        List<OAuthToken> accessibleEntities = getAccessibleEntities(token);
+
+        List<OAuthToken> expectedResults = searchResults
+                .stream()
+                .filter((item) -> accessibleEntities.indexOf(item) > -1)
+                .filter((item) -> item.getTokenType().equals(type))
+                .collect(Collectors.toList());
+
+        Integer expectedTotal = expectedResults.size();
+        int expectedResultSize = Math.min(10, expectedTotal);
+        Integer expectedOffset = 0;
+        Integer expectedLimit = 10;
+
+        if (isLimitedByClientCredentials()) {
+            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
+                    "invalid_scope");
+        } else {
+            Assert.assertTrue(expectedTotal > 0);
+
+            List<OAuthToken> results = r.readEntity(getListType());
+            Assert.assertEquals(expectedOffset.toString(),
+                    r.getHeaderString("Offset"));
+            Assert.assertEquals(expectedLimit.toString(),
+                    r.getHeaderString("Limit"));
+            Assert.assertEquals(expectedTotal.toString(),
+                    r.getHeaderString("Total"));
+            Assert.assertEquals(expectedResultSize, results.size());
+        }
+    }
+
+    /**
+     * Test that an invalid client throws an error.
+     */
+    @Test
+    public void testSearchByInvalidType() {
+        OAuthToken token = getAdminToken();
+        Map<String, String> params = new HashMap<>();
+        params.put("q", "many");
+        params.put("type", "Invalid Type");
+
+        Response r = search(params, token);
         assertErrorResponse(r, Status.NOT_FOUND);
     }
 }

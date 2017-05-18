@@ -35,11 +35,14 @@ import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.util.ValidationUtil;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -81,11 +84,13 @@ public final class OAuthTokenService extends AbstractService {
      * @param userId         An optional user ID to filter by.
      * @param userIdentityId An optional identity ID to filter by.
      * @param clientId       An optional client ID to filter by.
+     * @param type           An optional OAuth Token Type to filter by.
      * @return A list of search results.
      */
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings("CPD-START")
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
@@ -93,48 +98,84 @@ public final class OAuthTokenService extends AbstractService {
             @Optional @QueryParam("owner") final UUID ownerId,
             @Optional @QueryParam("user") final UUID userId,
             @Optional @QueryParam("identity") final UUID userIdentityId,
-            @Optional @QueryParam("client") final UUID clientId) {
+            @Optional @QueryParam("client") final UUID clientId,
+            @Optional @QueryParam("type") final OAuthTokenType type) {
 
-        // Fact is we can really only search on the redirect.
-        FullTextQuery query = buildQuery(OAuthToken.class,
-                new String[]{"redirect", "tokenType"},
-                queryString);
+        // Start a query builder...
+        QueryBuilder builder = getSearchFactory()
+                .buildQueryBuilder()
+                .forEntity(OAuthToken.class)
+                .get();
+        BooleanJunction junction = builder.bool();
+
+        Query fuzzy = builder.keyword()
+                .fuzzy()
+                .onFields(new String[]{
+                        "identity.remoteId",
+                        "identity.claims"
+                })
+                .matching(queryString)
+                .createQuery();
+        junction = junction.must(fuzzy);
 
         // Attach an ownership filter.
         User owner = resolveOwnershipFilter(ownerId);
         if (owner != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_token_owner")
-                    .setParameter("indexPath", "client.application.owner.id")
-                    .setParameter("uuid", owner.getId());
+            Query ownerQuery = builder
+                    .keyword()
+                    .onField("client.application.owner.id")
+                    .matching(owner.getId())
+                    .createQuery();
+            junction.must(ownerQuery);
         }
 
         // Attach a user filter.
         User filterByUser = resolveFilterEntity(User.class, userId);
         if (filterByUser != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_token_user")
-                    .setParameter("indexPath", "identity.user.id")
-                    .setParameter("uuid", filterByUser.getId());
+            Query userQuery = builder
+                    .keyword()
+                    .onField("identity.user.id")
+                    .matching(filterByUser.getId())
+                    .createQuery();
+            junction.must(userQuery);
         }
 
         // Attach an identity filter.
         UserIdentity filterByIdentity =
                 resolveFilterEntity(UserIdentity.class, userIdentityId);
         if (filterByIdentity != null) {
-            query.enableFullTextFilter("uuid_token_identity")
-                    .setParameter("indexPath", "identity.id")
-                    .setParameter("uuid", filterByIdentity.getId());
+            Query identityQuery = builder
+                    .keyword()
+                    .onField("identity.id")
+                    .matching(filterByIdentity.getId())
+                    .createQuery();
+            junction.must(identityQuery);
         }
 
         // Attach a client filter.
         Client filterByClient =
                 resolveFilterEntity(Client.class, clientId);
         if (filterByClient != null) {
-            query.enableFullTextFilter("uuid_token_client")
-                    .setParameter("indexPath", "client.id")
-                    .setParameter("uuid", filterByClient.getId());
+            Query clientQuery = builder
+                    .keyword()
+                    .onField("client.id")
+                    .matching(filterByClient.getId())
+                    .createQuery();
+            junction.must(clientQuery);
         }
+
+        // Attach a type filter.
+        if (type != null) {
+            Query typeQuery = builder.keyword()
+                    .onField("tokenType")
+                    .matching(type)
+                    .createQuery();
+            junction.must(typeQuery);
+        }
+
+        FullTextQuery query = getFullTextSession()
+                .createFullTextQuery(junction.createQuery(),
+                        OAuthToken.class);
 
         return executeQuery(query, offset, limit);
     }
@@ -153,7 +194,6 @@ public final class OAuthTokenService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @SuppressWarnings({"CPD-START"})
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,

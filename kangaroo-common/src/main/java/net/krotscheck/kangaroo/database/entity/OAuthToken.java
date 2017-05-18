@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import net.krotscheck.kangaroo.database.filters.UUIDFilter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.SortNatural;
@@ -32,9 +31,6 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.FilterCacheModeType;
-import org.hibernate.search.annotations.FullTextFilterDef;
-import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -71,20 +67,6 @@ import java.util.TreeMap;
 @Table(name = "oauth_tokens")
 @Indexed(index = "oauth_tokens")
 @Analyzer(definition = "entity_analyzer")
-@FullTextFilterDefs({
-        @FullTextFilterDef(name = "uuid_token_owner",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_token_client",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_token_user",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_token_identity",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY)
-})
 public final class OAuthToken extends AbstractEntity implements Principal {
 
     /**
@@ -94,7 +76,7 @@ public final class OAuthToken extends AbstractEntity implements Principal {
     @JoinColumn(name = "identity", updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = UserIdentity.Deserializer.class)
-    @IndexedEmbedded(includePaths = {"id", "user.id"})
+    @IndexedEmbedded(includePaths = {"id", "user.id", "remoteId", "claims"})
     private UserIdentity identity;
 
     /**
@@ -143,7 +125,6 @@ public final class OAuthToken extends AbstractEntity implements Principal {
     @Basic
     @Column(name = "redirect", nullable = true)
     @Type(type = "net.krotscheck.kangaroo.database.type.URIType")
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     private URI redirect;
 
     /**
