@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -99,8 +100,13 @@ public final class TestAuthenticator
                                              parameters) {
         Criteria searchCriteria = session.createCriteria(UserIdentity.class);
 
-        searchCriteria.add(Restrictions.eq("authenticator", authenticator));
+        searchCriteria.add(Restrictions.eq("type", authenticator.getType()));
         searchCriteria.add(Restrictions.eq("remoteId", REMOTE_ID));
+
+        searchCriteria.createAlias("user", "u");
+        searchCriteria.add(Restrictions.eq("u.application",
+                authenticator.getClient().getApplication()));
+
         searchCriteria.setFirstResult(0);
         searchCriteria.setMaxResults(1);
 
@@ -116,7 +122,7 @@ public final class TestAuthenticator
             devUser.setRole(testRole);
 
             UserIdentity identity = new UserIdentity();
-            identity.setAuthenticator(authenticator);
+            identity.setType(authenticator.getType());
             identity.setRemoteId(REMOTE_ID);
             identity.setUser(devUser);
 
@@ -154,7 +160,7 @@ public final class TestAuthenticator
         protected void configure() {
             bind(TestAuthenticator.class)
                     .to(IAuthenticator.class)
-                    .named("test")
+                    .named(AuthenticatorType.Test.name())
                     .in(RequestScoped.class);
         }
     }

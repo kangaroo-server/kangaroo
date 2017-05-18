@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Client;
@@ -445,7 +446,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractEntity>
                 .client(getClientType())
                 .redirect("http://third.example.org/redirect")
                 .referrer("http://third.example.org/referrer")
-                .authenticator("password")
+                .authenticator(AuthenticatorType.Password)
                 .user()
                 .identity()
                 .build();

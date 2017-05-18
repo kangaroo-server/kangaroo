@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.Authenticator.Deserializer;
 import net.krotscheck.kangaroo.database.util.JacksonUtil;
 import org.junit.Assert;
@@ -75,8 +76,8 @@ public final class AuthenticatorTest {
         Authenticator auth = new Authenticator();
 
         Assert.assertNull(auth.getType());
-        auth.setType("foo");
-        Assert.assertEquals("foo", auth.getType());
+        auth.setType(AuthenticatorType.Password);
+        Assert.assertEquals(AuthenticatorType.Password, auth.getType());
     }
 
     /**
@@ -105,21 +106,6 @@ public final class AuthenticatorTest {
         a.setStates(states);
         Assert.assertEquals(states, a.getStates());
         Assert.assertNotSame(states, a.getStates());
-    }
-
-    /**
-     * Test get/set identities list.
-     */
-    @Test
-    public void testGetSetIdentities() {
-        Authenticator a = new Authenticator();
-        List<UserIdentity> identities = new ArrayList<>();
-        identities.add(new UserIdentity());
-
-        Assert.assertEquals(0, a.getIdentities().size());
-        a.setIdentities(identities);
-        Assert.assertEquals(identities, a.getIdentities());
-        Assert.assertNotSame(identities, a.getIdentities());
     }
 
     /**
@@ -171,11 +157,10 @@ public final class AuthenticatorTest {
         a.setClient(client);
         a.setCreatedDate(Calendar.getInstance());
         a.setModifiedDate(Calendar.getInstance());
-        a.setType("type");
+        a.setType(AuthenticatorType.Test);
         a.setConfiguration(config);
 
         // These should not show up in deserialization
-        a.setIdentities(identities);
         a.setStates(states);
 
         // De/serialize to json.
@@ -198,7 +183,7 @@ public final class AuthenticatorTest {
                 a.getClient().getId().toString(),
                 node.get("client").asText());
         Assert.assertEquals(
-                a.getType(),
+                a.getType().toString(),
                 node.get("type").asText());
 
         // Get the configuration node.
@@ -237,7 +222,7 @@ public final class AuthenticatorTest {
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
-        node.put("type", "type");
+        node.put("type", AuthenticatorType.Test.toString());
 
         ObjectNode configNode = m.createObjectNode();
         configNode.put("one", "value");
@@ -258,7 +243,7 @@ public final class AuthenticatorTest {
                 node.get("modifiedDate").asText());
 
         Assert.assertEquals(
-                a.getType(),
+                a.getType().toString(),
                 node.get("type").asText());
 
         Map<String, String> config = a.getConfiguration();

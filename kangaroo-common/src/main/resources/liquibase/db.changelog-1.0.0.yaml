@@ -687,8 +687,8 @@ databaseChangeLog:
                 constraints:
                   nullable: false
             - column:
-                name: authenticator
-                type: BINARY(16)
+                name: type
+                type: varchar(255)
                 constraints:
                   nullable: false
             - column:
@@ -714,17 +714,9 @@ databaseChangeLog:
           indexName: idx_user_identities_remote_id
           tableName: user_identities
       - addUniqueConstraint:
-          columnNames: authenticator, user, remoteId
-          constraintName: uq_user_identities_authenticator_user_remoteId
+          columnNames: type, user, remoteId
+          constraintName: uq_user_identities_authType_user_remoteId
           tableName: user_identities
-      - addForeignKeyConstraint:
-          baseColumnNames: authenticator
-          baseTableName: user_identities
-          constraintName: fk_user_identities_authenticators
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: authenticators
       - addForeignKeyConstraint:
           baseColumnNames: user
           baseTableName: user_identities

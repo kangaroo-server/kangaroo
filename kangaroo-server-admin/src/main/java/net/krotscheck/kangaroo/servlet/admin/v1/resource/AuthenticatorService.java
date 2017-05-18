@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
-import net.krotscheck.kangaroo.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
@@ -31,12 +31,14 @@ import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.servlet.admin.v1.filter.OAuth2;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -75,6 +77,7 @@ public final class AuthenticatorService extends AbstractService {
      * @param queryString The search term for the query.
      * @param ownerId     An optional user ID to filter by.
      * @param clientId    An optional client ID to filter by.
+     * @param type        An optional authenticator type to filter by.
      * @return A list of search results.
      */
     @GET
@@ -85,28 +88,58 @@ public final class AuthenticatorService extends AbstractService {
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
             @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("client") final UUID clientId) {
+            @Optional @QueryParam("client") final UUID clientId,
+            @Optional @QueryParam("type") final AuthenticatorType type) {
 
-        FullTextQuery query = buildQuery(Authenticator.class,
-                new String[]{"type"},
-                queryString);
+        // Start a query builder...
+        QueryBuilder builder = getSearchFactory()
+                .buildQueryBuilder()
+                .forEntity(Authenticator.class)
+                .get();
+        BooleanJunction junction = builder.bool();
+
+        // Search on the client name.
+        Query fuzzy = builder.keyword()
+                .fuzzy()
+                .onFields(new String[]{"client.name"})
+                .matching(queryString)
+                .createQuery();
+        junction = junction.must(fuzzy);
 
         // Attach an ownership filter.
         User owner = resolveOwnershipFilter(ownerId);
         if (owner != null) {
-            // Boolean switch on the owner ID.
-            query.enableFullTextFilter("uuid_authenticator_owner")
-                    .setParameter("indexPath", "client.application.owner.id")
-                    .setParameter("uuid", owner.getId());
+            Query ownerQuery = builder
+                    .keyword()
+                    .onField("client.application.owner.id")
+                    .matching(owner.getId())
+                    .createQuery();
+            junction.must(ownerQuery);
         }
 
-        // Attach an application filter.
+        // Attach a client filter.
         Client filterByClient = resolveFilterEntity(Client.class, clientId);
         if (filterByClient != null) {
-            query.enableFullTextFilter("uuid_authenticator_client")
-                    .setParameter("indexPath", "client.id")
-                    .setParameter("uuid", filterByClient.getId());
+            Query userQuery = builder
+                    .keyword()
+                    .onField("client.id")
+                    .matching(filterByClient.getId())
+                    .createQuery();
+            junction.must(userQuery);
         }
+
+        // Attach a type filter.
+        if (type != null) {
+            Query typeQuery = builder.keyword()
+                    .onField("type")
+                    .matching(type)
+                    .createQuery();
+            junction.must(typeQuery);
+        }
+
+        FullTextQuery query = getFullTextSession()
+                .createFullTextQuery(junction.createQuery(),
+                        Authenticator.class);
 
         return executeQuery(query, offset, limit);
     }
@@ -227,9 +260,6 @@ public final class AuthenticatorService extends AbstractService {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
-        // Make sure the type is registered.
-        validateType(authenticator.getType());
-
         // Assert that we can create an authenticator in this application.
         if (!getSecurityContext().isUserInRole(getAdminScope())) {
             Application scopeApp = parent.getApplication();
@@ -281,8 +311,10 @@ public final class AuthenticatorService extends AbstractService {
             throw new HttpStatusException(Status.BAD_REQUEST);
         }
 
-        // Make sure we validate the type.
-        validateType(authenticator.getType());
+        // Make sure the type isn't void.
+        if (authenticator.getType() == null) {
+            throw new HttpStatusException(Status.BAD_REQUEST);
+        }
 
         // Transfer all the values we're allowed to edit.
         current.setType(authenticator.getType());
@@ -311,26 +343,6 @@ public final class AuthenticatorService extends AbstractService {
         s.delete(authenticator);
 
         return Response.noContent().build();
-    }
-
-    /**
-     * This method makes sure that the requested authenticator type is
-     * Validate the type!
-     *
-     * @param type The authenticator type to check. We assume that each
-     *             authenticator is registered with the application context,
-     *             using the IAuthenticator contract and naming itself.
-     */
-    private void validateType(final String type) {
-        if (StringUtils.isEmpty(type)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
-        }
-
-        IAuthenticator authenticator = getServiceLocator()
-                .getService(IAuthenticator.class, type);
-        if (authenticator == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
-        }
     }
 
     /**

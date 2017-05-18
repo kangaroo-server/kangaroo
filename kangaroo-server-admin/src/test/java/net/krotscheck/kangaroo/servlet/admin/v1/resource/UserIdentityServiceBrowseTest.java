@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -289,18 +290,19 @@ public final class UserIdentityServiceBrowseTest
      * Ensure that we can filter by the identity's Authenticator.
      */
     @Test
-    public void testBrowseFilterByAuthenticator() {
-        Authenticator filtered = getAdminContext().getAuthenticator();
+    public void testBrowseFilterByType() {
+        Authenticator authenticator = getAdminContext().getAuthenticator();
+        AuthenticatorType type = authenticator.getType();
 
         Map<String, String> params = new HashMap<>();
-        params.put("authenticator", filtered.getId().toString());
+        params.put("type", type.toString());
         Response r = browse(params, getAdminToken());
 
         List<UserIdentity> expectedResults =
                 getAccessibleEntities(getAdminToken())
                         .stream()
                         .filter((identity) ->
-                                identity.getAuthenticator().equals(filtered))
+                                identity.getType().equals(type))
                         .distinct()
                         .collect(Collectors.toList());
 
@@ -312,7 +314,8 @@ public final class UserIdentityServiceBrowseTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
-        } else if (isAccessible(filtered, getAdminToken())) {
+        } else {
+            Assert.assertTrue(expectedTotal > 0);
             List<UserIdentity> results = r.readEntity(getListType());
             Assert.assertEquals(expectedOffset.toString(),
                     r.getHeaderString("Offset"));
@@ -321,25 +324,6 @@ public final class UserIdentityServiceBrowseTest
             Assert.assertEquals(expectedTotal.toString(),
                     r.getHeaderString("Total"));
             Assert.assertEquals(expectedResultSize, results.size());
-        } else {
-            assertErrorResponse(r, Status.BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Ensure that we cannot filter by an invalid Authenticator.
-     */
-    @Test
-    public void testBrowseFilterByInvalidAuthenticator() {
-        Map<String, String> params = new HashMap<>();
-        params.put("authenticator", UUID.randomUUID().toString());
-        Response r = browse(params, getAdminToken());
-
-        if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
-        } else {
-            assertErrorResponse(r, Status.BAD_REQUEST);
         }
     }
 
@@ -347,9 +331,9 @@ public final class UserIdentityServiceBrowseTest
      * Ensure that we cannot filter by a malformed Authenticator.
      */
     @Test
-    public void testBrowseFilterByMalformedAuthenticator() {
+    public void testBrowseFilterByInvalidType() {
         Map<String, String> params = new HashMap<>();
-        params.put("authenticator", "malformed");
+        params.put("type", "malformed");
         Response r = browse(params, getAdminToken());
 
         assertErrorResponse(r, Status.NOT_FOUND);

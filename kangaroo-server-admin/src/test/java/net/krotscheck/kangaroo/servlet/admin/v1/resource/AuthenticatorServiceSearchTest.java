@@ -18,12 +18,14 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.database.entity.User;
+import net.krotscheck.kangaroo.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import org.junit.Assert;
 import org.junit.Test;
@@ -108,7 +110,7 @@ public final class AuthenticatorServiceSearchTest
      * @return An array of field names.
      */
     protected String[] getSearchIndexFields() {
-        return new String[]{"type"};
+        return new String[]{"client.name"};
     }
 
     /**
@@ -208,7 +210,7 @@ public final class AuthenticatorServiceSearchTest
                 .getClients()
                 .stream()
                 .flatMap(client -> client.getAuthenticators().stream())
-                .filter(auth -> auth.getType().contains(query))
+                .filter(auth -> auth.getType().equals(AuthenticatorType.Test))
                 .map(Authenticator::getClient)
                 .collect(Collectors.toList())
                 .get(0);
@@ -279,6 +281,67 @@ public final class AuthenticatorServiceSearchTest
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
         params.put("client", "malformed");
+
+        Response r = search(params, getAdminToken());
+        assertErrorResponse(r, Status.NOT_FOUND);
+    }
+
+    /**
+     * Test that we can filter a search by an identity type.
+     */
+    @Test
+    public void testSearchByType() {
+        String query = "many";
+        Authenticator authenticator = getSecondaryContext().getAuthenticator();
+        AuthenticatorType type = authenticator.getType();
+
+        OAuthToken token = getAdminToken();
+        Map<String, String> params = new HashMap<>();
+        params.put("q", query);
+        params.put("type", type.toString());
+        Response r = search(params, token);
+
+        // Determine result set.
+        List<Authenticator> searchResults = getSearchResults(query);
+        List<Authenticator> accessibleEntities = getAccessibleEntities(token);
+
+        List<Authenticator> expectedResults = searchResults
+                .stream()
+                .filter((item) -> accessibleEntities.indexOf(item) > -1)
+                .filter((item) -> item.getType().equals(type))
+                .collect(Collectors.toList());
+
+        Integer expectedTotal = expectedResults.size();
+        int expectedResultSize = Math.min(10, expectedTotal);
+        Integer expectedOffset = 0;
+        Integer expectedLimit = 10;
+
+        if (isLimitedByClientCredentials()) {
+            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
+                    "invalid_scope");
+        } else {
+            Assert.assertTrue(expectedTotal > 0);
+
+            List<Authenticator> results = r.readEntity(getListType());
+            Assert.assertEquals(expectedOffset.toString(),
+                    r.getHeaderString("Offset"));
+            Assert.assertEquals(expectedLimit.toString(),
+                    r.getHeaderString("Limit"));
+            Assert.assertEquals(expectedTotal.toString(),
+                    r.getHeaderString("Total"));
+            Assert.assertEquals(expectedResultSize, results.size());
+        }
+    }
+
+    /**
+     * Test that an malformed application throws an error.
+     */
+    // TODO(krotscheck): This should return a 400.
+    @Test
+    public void testSearchByInvalidType() {
+        Map<String, String> params = new HashMap<>();
+        params.put("q", "many");
+        params.put("type", "malformed");
 
         Response r = search(params, getAdminToken());
         assertErrorResponse(r, Status.NOT_FOUND);

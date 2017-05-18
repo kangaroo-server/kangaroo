@@ -65,7 +65,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
                 protected void loadTestData(final Session session) {
                     context = ApplicationBuilder.newApplication(session)
                             .client(ClientType.OwnerCredentials)
-                            .authenticator("password")
+                            .authenticator(AuthenticatorType.Password)
                             .user()
                             .login("login", "password")
                             .build();
@@ -188,6 +188,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
                 descriptor.getScope());
 
         // ... with the 'password' name.
-        Assert.assertEquals("password", descriptor.getName());
+        Assert.assertEquals(AuthenticatorType.Password.name(),
+                descriptor.getName());
     }
 }

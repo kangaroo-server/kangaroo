@@ -17,6 +17,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.servlet;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
@@ -83,7 +84,7 @@ public final class FirstRunContainerLifecycleListener
      *
      * @param sessionFactory The session factory.
      * @param servletConfig  The servlet's database-persisted configuration.
-     * @param migrationState        The database migration state.
+     * @param migrationState The database migration state.
      */
     @Inject
     public FirstRunContainerLifecycleListener(
@@ -118,7 +119,7 @@ public final class FirstRunContainerLifecycleListener
 
         // Create the password authenticator
         Authenticator passwordAuth = new Authenticator();
-        passwordAuth.setType("password");
+        passwordAuth.setType(AuthenticatorType.Password);
         passwordAuth.setClient(servletClient);
 
         // Create the scopes
@@ -158,7 +159,7 @@ public final class FirstRunContainerLifecycleListener
 
         // Create the admin's login identity.
         UserIdentity adminIdentity = new UserIdentity();
-        adminIdentity.setAuthenticator(passwordAuth);
+        adminIdentity.setType(AuthenticatorType.Password);
         adminIdentity.setRemoteId("admin");
         adminIdentity.setUser(adminUser);
         adminIdentity.setSalt(PasswordUtil.createSalt());

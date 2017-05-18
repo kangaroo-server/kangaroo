@@ -20,35 +20,37 @@ package net.krotscheck.kangaroo.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.deserializer.AbstractEntityReferenceDeserializer;
-import net.krotscheck.kangaroo.database.filters.UUIDFilter;
+import net.krotscheck.kangaroo.database.jackson.Views;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FilterCacheModeType;
-import org.hibernate.search.annotations.FullTextFilterDef;
-import org.hibernate.search.annotations.FullTextFilterDefs;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,14 +65,6 @@ import java.util.Map;
 @Entity
 @Table(name = "authenticators")
 @Indexed(index = "authenticators")
-@FullTextFilterDefs({
-        @FullTextFilterDef(name = "uuid_authenticator_owner",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY),
-        @FullTextFilterDef(name = "uuid_authenticator_client",
-                impl = UUIDFilter.class,
-                cache = FilterCacheModeType.INSTANCE_ONLY)
-})
 public final class Authenticator extends AbstractEntity {
 
     /**
@@ -80,20 +74,8 @@ public final class Authenticator extends AbstractEntity {
     @JoinColumn(name = "client", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonDeserialize(using = Client.Deserializer.class)
-    @IndexedEmbedded(includePaths = {"id", "application.owner.id"})
+    @IndexedEmbedded(includePaths = {"id", "application.owner.id", "name"})
     private Client client;
-
-    /**
-     * List of all identities assigned to this authenticator.
-     */
-    @OneToMany(
-            fetch = FetchType.LAZY,
-            mappedBy = "authenticator",
-            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
-            orphanRemoval = true
-    )
-    @JsonIgnore
-    private List<UserIdentity> identities = new ArrayList<>();
 
     /**
      * List of all authenticator states currently active.
@@ -111,11 +93,13 @@ public final class Authenticator extends AbstractEntity {
     /**
      * The authenticator type.
      */
-    @Basic(optional = false)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, updatable = false)
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO,
+            bridge = @FieldBridge(impl = EnumBridge.class))
     @NotNull
-    private String type;
+    @JsonView(Views.Public.class)
+    private AuthenticatorType type;
 
     /**
      * Configuration data for this authenticator, different for each one.
@@ -151,7 +135,7 @@ public final class Authenticator extends AbstractEntity {
      *
      * @return The type.
      */
-    public String getType() {
+    public AuthenticatorType getType() {
         return type;
     }
 
@@ -161,7 +145,7 @@ public final class Authenticator extends AbstractEntity {
      * @param type The new type. Must match one of the IAuthenticator injection
      *             names, else will throw scope exceptions.
      */
-    public void setType(final String type) {
+    public void setType(final AuthenticatorType type) {
         this.type = type;
     }
 
@@ -181,24 +165,6 @@ public final class Authenticator extends AbstractEntity {
      */
     public void setConfiguration(final Map<String, String> configuration) {
         this.configuration = configuration;
-    }
-
-    /**
-     * Get the identities for this user.
-     *
-     * @return A list of identities.
-     */
-    public List<UserIdentity> getIdentities() {
-        return identities;
-    }
-
-    /**
-     * Set the value for this user's identities.
-     *
-     * @param identities The new list of identities.
-     */
-    public void setIdentities(final List<UserIdentity> identities) {
-        this.identities = new ArrayList<>(identities);
     }
 
     /**

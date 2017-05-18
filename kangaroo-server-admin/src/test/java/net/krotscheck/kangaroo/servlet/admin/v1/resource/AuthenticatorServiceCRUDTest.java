@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.servlet.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Authenticator;
 import net.krotscheck.kangaroo.database.entity.Client;
@@ -189,7 +190,7 @@ public final class AuthenticatorServiceCRUDTest
             final ApplicationContext context) {
         Authenticator a = new Authenticator();
         a.setClient(context.getClient());
-        a.setType("password");
+        a.setType(AuthenticatorType.Test);
         a.getConfiguration().put("foo", "bar");
         a.getConfiguration().put("lol", "cat");
         return a;
@@ -228,21 +229,6 @@ public final class AuthenticatorServiceCRUDTest
     }
 
     /**
-     * Assert that the type MUST be one that is registered with the system.
-     *
-     * @throws Exception Exception encountered during test.
-     */
-    @Test
-    public void testPostUnregisteredType() throws Exception {
-        Authenticator testEntity = createValidEntity(getAdminContext());
-        testEntity.setType("not_a_registered_string");
-
-        // Issue the request.
-        Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
-    }
-
-    /**
      * Assert that the type must be set.
      *
      * @throws Exception Exception encountered during test.
@@ -251,21 +237,6 @@ public final class AuthenticatorServiceCRUDTest
     public void testPostNoType() throws Exception {
         Authenticator testEntity = createValidEntity(getAdminContext());
         testEntity.setType(null);
-
-        // Issue the request.
-        Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
-    }
-
-    /**
-     * Assert that an empty type errors.
-     *
-     * @throws Exception Exception encountered during test.
-     */
-    @Test
-    public void testPostEmptyType() throws Exception {
-        Authenticator testEntity = createValidEntity(getAdminContext());
-        testEntity.setType("");
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
@@ -339,9 +310,9 @@ public final class AuthenticatorServiceCRUDTest
      * @throws Exception Exception encountered during test.
      */
     @Test
-    public void testPutInvalidateType() throws Exception {
+    public void testPutNoType() throws Exception {
         Authenticator entity = getEntity(getSecondaryContext());
-        entity.setType("invalid_type");
+        entity.setType(null);
 
         // Issue the request.
         Response r = putEntity(entity, getAdminToken());
