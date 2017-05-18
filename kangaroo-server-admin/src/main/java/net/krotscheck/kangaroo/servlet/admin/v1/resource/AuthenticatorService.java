@@ -83,6 +83,7 @@ public final class AuthenticatorService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings({"CPD-START"})
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
@@ -157,7 +158,6 @@ public final class AuthenticatorService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @SuppressWarnings("CPD-START")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,

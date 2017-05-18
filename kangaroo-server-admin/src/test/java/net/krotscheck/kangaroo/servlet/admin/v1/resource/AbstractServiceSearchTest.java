@@ -279,6 +279,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
                 .keyword()
                 .fuzzy()
                 .onFields(getSearchIndexFields())
+                .ignoreFieldBridge()
                 .matching(query)
                 .createQuery();
 
@@ -540,7 +541,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractEntity>
             params.put("owner", adminToken.getIdentity()
                     .getUser().getId().toString());
 
-            // Determine result set.s
+            // Determine result set.
             List<T> searchResults = getSearchResults(query);
             List<T> ownedEntities = getOwnedEntities(adminToken);
             List<T> expectedResults = searchResults

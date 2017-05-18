@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.database.jackson.Views;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -68,6 +69,7 @@ import java.util.Map;
 @Entity
 @Indexed(index = "user_identities")
 @Table(name = "user_identities")
+@Analyzer(definition = "entity_analyzer")
 public final class UserIdentity extends AbstractEntity {
 
     /**
