@@ -322,6 +322,11 @@ public final class RoleService extends AbstractService {
             throw new HttpStatusException(Status.FORBIDDEN);
         }
 
+        // You cannot delete a role that has been set as the default
+        if (role.equals(role.getApplication().getDefaultRole())) {
+            throw new HttpStatusException(Status.BAD_REQUEST);
+        }
+
         // Let's hope they now what they're doing.
         s.delete(role);
 

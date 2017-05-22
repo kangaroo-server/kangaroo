@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import net.krotscheck.kangaroo.common.response.SortOrder;
 import net.krotscheck.kangaroo.database.entity.Application;
+import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.database.util.SortUtil;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
@@ -53,6 +54,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -258,6 +260,24 @@ public final class ApplicationService extends AbstractService {
         // Make sure we're not trying to change data we're not allowed.
         if (!currentApp.getOwner().equals(application.getOwner())) {
             throw new HttpStatusException(Status.BAD_REQUEST);
+        }
+
+        // Did the role change?
+        if (!Objects.equals(currentApp.getDefaultRole(),
+                application.getDefaultRole())) {
+
+            // Can't null it if it's already been set.
+            if (application.getDefaultRole() == null) {
+                throw new HttpStatusException(Status.BAD_REQUEST);
+            }
+
+            // Make sure the new role belongs to this application.
+            Role resolveDesired =
+                    s.get(Role.class, application.getDefaultRole().getId());
+            if (resolveDesired == null || !Objects.equals(
+                    resolveDesired.getApplication(), application)) {
+                throw new HttpStatusException(Status.BAD_REQUEST);
+            }
         }
 
         // Transfer all the values we're allowed to edit.
