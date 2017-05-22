@@ -130,6 +130,16 @@ public final class Application extends AbstractEntity {
     private User owner;
 
     /**
+     * The default role for this application.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "defaultRole", nullable = true, updatable = true)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonDeserialize(using = Role.Deserializer.class)
+    @IndexedEmbedded(includePaths = "id")
+    private Role defaultRole;
+
+    /**
      * The name of the application.
      */
     @Basic(optional = false)
@@ -245,6 +255,24 @@ public final class Application extends AbstractEntity {
      */
     public void setOwner(final User owner) {
         this.owner = owner;
+    }
+
+    /**
+     * Get the default role for this application.
+     *
+     * @return The default role.
+     */
+    public Role getDefaultRole() {
+        return defaultRole;
+    }
+
+    /**
+     * Set the default role for this application.
+     *
+     * @param defaultRole The default role.
+     */
+    public void setDefaultRole(final Role defaultRole) {
+        this.defaultRole = defaultRole;
     }
 
     /**

@@ -21,11 +21,13 @@ import net.krotscheck.kangaroo.database.entity.AbstractEntity;
 import net.krotscheck.kangaroo.database.entity.Application;
 import net.krotscheck.kangaroo.database.entity.ClientType;
 import net.krotscheck.kangaroo.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.database.entity.Role;
 import net.krotscheck.kangaroo.database.entity.User;
 import net.krotscheck.kangaroo.servlet.admin.v1.Scope;
 import net.krotscheck.kangaroo.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -233,6 +235,48 @@ public final class ApplicationServiceCRUDTest
     }
 
     /**
+     * Test creating an application with a default role from another
+     * application.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPostDefaultRoleFromOtherApp() throws Exception {
+        ApplicationContext context = getAdminContext();
+
+        Application newApp = new Application();
+        newApp.setName(RandomStringUtils.randomAlphanumeric(257));
+        newApp.setOwner(context.getUser());
+        newApp.setDefaultRole(context.getRole());
+
+        // Issue the request.
+        Response r = postEntity(newApp, getAdminToken());
+        assertErrorResponse(r, Status.BAD_REQUEST);
+    }
+
+    /**
+     * Test creating an application a default role that does not exist.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPostNonexistentDefaultRole() throws Exception {
+        ApplicationContext context = getAdminContext();
+
+        Role defaultRole = new Role();
+        defaultRole.setId(UUID.randomUUID());
+
+        Application newApp = new Application();
+        newApp.setName(RandomStringUtils.randomAlphanumeric(257));
+        newApp.setOwner(context.getUser());
+        newApp.setDefaultRole(defaultRole);
+
+        // Issue the request.
+        Response r = postEntity(newApp, getAdminToken());
+        assertErrorResponse(r, Status.BAD_REQUEST);
+    }
+
+    /**
      * Test that an app created with no owner defaults to the current user.
      *
      * @throws Exception Exception encountered during test.
@@ -340,13 +384,175 @@ public final class ApplicationServiceCRUDTest
     }
 
     /**
+     * Assert that an application with no default role can have one set.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutSetDefaultRole() throws Exception {
+        // Create a new application for the secondary user.
+        Application newApp = createValidEntity(getAdminContext());
+
+        // Create an unaffiliated new role.
+        Role newRole = new Role();
+        newRole.setApplication(newApp);
+        newRole.setName("name");
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(newApp);
+        s.save(newRole);
+        t.commit();
+
+        Assert.assertNull(newApp.getDefaultRole());
+
+        // Try to set the default role.
+        newApp.setDefaultRole(newRole);
+
+        // Issue the request.
+        Response r = putEntity(newApp, getAdminToken());
+
+        if (isAccessible(newApp, getAdminToken())) {
+            Application response = r.readEntity(Application.class);
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            Assert.assertEquals(newApp, response);
+            Assert.assertEquals(newRole.getId(),
+                    response.getDefaultRole().getId());
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+
+    }
+
+    /**
+     * Assert that an application with a default role can have it updated
+     * with another role.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutUpdateDefaultRole() throws Exception {
+        Application newApp = createValidEntity(getAdminContext());
+
+        Role originalRole = new Role();
+        originalRole.setApplication(newApp);
+        originalRole.setName("original");
+
+        Role newRole = new Role();
+        newRole.setApplication(newApp);
+        newRole.setName("new");
+
+        newApp.setDefaultRole(originalRole);
+
+        Session s = getSession();
+        Transaction t = s.beginTransaction();
+        s.save(newApp);
+        s.save(originalRole);
+        s.save(newRole);
+        t.commit();
+
+        Application testEntity = new Application();
+        testEntity.setDefaultRole(newRole);
+        testEntity.setName(newApp.getName());
+        testEntity.setId(newApp.getId());
+        testEntity.setOwner(newApp.getOwner());
+
+        // Issue the request.
+        Response r = putEntity(testEntity, getAdminToken());
+
+        if (isAccessible(testEntity, getAdminToken())) {
+            Application response = r.readEntity(Application.class);
+            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            Assert.assertEquals(testEntity, response);
+            Assert.assertEquals(newRole.getId(),
+                    response.getDefaultRole().getId());
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Assert that an application cannot have its existing default role cleared.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutEmptyDefaultRole() throws Exception {
+        Application a = getSecondaryContext().getApplication();
+        Assert.assertNotNull(a.getDefaultRole());
+
+        Application testEntity = new Application();
+        testEntity.setDefaultRole(null);
+        testEntity.setId(a.getId());
+        testEntity.setName(a.getName());
+        testEntity.setOwner(a.getOwner());
+
+        Response r = putEntity(testEntity, getAdminToken());
+
+        if (isAccessible(a, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Assert you cannot assign a nonexistent role as a default role.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutInvalidDefaultRole() throws Exception {
+        Application a = getSecondaryContext().getApplication();
+        Role role = new Role();
+        role.setId(UUID.randomUUID());
+
+        Application testEntity = new Application();
+        testEntity.setDefaultRole(role);
+        testEntity.setId(a.getId());
+        testEntity.setName(a.getName());
+        testEntity.setOwner(a.getOwner());
+
+        Response r = putEntity(testEntity, getAdminToken());
+
+        if (isAccessible(a, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Assert that you cannot assign a default role to a different application.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutOtherAppDefaultRole() throws Exception {
+        Application a = getSecondaryContext().getApplication();
+
+        Application testEntity = new Application();
+        testEntity.setDefaultRole(getAdminContext().getRole());
+        testEntity.setId(a.getId());
+        testEntity.setName(a.getName());
+        testEntity.setOwner(a.getOwner());
+
+        Response r = putEntity(testEntity, getAdminToken());
+
+        if (isAccessible(a, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
      * Assert that a regular app cannot have its owner changed.
      *
      * @throws Exception Exception encountered during test.
      */
     @Test
     public void testPutChangeOwner() throws Exception {
-
         // Create a new application for the secondary user.
         User oldOwner = getAdminContext().getOwner();
         Application newApp = createValidEntity(getAdminContext());
@@ -401,5 +607,25 @@ public final class ApplicationServiceCRUDTest
 
         Assert.assertEquals(Scope.APPLICATION_ADMIN, as.getAdminScope());
         Assert.assertEquals(Scope.APPLICATION, as.getAccessScope());
+    }
+
+    /**
+     * Assert that the admin app cannot be deleted, even if we have all the
+     * credentials in the world.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void test() throws Exception {
+        ApplicationContext context = getAdminContext();
+
+        // Issue the request.
+        Response r = deleteEntity(context.getApplication(), getAdminToken());
+
+        if (shouldSucceed()) {
+            assertErrorResponse(r, Status.FORBIDDEN);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
     }
 }

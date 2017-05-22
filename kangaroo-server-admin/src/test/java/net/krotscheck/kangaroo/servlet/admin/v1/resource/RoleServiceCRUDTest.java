@@ -357,6 +357,27 @@ public final class RoleServiceCRUDTest
     }
 
     /**
+     * Assert that we cannot delete the default role.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testDeleteDefaultRole() throws Exception {
+        Application second = getSecondaryContext().getApplication();
+        Role defaultRole = second.getDefaultRole();
+
+        Assert.assertNotNull(defaultRole);
+
+        // Issue the request.
+        Response r = deleteEntity(defaultRole, getAdminToken());
+        if (isAccessible(defaultRole, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
      * Assert that we can link a scope.
      *
      * @throws Exception Exception encountered during test.

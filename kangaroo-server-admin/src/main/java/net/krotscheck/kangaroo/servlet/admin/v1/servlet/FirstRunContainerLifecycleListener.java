@@ -148,6 +148,7 @@ public final class FirstRunContainerLifecycleListener
         memberRole.setName("member");
         memberRole.setApplication(servletApp);
         memberRole.setScopes(userScopes);
+        servletApp.setDefaultRole(memberRole);
 
         // Create the first admin
         User adminUser = new User();
