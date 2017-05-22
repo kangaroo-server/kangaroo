@@ -260,6 +260,12 @@ public final class ApplicationBuilder {
 
         persist(context.role);
 
+        // If the application doesn't have a default role, create it.
+        if (context.application.getDefaultRole() == null) {
+            context.application.setDefaultRole(context.role);
+            persist(context.application);
+        }
+
         return this;
     }
 

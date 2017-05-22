@@ -61,6 +61,19 @@ public final class ApplicationTest {
     }
 
     /**
+     * Test getting/setting the default role.
+     */
+    @Test
+    public void testGetSetDefaultRole() {
+        Application application = new Application();
+        Role role = new Role();
+
+        Assert.assertNull(application.getDefaultRole());
+        application.setDefaultRole(role);
+        Assert.assertEquals(role, application.getDefaultRole());
+    }
+
+    /**
      * Test get/set name.
      */
     @Test
@@ -145,6 +158,9 @@ public final class ApplicationTest {
         User owner = new User();
         owner.setId(UUID.randomUUID());
 
+        Role defaultRole = new Role();
+        defaultRole.setId(UUID.randomUUID());
+
         List<User> users = new ArrayList<>();
         User user = new User();
         user.setId(UUID.randomUUID());
@@ -168,6 +184,7 @@ public final class ApplicationTest {
         a.setName("name");
 
         // These four should not show up in the deserialized version.
+        a.setDefaultRole(defaultRole);
         a.setClients(clients);
         a.setRoles(roles);
         a.setUsers(users);
@@ -191,6 +208,9 @@ public final class ApplicationTest {
                 a.getOwner().getId().toString(),
                 node.get("owner").asText());
         Assert.assertEquals(
+                a.getDefaultRole().getId().toString(),
+                node.get("defaultRole").asText());
+        Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
         Assert.assertFalse(node.has("clients"));
@@ -203,7 +223,7 @@ public final class ApplicationTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(5, names.size());
+        Assert.assertEquals(6, names.size());
     }
 
     /**
