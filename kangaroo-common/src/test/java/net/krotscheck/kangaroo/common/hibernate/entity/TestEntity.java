@@ -19,11 +19,18 @@
 package net.krotscheck.kangaroo.common.hibernate.entity;
 
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 /**
  * A test hibernate persistence entity.
@@ -33,29 +40,32 @@ import javax.persistence.Table;
 @Entity
 @Indexed
 @Table(name = "test")
-public final class TestEntity {
+public final class TestEntity extends AbstractEntity {
 
     /**
-     * Identifier.
+     * The name of the entity.
      */
-    @Id
-    private Long id;
+    @Basic(optional = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Column(name = "name", nullable = false)
+    @Size(min = 3, max = 255, message = "Test entity name has constraints.")
+    private String name;
 
     /**
-     * Get the ID.
+     * Get the name for this entity.
      *
-     * @return the ID.
+     * @return The entity's name.
      */
-    public Long getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
     /**
-     * Set the ID.
+     * Set the name for this entity.
      *
-     * @param entityId The ID.
+     * @param name A new name.
      */
-    public void setId(final Long entityId) {
-        this.id = entityId;
+    public void setName(final String name) {
+        this.name = name;
     }
 }

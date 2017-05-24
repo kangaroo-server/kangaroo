@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.lifecycle;
 
-import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
+import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;

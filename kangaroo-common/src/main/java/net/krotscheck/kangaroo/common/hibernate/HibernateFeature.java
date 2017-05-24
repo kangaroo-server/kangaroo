@@ -26,6 +26,14 @@ import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.PooledDataSourceFactory;
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
+import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
+import net.krotscheck.kangaroo.common.hibernate.mapper.ConstraintViolationExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.HibernateExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.PersistenceExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.PropertyValueExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.QueryExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.SearchExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.migration.LiquibaseMigration;
 import net.krotscheck.kangaroo.common.hibernate.transaction.TransactionFilter;
 
 import javax.ws.rs.core.Feature;
@@ -55,6 +63,10 @@ public final class HibernateFeature implements Feature {
         // Search index construction
         context.register(new SearchIndexContainerLifecycleListener.Binder());
 
+        // Database maintenance
+        context.register(new CreatedUpdatedListener.Binder());
+        context.register(new LiquibaseMigration.Binder());
+
         // Hibernate configuration.
         context.register(new HibernateSessionFactory.Binder());
         context.register(new HibernateSessionFactoryFactory.Binder());
@@ -62,6 +74,14 @@ public final class HibernateFeature implements Feature {
         context.register(new FulltextSearchFactoryFactory.Binder());
         context.register(new FulltextSessionFactory.Binder());
         context.register(new PooledDataSourceFactory.Binder());
+
+        // Exception Mappers
+        context.register(new QueryExceptionMapper.Binder());
+        context.register(new HibernateExceptionMapper.Binder());
+        context.register(new ConstraintViolationExceptionMapper.Binder());
+        context.register(new PersistenceExceptionMapper.Binder());
+        context.register(new PropertyValueExceptionMapper.Binder());
+        context.register(new SearchExceptionMapper.Binder());
 
         // Permit the @Transactional annotation.
         context.register(new TransactionFilter.Binder());

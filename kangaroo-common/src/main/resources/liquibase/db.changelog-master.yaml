@@ -1,9 +1,0 @@
-databaseChangeLog:
-  - preConditions:
-    - or:
-      - dbms:
-          type: h2
-      - dbms:
-          type: mysql
-  - include:
-      file: liquibase/db.changelog-1.0.0.yaml
