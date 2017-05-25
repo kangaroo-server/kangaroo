@@ -26,7 +26,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
-import org.hibernate.dialect.MySQLDialect;
+import org.hibernate.dialect.MariaDBDialect;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -69,8 +69,8 @@ public final class HibernateServiceRegistryFactoryTest {
             case "org.h2.Driver":
                 Assert.assertTrue(d instanceof H2Dialect);
                 break;
-            case "com.mysql.jdbc.Driver":
-                Assert.assertTrue(d instanceof MySQLDialect);
+            case "org.mariadb.jdbc.Driver":
+                Assert.assertTrue(d instanceof MariaDBDialect);
                 break;
             default:
                 Assert.fail(String.format("Unrecognized driver: %s", dbDriver));
@@ -109,8 +109,8 @@ public final class HibernateServiceRegistryFactoryTest {
             case "org.h2.Driver":
                 Assert.assertTrue(d instanceof H2Dialect);
                 break;
-            case "com.mysql.jdbc.Driver":
-                Assert.assertTrue(d instanceof MySQLDialect);
+            case "org.mariadb.jdbc.Driver":
+                Assert.assertTrue(d instanceof MariaDBDialect);
                 break;
             default:
                 Assert.fail(String.format("Unrecognized driver: %s", dbDriver));

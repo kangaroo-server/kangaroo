@@ -4,13 +4,14 @@ jdk:
 dist: trusty
 sudo: required
 env:
-  - PROFILE=mysql PROJECT=kangaroo-common
-  - PROFILE=mysql PROJECT=kangaroo-server-authz
+  - PROFILE=mariadb PROJECT=kangaroo-common
+  - PROFILE=mariadb PROJECT=kangaroo-server-authz
   - PROFILE=h2 PROJECT=kangaroo-common
   - PROFILE=h2 PROJECT=kangaroo-server-authz
 services:
-  - mysql
   - docker
+addons:
+  mariadb: '10.0'
 branches:
   only:
   - master

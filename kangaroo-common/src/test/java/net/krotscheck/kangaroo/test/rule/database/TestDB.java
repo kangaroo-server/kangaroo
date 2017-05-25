@@ -20,10 +20,8 @@ package net.krotscheck.kangaroo.test.rule.database;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
-import org.hibernate.dialect.MySQL55Dialect;
-import org.hibernate.dialect.MySQL57Dialect;
-import org.hibernate.dialect.MySQL5Dialect;
-import org.hibernate.dialect.MySQLDialect;
+import org.hibernate.dialect.MariaDB53Dialect;
+import org.hibernate.dialect.MariaDBDialect;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,10 +35,9 @@ import java.util.Set;
 public enum TestDB {
 
     /**
-     * A Mysql database.
+     * A MariaDB database (Also usable for mysql).
      */
-    MYSQL(MySQLDialect.class, MySQL55Dialect.class, MySQL5Dialect.class,
-            MySQL57Dialect.class),
+    MARIADB(MariaDBDialect.class, MariaDB53Dialect.class),
 
     /**
      * An H2 database.

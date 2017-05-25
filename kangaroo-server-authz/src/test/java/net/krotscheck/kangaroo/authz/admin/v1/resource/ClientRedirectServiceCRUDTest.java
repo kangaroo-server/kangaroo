@@ -18,11 +18,12 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
+import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
@@ -207,7 +208,7 @@ public final class ClientRedirectServiceCRUDTest
      */
     @Override
     protected Client getParentEntity(final ApplicationContext context) {
-        return context.getClient();
+        return getAttached(context.getClient());
     }
 
     /**
@@ -235,8 +236,9 @@ public final class ClientRedirectServiceCRUDTest
      */
     @Override
     protected Client createParentEntity(final ApplicationContext context) {
+        Application a = getAttached(context.getApplication());
         Client c = new Client();
-        c.setApplication(context.getApplication());
+        c.setApplication(a);
         c.setName(UUID.randomUUID().toString());
         c.setType(ClientType.AuthorizationGrant);
         return c;
@@ -250,7 +252,7 @@ public final class ClientRedirectServiceCRUDTest
      */
     @Override
     protected ClientRedirect getEntity(final ApplicationContext context) {
-        return context.getRedirect();
+        return getAttached(context.getRedirect());
     }
 
     /**
@@ -261,7 +263,7 @@ public final class ClientRedirectServiceCRUDTest
     @Override
     protected ClientRedirect getNewEntity() {
         ClientRedirect newEntity = new ClientRedirect();
-        newEntity.setClient(getAdminContext().getClient());
+        newEntity.setClient(getAttached(getAdminContext().getClient()));
         return newEntity;
     }
 
