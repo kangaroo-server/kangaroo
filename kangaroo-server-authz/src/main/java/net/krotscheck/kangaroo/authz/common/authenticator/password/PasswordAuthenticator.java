@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Krotscheck
+ * Copyright (c) 2016 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -16,8 +16,10 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator;
+package net.krotscheck.kangaroo.authz.common.authenticator.password;
 
+import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
+import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;

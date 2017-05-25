@@ -16,15 +16,17 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator;
+package net.krotscheck.kangaroo.authz.common.authenticator.password;
 
-import net.krotscheck.kangaroo.authz.common.authenticator.PasswordAuthenticator.Binder;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
+import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
+import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator.Binder;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.hk2.api.ActiveDescriptor;

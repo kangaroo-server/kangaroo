@@ -13,26 +13,10 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-
-package net.krotscheck.kangaroo.authz.oauth2;
-
-import net.krotscheck.kangaroo.authz.test.TestAuthenticator;
 
 /**
- * This application adds the TestAuthenticator to a normal OAuth App.
- *
- * @author Michael Krotscheck
+ * The password authentication provider.
  */
-public class OAuthTestApp extends OAuthAPI {
-
-    /**
-     * Constructor. Creates a new application instance.
-     */
-    public OAuthTestApp() {
-        super(); // Initialize all the parent things.
-
-        // Add the test authenticator
-        register(new TestAuthenticator.Binder());
-    }
-}
+package net.krotscheck.kangaroo.authz.common.authenticator.password;

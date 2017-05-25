@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Krotscheck
+ * Copyright (c) 2016 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -16,11 +16,10 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.test;
+package net.krotscheck.kangaroo.authz.common.authenticator.test;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
-import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
@@ -36,10 +35,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
-import java.util.List;
 
 /**
- * The dev authenticator provides a simple authenticator implementation which
+ * The test authenticator provides a simple authenticator implementation which
  * may be used when building a new application and debugging the
  * authentication flow. It only ever creates a single user, "Pat Developer",
  * and always presumes a successful third-party authentication.
@@ -110,45 +108,27 @@ public final class TestAuthenticator
         searchCriteria.setFirstResult(0);
         searchCriteria.setMaxResults(1);
 
-        List<UserIdentity> results = searchCriteria.list();
+        UserIdentity identity = (UserIdentity) searchCriteria.uniqueResult();
 
         // Do we need to create a new user?
-        if (results.size() == 0) {
-            Role testRole = getTestAuthenticatorRole(
-                    authenticator.getClient().getApplication());
+        if (identity == null) {
+            Role testRole = authenticator.getClient().getApplication()
+                    .getDefaultRole();
 
             User devUser = new User();
             devUser.setApplication(authenticator.getClient().getApplication());
             devUser.setRole(testRole);
 
-            UserIdentity identity = new UserIdentity();
+            identity = new UserIdentity();
             identity.setType(authenticator.getType());
             identity.setRemoteId(REMOTE_ID);
             identity.setUser(devUser);
 
             session.save(devUser);
             session.save(identity);
-
-            return identity;
         }
 
-        return results.get(0);
-    }
-
-    /**
-     * Get the "test" role from the passed application, assuming it exists.
-     * If it does not exist, it will not be created.
-     *
-     * @param application The passed application.
-     * @return A role, or null.
-     */
-    private Role getTestAuthenticatorRole(final Application application) {
-        for (Role r : application.getRoles()) {
-            if (r.getName().equals("test")) {
-                return r;
-            }
-        }
-        return null;
+        return identity;
     }
 
     /**
