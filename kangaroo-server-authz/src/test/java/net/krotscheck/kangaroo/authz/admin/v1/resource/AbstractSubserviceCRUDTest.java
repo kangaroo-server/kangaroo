@@ -52,11 +52,6 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
     private final Class<K> parentClass;
 
     /**
-     * Test container factory.
-     */
-    private SingletonTestContainerFactory testContainerFactory;
-
-    /**
      * Create a new instance of this parameterized test.
      *
      * @param parentClass   The raw parent type, used for type-based parsing.
@@ -74,28 +69,6 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
                                       final Boolean shouldSucceed) {
         super(childClass, clientType, tokenScope, createUser, shouldSucceed);
         this.parentClass = parentClass;
-    }
-
-    /**
-     * This method overrides the underlying default test container provider,
-     * with one that provides a singleton instance. This allows us to
-     * circumvent the often expensive initialization routines that come from
-     * bootstrapping our services.
-     *
-     * @return an instance of {@link TestContainerFactory} class.
-     * @throws TestContainerException if the initialization of
-     *                                {@link TestContainerFactory} instance
-     *                                is not successful.
-     */
-    protected TestContainerFactory getTestContainerFactory()
-            throws TestContainerException {
-        if (this.testContainerFactory == null) {
-            this.testContainerFactory =
-                    new SingletonTestContainerFactory(
-                            super.getTestContainerFactory(),
-                            this.getClass());
-        }
-        return testContainerFactory;
     }
 
     /**
