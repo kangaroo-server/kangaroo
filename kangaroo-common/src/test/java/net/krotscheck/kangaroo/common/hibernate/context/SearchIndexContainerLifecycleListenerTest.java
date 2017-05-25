@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.context;
 
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
-import net.krotscheck.kangaroo.database.migration.DatabaseMigrationState;
+import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import org.glassfish.jersey.server.spi.Container;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -39,7 +39,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
 
 /**
  * Unit test for our lucene indexer.

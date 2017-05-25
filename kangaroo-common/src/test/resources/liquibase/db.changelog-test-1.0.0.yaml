@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: test_1
+      author: krotscheck
+      changes:
+
+      # The Test entity table
+      - createTable:
+          tableName: test
+          columns:
+            - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_applications_id
+            - column:
+                name: createdDate
+                type: bigint
+            - column:
+                name: modifiedDate
+                type: bigint
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                  nullable: false
+
+      rollback:
+        - dropTable:
+            tableName: test

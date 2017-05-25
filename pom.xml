@@ -14,8 +14,7 @@
 
   <modules>
     <module>kangaroo-common</module>
-    <module>kangaroo-server-oauth2</module>
-    <module>kangaroo-server-admin</module>
+    <module>kangaroo-server-authz</module>
   </modules>
 
   <profiles>

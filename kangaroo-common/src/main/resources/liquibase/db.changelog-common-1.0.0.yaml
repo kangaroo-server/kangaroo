@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: common_1
+      author: krotscheck
+      changes:
+
+      # The Configuration table.
+      - createTable:
+          tableName: configuration
+          columns:
+            - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_configuration_id
+            - column:
+                name: createdDate
+                type: bigint
+            - column:
+                name: modifiedDate
+                type: bigint
+            - column:
+                name: section
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: configKey
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: configValue
+                type: varchar(255)
+                constraints:
+                  nullable: false
+      - createIndex:
+          columns:
+          - column:
+              name: section
+              type: varchar(255)
+          indexName: idx_configuration_section
+          tableName: configuration
+      - createIndex:
+          columns:
+          - column:
+              name: configKey
+              type: varchar(255)
+          indexName: idx_configuration_configKey
+          tableName: configuration
+      - addUniqueConstraint:
+          columnNames: section, configKey
+          constraintName: uq_configuration_section_configKey
+          tableName: configuration
+
+      rollback:
+        - dropTable:
+            tableName: configuration
