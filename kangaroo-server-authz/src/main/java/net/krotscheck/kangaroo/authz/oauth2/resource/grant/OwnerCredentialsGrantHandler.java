@@ -19,7 +19,7 @@ package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
-import net.krotscheck.kangaroo.authz.common.authenticator.PasswordAuthenticator;
+import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;

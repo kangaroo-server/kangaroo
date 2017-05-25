@@ -18,12 +18,11 @@
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthTestApp;
+import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
@@ -92,7 +91,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Override
     protected ResourceConfig createApplication() {
-        return new OAuthTestApp();
+        return new OAuthAPI();
     }
 
     /**
