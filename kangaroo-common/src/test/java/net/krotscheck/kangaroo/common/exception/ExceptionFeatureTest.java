@@ -21,14 +21,14 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
-import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -70,7 +70,7 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         Assert.assertEquals(404, r.getStatus());
         Assert.assertEquals("not_found", response.getError());
-        Assert.assertEquals("Not Found", response.getErrorDescription());
+        Assert.assertEquals("HTTP 404 Not Found", response.getErrorDescription());
     }
 
     /**
@@ -84,7 +84,7 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         Assert.assertEquals(500, r.getStatus());
         Assert.assertEquals("internal_server_error", response.getError());
-        Assert.assertEquals("Internal Server Error",
+        Assert.assertEquals("HTTP 500 Internal Server Error",
                 response.getErrorDescription());
     }
 
@@ -133,7 +133,7 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
         @Path("/http")
         @Produces(MediaType.APPLICATION_JSON)
         public Response http() {
-            throw new HttpNotFoundException();
+            throw new NotFoundException();
         }
 
         /**

@@ -18,11 +18,11 @@
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -162,8 +162,7 @@ public final class Section420ImplicitGrantTest
 
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location
-                        .getFragment());
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("access_token"));
         assertEquals("Bearer", params.getFirst("token_type"));
         assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
@@ -194,7 +193,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getFragment());
+                HttpUtil.parseQueryParams(location.getQuery());
         assertTrue(params.containsKey("error"));
         assertEquals("unsupported_response_type", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -277,7 +276,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getFragment());
+                HttpUtil.parseQueryParams(location.getQuery());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_request", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -306,7 +305,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getFragment());
+                HttpUtil.parseQueryParams(location.getQuery());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -574,7 +573,7 @@ public final class Section420ImplicitGrantTest
 
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(secondLocation.getFragment());
+                HttpUtil.parseQueryParams(secondLocation.getQuery());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -617,7 +616,7 @@ public final class Section420ImplicitGrantTest
 
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(secondLocation.getFragment());
+                HttpUtil.parseQueryParams(secondLocation.getQuery());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));

@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.common.hibernate.migration;
 import com.mchange.v2.c3p0.PooledDataSource;
 import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.database.ITestDatabase;
 import org.junit.Assert;
@@ -32,6 +31,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.ws.rs.BadRequestException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -236,13 +236,13 @@ public final class LiquibaseMigrationTest {
             Mockito.doReturn(testConnection).when(ps).getConnection();
 
             Mockito.when(DatabaseFactory.getInstance())
-                    .thenThrow(InvalidClientException.class);
+                    .thenThrow(BadRequestException.class);
 
             try {
                 LiquibaseMigration listener = new LiquibaseMigration(ps);
                 listener.provide();
                 Assert.fail();
-            } catch (InvalidClientException e) {
+            } catch (BadRequestException e) {
                 Assert.assertNotNull(e);
             }
 

@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -46,6 +45,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -58,7 +58,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -295,7 +294,7 @@ public final class OAuthTokenService extends AbstractService {
 
         // Validate that we have no ID.
         if (validToken.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we can create a token in this application.
@@ -304,7 +303,7 @@ public final class OAuthTokenService extends AbstractService {
             Application scopeApp = parent.getApplication();
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
@@ -345,22 +344,22 @@ public final class OAuthTokenService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(token)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Make sure that we're not trying to change something we're not
         // permitted to change.
         if (!ObjectUtils.equals(current.getIdentity(), token.getIdentity())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (!ObjectUtils.equals(current.getClient(), token.getClient())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (!current.getTokenType().equals(token.getTokenType())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (!ObjectUtils.equals(current.getAuthToken(), token.getAuthToken())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Run all our other validations...
@@ -407,17 +406,17 @@ public final class OAuthTokenService extends AbstractService {
     private OAuthToken validateInputData(final OAuthToken input) {
         // Validate that we have a body.
         if (input == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Validate that the token type is set.
         if (input.getTokenType() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Validate that expiresIn is set and larger than zero.
         if (input.getExpiresIn() == null || input.getExpiresIn() < 1) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Validate that we have a valid client.
@@ -429,25 +428,25 @@ public final class OAuthTokenService extends AbstractService {
         // tokenType.
         if (clientType.equals(ClientType.OwnerCredentials)) {
             if (input.getTokenType().equals(OAuthTokenType.Authorization)) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         } else if (clientType.in(ClientType.ClientCredentials,
                 ClientType.Implicit)
                 && !input.getTokenType().equals(OAuthTokenType.Bearer)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we have a valid identity.
         if (clientType.equals(ClientType.ClientCredentials)) {
             if (input.getIdentity() != null) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         } else {
             UserIdentity identity = requireEntityInput(UserIdentity.class,
                     input.getIdentity());
             if (!identity.getUser().getApplication()
                     .equals(client.getApplication())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
             input.setIdentity(identity);
         }
@@ -456,7 +455,7 @@ public final class OAuthTokenService extends AbstractService {
         // to an auth token. Otherwise it must not be.
         if (!input.getTokenType().equals(OAuthTokenType.Refresh)) {
             if (input.getAuthToken() != null) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         } else {
             // Make sure we have a valid auth token.
@@ -465,12 +464,12 @@ public final class OAuthTokenService extends AbstractService {
 
             // Make sure it's the correct type.
             if (!authToken.getTokenType().equals(OAuthTokenType.Bearer)) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
 
             // Make sure it's for the correct user.
             if (!authToken.getIdentity().equals(input.getIdentity())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
 
             // It's valid, put it back.
@@ -480,13 +479,13 @@ public final class OAuthTokenService extends AbstractService {
         // Only authorization tokens use redirects.
         if (!input.getTokenType().equals(OAuthTokenType.Authorization)) {
             if (input.getRedirect() != null) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         } else {
             URI redirect = ValidationUtil.validateRedirect(input.getRedirect(),
                     client.getRedirects());
             if (redirect == null) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 

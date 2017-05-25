@@ -26,9 +26,9 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnsupportedResponseTypeException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -77,7 +77,7 @@ public final class ValidationUtil {
                 return;
             }
         }
-        throw new UnsupportedResponseType();
+        throw new UnsupportedResponseTypeException();
     }
 
     /**

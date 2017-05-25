@@ -19,10 +19,6 @@ package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
@@ -31,9 +27,13 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
+import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
+import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -174,15 +174,12 @@ public final class AuthorizationService {
 
             // Run the authenticator.
             return authImpl.delegate(auth, callback);
-        } catch (HttpStatusException e) {
+        } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
             ErrorResponseBuilder builder = ErrorResponseBuilder
-                    .from(e.getHttpStatus(),
-                            e.getMessage(),
-                            e.getErrorCode(),
-                            redirect);
-            return builder.build(ClientType.Implicit.equals(client.getType()));
+                    .from(e, redirect);
+            return builder.build();
         }
     }
 
@@ -211,8 +208,8 @@ public final class AuthorizationService {
             UserIdentity i = a.authenticate(s.getAuthenticator(),
                     uriInfo.getPathParameters());
 
-            // Since this code won't execute without a valid state, we should be
-            // safe to do a simple if/else here. Except we're paranoid.
+            // Since this code won't execute without a valid state, we should
+            // be safe to do a simple if/else here. Except we're paranoid.
             if (c.getType() == ClientType.AuthorizationGrant) {
                 return handleGrantResponse(s, i);
             } else if (c.getType() == ClientType.Implicit) {
@@ -220,16 +217,12 @@ public final class AuthorizationService {
             } else {
                 throw new InvalidRequestException();
             }
-        } catch (HttpStatusException e) {
+        } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
             ErrorResponseBuilder builder = ErrorResponseBuilder
-                    .from(e.getHttpStatus(),
-                            e.getMessage(),
-                            e.getErrorCode(),
-                            s.getClientRedirect());
-            return builder.build(ClientType.Implicit
-                    .equals(c.getType()));
+                    .from(e, s.getClientRedirect());
+            return builder.build();
         }
     }
 

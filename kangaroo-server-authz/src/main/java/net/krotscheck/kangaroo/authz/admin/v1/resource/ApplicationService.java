@@ -24,8 +24,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
-import net.krotscheck.kangaroo.common.exception.exception.HttpForbiddenException;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -41,9 +39,11 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -53,7 +53,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
@@ -198,20 +197,20 @@ public final class ApplicationService extends AbstractService {
     public Response createResource(final Application application) {
         // Validate that the ID is empty.
         if (application == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (application.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Only admins can change the owner.
         if (application.getOwner() != null) {
             if (!getSecurityContext().isUserInRole(getAdminScope())
                     && !application.getOwner().equals(getCurrentUser())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         } else if (getCurrentUser() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         } else {
             application.setOwner(getCurrentUser());
         }
@@ -250,17 +249,17 @@ public final class ApplicationService extends AbstractService {
 
         // Additional special case - we cannot modify the kangaroo app itself.
         if (currentApp.equals(getAdminApplication())) {
-            throw new HttpForbiddenException();
+            throw new ForbiddenException();
         }
 
         // Make sure the body ID's match
         if (!currentApp.equals(application)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentApp.getOwner().equals(application.getOwner())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Did the role change?
@@ -269,7 +268,7 @@ public final class ApplicationService extends AbstractService {
 
             // Can't null it if it's already been set.
             if (application.getDefaultRole() == null) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
 
             // Make sure the new role belongs to this application.
@@ -277,7 +276,7 @@ public final class ApplicationService extends AbstractService {
                     s.get(Role.class, application.getDefaultRole().getId());
             if (resolveDesired == null || !Objects.equals(
                     resolveDesired.getApplication(), application)) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
@@ -305,7 +304,7 @@ public final class ApplicationService extends AbstractService {
 
         // Additional special case - we cannot delete the kangaroo app itself.
         if (a.equals(getAdminApplication())) {
-            throw new HttpForbiddenException();
+            throw new ForbiddenException();
         }
 
         // Let's hope they now what they're doing.

@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.common.exception;
 import net.krotscheck.kangaroo.common.exception.mapper.JerseyExceptionMapper;
 import net.krotscheck.kangaroo.common.exception.mapper.JsonParseExceptionMapper;
 import net.krotscheck.kangaroo.common.exception.mapper.UnhandledExceptionMapper;
-import net.krotscheck.kangaroo.common.exception.mapper.HttpStatusExceptionMapper.Binder;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
@@ -42,7 +41,6 @@ public final class ExceptionFeature implements Feature {
     public boolean configure(final FeatureContext context) {
 
         // Exception mappers.
-        context.register(new Binder());
         context.register(new JerseyExceptionMapper.Binder());
         context.register(new JsonParseExceptionMapper.Binder());
         context.register(new UnhandledExceptionMapper.Binder());

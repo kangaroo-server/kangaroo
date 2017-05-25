@@ -18,17 +18,16 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import net.krotscheck.kangaroo.common.response.ApiParam;
-import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
-import net.krotscheck.kangaroo.common.response.SortOrder;
+import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
-import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.common.response.ApiParam;
+import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
+import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -40,9 +39,11 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -52,7 +53,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -228,13 +228,13 @@ public final class RoleService extends AbstractService {
 
         // Input value checks.
         if (role == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (role.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (role.getApplication() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we can create a scope in this application.
@@ -244,7 +244,7 @@ public final class RoleService extends AbstractService {
                             role.getApplication().getId());
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
@@ -282,17 +282,17 @@ public final class RoleService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(role)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // You cannot modify a role from the admin application.
         if (current.getApplication().equals(getAdminApplication())) {
-            throw new HttpStatusException(Status.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getApplication().equals(role.getApplication())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Transfer all the values we're allowed to edit.
@@ -319,12 +319,12 @@ public final class RoleService extends AbstractService {
 
         // You cannot delete a role from the admin application.
         if (role.getApplication().equals(getAdminApplication())) {
-            throw new HttpStatusException(Status.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         // You cannot delete a role that has been set as the default
         if (role.equals(role.getApplication().getDefaultRole())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Let's hope they now what they're doing.

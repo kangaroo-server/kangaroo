@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.exception.KangarooExceptionTest.TestError;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -33,8 +33,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -121,60 +119,22 @@ public final class ErrorResponseBuilderTest {
     }
 
     /**
-     * Test building from an HttpStatusException.
+     * Test building from a WebApplicationException.
      */
     @Test
-    public void testFromHttpStatusException() {
-        HttpStatusException e =
-                new HttpStatusException(Status.NOT_FOUND, "foo");
+    public void testFromKangarooException() {
+        KangarooException e = new TestError();
 
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
-        Assert.assertEquals("foo", er.getErrorDescription());
+        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        Assert.assertEquals("Test Error",
+                er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
-        Assert.assertEquals("not_found", er.getError());
-    }
-
-    /**
-     * Test building with a redirect.
-     */
-    @Test
-    public void testRedirectException() {
-        URI uri = UriBuilder.fromPath("http://example.com").build();
-        HttpStatusException e =
-                new HttpStatusException(Status.NOT_FOUND, "foo", uri);
-
-        Response r = ErrorResponseBuilder.from(e).build();
-
-        URI location = r.getLocation();
-        Assert.assertEquals(Status.FOUND.getStatusCode(),
-                r.getStatus());
-        Assert.assertEquals("http://example.com/"
-                + "?error=not_found"
-                + "&error_description=foo", location.toString());
-    }
-
-    /**
-     * Test building with a redirect that requests fragment encoding.
-     */
-    @Test
-    public void testRedirectFragmentException() {
-        URI uri = UriBuilder.fromPath("http://example.com").build();
-        HttpStatusException e =
-                new HttpStatusException(Status.NOT_FOUND, "foo", uri);
-
-        Response r = ErrorResponseBuilder.from(e).build(true);
-
-        URI location = r.getLocation();
-        Assert.assertEquals(Status.FOUND.getStatusCode(),
-                r.getStatus());
-        Assert.assertEquals("http://example.com/"
-                + "#error=not_found"
-                + "&error_description=foo", location.toString());
+        Assert.assertEquals("test_error", er.getError());
     }
 
     /**
@@ -190,7 +150,8 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
+        Assert.assertEquals("HTTP 500 Internal Server Error",
+                er.getErrorDescription());
         Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
     }

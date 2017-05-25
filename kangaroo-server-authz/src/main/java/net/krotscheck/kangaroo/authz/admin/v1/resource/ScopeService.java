@@ -18,19 +18,17 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpForbiddenException;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import net.krotscheck.kangaroo.common.response.ApiParam;
-import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
-import net.krotscheck.kangaroo.common.response.SortOrder;
+import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
-import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.common.response.ApiParam;
+import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
+import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -42,9 +40,11 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -54,7 +54,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -246,13 +245,13 @@ public final class ScopeService extends AbstractService {
 
         // Input value checks.
         if (scope == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (scope.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (scope.getApplication() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we can create a scope in this application.
@@ -262,7 +261,7 @@ public final class ScopeService extends AbstractService {
                             scope.getApplication().getId());
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
@@ -303,17 +302,17 @@ public final class ScopeService extends AbstractService {
 
         // Additional special case - we cannot modify the kangaroo app's scopes.
         if (currentScope.getApplication().equals(getAdminApplication())) {
-            throw new HttpForbiddenException();
+            throw new ForbiddenException();
         }
 
         // Make sure the body ID's match
         if (!currentScope.equals(scope)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentScope.getApplication().equals(scope.getApplication())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Transfer all the values we're allowed to edit.
@@ -340,7 +339,7 @@ public final class ScopeService extends AbstractService {
 
         // Additional special case - we cannot delete the kangaroo app itself.
         if (a.getApplication().equals(getAdminApplication())) {
-            throw new HttpForbiddenException();
+            throw new ForbiddenException();
         }
 
         // Let's hope they now what they're doing.

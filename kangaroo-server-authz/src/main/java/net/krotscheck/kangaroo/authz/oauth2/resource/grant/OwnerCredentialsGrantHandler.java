@@ -28,16 +28,17 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.SortedMap;
 
@@ -102,7 +103,8 @@ public final class OwnerCredentialsGrantHandler implements IGrantTypeHandler {
         // Try to resolve a user identity.
         identity = authenticator.authenticate(authConfig, formData);
         if (identity == null) {
-            throw new HttpStatusException(Status.UNAUTHORIZED);
+            throw new NotAuthorizedException(Response.status(Status
+                    .UNAUTHORIZED).build());
         }
 
         // Make sure all requested scopes are permitted for this user.

@@ -17,14 +17,14 @@
 
 package net.krotscheck.kangaroo.util;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpInvalidFieldException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 
 /**
  * Unit tests for our ParamUtil.
@@ -63,7 +63,7 @@ public final class ParamUtilTest {
     /**
      * Assert that testOne throws an exception if no value exists to retrieve.
      */
-    @Test(expected = HttpInvalidFieldException.class)
+    @Test(expected = BadRequestException.class)
     public void testGetOneNoValue() {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         ParamUtil.getOne(params, "does_not_exist");
@@ -72,7 +72,7 @@ public final class ParamUtilTest {
     /**
      * Assert that testOne throws an exception if more than one value exists.
      */
-    @Test(expected = HttpInvalidFieldException.class)
+    @Test(expected = BadRequestException.class)
     public void testGetOneMultiResult() {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("foo", "one");

@@ -18,19 +18,18 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import net.krotscheck.kangaroo.common.response.ApiParam;
-import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
-import net.krotscheck.kangaroo.common.response.SortOrder;
+import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
-import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.common.response.ApiParam;
+import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
+import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -42,6 +41,8 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -238,13 +239,13 @@ public final class ClientService extends AbstractService {
 
         // Input value checks.
         if (client == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (client.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (client.getApplication() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we can create a scope in this application.
@@ -254,7 +255,7 @@ public final class ClientService extends AbstractService {
                             client.getApplication().getId());
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
@@ -292,20 +293,20 @@ public final class ClientService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(client)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Additional special case: We cannot modify the client we're
         // currently using to access this api.
         OAuthToken token = (OAuthToken) getSecurityContext().getUserPrincipal();
         if (token.getClient().equals(client)) {
-            throw new HttpStatusException(Status.CONFLICT);
+            throw new ClientErrorException(Status.CONFLICT);
         }
 
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getApplication().equals(client.getApplication())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Transfer all the values we're allowed to edit.
@@ -336,7 +337,7 @@ public final class ClientService extends AbstractService {
         // currently using to access this api.
         OAuthToken token = (OAuthToken) getSecurityContext().getUserPrincipal();
         if (token.getClient().equals(client)) {
-            throw new HttpStatusException(Status.CONFLICT);
+            throw new ClientErrorException(Status.CONFLICT);
         }
 
         // Let's hope they now what they're doing.

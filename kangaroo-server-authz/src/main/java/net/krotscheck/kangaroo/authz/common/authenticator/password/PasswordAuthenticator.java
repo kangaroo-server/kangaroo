@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.util.ParamUtil;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
