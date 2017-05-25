@@ -66,6 +66,11 @@
   </profiles>
 
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <directory>${basedir}/src/test/resources</directory>
@@ -75,6 +80,18 @@
       </testResource>
     </testResources>
     <plugins>
+
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- Do not include the testing changelog files. -->
+            <exclude>liquibase/**</exclude>
+            <exclude>hibernate.cfg.xml</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>

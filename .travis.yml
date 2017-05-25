@@ -5,11 +5,9 @@ dist: trusty
 sudo: required
 env:
   - PROFILE=mysql PROJECT=kangaroo-common
-  - PROFILE=mysql PROJECT=kangaroo-server-admin
-  - PROFILE=mysql PROJECT=kangaroo-server-oauth2
+  - PROFILE=mysql PROJECT=kangaroo-server-authz
   - PROFILE=h2 PROJECT=kangaroo-common
-  - PROFILE=h2 PROJECT=kangaroo-server-admin
-  - PROFILE=h2 PROJECT=kangaroo-server-oauth2
+  - PROFILE=h2 PROJECT=kangaroo-server-authz
 services:
   - mysql
   - docker

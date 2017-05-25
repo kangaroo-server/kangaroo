@@ -18,10 +18,9 @@
 
 package net.krotscheck.kangaroo.common.hibernate;
 
-import net.krotscheck.kangaroo.database.DatabaseFeature;
+import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.server.ResourceConfig;
-import net.krotscheck.kangaroo.test.KangarooJerseyTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
@@ -70,7 +69,6 @@ public final class HibernateFeatureTest extends KangarooJerseyTest {
     @Override
     protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
-        config.register(DatabaseFeature.class);
         config.register(HibernateFeature.class);
         config.register(TestService.class);
 
