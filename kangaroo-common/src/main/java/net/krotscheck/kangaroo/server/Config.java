@@ -44,6 +44,30 @@ public final class Config {
             SimpleImmutableEntry<>("kangaroo.port", 8080);
 
     /**
+     * Configuration property for an externally provided keystore.
+     */
+    public static final Entry<String, String> KEYSTORE_PATH = new
+            SimpleImmutableEntry<>("kangaroo.keystore_path", null);
+
+    /**
+     * Configuration property for the password required by the keystore.
+     */
+    public static final Entry<String, String> KEYSTORE_PASS = new
+            SimpleImmutableEntry<>("kangaroo.keystore_password", null);
+
+    /**
+     * The alias of the cert to use from the keystore.
+     */
+    public static final Entry<String, String> CERT_ALIAS = new
+            SimpleImmutableEntry<>("kangaroo.cert_alias", null);
+
+    /**
+     * The password for cert's private key.
+     */
+    public static final Entry<String, String> CERT_KEY_PASS = new
+            SimpleImmutableEntry<>("kangaroo.cert_key_password", null);
+
+    /**
      * Private constructor for a utility class.
      */
     private Config() {

@@ -78,6 +78,34 @@ public final class ConfigurationBuilder {
                 .desc("The port on which this port should listen.")
                 .build();
 
+        Option keystorePath = Option.builder()
+                .longOpt(Config.KEYSTORE_PATH.getKey())
+                .argName(Config.KEYSTORE_PATH.getKey())
+                .hasArg()
+                .desc("Path to an externally provided keystore.")
+                .build();
+
+        Option keystorePass = Option.builder()
+                .longOpt(Config.KEYSTORE_PASS.getKey())
+                .argName(Config.KEYSTORE_PASS.getKey())
+                .hasArg()
+                .desc("Password for the externally provided keystore.")
+                .build();
+
+        Option certAlias = Option.builder()
+                .longOpt(Config.CERT_ALIAS.getKey())
+                .argName(Config.CERT_ALIAS.getKey())
+                .hasArg()
+                .desc("Alias of the HTTPS certificate to use.")
+                .build();
+
+        Option certKeyPass = Option.builder()
+                .longOpt(Config.CERT_KEY_PASS.getKey())
+                .argName(Config.CERT_KEY_PASS.getKey())
+                .hasArg()
+                .desc("Password of the private key for the certificate.")
+                .build();
+
         CLI_OPTIONS.addOption(bindHost);
         CLI_OPTIONS.addOption(bindPort);
     }
