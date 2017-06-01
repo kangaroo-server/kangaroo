@@ -92,6 +92,13 @@ public final class ConfigurationBuilder {
                 .desc("Password for the externally provided keystore.")
                 .build();
 
+        Option keystoreType = Option.builder()
+                .longOpt(Config.KEYSTORE_TYPE.getKey())
+                .argName(Config.KEYSTORE_TYPE.getKey())
+                .hasArg()
+                .desc("JVM KeyStore type to expect. Default PKCS12.")
+                .build();
+
         Option certAlias = Option.builder()
                 .longOpt(Config.CERT_ALIAS.getKey())
                 .argName(Config.CERT_ALIAS.getKey())
@@ -108,6 +115,11 @@ public final class ConfigurationBuilder {
 
         CLI_OPTIONS.addOption(bindHost);
         CLI_OPTIONS.addOption(bindPort);
+        CLI_OPTIONS.addOption(keystorePath);
+        CLI_OPTIONS.addOption(keystorePass);
+        CLI_OPTIONS.addOption(keystoreType);
+        CLI_OPTIONS.addOption(certAlias);
+        CLI_OPTIONS.addOption(certKeyPass);
     }
 
     /**

@@ -56,5 +56,25 @@ public class ConfigTest {
 
         Assert.assertEquals("kangaroo.port", Config.PORT.getKey());
         Assert.assertEquals((Integer) 8080, Config.PORT.getValue());
+
+        Assert.assertEquals("kangaroo.keystore_path",
+                Config.KEYSTORE_PATH.getKey());
+        Assert.assertNull(Config.KEYSTORE_PATH.getValue());
+
+        Assert.assertEquals("kangaroo.keystore_password",
+                Config.KEYSTORE_PASS.getKey());
+        Assert.assertEquals("kangaroo", Config.KEYSTORE_PASS.getValue());
+
+        Assert.assertEquals("kangaroo.keystore_type",
+                Config.KEYSTORE_TYPE.getKey());
+        Assert.assertEquals("PKCS12", Config.KEYSTORE_TYPE.getValue());
+
+        Assert.assertEquals("kangaroo.cert_alias",
+                Config.CERT_ALIAS.getKey());
+        Assert.assertEquals("kangaroo", Config.CERT_ALIAS.getValue());
+
+        Assert.assertEquals("kangaroo.cert_key_password",
+                Config.CERT_KEY_PASS.getKey());
+        Assert.assertEquals("kangaroo", Config.CERT_KEY_PASS.getValue());
     }
 }
