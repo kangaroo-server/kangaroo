@@ -18,15 +18,23 @@
 
 package net.krotscheck.kangaroo.server;
 
+import net.krotscheck.kangaroo.server.keystore.FSKeystoreProvider;
+import net.krotscheck.kangaroo.server.keystore.GeneratedKeystoreProvider;
+import net.krotscheck.kangaroo.server.keystore.IKeystoreProvider;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.WebappContext;
+import org.glassfish.grizzly.ssl.SSLContextConfigurator;
+import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpContainer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.servlet.ServletRegistration;
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -100,8 +108,7 @@ public final class ServerFactory {
      */
     public HttpServer build() {
         Configuration config = configBuilder.build();
-        URI serverUri = getServerUri(config);
-        HttpServer server = createServer(serverUri);
+        HttpServer server = createServer(config);
 
         for (Entry<String, ResourceConfig> route : services.entrySet()) {
             String path = route.getKey();
@@ -120,13 +127,80 @@ public final class ServerFactory {
     }
 
     /**
-     * Create a new HTTP server for the provided URI.
+     * Create a new HTTP server.
      *
-     * @param serverUri The URI to bind to.
+     * @param config The server configuration.
      * @return An HTTP server, with no bound contexts.
      */
-    private HttpServer createServer(final URI serverUri) {
-        return GrizzlyHttpServerFactory.createHttpServer(serverUri, false);
+    private HttpServer createServer(final Configuration config) {
+        URI serverUri = getServerUri(config);
+        SSLEngineConfigurator configurator = buildSSLConfigurator(config);
+
+        return GrizzlyHttpServerFactory.createHttpServer(serverUri,
+                (GrizzlyHttpContainer) null,
+                true,
+                configurator,
+                false);
+    }
+
+    /**
+     * Attempt to load the configured keystore for this running instance, and
+     * return it.
+     *
+     * @param ksPath    Path to the keystore. If not provided, a key will be
+     *                  generated.
+     * @param ksPass    Keystore Password.
+     * @param ksType    Keystore Type.
+     * @param certAlias Certificate alias.
+     * @param certPass  Certificate key password.
+     * @return A KeystoreProvider, unless an error occurs.
+     */
+    private IKeystoreProvider getKeystore(final String ksPath,
+                                          final String ksPass,
+                                          final String ksType,
+                                          final String certAlias,
+                                          final String certPass) {
+
+        if (StringUtils.isEmpty(ksPath)) {
+            return new GeneratedKeystoreProvider(ksPass, certPass, certAlias);
+        }
+        return new FSKeystoreProvider(ksPath, ksPass, ksType);
+    }
+
+    /**
+     * Build the SSL configuration.
+     *
+     * @param config Server configuration.
+     * @return An ssl engine configurator.
+     */
+    private SSLEngineConfigurator buildSSLConfigurator(
+            final Configuration config) {
+        String ksPath = config.getString(Config.KEYSTORE_PATH.getKey(),
+                Config.KEYSTORE_PATH.getValue());
+        String ksPass = config.getString(Config.KEYSTORE_PASS.getKey(),
+                Config.KEYSTORE_PASS.getValue());
+        String ksType = config.getString(Config.KEYSTORE_TYPE.getKey(),
+                Config.KEYSTORE_TYPE.getValue());
+        String certAlias = config.getString(Config.CERT_ALIAS.getKey(),
+                Config.CERT_ALIAS.getValue());
+        String certPass = config.getString(Config.CERT_KEY_PASS.getKey(),
+                Config.CERT_KEY_PASS.getValue());
+
+        // Build and store the keystore.
+        IKeystoreProvider ksProvider = getKeystore(ksPath, ksPass, ksType,
+                certAlias, certPass);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ksProvider.writeTo(baos);
+
+        SSLContextConfigurator sslCon = new SSLContextConfigurator();
+        sslCon.setKeyStoreBytes(baos.toByteArray());
+        sslCon.setKeyPass(certPass);
+        sslCon.setKeyStorePass(ksPass);
+
+        SSLEngineConfigurator sslConf = new SSLEngineConfigurator(sslCon);
+        sslConf.setClientMode(false);
+        sslConf.setNeedClientAuth(false);
+        return sslConf;
     }
 
     /**

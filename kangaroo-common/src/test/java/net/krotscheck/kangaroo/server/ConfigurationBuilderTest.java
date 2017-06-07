@@ -44,7 +44,12 @@ public final class ConfigurationBuilderTest {
         Configuration config = new ConfigurationBuilder()
                 .addCommandlineArgs(new String[]{
                         "-h=example.com",
-                        "-p=9000"
+                        "-p=9000",
+                        "--kangaroo.keystore_path=/foo/bar",
+                        "--kangaroo.keystore_password=keystore_password",
+                        "--kangaroo.keystore_type=JKS",
+                        "--kangaroo.cert_alias=cert_alias",
+                        "--kangaroo.cert_key_password=key_password"
                 })
                 .build();
 
@@ -52,6 +57,16 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "example.com");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 9000);
+        Assert.assertEquals(config.getString(
+                Config.KEYSTORE_PATH.getKey()), "/foo/bar");
+        Assert.assertEquals(config.getString(
+                Config.KEYSTORE_PASS.getKey()), "keystore_password");
+        Assert.assertEquals(config.getString(
+                Config.KEYSTORE_TYPE.getKey()), "JKS");
+        Assert.assertEquals(config.getString(
+                Config.CERT_ALIAS.getKey()), "cert_alias");
+        Assert.assertEquals(config.getString(
+                Config.CERT_KEY_PASS.getKey()), "key_password");
     }
 
     /**
@@ -80,6 +95,11 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "127.0.0.1");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 8080);
+        Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
+        Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
+        Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
+        Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
+        Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
     }
 
     /**
@@ -98,6 +118,16 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "example.com");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 9000);
+        Assert.assertEquals(config.getString(
+                Config.KEYSTORE_PATH.getKey()), "/foo/bar");
+        Assert.assertEquals(config.getString(
+                Config.KEYSTORE_PASS.getKey()), "keystore_password");
+        Assert.assertEquals(config.getString(
+                Config.KEYSTORE_TYPE.getKey()), "JKS");
+        Assert.assertEquals(config.getString(
+                Config.CERT_ALIAS.getKey()), "cert_alias");
+        Assert.assertEquals(config.getString(
+                Config.CERT_KEY_PASS.getKey()), "key_password");
     }
 
     /**
@@ -113,6 +143,11 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "127.0.0.1");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 8080);
+        Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
+        Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
+        Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
+        Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
+        Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
     }
 
     /**
@@ -133,6 +168,11 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "127.0.0.1");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 8080);
+        Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
+        Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
+        Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
+        Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
+        Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
     }
 
     /**

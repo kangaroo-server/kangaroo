@@ -78,8 +78,48 @@ public final class ConfigurationBuilder {
                 .desc("The port on which this port should listen.")
                 .build();
 
+        Option keystorePath = Option.builder()
+                .longOpt(Config.KEYSTORE_PATH.getKey())
+                .argName(Config.KEYSTORE_PATH.getKey())
+                .hasArg()
+                .desc("Path to an externally provided keystore.")
+                .build();
+
+        Option keystorePass = Option.builder()
+                .longOpt(Config.KEYSTORE_PASS.getKey())
+                .argName(Config.KEYSTORE_PASS.getKey())
+                .hasArg()
+                .desc("Password for the externally provided keystore.")
+                .build();
+
+        Option keystoreType = Option.builder()
+                .longOpt(Config.KEYSTORE_TYPE.getKey())
+                .argName(Config.KEYSTORE_TYPE.getKey())
+                .hasArg()
+                .desc("JVM KeyStore type to expect. Default PKCS12.")
+                .build();
+
+        Option certAlias = Option.builder()
+                .longOpt(Config.CERT_ALIAS.getKey())
+                .argName(Config.CERT_ALIAS.getKey())
+                .hasArg()
+                .desc("Alias of the HTTPS certificate to use.")
+                .build();
+
+        Option certKeyPass = Option.builder()
+                .longOpt(Config.CERT_KEY_PASS.getKey())
+                .argName(Config.CERT_KEY_PASS.getKey())
+                .hasArg()
+                .desc("Password of the private key for the certificate.")
+                .build();
+
         CLI_OPTIONS.addOption(bindHost);
         CLI_OPTIONS.addOption(bindPort);
+        CLI_OPTIONS.addOption(keystorePath);
+        CLI_OPTIONS.addOption(keystorePass);
+        CLI_OPTIONS.addOption(keystoreType);
+        CLI_OPTIONS.addOption(certAlias);
+        CLI_OPTIONS.addOption(certKeyPass);
     }
 
     /**
