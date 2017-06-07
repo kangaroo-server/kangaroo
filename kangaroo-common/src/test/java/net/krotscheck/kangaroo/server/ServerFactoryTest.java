@@ -21,6 +21,9 @@ package net.krotscheck.kangaroo.server;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -30,6 +33,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Unit tests for the server factory.
@@ -42,7 +47,6 @@ public class ServerFactoryTest {
      * Test an http server.
      *
      * @param server The server, will be started.
-     * @throws IOException Should not be thrown.
      */
     private void testHttpRequest(final HttpServer server) {
         Assert.assertNotNull(server);
@@ -54,6 +58,20 @@ public class ServerFactoryTest {
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
+    }
+
+    /**
+     * Construct an HTTP client.
+     *
+     * @return An HTTP client that accepts all certificates.
+     * @throws Exception Should not be thrown.
+     */
+    private CloseableHttpClient getHttpClient() throws Exception {
+        SSLContextBuilder builder = new SSLContextBuilder();
+        builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+        SSLConnectionSocketFactory sslsf =
+                new SSLConnectionSocketFactory(builder.build());
+        return HttpClients.custom().setSSLSocketFactory(sslsf).build();
     }
 
     /**
@@ -80,6 +98,50 @@ public class ServerFactoryTest {
     }
 
     /**
+     * Test building with an existing SSL certificate.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testWithProvidedCert() throws Exception {
+        Path relativeCertPath =
+                Paths.get("src/test/resources/ssl/test_keystore.p12");
+        String certPath = relativeCertPath.toAbsolutePath().toString();
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.keystore_path=" + certPath,
+                        "--kangaroo.keystore_password=kangaroo",
+                        "--kangaroo.keystore_type=PKCS12",
+                        "--kangaroo.cert_alias=kangaroo",
+                        "--kangaroo.cert_key_password=kangaroo"
+                });
+        Assert.assertNotNull(f.build());
+    }
+
+    /**
+     * Test building with a provided, invalid SSL certificate
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testWithInvalidProvidedCert() throws Exception {
+        Path relativeCertPath =
+                Paths.get("src/test/resources/ssl/test_keystore.p12");
+        String certPath = relativeCertPath.toAbsolutePath().toString();
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.keystore_path=" + certPath,
+                        "--kangaroo.keystore_password=invalidPass",
+                        "--kangaroo.keystore_type=PKCS12",
+                        "--kangaroo.cert_alias=kangaroo",
+                        "--kangaroo.cert_key_password=kangaroo"
+                });
+        f.build();
+    }
+
+    /**
      * Assert that we can provide configuration from all configuration sources.
      *
      * @throws Exception Should not be thrown.
@@ -96,8 +158,8 @@ public class ServerFactoryTest {
         HttpServer s = f.build();
         s.start();
 
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("http://localhost:9000/");
+        CloseableHttpClient httpclient = getHttpClient();
+        HttpGet httpGet = new HttpGet("https://localhost:9000/");
         CloseableHttpResponse response = httpclient.execute(httpGet);
 
         Assert.assertEquals(response.getStatusLine().getStatusCode(),
@@ -105,7 +167,6 @@ public class ServerFactoryTest {
 
         httpclient.close();
     }
-
 
     /**
      * Assert that we can mount multiple applications at different url paths.
@@ -127,13 +188,13 @@ public class ServerFactoryTest {
         HttpServer s = f.build();
         s.start();
 
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet httpGet1 = new HttpGet("http://localhost:8080/one/status");
+        CloseableHttpClient httpclient = getHttpClient();
+        HttpGet httpGet1 = new HttpGet("https://localhost:8080/one/status");
         CloseableHttpResponse response1 = httpclient.execute(httpGet1);
         Assert.assertEquals(response1.getStatusLine().getStatusCode(),
                 200);
 
-        HttpGet httpGet2 = new HttpGet("http://localhost:8080/two/status");
+        HttpGet httpGet2 = new HttpGet("https://localhost:8080/two/status");
         CloseableHttpResponse response2 = httpclient.execute(httpGet2);
         Assert.assertEquals(response2.getStatusLine().getStatusCode(),
                 200);
