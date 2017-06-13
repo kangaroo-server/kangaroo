@@ -32,6 +32,7 @@ import net.krotscheck.kangaroo.authz.admin.v1.resource.UserService;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.FirstRunContainerLifecycleListener;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
+import net.krotscheck.kangaroo.authz.common.cors.AuthzCORSFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
@@ -71,6 +72,7 @@ public final class AdminV1API extends ResourceConfig {
         register(StatusFeature.class);           // Heartbeat service.
         register(TimedTasksFeature.class);       // Timed tasks service.
         register(AuthenticatorFeature.class);    // OAuth2 Authenticators
+        register(AuthzCORSFeature.class);        // CORS feature.
 
         // Internal components
         register(new ServletConfigFactory.Binder());
