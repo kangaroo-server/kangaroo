@@ -245,6 +245,12 @@
       <artifactId>commons-io</artifactId>
     </dependency>
 
+    <!-- Google Commons -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+
     <!-- Bouncy castle (SSL Certificate generation -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
