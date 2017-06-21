@@ -18,6 +18,7 @@
 package net.krotscheck.kangaroo.authz.oauth2;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
+import net.krotscheck.kangaroo.authz.common.cors.AuthzCORSFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory;
 import net.krotscheck.kangaroo.authz.oauth2.filter.ClientAuthorizationFilter;
@@ -60,6 +61,7 @@ public class OAuthAPI extends ResourceConfig {
         register(StatusFeature.class);           // Heartbeat service.
         register(TimedTasksFeature.class);       // Timed tasks service.
         register(AuthenticatorFeature.class);    // OAuth2 Authenticators
+        register(AuthzCORSFeature.class);        // CORS feature.
 
         // Asset factories
         register(new CredentialsFactory.Binder());

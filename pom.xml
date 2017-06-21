@@ -295,6 +295,7 @@
             <argLine>-Xmx1024m</argLine>
 
             <systemProperties>
+              <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
               <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
             </systemProperties>
 
@@ -705,6 +706,13 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>2.4</version>
+      </dependency>
+
+      <!-- Google Commons -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>22.0</version>
       </dependency>
 
       <!-- Hibernate -->
