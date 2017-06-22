@@ -35,6 +35,7 @@ public final class StatusFeature implements Feature {
     @Override
     public boolean configure(final FeatureContext context) {
         context.register(StatusService.class);
+        context.register(new PoweredByFilter.Binder());
         return true;
     }
 }
