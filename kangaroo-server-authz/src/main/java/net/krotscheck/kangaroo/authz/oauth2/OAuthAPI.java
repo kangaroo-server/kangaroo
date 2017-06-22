@@ -33,6 +33,7 @@ import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.logging.LoggingFeature;
+import net.krotscheck.kangaroo.common.security.SecurityFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import org.glassfish.jersey.CommonProperties;
@@ -59,6 +60,7 @@ public class OAuthAPI extends ResourceConfig {
         register(ExceptionFeature.class);        // Exception Mapping.
         register(DatabaseFeature.class);         // Database Feature.
         register(StatusFeature.class);           // Heartbeat service.
+        register(SecurityFeature.class);         // Security components.
         register(TimedTasksFeature.class);       // Timed tasks service.
         register(AuthenticatorFeature.class);    // OAuth2 Authenticators
         register(AuthzCORSFeature.class);        // CORS feature.
