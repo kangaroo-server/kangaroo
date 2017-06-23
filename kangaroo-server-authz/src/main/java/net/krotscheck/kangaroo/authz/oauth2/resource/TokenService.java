@@ -17,12 +17,12 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.oauth2.resource.grant.IGrantTypeHandler;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
 
@@ -98,8 +98,7 @@ public final class TokenService {
     public Response tokenRequest(
             @Context final UriInfo uriInfo,
             final MultivaluedMap<String, String> formData,
-            @FormParam("grant_type") @DefaultValue("")
-            final String grantType) {
+            @FormParam("grant_type") @DefaultValue("") final String grantType) {
 
         // Resolve the client - validation is handled by the filters.
         Client client = session.get(Client.class, credentials.getLogin());

@@ -18,17 +18,16 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import net.krotscheck.kangaroo.common.response.ApiParam;
-import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
-import net.krotscheck.kangaroo.common.response.SortOrder;
+import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
-import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.common.response.ApiParam;
+import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
+import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -40,6 +39,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -52,7 +52,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -258,13 +257,13 @@ public final class UserService extends AbstractService {
 
         // Input value checks.
         if (user == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (user.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (user.getApplication() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we can create a scope in this application.
@@ -274,7 +273,7 @@ public final class UserService extends AbstractService {
                             user.getApplication().getId());
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
@@ -312,12 +311,12 @@ public final class UserService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentUser.equals(user)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentUser.getApplication().equals(user.getApplication())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Transfer all the values we're allowed to edit.

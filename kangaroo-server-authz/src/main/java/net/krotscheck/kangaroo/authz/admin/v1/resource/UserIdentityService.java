@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.database.jackson.Views;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -44,6 +43,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -56,7 +56,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
 
@@ -258,28 +257,28 @@ public final class UserIdentityService extends AbstractService {
 
         // Input value checks.
         if (identity == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (identity.getId() != null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (identity.getType() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (identity.getUser() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (identity.getRemoteId() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (identity.getPassword() == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Resolve the parent identity
         User parent = getSession().get(User.class, identity.getUser().getId());
         if (parent == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Assert that we can create an identity in this application.
@@ -287,13 +286,13 @@ public final class UserIdentityService extends AbstractService {
             Application scopeApp = parent.getApplication();
             if (getCurrentUser() == null
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
         }
 
         // Ensure that the type is 'Password'
         if (!identity.getType().equals(AuthenticatorType.Password)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Encrypt the password.
@@ -338,17 +337,17 @@ public final class UserIdentityService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(identity)) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getUser().equals(identity.getUser())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // Make sure we're not trying to change the type.
         if (!current.getType().equals(identity.getType())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
 

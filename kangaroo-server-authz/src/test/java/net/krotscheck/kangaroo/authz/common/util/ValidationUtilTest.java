@@ -19,16 +19,15 @@
 package net.krotscheck.kangaroo.authz.common.util;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidRequestException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnsupportedResponseType;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
-import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnsupportedResponseTypeException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -1022,7 +1021,7 @@ public final class ValidationUtilTest {
     /**
      * Assert that client/code mismatch on implicit fails.
      */
-    @Test(expected = UnsupportedResponseType.class)
+    @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeMismatchedImplicitType() {
         Client c = new Client();
         c.setType(ClientType.Implicit);
@@ -1033,7 +1032,7 @@ public final class ValidationUtilTest {
     /**
      * Assert that client/code mismatch on authorization grant fails.
      */
-    @Test(expected = UnsupportedResponseType.class)
+    @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeMismatchedGrantType() {
         Client c = new Client();
         c.setType(ClientType.AuthorizationGrant);
@@ -1044,7 +1043,7 @@ public final class ValidationUtilTest {
     /**
      * Assert that some other grant combination fails..
      */
-    @Test(expected = UnsupportedResponseType.class)
+    @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeBogusType() {
         Client c = new Client();
         c.setType(ClientType.OwnerCredentials);
@@ -1055,7 +1054,7 @@ public final class ValidationUtilTest {
     /**
      * Assert that null passed values cause issues as expected.
      */
-    @Test(expected = UnsupportedResponseType.class)
+    @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeNullResponseType() {
         Client c = new Client();
         c.setType(ClientType.OwnerCredentials);
@@ -1066,7 +1065,7 @@ public final class ValidationUtilTest {
     /**
      * Assert that null passed values cause issues as expected.
      */
-    @Test(expected = UnsupportedResponseType.class)
+    @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeNullClient() {
         Client c = new Client();
         c.setType(ClientType.OwnerCredentials);

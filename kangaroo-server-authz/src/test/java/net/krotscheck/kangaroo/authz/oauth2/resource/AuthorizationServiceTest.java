@@ -109,7 +109,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
 
         URI location = r.getLocation();
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getFragment());
+                HttpUtil.parseQueryParams(location.getQuery());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
         Assert.assertEquals("unsupported_response_type",
@@ -130,7 +130,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
 
         URI location = r.getLocation();
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getFragment());
+                HttpUtil.parseQueryParams(location.getQuery());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
         Assert.assertEquals("unsupported_response_type",

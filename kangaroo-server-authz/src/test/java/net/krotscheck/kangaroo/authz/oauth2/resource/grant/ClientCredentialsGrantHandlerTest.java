@@ -17,9 +17,6 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
 
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidGrantException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.UnauthorizedClientException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -27,6 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -140,7 +138,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      * Assert that requesting client_credentials against a
      * non-client_credentials client fails.
      */
-    @Test(expected = InvalidGrantException.class)
+    @Test(expected = KangarooException.class)
     public void testInvalidClientType() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
@@ -157,7 +155,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      * Assert that requesting client_credentials with a client that has no
      * secret fails.
      */
-    @Test(expected = UnauthorizedClientException.class)
+    @Test(expected = KangarooException.class)
     public void testNoClientSecret() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
@@ -171,7 +169,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     /**
      * Assert that requesting a scope that is not permitted fails.
      */
-    @Test(expected = InvalidScopeException.class)
+    @Test(expected = KangarooException.class)
     public void testInvalidScope() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
