@@ -54,7 +54,7 @@ public final class OAuthAPITest extends ContainerTest {
 
         ErrorResponse e = response.readEntity(ErrorResponse.class);
         Assert.assertEquals("not_found", e.getError());
-        Assert.assertEquals("Not Found", e.getErrorDescription());
+        Assert.assertEquals("HTTP 404 Not Found", e.getErrorDescription());
 
         // Root should be 404
         Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),

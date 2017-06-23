@@ -17,10 +17,9 @@
 
 package net.krotscheck.kangaroo.util;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpInvalidFieldException;
-
-import java.util.List;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.List;
 
 /**
  * A utility to assist in the manipulation, creation, and retrieval of query
@@ -45,21 +44,15 @@ public final class ParamUtil {
      * @param values The map of values.
      * @param key    The key to get.
      * @return The value retrieved, but only if only one exists for this key.
-     * @throws HttpInvalidFieldException Thrown if the value is
-     *                                   not found, or if more than one
-     *                                   instance
-     *                                   of the value is
-     *                                   found.
      */
     public static String getOne(final MultivaluedMap<String, String> values,
-                                final String key)
-            throws HttpInvalidFieldException {
+                                final String key) {
         List<String> listValues = values.get(key);
         if (listValues == null) {
-            throw new HttpInvalidFieldException(key);
+            throw new BadRequestException("Invalid Field: " + key);
         }
         if (listValues.size() != 1) {
-            throw new HttpInvalidFieldException(key);
+            throw new BadRequestException("Invalid Field: " + key);
         }
         return listValues.get(0);
     }

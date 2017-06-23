@@ -20,12 +20,9 @@ package net.krotscheck.kangaroo.common.exception;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
+import net.krotscheck.kangaroo.common.exception.KangarooException.ErrorCode;
 import org.apache.http.HttpHeaders;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.apache.http.message.BasicNameValuePair;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -35,8 +32,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -139,26 +134,62 @@ public final class ErrorResponseBuilder {
     }
 
     /**
-     * Return an error response constructed from a status requestMapping.
-     *
-     * @param e The exception to map.
-     * @return This builder.
-     */
-    public static ErrorResponseBuilder from(final HttpStatusException e) {
-        return from(e.getHttpStatus(),
-                e.getMessage(),
-                e.getErrorCode(),
-                e.getRedirect());
-    }
-
-    /**
      * Return an error object constructed from a jersey exception.
      *
      * @param e The exception to map.
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final WebApplicationException e) {
-        return from(Status.fromStatusCode(e.getResponse().getStatus()));
+        return from(Status.fromStatusCode(e.getResponse().getStatus()),
+                e.getMessage());
+    }
+
+    /**
+     * Return an error object constructed from a kangaroo error code.
+     *
+     * @param ke A Kangaroo Exception.
+     * @return This builder.
+     */
+    public static ErrorResponseBuilder from(final KangarooException ke) {
+        return from(ke, null);
+    }
+
+    /**
+     * Return an error object constructed from a kangaroo error code.
+     *
+     * @param ke       A Kangaroo Exception.
+     * @param redirect The redirection uri.
+     * @return This builder.
+     */
+    public static ErrorResponseBuilder from(final KangarooException ke,
+                                            final URI redirect) {
+        return from(ke.getCode(), redirect);
+    }
+
+    /**
+     * Return an error object constructed from a kangaroo error code.
+     *
+     * @param code The error code.
+     * @return This builder.
+     */
+    public static ErrorResponseBuilder from(final ErrorCode code) {
+        return from(code, null);
+    }
+
+    /**
+     * Return an error object constructed from a kangaroo error code and a
+     * redirect.
+     *
+     * @param code     The error code.
+     * @param redirect The redirection uri.
+     * @return This builder.
+     */
+    public static ErrorResponseBuilder from(final ErrorCode code,
+                                            final URI redirect) {
+        return from(code.getHttpStatus(),
+                code.getErrorDescription(),
+                code.getError(),
+                redirect);
     }
 
     /**
@@ -219,18 +250,6 @@ public final class ErrorResponseBuilder {
      * @return HTTP Response object for this error.
      */
     public Response build() {
-        return build(false);
-    }
-
-    /**
-     * Build a response, with the option of adding a the response error
-     * parameters to the redirect gragment, rather than the query string.
-     *
-     * @param fragment Whether the error codes should be in the fragment or
-     *                 the query string.
-     * @return A constructed response.
-     */
-    public Response build(final boolean fragment) {
         if (response.getRedirectUrl() == null) {
             return Response.status(response.httpStatus)
                     .type(MediaType.APPLICATION_JSON)
@@ -240,20 +259,9 @@ public final class ErrorResponseBuilder {
 
         UriBuilder builder = UriBuilder.fromUri(response.getRedirectUrl());
 
-        // Where do we put the response parameters?
-        if (!fragment) {
-            builder.queryParam("error", response.error);
-            builder.queryParam("error_description",
-                    response.errorDescription);
-        } else {
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("error",
-                    response.error));
-            params.add(new BasicNameValuePair("error_description",
-                    response.errorDescription));
-
-            builder.fragment(URLEncodedUtils.format(params, "UTF-8"));
-        }
+        builder.queryParam("error", response.error);
+        builder.queryParam("error_description",
+                response.errorDescription);
         return Response.status(Status.FOUND)
                 .header(HttpHeaders.LOCATION, builder.build())
                 .build();

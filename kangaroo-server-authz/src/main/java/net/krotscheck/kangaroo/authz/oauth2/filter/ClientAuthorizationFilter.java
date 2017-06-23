@@ -17,16 +17,15 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.filter;
 
-import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.AccessDeniedException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
+import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
+import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.Session;
 
-import java.io.IOException;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -34,6 +33,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import java.io.IOException;
 
 /**
  * This filter attempts to extract credentials from the HTTP request, and

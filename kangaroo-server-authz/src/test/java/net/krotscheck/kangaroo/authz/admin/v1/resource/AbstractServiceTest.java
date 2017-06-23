@@ -24,11 +24,9 @@ import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -42,6 +40,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mockito;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -230,7 +230,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * Assert that a nonexistent entity will show up as not found.
      */
-    @Test(expected = HttpNotFoundException.class)
+    @Test(expected = NotFoundException.class)
     public void testAssertCanAccessNull() {
         service.assertCanAccess(null, Scope.APPLICATION_ADMIN);
     }
@@ -283,7 +283,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * Assert that a non owner of an entity cannot access it if they have the
      * incorrect scope.
      */
-    @Test(expected = HttpNotFoundException.class)
+    @Test(expected = NotFoundException.class)
     public void testAssertCanAccessNotOwnerInvalidScope() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .bearerToken(Scope.APPLICATION)
@@ -324,7 +324,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * Assert that a client credentials token cannot access the entity if they
      * do not have the admin scope.
      */
-    @Test(expected = HttpNotFoundException.class)
+    @Test(expected = NotFoundException.class)
     public void testAssertCanAccessClientCredentialsInvalidScope() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.ClientCredentials)
@@ -364,7 +364,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * Assert that an admin, when passing an invalid ownerID, gets an error.
      */
-    @Test(expected = HttpStatusException.class)
+    @Test(expected = BadRequestException.class)
     public void testRequestInvalidUserFilterAdminFilter() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
@@ -489,7 +489,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * Assert that we can require a null entity.
      */
-    @Test(expected = HttpStatusException.class)
+    @Test(expected = BadRequestException.class)
     public void testRequireEntityInputNullEntity() {
         service.requireEntityInput(Application.class, null);
     }
@@ -497,7 +497,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * Assert that we can require an entity with a null ID.
      */
-    @Test(expected = HttpStatusException.class)
+    @Test(expected = BadRequestException.class)
     public void testREquireEntityInputNoIdEntity() {
         service.requireEntityInput(Application.class, new Application());
     }
@@ -548,7 +548,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * Assert that passing a nonexitent entity ID as an admin throws a 404.
      */
-    @Test(expected = HttpStatusException.class)
+    @Test(expected = BadRequestException.class)
     public void testResolveFilterEntityNonexistentEntityIdAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
@@ -630,7 +630,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * Assert that passing a nonexitent entity ID as a regular user throws an
      * invalidScope exception.
      */
-    @Test(expected = HttpStatusException.class)
+    @Test(expected = BadRequestException.class)
     public void testResolveFilterEntityNonexistentEntityIdNonAdmin() {
         ApplicationContext adminContext = getAdminContext().getBuilder()
                 .client(ClientType.Implicit)
@@ -670,7 +670,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * Assert that trying to filter on an entity that the user
      * doesn't own fails for the non-admin scope.
      */
-    @Test(expected = HttpStatusException.class)
+    @Test(expected = BadRequestException.class)
     public void testResolveFilterEntityNonAdminNonOwner() {
         // Set up an owner for the user app.
         ApplicationContext adminContext = getAdminContext().getBuilder()

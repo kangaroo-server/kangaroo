@@ -17,9 +17,9 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.filter;
 
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.AccessDeniedException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidClientException;
 import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;

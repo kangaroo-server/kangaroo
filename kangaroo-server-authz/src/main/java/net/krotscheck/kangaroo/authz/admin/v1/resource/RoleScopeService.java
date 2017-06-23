@@ -18,19 +18,22 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
-import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
-import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
+import net.krotscheck.kangaroo.authz.common.database.entity.Role;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
+import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScope;
 import org.hibernate.Session;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -91,17 +94,17 @@ public final class RoleScopeService extends AbstractService {
 
         // If the parent application doesn't match, error.
         if (!role.getApplication().equals(scope.getApplication())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         // If the role is already linked to this scope, error.
         if (role.getScopes().values().contains(scope)) {
-            throw new HttpStatusException(Status.CONFLICT);
+            throw new ClientErrorException(Status.CONFLICT);
         }
 
         // If we're trying to modify the admin application, error.
         if (role.getApplication().equals(getAdminApplication())) {
-            throw new HttpStatusException(Status.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         // Create the link.
@@ -140,12 +143,12 @@ public final class RoleScopeService extends AbstractService {
 
         // If the scope's not assigned to the role, error.
         if (!role.getScopes().values().contains(scope)) {
-            throw new HttpStatusException(Status.NOT_FOUND);
+            throw new NotFoundException();
         }
 
         // If we're in the admin app, we can't modify anything.
         if (getAdminApplication().equals(role.getApplication())) {
-            throw new HttpStatusException(Status.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         // Execute the command.

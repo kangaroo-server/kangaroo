@@ -24,10 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.common.exception.exception.HttpNotFoundException;
-import net.krotscheck.kangaroo.common.exception.exception.HttpStatusException;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception;
-import net.krotscheck.kangaroo.common.exception.rfc6749.Rfc6749Exception.InvalidScopeException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -39,8 +36,8 @@ import org.hibernate.search.SearchFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
@@ -279,7 +276,7 @@ public abstract class AbstractService {
                                          final String requiredScope) {
         // No null entities permitted.
         if (entity == null) {
-            throw new HttpNotFoundException();
+            throw new NotFoundException();
         }
 
         // Are we the entity owner?
@@ -294,13 +291,13 @@ public abstract class AbstractService {
         }
 
         // Not permitted, exit.
-        throw new HttpNotFoundException();
+        throw new NotFoundException();
     }
 
     /**
      * This method tests whether a particular subresource entity may be
      * accessed. It defers most of its logic to assertCanAccess, except that
-     * it will rethrow HttpNotFoundExceptions as BadRequestExceptions in the
+     * it will rethrow NotFoundExceptions as BadRequestExceptions in the
      * case where a user does not have permissions to see the parent resource.
      *
      * @param entity              The entity to check.
@@ -312,12 +309,12 @@ public abstract class AbstractService {
             final String requiredParentScope) {
         // No null entities permitted.
         if (entity == null) {
-            throw new HttpNotFoundException();
+            throw new NotFoundException();
         }
 
         try {
             assertCanAccess(entity, requiredParentScope);
-        } catch (HttpNotFoundException e) {
+        } catch (NotFoundException e) {
             throw new BadRequestException();
         }
     }
@@ -338,7 +335,7 @@ public abstract class AbstractService {
             }
             User owner = getSession().get(User.class, ownerId);
             if (owner == null) {
-                throw new HttpStatusException(Status.BAD_REQUEST);
+                throw new BadRequestException();
             }
             return owner;
         }
@@ -346,11 +343,11 @@ public abstract class AbstractService {
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             // This will catch ClientCredentials clients.
-            throw new Rfc6749Exception.InvalidScopeException();
+            throw new InvalidScopeException();
         }
 
         if (ownerId != null && !currentUser.getId().equals(ownerId)) {
-            throw new Rfc6749Exception.InvalidScopeException();
+            throw new InvalidScopeException();
         }
 
         return currentUser;
@@ -401,7 +398,7 @@ public abstract class AbstractService {
         // above, as we cannot expose to an improperly scoped token that
         // an entity might exist.
         if (!currentUser.equals(entity.getOwner())) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
 
         return entity;
@@ -439,7 +436,6 @@ public abstract class AbstractService {
      * @param entity        The entity.
      * @param <K>           The type to return (same as type to resolve).
      * @return Null if provided entity is null, otherwise entity.
-     * @throws HttpStatusException When the entity is malformed in some way.
      */
     protected final <K extends AbstractAuthzEntity> K resolveEntityInput(
             final Class<K> requestedType,
@@ -462,7 +458,6 @@ public abstract class AbstractService {
      * @param entityId      The entity id.
      * @param <K>           The type to return (same as type to resolve).
      * @return Null if provided entity is null, otherwise entity.
-     * @throws HttpStatusException When the id is malformed in some way.
      */
     protected final <K extends AbstractAuthzEntity> K resolveEntityInput(
             final Class<K> requestedType,
@@ -475,7 +470,7 @@ public abstract class AbstractService {
         // Attempt to resolve...
         K entity = getSession().get(requestedType, entityId);
         if (entity == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         return entity;
     }
@@ -487,14 +482,13 @@ public abstract class AbstractService {
      * @param entity        The entity.
      * @param <K>           The type to return (same as type to resolve).
      * @return Null if provided entity is null, otherwise entity.
-     * @throws HttpStatusException When the entity is malformed in some way.
      */
     protected final <K extends AbstractAuthzEntity> K requireEntityInput(
             final Class<K> requestedType,
             final K entity) {
         K resolved = resolveEntityInput(requestedType, entity);
         if (resolved == null) {
-            throw new HttpStatusException(Status.BAD_REQUEST);
+            throw new BadRequestException();
         }
         return resolved;
     }
