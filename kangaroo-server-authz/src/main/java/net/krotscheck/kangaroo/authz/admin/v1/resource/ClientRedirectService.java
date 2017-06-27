@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractClientUri;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
@@ -33,7 +33,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
@@ -60,8 +59,7 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-@OAuth2
-@RolesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
+@ScopesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
 @Transactional
 public final class ClientRedirectService extends AbstractService {
 

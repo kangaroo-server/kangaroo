@@ -319,7 +319,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = getEntity(testingEntity, token);
 
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -335,7 +335,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = getEntity(testingEntity, null);
 
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -464,7 +464,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testEntity, getSecondaryContext().getToken());
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -523,7 +523,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = postEntity(testingEntity, (OAuthToken) null);
 
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -570,7 +570,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = putEntity(testingEntity, token);
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -583,7 +583,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPutByUnknown() throws Exception {
         T testingEntity = getEntity(getSecondaryContext());
         Response r = putEntity(testingEntity, (OAuthToken) null);
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -652,7 +652,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = deleteEntity(testingEntity,
                 getSecondaryContext().getToken());
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**
@@ -672,7 +672,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         s.getTransaction().commit();
 
         Response r = deleteEntity(testingEntity, null);
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 
     /**

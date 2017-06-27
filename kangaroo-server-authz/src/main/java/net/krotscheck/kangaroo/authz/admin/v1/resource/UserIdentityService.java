@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
@@ -42,7 +42,6 @@ import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -65,8 +64,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 @Path("/identity")
-@RolesAllowed({Scope.IDENTITY, Scope.IDENTITY_ADMIN})
-@OAuth2
+@ScopesAllowed({Scope.IDENTITY, Scope.IDENTITY_ADMIN})
 @Transactional
 public final class UserIdentityService extends AbstractService {
 

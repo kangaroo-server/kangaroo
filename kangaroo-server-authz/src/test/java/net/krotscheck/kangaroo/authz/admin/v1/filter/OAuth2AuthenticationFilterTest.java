@@ -22,27 +22,17 @@ import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2AuthorizationFilter.Binder;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2AuthorizationFilter.OAuthTokenContext;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.AbstractResourceTest;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Singleton;
-import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,7 +40,7 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-public final class OAuth2AuthorizationFilterTest
+public final class OAuth2AuthenticationFilterTest
         extends AbstractResourceTest {
 
     /**
@@ -153,7 +143,7 @@ public final class OAuth2AuthorizationFilterTest
         Response r = target("/user")
                 .request()
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -179,7 +169,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", expiredBearerToken.getId()))
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -192,7 +182,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", UUID.randomUUID()))
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -204,7 +194,7 @@ public final class OAuth2AuthorizationFilterTest
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer YUIIUYIY")
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -218,7 +208,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("Bearer %s", authToken.getId()))
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -231,7 +221,7 @@ public final class OAuth2AuthorizationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("HMAC %s", authToken.getId()))
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -243,50 +233,7 @@ public final class OAuth2AuthorizationFilterTest
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OMGOMGOMG")
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
-    }
-
-    /**
-     * Assert that we can invoke the binder.
-     *
-     * @throws Exception An authenticator exception.
-     */
-    @Test
-    public void testBinder() throws Exception {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocator locator = factory.create(getClass().getCanonicalName());
-
-        Binder b = new OAuth2AuthorizationFilter.Binder();
-        ServiceLocatorUtilities.bind(locator, b);
-
-        List<ActiveDescriptor<?>> descriptors =
-                locator.getDescriptors(
-                        BuilderHelper.createContractFilter(
-                                ContainerRequestFilter.class.getName()));
-        Assert.assertEquals(1, descriptors.size());
-
-        ActiveDescriptor descriptor = descriptors.get(0);
-        Assert.assertNotNull(descriptor);
-        // Check scope...
-        Assert.assertEquals(Singleton.class.getCanonicalName(),
-                descriptor.getScope());
-
-        // ... check name.
-        Assert.assertNull(descriptor.getName());
-    }
-
-    /**
-     * Assert that we can invoke the binder.
-     *
-     * @throws Exception An authenticator exception.
-     */
-    @Test
-    public void testContextMethods() throws Exception {
-        OAuthTokenContext context =
-                new OAuthTokenContext(new OAuthToken(), false);
-
-        Assert.assertFalse(context.isSecure());
-        Assert.assertEquals("OAuth2", context.getAuthenticationScheme());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**

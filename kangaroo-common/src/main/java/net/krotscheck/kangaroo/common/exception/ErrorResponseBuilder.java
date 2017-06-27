@@ -28,8 +28,11 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -197,15 +200,29 @@ public final class ErrorResponseBuilder {
     }
 
     /**
+     * Add a header to the response, before building.
+     *
+     * @param header The header name.
+     * @param value  The header value.
+     * @return This builder.
+     */
+    public ErrorResponseBuilder addHeader(final String header,
+                                          final String value) {
+        this.response.headers.put(header, value);
+        return this;
+    }
+
+    /**
      * Build the response from this builder.
      *
      * @return HTTP Response object for this error.
      */
     public Response build() {
-        return Response.status(response.httpStatus)
+        ResponseBuilder b = Response.status(response.httpStatus)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(response)
-                .build();
+                .entity(response);
+        response.headers.forEach(b::header);
+        return b.build();
     }
 
     /**
@@ -229,6 +246,12 @@ public final class ErrorResponseBuilder {
          */
         @JsonIgnore
         private Status httpStatus = Status.BAD_REQUEST;
+
+        /**
+         * List of headers to add to the response.
+         */
+        @JsonIgnore
+        private Map<String, String> headers = new HashMap<>();
 
         /**
          * Private constructor.

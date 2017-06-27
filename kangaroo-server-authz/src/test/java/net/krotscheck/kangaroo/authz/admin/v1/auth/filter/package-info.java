@@ -16,23 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.admin.v1.filter;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import javax.ws.rs.NameBinding;
-
 /**
- * This annotation should be used to indicate that a resource is
- * authorized/authenticated via OAuth2 Tokens.
- *
- * @author Michael Krotscheck
+ * Unit tests for the Authn/Authz filters.
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(value = RetentionPolicy.RUNTIME)
-@NameBinding
-public @interface OAuth2 {
-
-}
+package net.krotscheck.kangaroo.authz.admin.v1.auth.filter;

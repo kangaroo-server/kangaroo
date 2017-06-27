@@ -546,6 +546,6 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .request()
                 .get();
 
-        assertErrorResponse(response, Status.FORBIDDEN);
+        assertErrorResponse(response, Status.UNAUTHORIZED);
     }
 }
