@@ -41,8 +41,8 @@ import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.security.SecurityFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
-import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 
@@ -59,7 +59,8 @@ public final class AdminV1API extends ResourceConfig {
      */
     public AdminV1API() {
         // No autodiscovery, we load everything explicitly.
-        property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
+        property(ServerProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
+        property(ServerProperties.WADL_FEATURE_DISABLE, true);
 
         // Ensure that role annotations are respected.
         register(RolesAllowedDynamicFeature.class);
