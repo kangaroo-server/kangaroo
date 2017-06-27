@@ -36,8 +36,8 @@ import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.security.SecurityFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
-import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 
 /**
  * The OAuth API, hosted at /oauth.
@@ -51,7 +51,8 @@ public class OAuthAPI extends ResourceConfig {
      */
     public OAuthAPI() {
         // No autodiscovery, we load everything explicitly.
-        property(CommonProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
+        property(ServerProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
+        property(ServerProperties.WADL_FEATURE_DISABLE, true);
 
         // Common features.
         register(LoggingFeature.class);          // Logging Configuration
