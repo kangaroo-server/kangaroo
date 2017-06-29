@@ -33,6 +33,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -59,7 +60,6 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("Not Found", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
     }
 
@@ -77,7 +77,6 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("message", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
     }
 
@@ -95,7 +94,6 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("message", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("test_code", er.getError());
     }
 
@@ -114,12 +112,11 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertTrue(er.getErrorDescription().indexOf("foo") > -1);
-        Assert.assertEquals(null, er.getRedirectUrl());
         Assert.assertEquals("bad_request", er.getError());
     }
 
     /**
-     * Test building from a WebApplicationException.
+     * Test building from a KangarooException.
      */
     @Test
     public void testFromKangarooException() {
@@ -133,7 +130,6 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("Test Error",
                 er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("test_error", er.getError());
     }
 
@@ -152,7 +148,6 @@ public final class ErrorResponseBuilderTest {
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("HTTP 500 Internal Server Error",
                 er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
     }
 
@@ -176,7 +171,6 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("test 1", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("bad_request", er.getError());
     }
 
@@ -196,7 +190,6 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
     }
 
@@ -214,7 +207,6 @@ public final class ErrorResponseBuilderTest {
                 r.getStatus());
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("internal_server_error", er.getError());
     }
 

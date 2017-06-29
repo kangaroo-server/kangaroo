@@ -114,9 +114,5 @@ public class RFC6749Test {
         KangarooException e = errorClass.newInstance();
         // We assume that KangarooException is well tested.
         Assert.assertEquals(expectedCode, e.getCode().getError());
-
-        // Make sure we can creat this with a redirect as well.
-        URI redirect = new URI("http://redirect.example.com");
-        errorClass.getConstructor(URI.class).newInstance(redirect);
     }
 }

@@ -16,52 +16,38 @@
  *
  */
 
-package net.krotscheck.kangaroo.common.exception;
+package net.krotscheck.kangaroo.common.exception.mapper;
 
-import net.krotscheck.kangaroo.common.exception.KangarooException.ErrorCode;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 /**
- * Unit tests for our common application exception.
+ * Unit tests for mapping kangaroo exceptions.
  *
  * @author Michael Krotscheck
  */
-public class KangarooExceptionTest {
+public class KangarooExceptionMapperTest {
 
     /**
-     * Test the error code class.
+     * Test converting to a response.
      */
     @Test
-    public void testErrorCode() {
-        ErrorCode testCode = new ErrorCode(Status.FORBIDDEN,
-                "code", "description");
-        Assert.assertEquals(Status.FORBIDDEN, testCode.getHttpStatus());
-        Assert.assertEquals("code", testCode.getError());
-        Assert.assertEquals("description", testCode.getErrorDescription());
-    }
+    public void testToResponse() {
+        KangarooExceptionMapper mapper = new KangarooExceptionMapper();
+        TestError jpe = new TestError();
 
-    /**
-     * Assert creating with code, but no redirect.
-     */
-    @Test
-    public void testGetCode() {
-        KangarooException e = new TestError();
-        Assert.assertSame(TestError.CODE, e.getCode());
-    }
+        Response r = mapper.toResponse(jpe);
+        ErrorResponse er = (ErrorResponse) r.getEntity();
 
-    /**
-     * Assert creating with code, but no redirect.
-     */
-    @Test
-    public void testPlain() {
-        KangarooException e = new TestError();
-
-        Assert.assertEquals(TestError.CODE.getHttpStatus().getStatusCode(),
-                e.getResponse().getStatus());
-        Assert.assertEquals(e.getCode(), TestError.CODE);
+        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.FORBIDDEN, er.getHttpStatus());
+        Assert.assertEquals("test_error", er.getError());
+        Assert.assertEquals("Test Error", er.getErrorDescription());
     }
 
     /**
@@ -73,7 +59,7 @@ public class KangarooExceptionTest {
          * The error code.
          */
         public static final ErrorCode CODE = new ErrorCode(
-                Status.BAD_REQUEST,
+                Status.FORBIDDEN,
                 "test_error",
                 "Test Error"
         );
@@ -85,4 +71,5 @@ public class KangarooExceptionTest {
             super(CODE);
         }
     }
+
 }

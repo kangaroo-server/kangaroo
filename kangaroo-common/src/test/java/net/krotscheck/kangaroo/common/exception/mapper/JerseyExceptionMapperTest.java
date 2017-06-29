@@ -50,7 +50,6 @@ public final class JerseyExceptionMapperTest {
                 r.getStatus());
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("test", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
     }
 
     /**
@@ -67,7 +66,6 @@ public final class JerseyExceptionMapperTest {
         Assert.assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
         Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
         Assert.assertEquals("HTTP 404 Not Found", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("not_found", er.getError());
     }
 
@@ -85,7 +83,6 @@ public final class JerseyExceptionMapperTest {
         Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
         Assert.assertEquals(Status.FORBIDDEN, er.getHttpStatus());
         Assert.assertEquals("HTTP 403 Forbidden", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
         Assert.assertEquals("forbidden", er.getError());
     }
 }
