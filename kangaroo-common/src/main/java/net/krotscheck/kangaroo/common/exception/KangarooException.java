@@ -18,23 +18,16 @@
 
 package net.krotscheck.kangaroo.common.exception;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
-import java.net.URI;
 
 /**
  * This error class should be the source for most of the expected errors in
  * our system. It accepts a configuration type from which it derives most of its
- * default values, as well as an optional 'redirect' value in case the error
- * needs to be sent to a referral_uri.
+ * default values, so that we can easily encapsulate those in constants.
  *
- * This error type will generate its own response body, as there's two
- * slightly different behaviors, which are mandated across the entire
- * Kangaroo microservices architecture. As such, you should not need to write
- * an exception mapper for it.
+ * The response-body for this error type is - much like all errors - handled in
+ * the ErrorResponseBuilder.
  *
  * @author Michael Krotscheck
  */
@@ -51,24 +44,7 @@ public abstract class KangarooException extends WebApplicationException {
      * @param code The error code enum type.
      */
     protected KangarooException(final ErrorCode code) {
-        super(code.getError(),
-                ErrorResponseBuilder.from(code).build());
-        this.code = code;
-    }
-
-    /**
-     * Create a new exception with an error code, and a redirect. This will
-     * cause the response to return a 302, rather than whatever HTTP status
-     * code is in the code itself. That value will instead be encoded into
-     * the redirection URL.
-     *
-     * @param code     The error code.
-     * @param redirect The redirect.
-     */
-    protected KangarooException(final ErrorCode code,
-                                final URI redirect) {
-        super(code.getError(),
-                ErrorResponseBuilder.from(code, redirect).build());
+        super(code.getError(), code.getHttpStatus());
         this.code = code;
     }
 
@@ -80,7 +56,6 @@ public abstract class KangarooException extends WebApplicationException {
     public final ErrorCode getCode() {
         return code;
     }
-
 
     /**
      * This class encapsulates values necessary for initializing the
@@ -96,13 +71,11 @@ public abstract class KangarooException extends WebApplicationException {
         /**
          * The error message.
          */
-        @JsonProperty("error_description")
         private String errorDescription = "";
 
         /**
          * The error code.
          */
-        @JsonIgnore
         private final Status httpStatus;
 
         /**
@@ -121,8 +94,8 @@ public abstract class KangarooException extends WebApplicationException {
         }
 
         /**
-         * The HTTP Status usually assigned to this error type. This will be
-         * overridden if the error response need to be sent via a redirect.
+         * The HTTP Status usually assigned to this error type. Downstream
+         * mappers can choose to observe it or not.
          *
          * @return The http status.
          */

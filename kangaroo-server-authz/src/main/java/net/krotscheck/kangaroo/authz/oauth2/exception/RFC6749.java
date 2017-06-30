@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.authz.oauth2.exception;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 
 import javax.ws.rs.core.Response.Status;
-import java.net.URI;
 
 /**
  * Error codes specified in the OAuth2 Specification.
@@ -62,15 +61,6 @@ public final class RFC6749 {
         public InvalidRequestException() {
             super(CODE);
         }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public InvalidRequestException(final URI redirect) {
-            super(CODE, redirect);
-        }
     }
 
 
@@ -97,15 +87,6 @@ public final class RFC6749 {
         public UnauthorizedClientException() {
             super(CODE);
         }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public UnauthorizedClientException(final URI redirect) {
-            super(CODE, redirect);
-        }
     }
 
     /**
@@ -129,15 +110,6 @@ public final class RFC6749 {
          */
         public AccessDeniedException() {
             super(CODE);
-        }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public AccessDeniedException(final URI redirect) {
-            super(CODE, redirect);
         }
     }
 
@@ -164,15 +136,6 @@ public final class RFC6749 {
         public UnsupportedResponseTypeException() {
             super(CODE);
         }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public UnsupportedResponseTypeException(final URI redirect) {
-            super(CODE, redirect);
-        }
     }
 
     /**
@@ -196,15 +159,6 @@ public final class RFC6749 {
          */
         public InvalidScopeException() {
             super(CODE);
-        }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public InvalidScopeException(final URI redirect) {
-            super(CODE, redirect);
         }
     }
 
@@ -232,15 +186,6 @@ public final class RFC6749 {
          */
         public ServerErrorException() {
             super(CODE);
-        }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public ServerErrorException(final URI redirect) {
-            super(CODE, redirect);
         }
     }
 
@@ -270,15 +215,6 @@ public final class RFC6749 {
         public TemporarilyUnavailableException() {
             super(CODE);
         }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public TemporarilyUnavailableException(final URI redirect) {
-            super(CODE, redirect);
-        }
     }
 
     /**
@@ -302,15 +238,6 @@ public final class RFC6749 {
          */
         public InvalidClientException() {
             super(CODE);
-        }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public InvalidClientException(final URI redirect) {
-            super(CODE, redirect);
         }
     }
 
@@ -336,15 +263,6 @@ public final class RFC6749 {
         public InvalidGrantException() {
             super(CODE);
         }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public InvalidGrantException(final URI redirect) {
-            super(CODE, redirect);
-        }
     }
 
     /**
@@ -368,15 +286,6 @@ public final class RFC6749 {
          */
         public UnsupportedGrantTypeException() {
             super(CODE);
-        }
-
-        /**
-         * Build this exception with a redirect.
-         *
-         * @param redirect The redirect.
-         */
-        public UnsupportedGrantTypeException(final URI redirect) {
-            super(CODE, redirect);
         }
     }
 }

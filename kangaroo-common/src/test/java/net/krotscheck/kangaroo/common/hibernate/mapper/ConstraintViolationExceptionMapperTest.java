@@ -59,7 +59,6 @@ public final class ConstraintViolationExceptionMapperTest {
         Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         Assert.assertEquals("test 1", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
     }
 
 }

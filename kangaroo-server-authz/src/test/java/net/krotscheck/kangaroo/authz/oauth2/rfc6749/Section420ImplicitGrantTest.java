@@ -193,7 +193,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getQuery());
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("error"));
         assertEquals("unsupported_response_type", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -276,7 +276,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getQuery());
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_request", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -305,7 +305,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(location.getQuery());
+                HttpUtil.parseQueryParams(location.getFragment());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -573,7 +573,7 @@ public final class Section420ImplicitGrantTest
 
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(secondLocation.getQuery());
+                HttpUtil.parseQueryParams(secondLocation.getFragment());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));
@@ -616,7 +616,7 @@ public final class Section420ImplicitGrantTest
 
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
-                HttpUtil.parseQueryParams(secondLocation.getQuery());
+                HttpUtil.parseQueryParams(secondLocation.getFragment());
         assertTrue(params.containsKey("error"));
         assertEquals("invalid_scope", params.getFirst("error"));
         assertTrue(params.containsKey("error_description"));

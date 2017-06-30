@@ -47,6 +47,5 @@ public final class UnhandledExceptionMapperTest {
                 r.getStatus());
         Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
         Assert.assertEquals("Internal Server Error", er.getErrorDescription());
-        Assert.assertNull(er.getRedirectUrl());
     }
 }
