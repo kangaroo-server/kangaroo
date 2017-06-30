@@ -18,6 +18,8 @@
 
 package net.krotscheck.kangaroo.common.security;
 
+import org.glassfish.jersey.server.filter.CsrfProtectionFilter;
+
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
@@ -39,6 +41,7 @@ public final class SecurityFeature implements Feature {
     @Override
     public boolean configure(final FeatureContext context) {
         context.register(new SecurityHeadersFilter.Binder());
+        context.register(CsrfProtectionFilter.class);
         return true;
     }
 }
