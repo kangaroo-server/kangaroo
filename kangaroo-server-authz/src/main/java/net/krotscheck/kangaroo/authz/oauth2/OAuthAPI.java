@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.authz.oauth2;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
 import net.krotscheck.kangaroo.authz.common.cors.AuthzCORSFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingExceptionMapper;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory;
 import net.krotscheck.kangaroo.authz.oauth2.filter.ClientAuthorizationFilter;
 import net.krotscheck.kangaroo.authz.oauth2.resource.AuthorizationService;
@@ -80,6 +81,9 @@ public class OAuthAPI extends ResourceConfig {
 
         // Timed tasks
         register(new TokenCleanupTask.Binder()); // Cleanup old tokens.
+
+        // Exception Mappers
+        register(new RedirectingExceptionMapper.Binder());
 
         // Resource services
         register(TokenService.class);

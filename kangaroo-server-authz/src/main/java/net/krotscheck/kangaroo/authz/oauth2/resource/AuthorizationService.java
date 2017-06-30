@@ -30,8 +30,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingException;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
@@ -177,9 +177,7 @@ public final class AuthorizationService {
         } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
-            ErrorResponseBuilder builder = ErrorResponseBuilder
-                    .from(e, redirect);
-            return builder.build();
+            throw new RedirectingException(e, redirect, client.getType());
         }
     }
 
@@ -220,9 +218,8 @@ public final class AuthorizationService {
         } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
-            ErrorResponseBuilder builder = ErrorResponseBuilder
-                    .from(e, s.getClientRedirect());
-            return builder.build();
+            throw new RedirectingException(e, s.getClientRedirect(),
+                    c.getType());
         }
     }
 

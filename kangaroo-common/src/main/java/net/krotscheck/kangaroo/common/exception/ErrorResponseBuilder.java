@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import net.krotscheck.kangaroo.common.exception.KangarooException.ErrorCode;
-import org.apache.http.HttpHeaders;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 import javax.validation.ConstraintViolation;
@@ -30,8 +29,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.Locale;
 import java.util.Set;
 
@@ -64,8 +61,7 @@ public final class ErrorResponseBuilder {
     public static ErrorResponseBuilder from(final Status httpStatus) {
         return from(httpStatus,
                 messageForCode(httpStatus),
-                errorForCode(httpStatus),
-                null);
+                errorForCode(httpStatus));
     }
 
     /**
@@ -79,12 +75,12 @@ public final class ErrorResponseBuilder {
                                             final String message) {
         return from(httpStatus,
                 message,
-                errorForCode(httpStatus),
-                null);
+                errorForCode(httpStatus));
     }
 
     /**
-     * Create an error response object from a status code and a message.
+     * Create an error response object from a status code, a message, and an
+     * error string.
      *
      * @param httpStatus The HTTP Status code to return.
      * @param message    The error message to provide.
@@ -94,28 +90,10 @@ public final class ErrorResponseBuilder {
     public static ErrorResponseBuilder from(final Status httpStatus,
                                             final String message,
                                             final String error) {
-        return from(httpStatus, message, error, null);
-    }
-
-    /**
-     * Create an error response object from a status code, a message, and a
-     * redirect URL.
-     *
-     * @param httpStatus  The HTTP Status code to return.
-     * @param message     The error message to provide.
-     * @param error       A short error code.
-     * @param redirectUrl The URL to redirect the request to.
-     * @return This builder.
-     */
-    public static ErrorResponseBuilder from(final Status httpStatus,
-                                            final String message,
-                                            final String error,
-                                            final URI redirectUrl) {
         ErrorResponseBuilder builder = new ErrorResponseBuilder();
         builder.response.httpStatus = httpStatus;
         builder.response.error = error;
         builder.response.errorDescription = message;
-        builder.response.redirectUrl = redirectUrl;
 
         return builder;
     }
@@ -151,19 +129,7 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final KangarooException ke) {
-        return from(ke, null);
-    }
-
-    /**
-     * Return an error object constructed from a kangaroo error code.
-     *
-     * @param ke       A Kangaroo Exception.
-     * @param redirect The redirection uri.
-     * @return This builder.
-     */
-    public static ErrorResponseBuilder from(final KangarooException ke,
-                                            final URI redirect) {
-        return from(ke.getCode(), redirect);
+        return from(ke.getCode());
     }
 
     /**
@@ -173,23 +139,9 @@ public final class ErrorResponseBuilder {
      * @return This builder.
      */
     public static ErrorResponseBuilder from(final ErrorCode code) {
-        return from(code, null);
-    }
-
-    /**
-     * Return an error object constructed from a kangaroo error code and a
-     * redirect.
-     *
-     * @param code     The error code.
-     * @param redirect The redirection uri.
-     * @return This builder.
-     */
-    public static ErrorResponseBuilder from(final ErrorCode code,
-                                            final URI redirect) {
         return from(code.getHttpStatus(),
                 code.getErrorDescription(),
-                code.getError(),
-                redirect);
+                code.getError());
     }
 
     /**
@@ -216,7 +168,7 @@ public final class ErrorResponseBuilder {
      * @param e The exception to map.
      * @return This builder.
      */
-    public static ErrorResponseBuilder from(final Exception e) {
+    public static ErrorResponseBuilder from(final Throwable e) {
         return from(Status.INTERNAL_SERVER_ERROR);
     }
 
@@ -250,20 +202,9 @@ public final class ErrorResponseBuilder {
      * @return HTTP Response object for this error.
      */
     public Response build() {
-        if (response.getRedirectUrl() == null) {
-            return Response.status(response.httpStatus)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(response)
-                    .build();
-        }
-
-        UriBuilder builder = UriBuilder.fromUri(response.getRedirectUrl());
-
-        builder.queryParam("error", response.error);
-        builder.queryParam("error_description",
-                response.errorDescription);
-        return Response.status(Status.FOUND)
-                .header(HttpHeaders.LOCATION, builder.build())
+        return Response.status(response.httpStatus)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(response)
                 .build();
     }
 
@@ -282,14 +223,6 @@ public final class ErrorResponseBuilder {
          */
         @JsonProperty("error_description")
         private String errorDescription = "";
-
-        /**
-         * If this error includes an HTTP redirect (as with OAuth errors),
-         * include it here. The error code and description will be appended.
-         * This is ignored by JSON.
-         */
-        @JsonIgnore
-        private URI redirectUrl;
 
         /**
          * The error code.
@@ -319,15 +252,6 @@ public final class ErrorResponseBuilder {
          */
         public String getErrorDescription() {
             return errorDescription;
-        }
-
-        /**
-         * Get the redirect url.
-         *
-         * @return A redirect URL, if configured, otherwise null.
-         */
-        public URI getRedirectUrl() {
-            return redirectUrl;
         }
 
         /**

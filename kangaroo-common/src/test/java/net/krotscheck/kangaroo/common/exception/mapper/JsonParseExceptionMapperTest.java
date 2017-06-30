@@ -50,6 +50,5 @@ public final class JsonParseExceptionMapperTest {
 
         Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertEquals(null, er.getRedirectUrl());
     }
 }
