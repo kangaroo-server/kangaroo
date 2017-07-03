@@ -26,12 +26,12 @@ import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,23 +42,6 @@ import java.nio.file.Paths;
  * @author Michael Krotscheck
  */
 public class ServerFactoryTest {
-
-    /**
-     * Test an http server.
-     *
-     * @param server The server, will be started.
-     */
-    private void testHttpRequest(final HttpServer server) {
-        Assert.assertNotNull(server);
-
-        try {
-            server.start();
-
-            server.shutdownNow();
-        } catch (IOException e) {
-            Assert.fail(e.getMessage());
-        }
-    }
 
     /**
      * Construct an HTTP client.
@@ -164,17 +147,23 @@ public class ServerFactoryTest {
 
         Assert.assertEquals(response.getStatusLine().getStatusCode(),
                 404);
+        response.close();
 
         httpclient.close();
+        s.shutdownNow();
     }
 
     /**
-     * Assert that we can mount multiple applications at different url paths.
+     * Assert that we can mount multiple applications at different url paths,
+     * even if a root html app resource is declared.
      *
      * @throws Exception Should not be thrown.
      */
     @Test
     public void testMountMultipleServlets() throws Exception {
+        Path appRoot = Paths.get("src/test/resources/html/index");
+        String appPath = appRoot.toAbsolutePath().toString();
+
         ResourceConfig one = new ResourceConfig();
         one.register(StatusFeature.class);
 
@@ -182,6 +171,9 @@ public class ServerFactoryTest {
         two.register(StatusFeature.class);
 
         ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.html_app_root=" + appPath
+                })
                 .withResource("/one", one)
                 .withResource("/two", two);
 
@@ -193,12 +185,74 @@ public class ServerFactoryTest {
         CloseableHttpResponse response1 = httpclient.execute(httpGet1);
         Assert.assertEquals(response1.getStatusLine().getStatusCode(),
                 200);
+        response1.close();
 
         HttpGet httpGet2 = new HttpGet("https://localhost:8080/two/status");
         CloseableHttpResponse response2 = httpclient.execute(httpGet2);
         Assert.assertEquals(response2.getStatusLine().getStatusCode(),
                 200);
+        response2.close();
+
+        HttpGet httpGet3 = new HttpGet("https://localhost:8080/");
+        CloseableHttpResponse response3 = httpclient.execute(httpGet3);
+        String responseBody3 = EntityUtils.toString(response3.getEntity());
+
+        Assert.assertEquals(response3.getStatusLine().getStatusCode(),
+                200);
+        Assert.assertEquals("Hello world", responseBody3);
+        response3.close();
 
         httpclient.close();
+        s.shutdownNow();
+    }
+
+    /**
+     * Test building with an HTML5 application.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testAddHtmlApp() throws Exception {
+        Path appRoot = Paths.get("src/test/resources/html/index");
+        String appPath = appRoot.toAbsolutePath().toString();
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.html_app_root=" + appPath
+                });
+
+        HttpServer s = f.build();
+        s.start();
+
+        CloseableHttpClient httpclient = getHttpClient();
+        HttpGet httpGet1 = new HttpGet("https://localhost:8080/");
+        CloseableHttpResponse response1 = httpclient.execute(httpGet1);
+        String responseBody1 = EntityUtils.toString(response1.getEntity());
+
+        Assert.assertEquals(response1.getStatusLine().getStatusCode(),
+                200);
+        Assert.assertEquals("Hello world", responseBody1);
+        response1.close();
+
+        httpclient.close();
+        s.shutdownNow();
+    }
+
+    /**
+     * Test building with an HTML app that doesn't have an index file.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testAddHtmlAppWithoutIndex() throws Exception {
+        Path appRoot = Paths.get("src/test/resources/html/indnoindexex");
+        String appPath = appRoot.toAbsolutePath().toString();
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.html_app_root=" + appPath
+                });
+
+        f.build();
     }
 }

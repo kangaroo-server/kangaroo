@@ -74,6 +74,12 @@ public final class Config {
             SimpleImmutableEntry<>("kangaroo.cert_key_password", "kangaroo");
 
     /**
+     * Filesystem path to the directory to use as our HTML5 Application root.
+     */
+    public static final Entry<String, String> HTML_APP_ROOT = new
+            SimpleImmutableEntry<>("kangaroo.html_app_root", null);
+
+    /**
      * Private constructor for a utility class.
      */
     private Config() {

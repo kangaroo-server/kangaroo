@@ -76,5 +76,9 @@ public class ConfigTest {
         Assert.assertEquals("kangaroo.cert_key_password",
                 Config.CERT_KEY_PASS.getKey());
         Assert.assertEquals("kangaroo", Config.CERT_KEY_PASS.getValue());
+
+        Assert.assertEquals("kangaroo.html_app_root",
+                Config.HTML_APP_ROOT.getKey());
+        Assert.assertNull(Config.HTML_APP_ROOT.getValue());
     }
 }

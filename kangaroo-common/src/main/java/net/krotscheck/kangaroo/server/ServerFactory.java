@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.server;
 
+import com.google.common.base.Strings;
 import net.krotscheck.kangaroo.server.keystore.FSKeystoreProvider;
 import net.krotscheck.kangaroo.server.keystore.GeneratedKeystoreProvider;
 import net.krotscheck.kangaroo.server.keystore.IKeystoreProvider;
@@ -121,6 +122,16 @@ public final class ServerFactory {
             registration.addMapping(String.format("%s/*", path));
 
             context.deploy(server);
+        }
+
+        // Build a static HTTP handler, serving from --kangaroo.html_app_root
+        String htmlAppRoot = config.getString(Config.HTML_APP_ROOT.getKey(),
+                Config.HTML_APP_ROOT.getValue());
+        if (!Strings.isNullOrEmpty(htmlAppRoot)) {
+            HtmlApplicationHttpHandler handler =
+                    new HtmlApplicationHttpHandler(htmlAppRoot);
+            handler.setFileCacheEnabled(true);
+            server.getServerConfiguration().addHttpHandler(handler, "/*");
         }
 
         return server;
