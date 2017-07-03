@@ -49,7 +49,8 @@ public final class ConfigurationBuilderTest {
                         "--kangaroo.keystore_password=keystore_password",
                         "--kangaroo.keystore_type=JKS",
                         "--kangaroo.cert_alias=cert_alias",
-                        "--kangaroo.cert_key_password=key_password"
+                        "--kangaroo.cert_key_password=key_password",
+                        "--kangaroo.html_app_root=/var/www"
                 })
                 .build();
 
@@ -67,6 +68,8 @@ public final class ConfigurationBuilderTest {
                 Config.CERT_ALIAS.getKey()), "cert_alias");
         Assert.assertEquals(config.getString(
                 Config.CERT_KEY_PASS.getKey()), "key_password");
+        Assert.assertEquals(config.getString(
+                Config.HTML_APP_ROOT.getKey()), "/var/www");
     }
 
     /**
@@ -100,6 +103,7 @@ public final class ConfigurationBuilderTest {
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
         Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
         Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
+        Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
     }
 
     /**
@@ -128,6 +132,8 @@ public final class ConfigurationBuilderTest {
                 Config.CERT_ALIAS.getKey()), "cert_alias");
         Assert.assertEquals(config.getString(
                 Config.CERT_KEY_PASS.getKey()), "key_password");
+        Assert.assertEquals(config.getString(
+                Config.HTML_APP_ROOT.getKey()), "/var/www");
     }
 
     /**
@@ -148,6 +154,7 @@ public final class ConfigurationBuilderTest {
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
         Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
         Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
+        Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
     }
 
     /**
@@ -173,6 +180,7 @@ public final class ConfigurationBuilderTest {
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
         Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
         Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
+        Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
     }
 
     /**

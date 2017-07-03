@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.security;
 
-import com.google.common.net.HttpHeaders;
+import net.krotscheck.kangaroo.server.SecurityHeaders;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import javax.inject.Singleton;
@@ -26,6 +26,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 
 /**
@@ -48,8 +49,8 @@ public final class SecurityHeadersFilter implements ContainerResponseFilter {
                        final ContainerResponseContext responseContext) throws
             IOException {
 
-        // Not strictly necessary for API's, but might as well.
-        responseContext.getHeaders().add(HttpHeaders.X_FRAME_OPTIONS, "Deny");
+        MultivaluedMap<String, Object> headers = responseContext.getHeaders();
+        SecurityHeaders.ALL.forEach(headers::add);
     }
 
     /**
