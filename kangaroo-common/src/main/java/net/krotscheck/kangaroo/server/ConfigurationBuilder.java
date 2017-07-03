@@ -113,6 +113,15 @@ public final class ConfigurationBuilder {
                 .desc("Password of the private key for the certificate.")
                 .build();
 
+        Option htmlAppRoot = Option.builder()
+                .longOpt(Config.HTML_APP_ROOT.getKey())
+                .argName(Config.HTML_APP_ROOT.getKey())
+                .hasArg()
+                .desc("Path to the server's HTML5 Application root. We "
+                        + "presume HTML5 routing support in the application "
+                        + "served there.")
+                .build();
+
         CLI_OPTIONS.addOption(bindHost);
         CLI_OPTIONS.addOption(bindPort);
         CLI_OPTIONS.addOption(keystorePath);
@@ -120,6 +129,7 @@ public final class ConfigurationBuilder {
         CLI_OPTIONS.addOption(keystoreType);
         CLI_OPTIONS.addOption(certAlias);
         CLI_OPTIONS.addOption(certKeyPass);
+        CLI_OPTIONS.addOption(htmlAppRoot);
     }
 
     /**
