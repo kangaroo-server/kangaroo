@@ -632,6 +632,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         params.put("q", "single");
 
         Response r = search(params, null);
-        assertErrorResponse(r, Status.FORBIDDEN);
+        assertErrorResponse(r, Status.UNAUTHORIZED);
     }
 }

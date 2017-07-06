@@ -16,34 +16,28 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.admin.v1.filter;
+package net.krotscheck.kangaroo.authz.admin.v1.auth.filter;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.OAuth2SecurityContext;
+import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2NotAuthorizedException;
+import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
-import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-
 import org.hibernate.criterion.Restrictions;
 
 import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
-import java.security.Principal;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -53,9 +47,9 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-@Priority(Priorities.AUTHORIZATION)
-@OAuth2
-public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
+@Priority(Priorities.AUTHENTICATION)
+public final class OAuth2AuthenticationFilter
+        implements ContainerRequestFilter {
 
     /**
      * The request's session provider.
@@ -68,16 +62,22 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
     private final Provider<Configuration> configProvider;
 
     /**
-     * Create a new instance of this authorization filter.
-     *
-     * @param sessionProvider The context-relevant session provider.
-     * @param configProvider  Servlet Configuration Provider
+     * Short list of roles allowed for this particular resource.
      */
-    @Inject
-    public OAuth2AuthorizationFilter(final Provider<Session> sessionProvider,
-                                     @Named(ServletConfigFactory.GROUP_NAME)
-                                     final Provider<Configuration>
-                                             configProvider) {
+    private final String[] scopesAllowed;
+
+    /**
+     * Create a new filter, only permitting the provided scopes.
+     *
+     * @param configProvider  System configuration provider.
+     * @param sessionProvider Hibernate Session provider.
+     * @param scopesAllowed   The permitted scopes.
+     */
+    public OAuth2AuthenticationFilter(final Provider<Session> sessionProvider,
+                                      final Provider<Configuration>
+                                              configProvider,
+                                      final String[] scopesAllowed) {
+        this.scopesAllowed = scopesAllowed;
         this.sessionProvider = sessionProvider;
         this.configProvider = configProvider;
     }
@@ -87,14 +87,22 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
      * request, and validate it. If successful, it will replace the
      * security context, otherwise it will leave it blank.
      *
-     * @param requestContext request context.
+     * @param request The container request context.
      * @throws IOException if an I/O exception occurs.
      */
     @Override
-    public void filter(final ContainerRequestContext requestContext)
+    public void filter(final ContainerRequestContext request)
             throws IOException {
-        String header =
-                requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
+        // First, if we don't have a security context, throw.
+        SecurityContext oldContext = request.getSecurityContext();
+        if (oldContext == null) {
+            throw new OAuth2NotAuthorizedException(
+                    request.getUriInfo(),
+                    scopesAllowed);
+        }
+
+        String header = request.getHeaderString(HttpHeaders.AUTHORIZATION);
         UUID tokenId = getTokenIdFromHeader(header);
         Application a = loadAdminApplication();
 
@@ -112,11 +120,15 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
         OAuthToken token = (OAuthToken) c.uniqueResult();
 
         // Blank token, and/or expired tokens, throw an exception.
-        if (token != null && !token.isExpired()) {
-            Boolean isSecure = requestContext.getSecurityContext().isSecure();
-            SecurityContext context = new OAuthTokenContext(token, isSecure);
-            requestContext.setSecurityContext(context);
+        if (token == null || token.isExpired()) {
+            session.getTransaction().commit();
+            throw new OAuth2NotAuthorizedException(
+                    request.getUriInfo(),
+                    scopesAllowed);
         }
+
+        SecurityContext context = new OAuth2SecurityContext(token, true);
+        request.setSecurityContext(context);
         session.getTransaction().commit();
     }
 
@@ -160,91 +172,5 @@ public final class OAuth2AuthorizationFilter implements ContainerRequestFilter {
 
         Session s = sessionProvider.get();
         return s.get(Application.class, appId);
-    }
-
-    /**
-     * Private security context implementation that validates against our
-     * database of tokens.
-     */
-    public static final class OAuthTokenContext implements SecurityContext {
-
-        /**
-         * Is this secure?
-         */
-        private final boolean secure;
-
-        /**
-         * The principal.
-         */
-        private final OAuthToken principal;
-
-        /**
-         * The scopes.
-         */
-        private final Set<String> scopes;
-
-        /**
-         * Construct an authentication context from an OAuth token and a secure
-         * flag.
-         *
-         * @param token    The OAuth token for this principal.
-         * @param isSecure Whether to secure the context.
-         */
-        public OAuthTokenContext(final OAuthToken token,
-                                 final Boolean isSecure) {
-            // Materialize the scopes and the user identity.
-            principal = token;
-            scopes = token.getScopes().keySet();
-            secure = isSecure;
-        }
-
-        /**
-         * Return the current user identity.
-         */
-        @Override
-        public Principal getUserPrincipal() {
-            return principal;
-        }
-
-        /**
-         * WARNING: OVERLOADED TERMS
-         * <p>
-         * In order to simplify the declaration of scope permissions, this
-         * method will check to see if the current user has been granted the
-         * provied "scope" rather than "role".
-         */
-        @Override
-        public boolean isUserInRole(final String roleName) {
-            return scopes.contains(roleName);
-        }
-
-        /**
-         * Was this request done via a secure request method?
-         */
-        @Override
-        public boolean isSecure() {
-            return secure;
-        }
-
-        /**
-         * Get the authentication scheme.
-         */
-        @Override
-        public String getAuthenticationScheme() {
-            return "OAuth2";
-        }
-    }
-
-    /**
-     * HK2 Binder for our injector context.
-     */
-    public static final class Binder extends AbstractBinder {
-
-        @Override
-        protected void configure() {
-            bind(OAuth2AuthorizationFilter.class)
-                    .to(ContainerRequestFilter.class)
-                    .in(Singleton.class);
-        }
     }
 }

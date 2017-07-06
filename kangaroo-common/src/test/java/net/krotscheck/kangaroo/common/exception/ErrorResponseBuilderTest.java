@@ -211,6 +211,21 @@ public final class ErrorResponseBuilderTest {
     }
 
     /**
+     * Test building from a generic exception.
+     */
+    @Test
+    public void testWithHeader() {
+        Exception e = new Exception();
+
+        Response r = ErrorResponseBuilder.from(e)
+                .addHeader("test", "test")
+                .build();
+        ErrorResponse er = (ErrorResponse) r.getEntity();
+
+        Assert.assertEquals("test", r.getHeaderString("test"));
+    }
+
+    /**
      * Test serializing to json.
      *
      * @throws Exception Should not be thrown (hopefully).

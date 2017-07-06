@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin;
 
 
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2AuthorizationFilter;
+import net.krotscheck.kangaroo.authz.admin.v1.auth.OAuth2AuthFeature;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.ApplicationService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.AuthenticatorService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.ClientService;
@@ -43,7 +43,6 @@ import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 
 /**
@@ -62,9 +61,6 @@ public final class AdminV1API extends ResourceConfig {
         property(ServerProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
         property(ServerProperties.WADL_FEATURE_DISABLE, true);
 
-        // Ensure that role annotations are respected.
-        register(RolesAllowedDynamicFeature.class);
-
         // Common features.
         register(LoggingFeature.class);          // Logging Configuration
         register(ConfigurationFeature.class);    // Configuration loader
@@ -81,8 +77,8 @@ public final class AdminV1API extends ResourceConfig {
         register(new ServletConfigFactory.Binder());
         register(new FirstRunContainerLifecycleListener.Binder());
 
-        // API Authorization
-        register(new OAuth2AuthorizationFilter.Binder());
+        // API Authentication and Authorization.
+        register(OAuth2AuthFeature.class);
 
         // API Resources
         register(ApplicationService.class);

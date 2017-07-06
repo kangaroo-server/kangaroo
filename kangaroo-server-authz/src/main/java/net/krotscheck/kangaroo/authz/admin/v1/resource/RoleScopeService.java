@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
@@ -28,7 +28,6 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScope;
 import org.hibernate.Session;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.DELETE;
@@ -47,8 +46,7 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-@OAuth2
-@RolesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
+@ScopesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
 @Transactional
 public final class RoleScopeService extends AbstractService {
 
