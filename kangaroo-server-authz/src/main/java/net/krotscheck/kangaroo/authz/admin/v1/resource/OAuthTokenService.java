@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.filter.OAuth2;
+import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -44,7 +44,6 @@ import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.jvnet.hk2.annotations.Optional;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -68,8 +67,7 @@ import java.util.UUID;
  * @author Michael Krotscheck
  */
 @Path("/token")
-@RolesAllowed({Scope.TOKEN_ADMIN, Scope.TOKEN})
-@OAuth2
+@ScopesAllowed({Scope.TOKEN_ADMIN, Scope.TOKEN})
 @Transactional
 public final class OAuthTokenService extends AbstractService {
 

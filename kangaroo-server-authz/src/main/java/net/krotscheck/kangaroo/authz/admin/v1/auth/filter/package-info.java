@@ -17,6 +17,6 @@
  */
 
 /**
- * Request filters for the admin server.
+ * Request filters that enforce OAuth2.
  */
-package net.krotscheck.kangaroo.authz.admin.v1.filter;
+package net.krotscheck.kangaroo.authz.admin.v1.auth.filter;
