@@ -62,7 +62,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     private final Class<T> typingClass;
 
     /**
-     * The scope to grant the issued token.
+     * The scope to token the issued token.
      */
     private final String tokenScope;
 

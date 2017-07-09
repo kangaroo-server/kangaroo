@@ -81,7 +81,7 @@ public final class TokenServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that an invalid grant type is rejected.
+     * Assert that an invalid token type is rejected.
      */
     @Test
     public void testInvalidGrantType() {
@@ -104,7 +104,7 @@ public final class TokenServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that an valid grant type is accepted.
+     * Assert that an valid token type is accepted.
      */
     @Test
     public void testValidGrantType() {

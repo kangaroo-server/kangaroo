@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
+package net.krotscheck.kangaroo.authz.oauth2.resource.token;
 
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
@@ -38,7 +38,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 /**
- * These tests ensure coverage on the Client Credentials token grant type
+ * These tests ensure coverage on the Client Credentials token token type
  * handler, covered in RFC6749.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.4">https://tools.ietf.org/html/rfc6749#section-4.4</a>

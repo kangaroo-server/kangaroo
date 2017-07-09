@@ -27,7 +27,7 @@ public enum ClientType {
 
     /**
      * A Confidential client, such as a server-based web application - which
-     * uses the authorization grant flow described in section 4.1 in the OAuth2
+     * uses the authorization token flow described in section 4.1 in the OAuth2
      * Specification. The use case met is a server-based web application
      * which is permitted to make API calls to the authorization server on
      * behalf of the user.
@@ -38,7 +38,7 @@ public enum ClientType {
 
     /**
      * A Public client, such as a browser javascript application, which uses
-     * the Implicit grant flow described in section 4.2 of the OAuth2
+     * the Implicit token flow described in section 4.2 of the OAuth2
      * Specification.
      *
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2">https://tools.ietf.org/html/rfc6749#section-4.2</a>
