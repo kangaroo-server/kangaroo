@@ -25,6 +25,8 @@ import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory;
 import net.krotscheck.kangaroo.authz.oauth2.filter.ClientAuthorizationFilter;
 import net.krotscheck.kangaroo.authz.oauth2.resource.AuthorizationService;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenService;
+import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.AuthCodeHandler;
+import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.ImplicitHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.AuthorizationCodeGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.ClientCredentialsGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.OwnerCredentialsGrantHandler;
@@ -72,6 +74,10 @@ public class OAuthAPI extends ResourceConfig {
 
         // Service filters
         register(new ClientAuthorizationFilter.Binder());
+
+        // Authorization handlers
+        register(new AuthCodeHandler.Binder());
+        register(new ImplicitHandler.Binder());
 
         // ResponseType and GrantType handlers
         register(new ClientCredentialsGrantHandler.Binder());
