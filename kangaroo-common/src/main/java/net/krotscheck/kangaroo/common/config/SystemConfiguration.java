@@ -20,10 +20,13 @@ package net.krotscheck.kangaroo.common.config;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
+import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.TimeZone;
 
@@ -42,12 +45,23 @@ public final class SystemConfiguration extends CompositeConfiguration {
 
     /**
      * Create an instance of the configuration provider.
+     *
+     * @param configurations Injected configuration.
      */
-    public SystemConfiguration() {
+    @Inject
+    public SystemConfiguration(
+            @Named("kangaroo_external_configuration")
+            final IterableProvider<Configuration> configurations) {
 
-        logger.debug("Adding system configuration");
-        addConfiguration(
-                new org.apache.commons.configuration.SystemConfiguration());
+        // If the injected list of configurations is empty, at least add the
+        // system configuration.
+        logger.debug("Building System Configuration");
+        if (configurations.getSize() == 0) {
+            addConfiguration(
+                    new org.apache.commons.configuration.SystemConfiguration());
+        } else {
+            configurations.forEach(this::addConfiguration);
+        }
 
         // Run the global configuration.
         configureGlobal();
@@ -71,7 +85,7 @@ public final class SystemConfiguration extends CompositeConfiguration {
     }
 
     /**
-     * HK2 Binder for our injector context.
+     * HK2 ConfigurationBinder for our injector context.
      */
     public static final class Binder extends AbstractBinder {
 

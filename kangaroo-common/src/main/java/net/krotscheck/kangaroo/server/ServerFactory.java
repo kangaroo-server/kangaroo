@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.server;
 
 import com.google.common.base.Strings;
+import net.krotscheck.kangaroo.common.config.ConfigurationBinder;
 import net.krotscheck.kangaroo.server.keystore.FSKeystoreProvider;
 import net.krotscheck.kangaroo.server.keystore.GeneratedKeystoreProvider;
 import net.krotscheck.kangaroo.server.keystore.IKeystoreProvider;
@@ -114,6 +115,7 @@ public final class ServerFactory {
         for (Entry<String, ResourceConfig> route : services.entrySet()) {
             String path = route.getKey();
             ResourceConfig rc = route.getValue();
+            rc.register(new ConfigurationBinder(config));
             String name = route.getValue().getClass().getSimpleName();
 
             WebappContext context = new WebappContext(name, path);
