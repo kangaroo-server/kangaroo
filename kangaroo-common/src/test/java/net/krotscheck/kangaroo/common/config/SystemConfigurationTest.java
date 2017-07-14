@@ -17,10 +17,18 @@
 
 package net.krotscheck.kangaroo.common.config;
 
+import net.krotscheck.kangaroo.test.hk2.SimpleIterableProvider;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.MapConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.Properties;
 import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the system configuration component.
@@ -30,12 +38,36 @@ import java.util.TimeZone;
 public final class SystemConfigurationTest {
 
     /**
-     * Test the configuration that's detected.
+     * Test that with no injectees, we simply pass in the system configuraiton.
      */
     @Test
     public void testConfigurationDefaults() {
-        SystemConfiguration config = new SystemConfiguration();
+        SimpleIterableProvider<Configuration> configs =
+                new SimpleIterableProvider<>(Collections.emptyList());
+        SystemConfiguration config = new SystemConfiguration(configs);
 
         Assert.assertEquals(TimeZone.getTimeZone("UTC"), config.getTimezone());
+
+        Configuration c =
+                new org.apache.commons.configuration.SystemConfiguration();
+        c.getKeys().forEachRemaining(s -> assertTrue(config.containsKey(s)));
+    }
+
+    /**
+     * Test that we can inject new configuration values.
+     */
+    @Test
+    public void testConfigurationInjection() {
+        Properties properties = new Properties();
+        properties.setProperty("foo", "bar");
+        MapConfiguration mapConfig = new MapConfiguration(properties);
+        SimpleIterableProvider<Configuration> configs =
+                new SimpleIterableProvider<>(
+                        Collections.singletonList(mapConfig));
+
+        SystemConfiguration config = new SystemConfiguration(configs);
+
+        properties.forEach((k, v) -> assertEquals(v,
+                config.getString(k.toString())));
     }
 }
