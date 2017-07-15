@@ -27,7 +27,9 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Unit tests for the ConfigurationBuilder.
@@ -42,6 +44,7 @@ public final class ConfigurationBuilderTest {
     @Test
     public void addCommandlineArgs() {
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .addCommandlineArgs(new String[]{
                         "-h=example.com",
                         "-p=9000",
@@ -78,6 +81,7 @@ public final class ConfigurationBuilderTest {
     @Test(expected = RuntimeException.class)
     public void addInvalidCommandlineArgs() {
         new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .addCommandlineArgs(new String[]{
                         "-l=invalid_field"
                 })
@@ -90,20 +94,41 @@ public final class ConfigurationBuilderTest {
     @Test
     public void addNoCommandlineArgs() {
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .addCommandlineArgs(new String[]{
                 })
                 .build();
 
-        Assert.assertEquals(config.getString(
-                Config.HOST.getKey()), "127.0.0.1");
-        Assert.assertEquals(config.getInt(
-                Config.PORT.getKey()), 8080);
+        Assert.assertNull(config.getString(Config.HOST.getKey()));
+        Assert.assertNull(config.getString(Config.PORT.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
         Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
         Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
         Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
+    }
+
+    /**
+     * Assert that lack of commandline arguments goes to defaults.
+     */
+    @Test
+    public void addWithDefaults() {
+        Map<String, Object> defaults = new HashMap<>();
+        defaults.put(Config.HOST.getKey(), "example.com");
+        defaults.put(Config.PORT.getKey(), "1000");
+
+        Configuration config = new ConfigurationBuilder()
+                .withDefaults(defaults)
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
+                .addCommandlineArgs(new String[]{
+                })
+                .build();
+
+        Assert.assertEquals("example.com",
+                config.getString(Config.HOST.getKey()));
+        Assert.assertEquals(1000,
+                config.getInt(Config.PORT.getKey()));
     }
 
     /**
@@ -115,6 +140,7 @@ public final class ConfigurationBuilderTest {
                 .getResource("/config/test.properties");
 
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .addPropertiesFile(filePath.getPath())
                 .build();
 
@@ -142,13 +168,12 @@ public final class ConfigurationBuilderTest {
     @Test
     public void addNonexistentPropertiesFile() {
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .addPropertiesFile("/config/nonexistent.properties")
                 .build();
 
-        Assert.assertEquals(config.getString(
-                Config.HOST.getKey()), "127.0.0.1");
-        Assert.assertEquals(config.getInt(
-                Config.PORT.getKey()), 8080);
+        Assert.assertNull(config.getString(Config.HOST.getKey()));
+        Assert.assertNull(config.getString(Config.PORT.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
@@ -168,13 +193,12 @@ public final class ConfigurationBuilderTest {
         Mockito.doReturn(true).when(mockConfigFile).exists();
 
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .addPropertiesFile(mockConfigFile)
                 .build();
 
-        Assert.assertEquals(config.getString(
-                Config.HOST.getKey()), "127.0.0.1");
-        Assert.assertEquals(config.getInt(
-                Config.PORT.getKey()), 8080);
+        Assert.assertNull(config.getString(Config.HOST.getKey()));
+        Assert.assertNull(config.getString(Config.PORT.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
@@ -189,6 +213,7 @@ public final class ConfigurationBuilderTest {
     @Test
     public void testSystemParameters() {
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .build();
 
         SystemConfiguration c = new SystemConfiguration();
@@ -208,6 +233,7 @@ public final class ConfigurationBuilderTest {
     @Test
     public void testEnvParameters() {
         Configuration config = new ConfigurationBuilder()
+                .withCommandlineOptions(ServerFactory.CLI_OPTIONS)
                 .build();
 
         EnvironmentConfiguration c = new EnvironmentConfiguration();
