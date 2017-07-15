@@ -134,7 +134,7 @@
     <dependency>
       <groupId>org.glassfish.grizzly</groupId>
       <artifactId>grizzly-http-servlet-extras</artifactId>
-      <version>2.3.30</version>
+      <version>2.3.31</version>
     </dependency>
 
     <!-- Hibernate -->
