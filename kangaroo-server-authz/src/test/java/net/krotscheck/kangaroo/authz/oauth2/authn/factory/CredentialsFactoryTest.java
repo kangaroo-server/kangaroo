@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.factory;
+package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.jersey.server.ContainerRequest;

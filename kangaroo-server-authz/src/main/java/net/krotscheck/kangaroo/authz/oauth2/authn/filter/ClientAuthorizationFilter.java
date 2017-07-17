@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.filter;
+package net.krotscheck.kangaroo.authz.oauth2.authn.filter;
 
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
-import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.Session;

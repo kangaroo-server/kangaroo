@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.factory;
+package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
