@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

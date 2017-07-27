@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.security;
 
 import com.google.common.net.HttpHeaders;
-import net.krotscheck.kangaroo.test.KangarooJerseyTest;
+import net.krotscheck.kangaroo.test.jerseyTest.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;

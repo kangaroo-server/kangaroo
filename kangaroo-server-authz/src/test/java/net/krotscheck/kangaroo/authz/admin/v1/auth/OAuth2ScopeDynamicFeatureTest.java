@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;

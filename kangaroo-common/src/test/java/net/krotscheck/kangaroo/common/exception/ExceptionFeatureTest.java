@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.test.KangarooJerseyTest;
+import net.krotscheck.kangaroo.test.jerseyTest.KangarooJerseyTest;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;

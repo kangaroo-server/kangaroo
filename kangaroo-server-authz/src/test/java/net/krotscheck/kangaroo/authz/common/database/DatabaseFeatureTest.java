@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.database;
 
 import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.event.spi.PreInsertEventListener;

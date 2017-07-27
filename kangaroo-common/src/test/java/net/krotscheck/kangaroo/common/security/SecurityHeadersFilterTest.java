@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.security;
 
 import com.google.common.net.HttpHeaders;
-import net.krotscheck.kangaroo.test.KangarooJerseyTest;
+import net.krotscheck.kangaroo.test.jerseyTest.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,11 +58,11 @@ public final class SecurityHeadersFilterTest extends KangarooJerseyTest {
     public void testFilters() {
         Response r = target("/").request().get();
 
-        // We expect 3 headers, two provided by the underlying framework, and
+        // We expect 4 headers, 3 provided by the underlying framework, and
         // one provided by the filter.
         MultivaluedMap<String, Object> headers = r.getHeaders();
 
-        Assert.assertEquals(3, headers.size());
+        Assert.assertEquals(4, headers.size());
 
         // Framework provided tests.
         Assert.assertNotNull(headers.get(HttpHeaders.DATE));

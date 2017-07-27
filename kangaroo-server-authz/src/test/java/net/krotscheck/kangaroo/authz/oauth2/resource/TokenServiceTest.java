@@ -24,7 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;

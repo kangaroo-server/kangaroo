@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.authz.admin.v1.auth;
 import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;

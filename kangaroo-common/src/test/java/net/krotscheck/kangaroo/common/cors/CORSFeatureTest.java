@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.common.cors;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.krotscheck.kangaroo.test.ContainerTest;
+import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.jersey.server.ResourceConfig;
