@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.authz.admin.v1.test.SingletonTestContainerFactory;
+import net.krotscheck.kangaroo.test.jerseyTest.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;

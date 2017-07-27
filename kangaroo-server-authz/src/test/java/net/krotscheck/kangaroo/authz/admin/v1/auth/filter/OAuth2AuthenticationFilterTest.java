@@ -28,7 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;

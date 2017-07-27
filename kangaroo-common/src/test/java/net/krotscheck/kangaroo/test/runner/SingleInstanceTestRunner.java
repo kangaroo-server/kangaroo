@@ -27,7 +27,7 @@ import org.junit.runners.model.InitializationError;
  *
  * @author Michael Krotscheck
  */
-public class SingleInstanceTestRunner
+public final class SingleInstanceTestRunner
         extends BlockJUnit4ClassRunner {
 
     /**
