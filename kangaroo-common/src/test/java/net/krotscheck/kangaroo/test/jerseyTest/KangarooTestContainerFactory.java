@@ -40,9 +40,11 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -56,6 +58,12 @@ import java.util.logging.Logger;
  */
 public final class KangarooTestContainerFactory
         implements TestContainerFactory {
+
+    /**
+     * List of operations that should be applied to all servers when they are
+     * constructed.
+     */
+    private List<ConfigureServerInterface> serverLambdas = new ArrayList<>();
 
     /**
      * Create a test container instance.
@@ -76,8 +84,33 @@ public final class KangarooTestContainerFactory
                     + " be an instance of ServletDeploymentContext.");
         }
 
-        return new KangarooTestContainer(baseUri,
+        KangarooTestContainer container = new KangarooTestContainer(baseUri,
                 (ServletDeploymentContext) context);
+        serverLambdas.forEach(l -> l.operation(container.getServer()));
+        return container;
+    }
+
+    /**
+     * Apply an operation to the server when it's constructed. This can mean
+     * additional filters, SessionHandlers, etc.
+     *
+     * @param o The lambda to apply
+     */
+    public void configureServer(final ConfigureServerInterface o) {
+        this.serverLambdas.add(o);
+    }
+
+    /**
+     * Lambda interface, so we can apply arbitrary HTTPServer configurations
+     * during construction.
+     */
+    public interface ConfigureServerInterface {
+        /**
+         * Apply a list of changes to the server.
+         *
+         * @param server The server to modify.
+         */
+        void operation(HttpServer server);
     }
 
     /**
@@ -126,6 +159,16 @@ public final class KangarooTestContainerFactory
 
             this.deploymentContext = context;
             instantiateGrizzlyWebServer();
+        }
+
+        /**
+         * Retrieve the server that will be run during the test suite, in
+         * case it needs additional configuration.
+         *
+         * @return The constructed server.
+         */
+        public HttpServer getServer() {
+            return server;
         }
 
         /**

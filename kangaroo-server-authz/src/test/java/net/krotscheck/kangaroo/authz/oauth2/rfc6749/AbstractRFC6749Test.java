@@ -17,10 +17,9 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
-import net.krotscheck.kangaroo.authz.admin.AdminV1API;
-import net.krotscheck.kangaroo.authz.common.authenticator.test.TestAuthenticator;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
+import net.krotscheck.kangaroo.test.jerseyTest.KangarooTestContainerFactory;
 import net.krotscheck.kangaroo.test.jerseyTest.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -44,6 +43,11 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
     private SingletonTestContainerFactory testContainerFactory;
 
     /**
+     * The current running test application.
+     */
+    private ResourceConfig testApplication;
+
+    /**
      * This method overrides the underlying default test container provider,
      * with one that provides a singleton instance. This allows us to
      * circumvent the often expensive initialization routines that come from
@@ -57,18 +61,16 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
     protected TestContainerFactory getTestContainerFactory()
             throws TestContainerException {
         if (this.testContainerFactory == null) {
+            KangarooTestContainerFactory parentFactory =
+                    (KangarooTestContainerFactory)
+                            super.getTestContainerFactory();
+
             this.testContainerFactory =
                     new SingletonTestContainerFactory(
-                            super.getTestContainerFactory(),
-                            this.getClass());
+                            parentFactory, this.getClass());
         }
         return testContainerFactory;
     }
-
-    /**
-     * The current running test application.
-     */
-    private ResourceConfig testApplication;
 
     /**
      * Create the application under test.
