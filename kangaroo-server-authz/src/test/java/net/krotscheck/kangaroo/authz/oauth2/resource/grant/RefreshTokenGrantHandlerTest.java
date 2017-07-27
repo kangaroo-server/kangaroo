@@ -28,7 +28,7 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeExcept
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
 import org.junit.Assert;

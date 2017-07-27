@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.admin.v1.test;
+package net.krotscheck.kangaroo.test.jerseyTest;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.DeploymentContext;
@@ -39,14 +39,14 @@ import java.util.List;
 public class SingletonTestContainerFactory implements TestContainerFactory {
 
     /**
-     * The number of expected tests.
-     */
-    private int testCount = 0;
-
-    /**
      * Wrapped factory, used to generate instances if we don't have one yet.
      */
     private final TestContainerFactory defaultFactory;
+
+    /**
+     * The number of expected tests.
+     */
+    private int testCount = 0;
 
     /**
      * List of test containers that have been generated during this run.
@@ -73,26 +73,14 @@ public class SingletonTestContainerFactory implements TestContainerFactory {
     }
 
     /**
-     * Create a test container instance.
+     * This utility method extracts all methods annotated with a particular
+     * type. We use it to find all tests in a suite, so we know when to shut
+     * down the singleton.
      *
-     * @param baseUri           base URI for the test container to run at.
-     * @param deploymentContext deployment context of the tested JAX-RS / Jersey application .
-     * @return new test container configured to run the tested application.
-     * @throws IllegalArgumentException if {@code deploymentContext} is not supported
-     *                                  by this test container factory.
+     * @param type       The type to scan.
+     * @param annotation The annotation to look for.
+     * @return A list of all methods with this type.
      */
-    @Override
-    public TestContainer create(final URI baseUri,
-                                final DeploymentContext deploymentContext) {
-        if (currentContainer == null) {
-            TestContainer created = defaultFactory.create(baseUri,
-                    deploymentContext);
-            currentContainer = new SingletonTestContainer(created, testCount);
-        }
-
-        return currentContainer;
-    }
-
     public static List<Method> getMethodsAnnotatedWith(
             final Class<?> type,
             final Class<? extends Annotation> annotation) {
@@ -114,6 +102,27 @@ public class SingletonTestContainerFactory implements TestContainerFactory {
     }
 
     /**
+     * Create a test container instance.
+     *
+     * @param baseUri           base URI for the test container to run at.
+     * @param deploymentContext deployment context of the tested JAX-RS / Jersey application .
+     * @return new test container configured to run the tested application.
+     * @throws IllegalArgumentException if {@code deploymentContext} is not supported
+     *                                  by this test container factory.
+     */
+    @Override
+    public TestContainer create(final URI baseUri,
+                                final DeploymentContext deploymentContext) {
+        if (currentContainer == null) {
+            TestContainer created = defaultFactory.create(baseUri,
+                    deploymentContext);
+            currentContainer = new SingletonTestContainer(created, testCount);
+        }
+
+        return currentContainer;
+    }
+
+    /**
      * Wrapper test container, ensures that a container is only started once.
      */
     private static class SingletonTestContainer implements TestContainer {
@@ -122,21 +131,18 @@ public class SingletonTestContainerFactory implements TestContainerFactory {
          * How often are we expecting this container to be started?
          */
         private final int totalStartsExpected;
-
-        /**
-         * How often has this container been started?
-         */
-        private int startRequests = 0;
-
-        /**
-         * Have we already started this container?
-         */
-        private boolean started = false;
-
         /**
          * The wrapped testcontainer.
          */
         private final TestContainer wrapped;
+        /**
+         * How often has this container been started?
+         */
+        private int startRequests = 0;
+        /**
+         * Have we already started this container?
+         */
+        private boolean started = false;
 
         /**
          * Create a new SingletonTestContainer, wrapping an existing one.

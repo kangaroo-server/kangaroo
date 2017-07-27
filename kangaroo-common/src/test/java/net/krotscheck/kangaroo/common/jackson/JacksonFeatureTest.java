@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.common.jackson;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojo;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojoDeserializer;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojoSerializer;
-import net.krotscheck.kangaroo.test.KangarooJerseyTest;
+import net.krotscheck.kangaroo.test.jerseyTest.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;

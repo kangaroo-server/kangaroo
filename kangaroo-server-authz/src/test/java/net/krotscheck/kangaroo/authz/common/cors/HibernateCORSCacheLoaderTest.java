@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.cors;
 
 import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
-import net.krotscheck.kangaroo.test.DatabaseTest;
+import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
