@@ -37,6 +37,8 @@ import org.jvnet.hk2.annotations.Optional;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -97,6 +99,7 @@ public final class AuthorizationService {
      * request parameters.
      *
      * @param uriInfo       The requested URI.
+     * @param request       The servlet request.
      * @param authenticator A string key for the authenticator that should be
      *                      used.
      * @param responseType  The requested response_type.
@@ -110,6 +113,7 @@ public final class AuthorizationService {
     @OAuthFilterChain
     public Response authorizationRequest(
             @Context final UriInfo uriInfo,
+            @Context final HttpServletRequest request,
             @Optional @QueryParam("authenticator")
             final AuthenticatorType authenticator,
             @Optional @QueryParam("response_type")
@@ -120,6 +124,11 @@ public final class AuthorizationService {
             final String scope,
             @Optional @QueryParam("state")
             final String state) {
+
+        // With a valid request, we need to make sure a browser session is
+        // established. Even though we only use it for the implicit flow, the
+        // hit is valid for keeping the session alive.
+        HttpSession httpSession = request.getSession(true);
 
         // Make sure the kind of request we have is permitted for this client.
         Client client = session.get(Client.class, credentials.getLogin());
@@ -148,7 +157,13 @@ public final class AuthorizationService {
                     injector.getInstance(IAuthorizeHandler.class,
                             c.getType().toString());
 
-            return handler.handle(uriInfo, auth, redirect, scopes, state);
+            Response response = handler.handle(uriInfo, httpSession, auth,
+                    redirect, scopes, state);
+
+            // On success, rotate the session id.
+            request.changeSessionId();
+
+            return response;
         } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
@@ -161,6 +176,7 @@ public final class AuthorizationService {
      *
      * @param state   State passed to the authenticator to include in the
      *                callback.
+     * @param request The servlet request.
      * @param uriInfo The URI, including all result parameters.
      * @return A response, describing the request.
      */
@@ -169,9 +185,15 @@ public final class AuthorizationService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response authorizationCallback(
             @Context final UriInfo uriInfo,
+            @Context final HttpServletRequest request,
             @Optional
             @DefaultValue("")
             @QueryParam("state") final String state) {
+
+        // With a valid request, we need to make sure a browser session is
+        // established. Even though we only use it for the implicit flow, the
+        // hit is valid for keeping the session alive.
+        HttpSession httpSession = request.getSession(true);
 
         // These next two lines are null-safe.
         AuthenticatorState s = getAuthenticatorState(state);
@@ -186,7 +208,13 @@ public final class AuthorizationService {
             if (handler == null) {
                 throw new InvalidRequestException();
             }
-            return handler.callback(s, uriInfo);
+
+            Response response = handler.callback(s, httpSession, uriInfo);
+
+            // On success, rotate the session id.
+            request.changeSessionId();
+
+            return response;
         } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.

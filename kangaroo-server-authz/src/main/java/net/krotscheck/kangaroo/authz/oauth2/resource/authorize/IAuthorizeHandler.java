@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
 
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
@@ -39,15 +40,20 @@ public interface IAuthorizeHandler {
     /**
      * Handle a specific authorization grant request.
      *
-     * @param uriInfo  The original request, in case additional data is needed.
-     * @param auth     The authenticator to use to process this request.
-     * @param redirect The redirect (already validated) to which the response
-     *                 should be returned.
-     * @param scopes   The (validated) list of scopes requested by the user.
-     * @param state    The client's requested state ID.
+     * @param uriInfo        The original request, in case additional data
+     *                       is needed.
+     * @param browserSession The browser session, maintained via cookies.
+     * @param auth           The authenticator to use to process this
+     *                       request.
+     * @param redirect       The redirect (already validated) to which
+     *                       the response  should be returned.
+     * @param scopes         The (validated) list of scopes requested by
+     *                       the user.
+     * @param state          The client's requested state ID.
      * @return A response entity with the appropriate response.
      */
     Response handle(UriInfo uriInfo,
+                    HttpSession browserSession,
                     Authenticator auth,
                     URI redirect,
                     SortedMap<String, ApplicationScope> scopes,
@@ -58,11 +64,14 @@ public interface IAuthorizeHandler {
      * the previously stored state, this method should return to the client
      * either a valid token, or an appropriate error response.
      *
-     * @param s       The request state previously saved by the client.
-     * @param uriInfo The URI response from the third party IdP.
+     * @param s              The request state previously saved by the client.
+     * @param browserSession The browser session, maintained via cookies.
+     * @param uriInfo        The URI response from the third party IdP.
      * @return A response entity indicating success or failure.
      */
-    Response callback(AuthenticatorState s, UriInfo uriInfo);
+    Response callback(AuthenticatorState s,
+                      HttpSession browserSession,
+                      UriInfo uriInfo);
 
     /**
      * Provided a stored intermediate authenticator state, attempt to resolve

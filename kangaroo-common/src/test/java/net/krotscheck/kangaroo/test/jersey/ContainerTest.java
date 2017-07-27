@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -182,6 +183,23 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      */
     protected final Response followRedirect(final Response original,
                                             final String authHeader) {
+        Cookie c = original.getCookies().get("kangaroo");
+        return this.followRedirect(original, authHeader, c);
+    }
+
+    /**
+     * This is a convenience method which, presuming a response constitutes a
+     * redirect, will follow that redirect and return the subsequent response.
+     *
+     * @param original   The original response, which should constitute a
+     *                   redirect.
+     * @param authHeader An optional authorization header.
+     * @param cookie     An optional cookie to send.
+     * @return The response.
+     */
+    protected final Response followRedirect(final Response original,
+                                            final String authHeader,
+                                            final Cookie cookie) {
         assertTrue(VALID_REDIRECT_CODES
                 .contains(Status.fromStatusCode(original.getStatus())));
 
@@ -194,6 +212,9 @@ public abstract class ContainerTest extends KangarooJerseyTest {
         }
 
         Builder b = target.request();
+        if (cookie != null) {
+            b.cookie(cookie.getName(), cookie.getValue());
+        }
         if (authHeader != null) {
             b.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
