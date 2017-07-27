@@ -23,19 +23,19 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ContainerRequest;
 
-import java.nio.charset.Charset;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import java.nio.charset.Charset;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * This factory attempts to determine the current client credentials
@@ -284,7 +284,7 @@ public final class CredentialsFactory implements Factory<Credentials> {
         protected void configure() {
             bindFactory(CredentialsFactory.class)
                     .to(Credentials.class)
-                    .in(Singleton.class);
+                    .in(RequestScoped.class);
         }
     }
 }
