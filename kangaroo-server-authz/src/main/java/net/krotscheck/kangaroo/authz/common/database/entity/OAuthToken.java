@@ -103,6 +103,19 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     private OAuthToken authToken;
 
     /**
+     * The HTTP session that contains this token, usually only used for
+     * refresh tokens.
+     */
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE}
+    )
+    @JoinColumn(name = "httpSession", nullable = true, updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private HttpSession httpSession;
+
+    /**
      * The token type.
      */
     @Enumerated(EnumType.STRING)
@@ -141,6 +154,24 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     @MapKey(name = "name")
     @SortNatural
     private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+
+    /**
+     * Get the attached HTTP Session.
+     *
+     * @return The http session.
+     */
+    public HttpSession getHttpSession() {
+        return httpSession;
+    }
+
+    /**
+     * Set the attached HTTP Session.
+     *
+     * @param httpSession The http session.
+     */
+    public void setHttpSession(final HttpSession httpSession) {
+        this.httpSession = httpSession;
+    }
 
     /**
      * Get the user identity to which this token was issued.
