@@ -21,6 +21,8 @@ package net.krotscheck.kangaroo.authz;
 import net.krotscheck.kangaroo.authz.admin.AdminV1API;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.server.ServerFactory;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.glassfish.grizzly.http.server.HttpServer;
 
 import java.io.IOException;
@@ -31,6 +33,33 @@ import java.io.IOException;
  * @author Michael Krotscheck
  */
 public final class AuthzServer {
+
+    /**
+     * Our commandline options.
+     */
+    private static final Options CLI_OPTIONS;
+
+    static {
+        // Initialize the CLI Options.
+        CLI_OPTIONS = new Options();
+
+        Option cookieName = Option.builder("cn")
+                .longOpt(AuthzServerConfig.SESSION_NAME.getKey())
+                .argName(AuthzServerConfig.SESSION_NAME.getKey())
+                .hasArg()
+                .desc("The cookie name to use, default 'kangaroo'.")
+                .build();
+
+        Option cookieExpiresIn = Option.builder("ce")
+                .longOpt(AuthzServerConfig.SESSION_MAX_AGE.getKey())
+                .argName(AuthzServerConfig.SESSION_MAX_AGE.getKey())
+                .hasArg()
+                .desc("The maxium age of the cookie in seconds. Default 1 day.")
+                .build();
+
+        CLI_OPTIONS.addOption(cookieName);
+        CLI_OPTIONS.addOption(cookieExpiresIn);
+    }
 
     /**
      * Utility class, private constructor.
@@ -50,6 +79,7 @@ public final class AuthzServer {
             throws IOException, InterruptedException {
 
         HttpServer server = new ServerFactory()
+                .withCommandlineOptions(CLI_OPTIONS)
                 .withCommandlineArgs(args)
                 .withPropertiesFile("kangaroo.authz.properties")
                 .withResource("/v1", new AdminV1API())
