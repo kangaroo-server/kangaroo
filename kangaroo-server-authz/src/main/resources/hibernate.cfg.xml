@@ -68,6 +68,7 @@
     <mapping class="net.krotscheck.kangaroo.authz.common.database.entity.Role"/>
     <mapping class="net.krotscheck.kangaroo.authz.common.database.entity.User"/>
     <mapping class="net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity"/>
+    <mapping class="net.krotscheck.kangaroo.authz.common.database.entity.HttpSession"/>
 
     <mapping class="net.krotscheck.kangaroo.common.hibernate.entity.ConfigurationEntry"/>
 

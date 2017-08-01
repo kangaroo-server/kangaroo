@@ -70,6 +70,19 @@ public final class OAuthTokenTest {
     }
 
     /**
+     * Assert that we can get and set the token's http session
+     */
+    @Test
+    public void testGetSetHttpSession() {
+        OAuthToken token = new OAuthToken();
+        HttpSession session = new HttpSession();
+
+        Assert.assertNull(token.getHttpSession());
+        token.setHttpSession(session);
+        Assert.assertEquals(session, token.getHttpSession());
+    }
+
+    /**
      * Assert that we can get and set the token's client.
      */
     @Test
