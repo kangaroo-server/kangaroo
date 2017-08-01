@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.test.jerseyTest;
+package net.krotscheck.kangaroo.test.jersey;
 
 import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;

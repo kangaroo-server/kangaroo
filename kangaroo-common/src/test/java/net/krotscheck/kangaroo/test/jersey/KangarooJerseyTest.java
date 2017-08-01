@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.test.jerseyTest;
+package net.krotscheck.kangaroo.test.jersey;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -27,7 +27,6 @@ import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.TestProperties;
-import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -70,7 +69,8 @@ public abstract class KangarooJerseyTest extends JerseyTest {
      */
     @Override
     protected TestContainerFactory getTestContainerFactory() {
-        return new KangarooTestContainerFactory();
+        return new org.glassfish.jersey.test.grizzly
+                .GrizzlyWebTestContainerFactory();
     }
 
     /**
