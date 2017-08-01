@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.config;
 
-import net.krotscheck.kangaroo.test.jerseyTest.KangarooJerseyTest;
+import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.apache.commons.configuration.MapConfiguration;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;

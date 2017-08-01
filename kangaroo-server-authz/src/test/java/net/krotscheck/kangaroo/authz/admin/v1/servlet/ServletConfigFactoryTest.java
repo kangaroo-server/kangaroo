@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory.Binder;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
-import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
+import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.Factory;
