@@ -242,7 +242,7 @@ public final class RFC6749 {
     }
 
     /**
-     * The requested grant type is invalid, unknown, or malformed.
+     * The requested token type is invalid, unknown, or malformed.
      *
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">https://tools.ietf.org/html/rfc6749#section-5.2</a>
      */
@@ -255,7 +255,7 @@ public final class RFC6749 {
         public static final ErrorCode CODE = new ErrorCode(
                 Status.BAD_REQUEST,
                 "invalid_grant",
-                "The requested grant is not valid.");
+                "The requested token is not valid.");
 
         /**
          * Constructor.
@@ -266,7 +266,7 @@ public final class RFC6749 {
     }
 
     /**
-     * The requested grant type is not supported.
+     * The requested token type is not supported.
      *
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">https://tools.ietf.org/html/rfc6749#section-5.2</a>
      */
@@ -279,7 +279,7 @@ public final class RFC6749 {
         public static final ErrorCode CODE = new ErrorCode(
                 Status.BAD_REQUEST,
                 "unsupported_grant_type",
-                "The requested grant type is not supported.");
+                "The requested token type is not supported.");
 
         /**
          * Constructor.

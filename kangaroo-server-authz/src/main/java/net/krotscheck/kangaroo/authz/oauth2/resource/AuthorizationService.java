@@ -274,7 +274,7 @@ public final class AuthorizationService {
     }
 
     /**
-     * Construct an Authorization Code response for an authorization grant
+     * Construct an Authorization Code response for an authorization token
      * client.
      *
      * @param s The intermediate authenticator state.

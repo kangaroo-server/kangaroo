@@ -95,7 +95,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that an invalid grant type is rejected.
+     * Assert that an invalid token type is rejected.
      */
     @Test
     public void testInvalidResponseType() {
@@ -118,7 +118,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that an valid grant type is accepted.
+     * Assert that an valid token type is accepted.
      */
     @Test
     public void testValidResponseType() {
@@ -139,7 +139,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that an valid grant type is accepted.
+     * Assert that an valid token type is accepted.
      */
     @Test
     public void testCallbackMalformedStateId() {
@@ -156,7 +156,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
     }
 
     /**
-     * Assert that an valid grant type is accepted.
+     * Assert that an valid token type is accepted.
      */
     @Test
     public void testCallbackInvalidStateId() {
@@ -174,7 +174,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
 
     /**
      * If, for some inexplicable reason, an AuthenticatorState was created
-     * linked to a non-implicit or authorization-grant client, we should make
+     * linked to a non-implicit or authorization-token client, we should make
      * sure that the request errors.
      *
      * @throws Exception Should not be thrown.

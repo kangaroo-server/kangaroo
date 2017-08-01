@@ -229,7 +229,7 @@ public final class ApplicationBuilder {
      * scopes.
      *
      * @param name   The name of the role.
-     * @param scopes The scopes to grant (must already exist).
+     * @param scopes The scopes to token (must already exist).
      * @return This environment builder.
      */
     public ApplicationBuilder role(final String name, final String[] scopes) {

@@ -18,4 +18,4 @@
 /**
  * Handlers for each type of grant_type request.
  */
-package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
+package net.krotscheck.kangaroo.authz.oauth2.resource.token;

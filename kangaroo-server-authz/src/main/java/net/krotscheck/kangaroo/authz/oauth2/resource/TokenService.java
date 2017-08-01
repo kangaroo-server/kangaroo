@@ -21,7 +21,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
-import net.krotscheck.kangaroo.authz.oauth2.resource.grant.IGrantTypeHandler;
+import net.krotscheck.kangaroo.authz.oauth2.resource.token.ITokenRequestHandler;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
@@ -85,7 +85,7 @@ public final class TokenService {
     }
 
     /**
-     * Attempt to issue a token based on the requested grant type.
+     * Attempt to issue a token based on the requested token type.
      *
      * @param uriInfo   The raw HTTP request.
      * @param formData  The form post data.
@@ -103,9 +103,9 @@ public final class TokenService {
         // Resolve the client - validation is handled by the filters.
         Client client = session.get(Client.class, credentials.getLogin());
 
-        // Get and validate the grant type.
-        IGrantTypeHandler handler = locator.getService(
-                IGrantTypeHandler.class, grantType);
+        // Get and validate the token type.
+        ITokenRequestHandler handler = locator.getService(
+                ITokenRequestHandler.class, grantType);
         if (handler == null) {
             throw new InvalidGrantException();
         }

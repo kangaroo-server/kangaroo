@@ -356,7 +356,7 @@ public final class ValidationUtil {
     /**
      * Revalidates a list of provided scopes against the originally granted
      * scopes, as well as the current list of valid scopes. If the list of
-     * valid scopes has changed since the original grant list, any missing
+     * valid scopes has changed since the original token list, any missing
      * scopes will be quietly dropped.
      *
      * @param requestedScopes An array of requested scopes.
@@ -393,7 +393,7 @@ public final class ValidationUtil {
     /**
      * Revalidates a list of provided scopes against the originally granted
      * scopes, as well as the current list of valid scopes. If the list of
-     * valid scopes has changed since the original grant list, any missing
+     * valid scopes has changed since the original token list, any missing
      * scopes will be quietly dropped.
      *
      * @param requestedScopes An array of requested scopes.
