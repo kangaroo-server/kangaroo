@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.cors;
 
 import com.google.common.net.HttpHeaders;
-import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
+import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.hk2.api.ActiveDescriptor;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.BuilderHelper;

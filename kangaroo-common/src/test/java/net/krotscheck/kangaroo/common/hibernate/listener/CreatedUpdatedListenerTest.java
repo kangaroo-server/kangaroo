@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.listener;
 
 import net.krotscheck.kangaroo.common.hibernate.entity.TestEntity;
-import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
+import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.event.service.spi.EventListenerRegistrationException;

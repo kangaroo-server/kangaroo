@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.test.jerseyTest;
+package net.krotscheck.kangaroo.test.jersey;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.DeploymentContext;

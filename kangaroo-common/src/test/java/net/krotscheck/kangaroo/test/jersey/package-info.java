@@ -19,4 +19,4 @@
 /**
  * Explicit extensions of the Jersey test framework.
  */
-package net.krotscheck.kangaroo.test.jerseyTest;
+package net.krotscheck.kangaroo.test.jersey;

@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate;
 
-import net.krotscheck.kangaroo.test.jerseyTest.KangarooJerseyTest;
+import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;

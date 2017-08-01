@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
-import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
+import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.Session;
 import org.junit.Assert;

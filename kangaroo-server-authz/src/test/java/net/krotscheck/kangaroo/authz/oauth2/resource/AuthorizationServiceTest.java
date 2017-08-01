@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
+import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.jersey.server.ResourceConfig;

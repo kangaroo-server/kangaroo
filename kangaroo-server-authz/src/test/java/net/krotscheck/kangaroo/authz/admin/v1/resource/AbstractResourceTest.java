@@ -28,7 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.jerseyTest.ContainerTest;
+import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;

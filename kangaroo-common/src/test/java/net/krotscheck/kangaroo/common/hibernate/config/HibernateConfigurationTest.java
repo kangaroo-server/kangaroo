@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.config;
 
-import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
+import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
 import org.junit.After;
 import org.junit.Assert;

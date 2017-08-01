@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import com.mchange.v2.c3p0.PoolBackedDataSource;
 import com.mchange.v2.c3p0.PooledDataSource;
-import net.krotscheck.kangaroo.test.jerseyTest.DatabaseTest;
+import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
