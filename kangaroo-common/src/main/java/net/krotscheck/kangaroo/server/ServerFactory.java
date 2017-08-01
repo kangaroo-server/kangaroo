@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.server;
 
 import com.google.common.base.Strings;
+import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.krotscheck.kangaroo.common.config.ConfigurationBinder;
 import net.krotscheck.kangaroo.server.keystore.FSKeystoreProvider;
 import net.krotscheck.kangaroo.server.keystore.GeneratedKeystoreProvider;
@@ -29,11 +30,13 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpContainer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.grizzly.utils.Charsets;
+import org.glassfish.jersey.process.JerseyProcessingUncaughtExceptionHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
@@ -41,7 +44,9 @@ import javax.servlet.ServletRegistration;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -128,6 +133,12 @@ public final class ServerFactory {
         CLI_OPTIONS.addOption(certKeyPass);
         CLI_OPTIONS.addOption(htmlAppRoot);
     }
+
+    /**
+     * List of configuration operators to apply.
+     */
+    private final List<ServerOperator> serverLambdas =
+            new ArrayList<>();
 
     /**
      * Configuration builder.
@@ -248,11 +259,33 @@ public final class ServerFactory {
         URI serverUri = getServerUri(config);
         SSLEngineConfigurator configurator = buildSSLConfigurator(config);
 
-        return GrizzlyHttpServerFactory.createHttpServer(serverUri,
-                (GrizzlyHttpContainer) null,
-                true,
-                configurator,
-                false);
+        // Code below taken from the GrizzlyHttpServerFactory - if something
+        // breaks during an upgrade, check there.
+        final NetworkListener listener = new NetworkListener("kangaroo",
+                serverUri.getHost(),
+                serverUri.getPort());
+
+        listener.getTransport()
+                .getWorkerThreadPoolConfig()
+                .setThreadFactory(new ThreadFactoryBuilder()
+                        .setNameFormat("kangaroo-http-server-%d")
+                        .setUncaughtExceptionHandler(
+                                new JerseyProcessingUncaughtExceptionHandler())
+                        .build());
+        listener.setSecure(true);
+        listener.setSSLEngineConfig(configurator);
+
+        final HttpServer server = new HttpServer();
+        server.addListener(listener);
+
+        // Map the path to the processor.
+        final ServerConfiguration serverConfiguration =
+                server.getServerConfiguration();
+        serverConfiguration.setPassTraceRequest(true);
+        serverConfiguration.setDefaultQueryEncoding(Charsets.UTF8_CHARSET);
+        serverLambdas.forEach(s -> s.operation(server));
+
+        return server;
     }
 
     /**
@@ -340,5 +373,29 @@ public final class ServerFactory {
         } catch (URISyntaxException use) {
             throw new RuntimeException("Cannot construct server URI", use);
         }
+    }
+
+    /**
+     * Add a lambda which can modify the server configuration before it is
+     * passed back to the client.
+     *
+     * @param serverLambda The operator.
+     * @return This factory.
+     */
+    public ServerFactory configureServer(final ServerOperator serverLambda) {
+        serverLambdas.add(serverLambda);
+        return this;
+    }
+
+    /**
+     * Operator interface, for ad-hoc server configuration.
+     */
+    public interface ServerOperator {
+        /**
+         * Operation handler.
+         *
+         * @param config The server configuration.
+         */
+        void operation(HttpServer config);
     }
 }

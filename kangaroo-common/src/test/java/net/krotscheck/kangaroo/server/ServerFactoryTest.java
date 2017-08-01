@@ -239,6 +239,26 @@ public class ServerFactoryTest {
     }
 
     /**
+     * Test that we can invoke configuration steps on the server.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testConfigureServer() throws Exception {
+        Path appRoot = Paths.get("src/test/resources/html/index");
+
+        ServerFactory f = new ServerFactory()
+                .configureServer(s -> {
+                    s.getServerConfiguration().setSessionTimeoutSeconds(1000);
+                });
+
+        HttpServer s = f.build();
+
+        Assert.assertEquals(1000,
+                s.getServerConfiguration().getSessionTimeoutSeconds());
+    }
+
+    /**
      * Test building with an HTML app that doesn't have an index file.
      *
      * @throws Exception Should not be thrown.
