@@ -55,6 +55,29 @@ databaseChangeLog:
           constraintName: uq_configuration_section_configKey
           tableName: configuration
 
+      # The HTTP Browser Session table.
+      - createTable:
+          tableName: http_sessions
+          columns:
+            - column:
+                name: id
+                type: BINARY(64)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_http_sessions_id
+            - column:
+                name: creationTime
+                type: bigint
+            - column:
+                name: timestamp
+                type: bigint
+            - column:
+                name: sessionTimeout
+                type: int
+                constraints:
+                  nullable: false
+
       # The Application table, the root resource from which everything else
       # is derived.
       - createTable:
@@ -805,6 +828,11 @@ databaseChangeLog:
                 constraints:
                   nullable: true
             - column:
+                name: httpSession
+                type: BINARY(64)
+                constraints:
+                  nullable: true
+            - column:
                 name: client
                 type: BINARY(16)
                 constraints:
@@ -848,6 +876,14 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: oauth_tokens
+      - addForeignKeyConstraint:
+          baseColumnNames: httpSession
+          baseTableName: oauth_tokens
+          constraintName: fk_oauth_tokens_http_sessions_httpSession
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: http_sessions
 
       # OAuth Tokens have a limited list of scopes.
       - createTable:
@@ -937,5 +973,7 @@ databaseChangeLog:
             tableName: application_scopes
         - dropTable:
             tableName: applications
+        - dropTable:
+            tableName: http_sessions
         - dropTable:
             tableName: configuration
