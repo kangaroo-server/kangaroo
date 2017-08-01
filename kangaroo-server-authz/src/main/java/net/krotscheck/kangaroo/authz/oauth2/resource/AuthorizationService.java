@@ -18,25 +18,18 @@
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
-import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
-import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingException;
 import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.IAuthorizeHandler;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.hibernate.Session;
 import org.jvnet.hk2.annotations.Optional;
@@ -51,15 +44,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 /**
@@ -147,33 +135,19 @@ public final class AuthorizationService {
             Authenticator auth = ValidationUtil.validateAuthenticator(
                     authenticator, client.getAuthenticators());
 
-            // Retrieve the authenticator instance.
-            IAuthenticator authImpl = locator.getService(
-                    IAuthenticator.class, auth.getType().name());
+            // Retrieve the client.
+            Client c = auth.getClient();
 
             // Validate the requested scopes.
             SortedMap<String, ApplicationScope> scopes =
                     ValidationUtil.validateScope(scope,
                             client.getApplication().getScopes());
 
-            // Create the intermediate authorization store.
-            AuthenticatorState callbackState = new AuthenticatorState();
-            callbackState.setClientState(state);
-            callbackState.setClientScopes(scopes);
-            callbackState.setClientRedirect(redirect);
-            callbackState.setAuthenticator(auth);
+            IAuthorizeHandler handler =
+                    locator.getService(IAuthorizeHandler.class,
+                            c.getType().toString());
 
-            // Save the state.
-            session.save(callbackState);
-
-            // Generate the redirection url.
-            URI callback = uriInfo.getAbsolutePathBuilder()
-                    .path("/callback")
-                    .queryParam("state", callbackState.getId())
-                    .build();
-
-            // Run the authenticator.
-            return authImpl.delegate(auth, callback);
+            return handler.handle(uriInfo, auth, redirect, scopes, state);
         } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
@@ -197,129 +171,27 @@ public final class AuthorizationService {
             @Optional
             @DefaultValue("")
             @QueryParam("state") final String state) {
-        // Resolve various necessary components.
+
+        // These next two lines are null-safe.
         AuthenticatorState s = getAuthenticatorState(state);
         Client c = s.getAuthenticator().getClient();
 
         try {
-            IAuthenticator a = getAuthenticator(s);
-            UserIdentity i = a.authenticate(s.getAuthenticator(),
-                    uriInfo.getPathParameters());
+            IAuthorizeHandler handler =
+                    locator.getService(IAuthorizeHandler.class,
+                            c.getType().toString());
 
-            // Since this code won't execute without a valid state, we should
-            // be safe to do a simple if/else here. Except we're paranoid.
-            if (c.getType() == ClientType.AuthorizationGrant) {
-                return handleGrantResponse(s, i);
-            } else if (c.getType() == ClientType.Implicit) {
-                return handleImplicitResponse(s, i);
-            } else {
+            // Just in case this was linked to an invalid client type...
+            if (handler == null) {
                 throw new InvalidRequestException();
             }
+            return handler.callback(s, uriInfo);
         } catch (KangarooException e) {
             // Any caught exceptions here should be redirected to the
             // validated redirect_url instead.
             throw new RedirectingException(e, s.getClientRedirect(),
                     c.getType());
         }
-    }
-
-    /**
-     * Construct an OAuth Token response for an implicit client.
-     *
-     * @param s The intermediate authenticator state.
-     * @param i The resolved user identity.
-     * @return An HTTP response with the granted token response.
-     */
-    private Response handleImplicitResponse(final AuthenticatorState s,
-                                            final UserIdentity i) {
-        // Build the token.
-        OAuthToken t = new OAuthToken();
-        t.setClient(s.getAuthenticator().getClient());
-        t.setIdentity(i);
-        t.setScopes(ValidationUtil
-                .validateScope(s.getClientScopes(), i.getUser().getRole()));
-        t.setTokenType(OAuthTokenType.Bearer);
-        t.setExpiresIn(s.getAuthenticator().getClient()
-                .getAccessTokenExpireIn());
-
-        // Persist and get an ID.
-        session.save(t);
-        session.delete(s);
-
-        // Build our redirect URL.
-        UriBuilder responseBuilder = UriBuilder.fromUri(s.getClientRedirect());
-
-        List<BasicNameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("access_token",
-                t.getId().toString()));
-        params.add(new BasicNameValuePair("token_type",
-                t.getTokenType().toString()));
-        params.add(new BasicNameValuePair("expires_in",
-                String.valueOf(t.getExpiresIn())));
-        if (!StringUtils.isEmpty(s.getClientState())) {
-            params.add(new BasicNameValuePair("state",
-                    s.getClientState()));
-        }
-        if (t.getScopes().size() > 0) {
-            String scopeString = t.getScopes().values()
-                    .stream().map(ApplicationScope::getName)
-                    .collect(Collectors.joining(" "));
-            params.add(new BasicNameValuePair("scope", scopeString));
-        }
-        responseBuilder.fragment(URLEncodedUtils.format(params, "UTF-8"));
-
-        return Response.status(Status.FOUND)
-                .location(responseBuilder.build())
-                .build();
-    }
-
-    /**
-     * Construct an Authorization Code response for an authorization token
-     * client.
-     *
-     * @param s The intermediate authenticator state.
-     * @param i The resolved user identity.
-     * @return An HTTP response with the granted token response.
-     */
-    private Response handleGrantResponse(final AuthenticatorState s,
-                                         final UserIdentity i) {
-        // Build the token.
-        OAuthToken t = new OAuthToken();
-        t.setClient(s.getAuthenticator().getClient());
-        t.setIdentity(i);
-        t.setScopes(ValidationUtil
-                .validateScope(s.getClientScopes(), i.getUser().getRole()));
-        t.setTokenType(OAuthTokenType.Authorization);
-        t.setExpiresIn(s.getAuthenticator().getClient()
-                .getAuthorizationCodeExpiresIn());
-        t.setRedirect(s.getClientRedirect());
-
-        // Persist and get an ID.
-        session.save(t);
-        session.delete(s);
-
-        // Build our redirect URL.
-        UriBuilder responseBuilder = UriBuilder.fromUri(s.getClientRedirect());
-        responseBuilder.queryParam("code", t.getId().toString());
-        if (!StringUtils.isEmpty(s.getClientState())) {
-            responseBuilder.queryParam("state", s.getClientState());
-        }
-
-        return Response.status(Status.FOUND)
-                .location(responseBuilder.build())
-                .build();
-    }
-
-    /**
-     * Provided a stored intermediate authenticator state, attempt to resolve
-     * an instance of the associated authenticator implementation.
-     *
-     * @param state The state to resolve.
-     * @return An authenticator Impl, available from the injection context.
-     */
-    private IAuthenticator getAuthenticator(final AuthenticatorState state) {
-        Authenticator a = state.getAuthenticator();
-        return locator.getService(IAuthenticator.class, a.getType().name());
     }
 
     /**
