@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
+package net.krotscheck.kangaroo.authz.oauth2.resource.token;
 
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
@@ -28,10 +28,10 @@ import javax.ws.rs.core.MultivaluedMap;
  *
  * @author Michael Krotscheck
  */
-public interface IGrantTypeHandler {
+public interface ITokenRequestHandler {
 
     /**
-     * Handle a specific grant type request.
+     * Handle a specific token type request.
      *
      * @param client   The client.
      * @param formData Additional form data.

@@ -59,7 +59,7 @@ public abstract class AbstractSubserviceBrowseTest<K extends AbstractAuthzEntity
         T extends AbstractAuthzEntity> extends AbstractResourceTest {
 
     /**
-     * The scope to grant the issued token.
+     * The scope to token the issued token.
      */
     private final String tokenScope;
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
+package net.krotscheck.kangaroo.authz.oauth2.resource.token;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -43,7 +43,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 /**
- * These tests ensure coverage on the Refresh token grant type
+ * These tests ensure coverage on the Refresh token token type
  * handler, covered in RFC6749.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-6">https://tools.ietf.org/html/rfc6749#section-6</a>

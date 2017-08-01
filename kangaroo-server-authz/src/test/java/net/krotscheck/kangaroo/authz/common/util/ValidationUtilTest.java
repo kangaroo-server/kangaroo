@@ -1006,7 +1006,7 @@ public final class ValidationUtilTest {
     }
 
     /**
-     * Assert that an authorization grant client can ask for the 'code'
+     * Assert that an authorization token client can ask for the 'code'
      * response type.
      */
     @Test
@@ -1030,7 +1030,7 @@ public final class ValidationUtilTest {
     }
 
     /**
-     * Assert that client/code mismatch on authorization grant fails.
+     * Assert that client/code mismatch on authorization token fails.
      */
     @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeMismatchedGrantType() {
@@ -1041,7 +1041,7 @@ public final class ValidationUtilTest {
     }
 
     /**
-     * Assert that some other grant combination fails..
+     * Assert that some other token combination fails..
      */
     @Test(expected = UnsupportedResponseTypeException.class)
     public void testResponseTypeBogusType() {

@@ -174,7 +174,7 @@ public final class Section440ClientCredentialsTest
     }
 
     /**
-     * Assert that missing a grant type errors.
+     * Assert that missing a token type errors.
      */
     @Test
     public void testTokenNoGrant() {
@@ -344,7 +344,7 @@ public final class Section440ClientCredentialsTest
     }
 
     /**
-     * Assert that an invalid grant type errors.
+     * Assert that an invalid token type errors.
      */
     @Test
     public void testTokenInvalidGrantTypePassword() {
@@ -369,7 +369,7 @@ public final class Section440ClientCredentialsTest
     }
 
     /**
-     * Assert that an invalid grant type errors.
+     * Assert that an invalid token type errors.
      */
     @Test
     public void testTokenInvalidGrantTypeRefreshToken() {
@@ -395,7 +395,7 @@ public final class Section440ClientCredentialsTest
     }
 
     /**
-     * Assert that an unknown grant type errors.
+     * Assert that an unknown token type errors.
      */
     @Test
     public void testTokenUnknownGrantType() {

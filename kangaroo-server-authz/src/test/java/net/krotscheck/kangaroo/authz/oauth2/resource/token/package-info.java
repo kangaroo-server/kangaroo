@@ -16,6 +16,6 @@
  */
 
 /**
- * Unit tests for our /token endpoint grant handlers.
+ * Unit tests for our /token endpoint token handlers.
  */
-package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
+package net.krotscheck.kangaroo.authz.oauth2.resource.token;

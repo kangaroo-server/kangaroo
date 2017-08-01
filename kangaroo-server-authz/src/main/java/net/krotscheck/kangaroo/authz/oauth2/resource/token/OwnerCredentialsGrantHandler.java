@@ -15,34 +15,42 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.resource.grant;
+package net.krotscheck.kangaroo.authz.oauth2.resource.token;
 
+import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
+import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
+import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
-import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnauthorizedClientException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-import org.apache.commons.lang3.StringUtils;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.SortedMap;
 
 /**
- * This grant type handler takes care of the "client_credentials" grant_type
- * OAuth flow. Its job is to provide a general-purpose access token to a
- * privileged client, such as another API server that needs to validate tokens.
+ * This token type handler takes care of the "password" grant_type
+ * OAuth flow. For situations in which a user/password is preferred, we offer
+ * a simplified login mechanism, though we do not encourage its use.
  *
  * @author Michael Krotscheck
  */
-public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
+public final class OwnerCredentialsGrantHandler
+        implements ITokenRequestHandler {
 
     /**
      * Hibernate session, injected.
@@ -50,13 +58,21 @@ public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
     private final Session session;
 
     /**
-     * Create a new instance of this grant handler.
+     * Service locator, injected.
+     */
+    private final ServiceLocator locator;
+
+    /**
+     * Create a new instance of this token handler.
      *
      * @param session Injected hibernate session.
+     * @param locator The service locator.
      */
     @Inject
-    public ClientCredentialsGrantHandler(final Session session) {
+    public OwnerCredentialsGrantHandler(final Session session,
+                                        final ServiceLocator locator) {
         this.session = session;
+        this.locator = locator;
     }
 
     /**
@@ -70,24 +86,32 @@ public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
     public TokenResponseEntity handle(final Client client,
                                       final MultivaluedMap<String, String>
                                               formData) {
-
         // Make sure the client is the correct type.
-        if (!client.getType().equals(ClientType.ClientCredentials)) {
+        if (!client.getType().equals(ClientType.OwnerCredentials)) {
             throw new InvalidGrantException();
         }
 
-        // Ensure that the client is authorized. This is actually handled in
-        // the ClientAuthorizationFilter; here we check the edge case of a
-        // ClientCredentials type with no set client_secret.
-        if (StringUtils.isEmpty(client.getClientSecret())) {
-            throw new UnauthorizedClientException();
+        // Get the authenticator impl.
+        IAuthenticator authenticator =
+                locator.getService(PasswordAuthenticator.class);
+
+        // Pull the password authenticator configuration.
+        Authenticator authConfig = ValidationUtil
+                .validateAuthenticator(AuthenticatorType.Password,
+                        client.getAuthenticators());
+
+        UserIdentity identity;
+        // Try to resolve a user identity.
+        identity = authenticator.authenticate(authConfig, formData);
+        if (identity == null) {
+            throw new NotAuthorizedException(Response.status(Status
+                    .UNAUTHORIZED).build());
         }
 
-        // This flow permits requesting any of the available scopes from the
-        // application, without filtering by Roles.
+        // Make sure all requested scopes are permitted for this user.
         SortedMap<String, ApplicationScope> requestedScopes =
                 ValidationUtil.validateScope(formData.getFirst("scope"),
-                        client.getApplication().getScopes());
+                        identity.getUser().getRole());
 
         // Ensure that we retrieve a state, if it exists.
         String state = formData.getFirst("state");
@@ -98,10 +122,19 @@ public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(client.getAccessTokenExpireIn());
         token.setScopes(requestedScopes);
+        token.setIdentity(identity);
+
+        OAuthToken refreshToken = new OAuthToken();
+        refreshToken.setClient(client);
+        refreshToken.setTokenType(OAuthTokenType.Refresh);
+        refreshToken.setExpiresIn(client.getRefreshTokenExpireIn());
+        refreshToken.setScopes(token.getScopes());
+        refreshToken.setAuthToken(token);
 
         session.save(token);
+        session.save(refreshToken);
 
-        return TokenResponseEntity.factory(token, state);
+        return TokenResponseEntity.factory(token, refreshToken, state);
     }
 
     /**
@@ -111,9 +144,9 @@ public final class ClientCredentialsGrantHandler implements IGrantTypeHandler {
 
         @Override
         protected void configure() {
-            bind(ClientCredentialsGrantHandler.class)
-                    .to(IGrantTypeHandler.class)
-                    .named("client_credentials")
+            bind(OwnerCredentialsGrantHandler.class)
+                    .to(ITokenRequestHandler.class)
+                    .named("password")
                     .in(RequestScoped.class);
         }
     }
