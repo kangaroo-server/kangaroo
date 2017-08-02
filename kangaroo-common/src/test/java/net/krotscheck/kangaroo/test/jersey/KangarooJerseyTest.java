@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test.jersey;
 
+import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
@@ -69,8 +70,14 @@ public abstract class KangarooJerseyTest extends JerseyTest {
      */
     @Override
     protected TestContainerFactory getTestContainerFactory() {
-        return new org.glassfish.jersey.test.grizzly
-                .GrizzlyWebTestContainerFactory();
+        KangarooTestContainerFactory factory =
+                new KangarooTestContainerFactory();
+        factory.configureServer((server) -> {
+            ServerConfiguration c = server.getServerConfiguration();
+            c.setSessionTimeoutSeconds(1000);
+        });
+
+        return factory;
     }
 
     /**
