@@ -18,9 +18,9 @@
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
-import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.ITokenRequestHandler;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.glassfish.hk2.api.ServiceLocator;

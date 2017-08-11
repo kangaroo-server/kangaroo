@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.filter;
+package net.krotscheck.kangaroo.authz.oauth2.authn.filter;
 
-import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
-import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
-import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.oauth2.annotation.OAuthFilterChain;
-import net.krotscheck.kangaroo.authz.oauth2.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
