@@ -16,6 +16,6 @@
  */
 
 /**
- * Custom annotations used by the OAuth Service.
+ * Request filters.
  */
-package net.krotscheck.kangaroo.authz.oauth2.annotation;
+package net.krotscheck.kangaroo.authz.oauth2.authn.filter;

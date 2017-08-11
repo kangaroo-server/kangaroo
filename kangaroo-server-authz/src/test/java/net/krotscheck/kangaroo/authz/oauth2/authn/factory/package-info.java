@@ -16,6 +16,6 @@
  */
 
 /**
- * Request filters.
+ * Unit tests for our asset factories.
  */
-package net.krotscheck.kangaroo.authz.oauth2.filter;
+package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
