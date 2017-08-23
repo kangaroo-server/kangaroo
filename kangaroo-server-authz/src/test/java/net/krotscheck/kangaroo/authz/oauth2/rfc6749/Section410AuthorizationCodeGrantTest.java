@@ -492,7 +492,7 @@ public final class Section410AuthorizationCodeGrantTest
     }
 
     /**
-     * Assert that a request with an invalid scope errors.
+     * Assert that a request with an invalid scope does not grant said scope.
      */
     @Test
     public void testAuthorizeScopeInvalid() {
@@ -503,11 +503,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .request()
                 .get();
 
+        // Follow the redirect
+        Response second = followRedirect(r);
+
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), second.getStatus());
 
         // Validate the redirect location
-        URI location = r.getLocation();
+        URI location = second.getLocation();
         Assert.assertEquals("http", location.getScheme());
         Assert.assertEquals("valid.example.com", location.getHost());
         Assert.assertEquals("/redirect", location.getPath());
@@ -516,9 +519,9 @@ public final class Section410AuthorizationCodeGrantTest
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("invalid_scope", params.getFirst("error"));
-        Assert.assertTrue(params.containsKey("error_description"));
+        Assert.assertTrue(params.containsKey("code"));
+        Assert.assertFalse(params.containsKey("state"));
+        Assert.assertFalse(params.containsKey("scope"));
     }
 
     /**

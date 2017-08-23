@@ -288,10 +288,9 @@ public final class ValidationUtil {
         // Make sure all requested scopes are in the map.
         SortedMap<String, ApplicationScope> results = new TreeMap<>();
         for (String scope : requestedScopes) {
-            if (!validScopes.containsKey(scope)) {
-                throw new InvalidScopeException();
+            if (validScopes.containsKey(scope)) {
+                results.put(scope, validScopes.get(scope));
             }
-            results.put(scope, validScopes.get(scope));
         }
         return results;
     }
