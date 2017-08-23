@@ -487,9 +487,12 @@ public final class ValidationUtilTest {
      *
      * @throws Exception Should be thrown when the validation fails.
      */
-    @Test(expected = InvalidScopeException.class)
+    @Test
     public void testInvalidScope() throws Exception {
-        ValidationUtil.validateScope(new String[]{"invalid"}, validScopes);
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope(new String[]{"invalid"},
+                        validScopes);
+        Assert.assertEquals(0, scopes.size());
     }
 
     /**
@@ -557,7 +560,7 @@ public final class ValidationUtilTest {
      *
      * @throws Exception Should be thrown when the validation fails.
      */
-    @Test(expected = InvalidScopeException.class)
+    @Test
     public void testEmptyValidScopes() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(new String[]{"debug1"},
@@ -618,11 +621,11 @@ public final class ValidationUtilTest {
     }
 
     /**
-     * Assert that a role with mismatching scopes fails.
+     * Assert that a role with mismatching scopes is filtered down.
      *
-     * @throws Exception Should be thrown when the validation fails.
+     * @throws Exception Should not be thrown.
      */
-    @Test(expected = InvalidScopeException.class)
+    @Test
     public void testValidateScopeStringMismatchScopesInRole() throws Exception {
         SortedMap<String, ApplicationScope> roleScopes = new TreeMap<>();
 
@@ -635,9 +638,12 @@ public final class ValidationUtilTest {
         roleScopes.put(debug2Scope.getName(), debug2Scope);
 
         Role r = new Role();
+
         r.setScopes(roleScopes);
 
-        ValidationUtil.validateScope("debug1 debug3", r);
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope("debug1 debug3", r);
+        Assert.assertEquals(1, scopes.size());
     }
 
     /**

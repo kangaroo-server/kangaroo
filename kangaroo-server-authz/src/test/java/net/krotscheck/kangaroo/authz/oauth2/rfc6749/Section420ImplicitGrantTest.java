@@ -283,7 +283,7 @@ public final class Section420ImplicitGrantTest
     }
 
     /**
-     * Assert that a request with an invalid scope errors.
+     * Assert that a request with an invalid scope does not grant said scope.
      */
     @Test
     public void testAuthorizeScopeInvalid() {
@@ -294,21 +294,24 @@ public final class Section420ImplicitGrantTest
                 .request()
                 .get();
 
-        // Assert various response-specific parameters.
-        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        // Follow the redirect
+        Response second = followRedirect(r);
 
         // Validate the redirect location
-        URI location = r.getLocation();
+        URI location = second.getLocation();
         assertEquals("http", location.getScheme());
         assertEquals("valid.example.com", location.getHost());
         assertEquals("/redirect", location.getPath());
 
-        // Validate the query parameters received.
+        // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("error"));
-        assertEquals("invalid_scope", params.getFirst("error"));
-        assertTrue(params.containsKey("error_description"));
+        assertTrue(params.containsKey("access_token"));
+        assertEquals("Bearer", params.getFirst("token_type"));
+        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+                Integer.valueOf(params.getFirst("expires_in")));
+        assertFalse(params.containsKey("scope"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**

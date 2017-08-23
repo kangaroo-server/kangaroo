@@ -167,9 +167,9 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     }
 
     /**
-     * Assert that requesting a scope that is not permitted fails.
+     * Assert that requesting a scope that is not permitted is not granted.
      */
-    @Test(expected = KangarooException.class)
+    @Test
     public void testInvalidScope() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
@@ -183,7 +183,14 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
         Client testClient = getSession()
                 .get(Client.class, context.getClient().getId());
 
-        handler.handle(testClient, testData);
+        TokenResponseEntity token = handler.handle(testClient,
+                testData);
+        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+                (long) token.getExpiresIn());
+        Assert.assertNull(token.getRefreshToken());
+        Assert.assertEquals("debug", token.getScope());
+        Assert.assertNotNull(token.getAccessToken());
     }
 
     /**
