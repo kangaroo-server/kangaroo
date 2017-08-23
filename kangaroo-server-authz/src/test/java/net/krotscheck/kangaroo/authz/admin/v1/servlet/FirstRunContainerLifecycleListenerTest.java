@@ -20,6 +20,8 @@ package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.FirstRunContainerLifecycleListener.Binder;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
+import net.krotscheck.kangaroo.authz.common.database.entity.Client;
+import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
@@ -87,15 +89,35 @@ public final class FirstRunContainerLifecycleListenerTest
                         new DatabaseMigrationState());
         l.onStartup(mockContainer);
 
+        // Grab the session.
+        Session s = getSession();
+
         // Make sure we have an application ID.
         String appId = testConfig.getString(Config.APPLICATION_ID);
         UUID appUuid = UUID.fromString(appId);
         Assert.assertNotNull(appUuid);
 
         // Ensure that the app id can be resolved.
-        Session s = getSession();
         Application application = s.get(Application.class, appUuid);
         Assert.assertNotNull(application);
+
+        // Make sure we have an application client ID
+        String clientId = testConfig.getString(Config.APPLICATION_CLIENT_ID);
+        UUID clientUuid = UUID.fromString(clientId);
+        Assert.assertNotNull(clientUuid);
+
+        // Ensure that the client id can be resolved.
+        Client client = s.get(Client.class, clientUuid);
+        Assert.assertNotNull(client);
+
+        // Make sure we have an application user ID
+        String adminId = testConfig.getString(Config.APPLICATION_ADMIN_ID);
+        UUID adminUuid = UUID.fromString(adminId);
+        Assert.assertNotNull(adminUuid);
+
+        // Ensure that the client id can be resolved.
+        User user = s.get(User.class, adminUuid);
+        Assert.assertNotNull(user);
 
         // Cleanup
         testConfig.clear();

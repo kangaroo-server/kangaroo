@@ -184,7 +184,16 @@ public final class FirstRunContainerLifecycleListener
                 servletApp.getId()));
         logger.debug(String.format("Admin User ID: %s",
                 adminUser.getId()));
+        logger.debug(String.format("WebUI Client ID: %s",
+                servletClient.getId()));
         logger.debug("Application created. Let's rock!");
+
+        servletConfig.addProperty(Config.APPLICATION_ID,
+                servletApp.getId());
+        servletConfig.addProperty(Config.APPLICATION_CLIENT_ID,
+                servletClient.getId());
+        servletConfig.addProperty(Config.APPLICATION_ADMIN_ID,
+                adminUser.getId());
 
         // Refresh the servlet app, populating all persisted references.
         s.refresh(servletApp);
@@ -195,9 +204,8 @@ public final class FirstRunContainerLifecycleListener
 
     /**
      * Invoked at the {@link Container container} start-up. This method is
-     * invoked even
-     * when application is reloaded and new instance of application has
-     * started.
+     * invoked even when application is reloaded and new instance of
+     * application has started.
      *
      * @param container container that has been started.
      */
@@ -205,10 +213,8 @@ public final class FirstRunContainerLifecycleListener
     public void onStartup(final Container container) {
         Boolean firstRun = servletConfig.getBoolean(Config.FIRST_RUN, false);
         if (!firstRun) {
-            Application app = bootstrapApplication();
-
+            bootstrapApplication();
             servletConfig.addProperty(Config.FIRST_RUN, true);
-            servletConfig.addProperty(Config.APPLICATION_ID, app.getId());
         }
     }
 
