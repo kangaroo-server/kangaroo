@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.authz.admin.v1.auth.OAuth2AuthFeature;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.ApplicationService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.AuthenticatorService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.ClientService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.ConfigService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.OAuthTokenService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.RoleScopeService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.RoleService;
@@ -81,6 +82,7 @@ public final class AdminV1API extends ResourceConfig {
         register(OAuth2AuthFeature.class);
 
         // API Resources
+        register(ConfigService.class);
         register(ApplicationService.class);
         register(AuthenticatorService.class);
         register(ScopeService.class);
