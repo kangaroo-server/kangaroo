@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
-import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,7 +51,13 @@ public final class ConfigTest {
      */
     @Test
     public void testConfigurationConstants() {
-        Assert.assertEquals("application_id", Config.APPLICATION_ID);
-        Assert.assertEquals("first_run", Config.FIRST_RUN);
+        Assert.assertEquals("application_client_id",
+                Config.APPLICATION_CLIENT_ID);
+        Assert.assertEquals("application_admin_id",
+                Config.APPLICATION_ADMIN_ID);
+        Assert.assertEquals("application_id",
+                Config.APPLICATION_ID);
+        Assert.assertEquals("first_run",
+                Config.FIRST_RUN);
     }
 }

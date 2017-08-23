@@ -36,6 +36,16 @@ public final class Config {
     public static final String APPLICATION_ID = "application_id";
 
     /**
+     * Configuration key for the initial client id.
+     */
+    public static final String APPLICATION_CLIENT_ID = "application_client_id";
+
+    /**
+     * Configuration key for the system admin id.
+     */
+    public static final String APPLICATION_ADMIN_ID = "application_admin_id";
+
+    /**
      * Utility class, private constructor.
      */
     private Config() {
