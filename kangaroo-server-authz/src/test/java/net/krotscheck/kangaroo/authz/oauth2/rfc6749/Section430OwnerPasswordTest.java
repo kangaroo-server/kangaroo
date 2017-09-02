@@ -18,14 +18,12 @@
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
-import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -52,6 +50,26 @@ import static org.junit.Assert.assertNull;
 public final class Section430OwnerPasswordTest
         extends AbstractRFC6749Test {
 
+    /**
+     * User name used for valid requests.
+     */
+    private static String username = "valid_user";
+    /**
+     * The password used for valid requests.
+     */
+    private static String password = "valid_password";
+    /**
+     * The environment builder for the regular client.
+     */
+    private static ApplicationContext builder;
+    /**
+     * The environment builder for the authentication client.
+     */
+    private static ApplicationContext authBuilder;
+    /**
+     * The auth header string for each test.
+     */
+    private static String authHeader;
     /**
      * Test data loading for this test.
      */
@@ -85,31 +103,6 @@ public final class Section430OwnerPasswordTest
             };
 
     /**
-     * User name used for valid requests.
-     */
-    private static String username = "valid_user";
-
-    /**
-     * The password used for valid requests.
-     */
-    private static String password = "valid_password";
-
-    /**
-     * The environment builder for the regular client.
-     */
-    private static ApplicationContext builder;
-
-    /**
-     * The environment builder for the authentication client.
-     */
-    private static ApplicationContext authBuilder;
-
-    /**
-     * The auth header string for each test.
-     */
-    private static String authHeader;
-
-    /**
      * Assert that a simple token request works.
      */
     @Test
@@ -131,12 +124,8 @@ public final class Section430OwnerPasswordTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        assertNotNull(entity.getAccessToken());
-        assertNotNull(entity.getRefreshToken());
-        assertEquals((int) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                entity.getExpiresIn().intValue());
+        assertValidBearerToken(entity, true);
         assertNull(entity.getScope());
-        assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
@@ -241,12 +230,8 @@ public final class Section430OwnerPasswordTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        assertNotNull(entity.getAccessToken());
-        assertNotNull(entity.getRefreshToken());
-        assertEquals((int) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                entity.getExpiresIn().intValue());
+        assertValidBearerToken(entity, true);
         assertEquals("debug", entity.getScope());
-        assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
@@ -365,12 +350,8 @@ public final class Section430OwnerPasswordTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        assertNotNull(entity.getAccessToken());
-        assertNotNull(entity.getRefreshToken());
-        assertEquals((int) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                entity.getExpiresIn().intValue());
+        assertValidBearerToken(entity, true);
         assertEquals("debug", entity.getScope());
-        assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
