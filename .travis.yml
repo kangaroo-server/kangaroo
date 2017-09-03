@@ -24,4 +24,4 @@ install:
 script:
   - mvn install -P$PROFILE -pl $PROJECT
 after_success:
-  - mvn coveralls:report -Ptravis
+  - bash <(curl -s https://codecov.io/bash)
