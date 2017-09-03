@@ -163,12 +163,8 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertFalse(params.containsKey("scope"));
-        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -245,10 +241,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertEquals("debug", params.getFirst("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -306,10 +299,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -340,10 +330,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertEquals("debug", params.getFirst("scope"));
         assertEquals(state, params.getFirst("state"));
     }
@@ -373,10 +360,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertEquals("debug", params.getFirst("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -408,10 +392,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -516,10 +497,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(secondLocation.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }
@@ -652,10 +630,7 @@ public final class Section420ImplicitGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(secondLocation.getFragment());
-        assertTrue(params.containsKey("access_token"));
-        assertEquals("Bearer", params.getFirst("token_type"));
-        assertEquals(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                Integer.valueOf(params.getFirst("expires_in")));
+        assertValidBearerToken(params, true);
         assertFalse(params.containsKey("scope"));
         assertFalse(params.containsKey("state"));
     }

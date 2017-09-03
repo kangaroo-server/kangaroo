@@ -17,14 +17,23 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
+import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
+import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
+import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.hibernate.Session;
+import org.junit.Assert;
 import org.junit.runner.RunWith;
+
+import javax.ws.rs.core.MultivaluedMap;
+import java.util.UUID;
 
 /**
  * Abstract testing class that bootstraps a full OAuthAPI that's ready for
@@ -40,6 +49,83 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      * Test container factory.
      */
     private SingletonTestContainerFactory testContainerFactory;
+    /**
+     * The current running test application.
+     */
+    private ResourceConfig testApplication;
+
+    /**
+     * This method asserts that a token has been persisted to the database,
+     * and contains a brief set of expected variables.
+     *
+     * @param params          URL Parameters.
+     * @param requireIdentity Whether a User Identity is required.
+     */
+    protected void assertValidBearerToken(
+            final MultivaluedMap<String, String> params,
+            final boolean requireIdentity) {
+        Session s = getSession();
+
+        String accessTokenString = params.getFirst("access_token");
+        String tokenType = params.getFirst("token_type");
+        String state = params.getFirst("state");
+        Long expiresIn = Long.valueOf(params.getFirst("expires_in"));
+        UUID accessTokenId = UUID.fromString(accessTokenString);
+
+        OAuthToken t = s.get(OAuthToken.class, accessTokenId);
+        Assert.assertEquals(OAuthTokenType.valueOf(tokenType),
+                t.getTokenType());
+        Assert.assertEquals(expiresIn, t.getExpiresIn());
+
+        TokenResponseEntity entity = TokenResponseEntity.factory(t, state);
+
+        assertValidBearerToken(entity, requireIdentity);
+    }
+
+    /**
+     * This method asserts that a token has been persisted to the database,
+     * and contains a brief set of expected variables.
+     *
+     * @param token           The token.
+     * @param requireIdentity Whether a User Identity is required.
+     */
+    protected void assertValidBearerToken(final TokenResponseEntity token,
+                                          final boolean requireIdentity) {
+        Session s = getSession();
+
+        // Validate the token itself.
+        Assert.assertNotNull(token.getAccessToken());
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                token.getExpiresIn());
+        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+
+        OAuthToken bearer = s.get(OAuthToken.class, token.getAccessToken());
+        Assert.assertNotNull(bearer);
+        Assert.assertEquals(
+                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
+                bearer.getExpiresIn());
+        Assert.assertEquals(bearer.getTokenType(), OAuthTokenType.Bearer);
+
+        // Do we expect an identity?
+        if (requireIdentity) {
+            Assert.assertNotNull(bearer.getIdentity());
+        }
+
+        // Validate any attached refresh token.
+        UUID refreshTokenId = token.getRefreshToken();
+        if (refreshTokenId != null) {
+            OAuthToken refresh = s.get(OAuthToken.class, refreshTokenId);
+            Assert.assertEquals(refresh.getAuthToken(), bearer);
+            Assert.assertEquals(refresh.getIdentity(), bearer.getIdentity());
+            Assert.assertEquals(refresh.getScopes(), bearer.getScopes());
+            Assert.assertEquals(refresh.getTokenType(), OAuthTokenType.Refresh);
+            Assert.assertEquals(refresh.getClient(), bearer.getClient());
+            Assert.assertEquals(
+                    Long.valueOf(ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT),
+                    refresh.getExpiresIn());
+        }
+    }
 
     /**
      * This method overrides the underlying default test container provider,
@@ -62,11 +148,6 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
         }
         return testContainerFactory;
     }
-
-    /**
-     * The current running test application.
-     */
-    private ResourceConfig testApplication;
 
     /**
      * Create the application under test.

@@ -113,12 +113,14 @@ public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
         newAuthToken.setTokenType(OAuthTokenType.Bearer);
         newAuthToken.setExpiresIn(client.getAccessTokenExpireIn());
         newAuthToken.setScopes(requestedScopes);
+        newAuthToken.setIdentity(refreshToken.getIdentity());
 
         OAuthToken newRefreshToken = new OAuthToken();
         newRefreshToken.setClient(client);
         newRefreshToken.setTokenType(OAuthTokenType.Refresh);
         newRefreshToken.setExpiresIn(client.getRefreshTokenExpireIn());
         newRefreshToken.setScopes(requestedScopes);
+        newRefreshToken.setIdentity(refreshToken.getIdentity());
         newRefreshToken.setAuthToken(newAuthToken);
 
         session.save(newAuthToken);

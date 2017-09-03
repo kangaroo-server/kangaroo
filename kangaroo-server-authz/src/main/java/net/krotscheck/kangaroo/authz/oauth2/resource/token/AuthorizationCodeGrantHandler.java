@@ -116,6 +116,7 @@ public final class AuthorizationCodeGrantHandler
         newAuthToken.setTokenType(OAuthTokenType.Bearer);
         newAuthToken.setExpiresIn(client.getAccessTokenExpireIn());
         newAuthToken.setScopes(authCode.getScopes());
+        newAuthToken.setIdentity(authCode.getIdentity());
 
         OAuthToken newRefreshToken = new OAuthToken();
         newRefreshToken.setClient(client);
@@ -123,6 +124,7 @@ public final class AuthorizationCodeGrantHandler
         newRefreshToken.setExpiresIn(client.getRefreshTokenExpireIn());
         newRefreshToken.setScopes(authCode.getScopes());
         newRefreshToken.setAuthToken(newAuthToken);
+        newRefreshToken.setIdentity(authCode.getIdentity());
 
         session.save(newAuthToken);
         session.save(newRefreshToken);

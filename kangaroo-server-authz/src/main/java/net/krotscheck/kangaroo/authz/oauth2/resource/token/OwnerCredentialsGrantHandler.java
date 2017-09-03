@@ -130,6 +130,7 @@ public final class OwnerCredentialsGrantHandler
         refreshToken.setExpiresIn(client.getRefreshTokenExpireIn());
         refreshToken.setScopes(token.getScopes());
         refreshToken.setAuthToken(token);
+        refreshToken.setIdentity(identity);
 
         session.save(token);
         session.save(refreshToken);
