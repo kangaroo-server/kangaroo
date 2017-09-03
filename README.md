@@ -1,6 +1,6 @@
 # Kangaroo: An OAuth2 Server
 [![Build Status](https://travis-ci.org/kangaroo-server/kangaroo.svg)](https://travis-ci.org/kangaroo-server/kangaroo)
-[![Coverage Status](https://coveralls.io/repos/kangaroo-server/kangaroo/badge.svg)](https://coveralls.io/r/kangaroo-server/kangaroo)
+[![codecov](https://codecov.io/gh/kangaroo-server/kangaroo/branch/develop/graph/badge.svg)](https://codecov.io/gh/kangaroo-server/kangaroo)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/kangaroo/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/kangaroo)
 
 ## Why?
