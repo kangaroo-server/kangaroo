@@ -114,12 +114,8 @@ public final class Section440ClientCredentialsTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        assertNotNull(entity.getAccessToken());
-        assertNull(entity.getRefreshToken());
-        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                (long) entity.getExpiresIn());
+        assertValidBearerToken(entity, false);
         assertNull(entity.getScope());
-        assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
@@ -223,11 +219,7 @@ public final class Section440ClientCredentialsTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        assertNotNull(entity.getAccessToken());
-        assertNull(entity.getRefreshToken());
-        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
-                (long) entity.getExpiresIn());
-        assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+        assertValidBearerToken(entity, false);
         assertEquals("debug", entity.getScope());
     }
 

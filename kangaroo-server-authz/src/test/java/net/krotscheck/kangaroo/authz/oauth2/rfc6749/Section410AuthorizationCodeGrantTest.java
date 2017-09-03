@@ -19,7 +19,6 @@ package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
@@ -74,12 +73,16 @@ public final class Section410AuthorizationCodeGrantTest
                             .client(ClientType.AuthorizationGrant)
                             .authenticator(AuthenticatorType.Test)
                             .redirect("http://valid.example.com/redirect")
+                            .user()
+                            .identity()
                             .build();
                     bareContext = ApplicationBuilder
                             .newApplication(session)
                             .scope("debug")
                             .client(ClientType.AuthorizationGrant)
                             .authenticator(AuthenticatorType.Test)
+                            .user()
+                            .identity()
                             .build();
                     noScopeRoleContext = ApplicationBuilder
                             .newApplication(session)
@@ -941,12 +944,7 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+        assertValidBearerToken(entity, true);
     }
 
     /**
@@ -1125,12 +1123,7 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
+        assertValidBearerToken(entity, true);
         Assert.assertNull(entity.getScope());
     }
 
@@ -1260,13 +1253,7 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
-        Assert.assertNull(entity.getScope());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
+        assertValidBearerToken(entity, true);
     }
 
     /**
@@ -1655,13 +1642,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
+        assertValidBearerToken(entity, true);
         Assert.assertNull(entity.getScope());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
@@ -1694,13 +1676,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
+        assertValidBearerToken(entity, true);
         Assert.assertNull(entity.getScope());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
@@ -1798,13 +1775,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
+        assertValidBearerToken(entity, true);
         Assert.assertNull(entity.getScope());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 
     /**
@@ -1921,13 +1893,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         TokenResponseEntity entity = tr.readEntity(TokenResponseEntity.class);
-        Assert.assertNotNull(entity.getAccessToken());
-        Assert.assertNotNull(entity.getRefreshToken());
-        Assert.assertEquals(
-                Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
-                entity.getExpiresIn());
+        assertValidBearerToken(entity, true);
         Assert.assertEquals("debug", entity.getScope());
         Assert.assertEquals(state2, entity.getState());
-        Assert.assertEquals(OAuthTokenType.Bearer, entity.getTokenType());
     }
 }

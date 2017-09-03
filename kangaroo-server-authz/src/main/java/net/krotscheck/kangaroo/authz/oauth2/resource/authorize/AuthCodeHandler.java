@@ -153,6 +153,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
         t.setExpiresIn(s.getAuthenticator().getClient()
                 .getAuthorizationCodeExpiresIn());
         t.setRedirect(s.getClientRedirect());
+        t.setIdentity(i);
 
         // Persist and get an ID.
         session.save(t);
