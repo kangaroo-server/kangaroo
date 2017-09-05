@@ -18,7 +18,8 @@
 
 package net.krotscheck.kangaroo.common.hibernate.listener;
 
-import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.entity.ICreatedDateEntity;
+import net.krotscheck.kangaroo.common.hibernate.entity.IModifiedDateEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.event.spi.PreInsertEvent;
@@ -53,20 +54,26 @@ public final class CreatedUpdatedListener
     @Override
     public boolean onPreInsert(final PreInsertEvent event) {
         Object entity = event.getEntity();
-        if (entity instanceof AbstractEntity) {
+        Object[] state = event.getState();
+        Calendar now = Calendar.getInstance(timeZone);
+
+        if (entity instanceof ICreatedDateEntity) {
             String[] propertyNames = event.getPersister().getEntityMetamodel()
                     .getPropertyNames();
-            Object[] state = event.getState();
-
-            Calendar now = Calendar.getInstance(timeZone);
-            AbstractEntity persistingEntity = (AbstractEntity) entity;
+            ICreatedDateEntity persistingEntity = (ICreatedDateEntity) entity;
             persistingEntity.setCreatedDate(now);
-            persistingEntity.setModifiedDate(now);
-
             setValue(state, propertyNames, "createdDate",
                     persistingEntity.getCreatedDate());
+        }
+
+        if (entity instanceof IModifiedDateEntity) {
+            String[] propertyNames = event.getPersister().getEntityMetamodel()
+                    .getPropertyNames();
+            IModifiedDateEntity modifiedEntity = (IModifiedDateEntity) entity;
+            modifiedEntity.setModifiedDate(now);
+
             setValue(state, propertyNames, "modifiedDate",
-                    persistingEntity.getModifiedDate());
+                    modifiedEntity.getModifiedDate());
         }
 
         return false;
@@ -81,13 +88,13 @@ public final class CreatedUpdatedListener
     @Override
     public boolean onPreUpdate(final PreUpdateEvent event) {
         Object entity = event.getEntity();
-        if (entity instanceof AbstractEntity) {
+        if (entity instanceof IModifiedDateEntity) {
             String[] propertyNames = event.getPersister().getEntityMetamodel()
                     .getPropertyNames();
             Object[] state = event.getState();
 
             Calendar now = Calendar.getInstance(timeZone);
-            AbstractEntity persistingEntity = (AbstractEntity) entity;
+            IModifiedDateEntity persistingEntity = (IModifiedDateEntity) entity;
             persistingEntity.setModifiedDate(now);
 
             setValue(state, propertyNames, "modifiedDate",

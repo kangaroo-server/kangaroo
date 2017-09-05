@@ -77,7 +77,8 @@ import java.util.UUID;
                 @TokenFilterDef(
                         factory = RemoveDuplicatesTokenFilterFactory.class)
         })
-public abstract class AbstractEntity implements Cloneable {
+public abstract class AbstractEntity implements Cloneable,
+        IModifiedDateEntity, ICreatedDateEntity {
 
     /**
      * The DB ID.
