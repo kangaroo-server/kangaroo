@@ -67,10 +67,10 @@ databaseChangeLog:
                   nullable: false
                   primaryKeyName: pk_http_sessions_id
             - column:
-                name: creationTime
+                name: createdDate
                 type: bigint
             - column:
-                name: timestamp
+                name: modifiedDate
                 type: bigint
             - column:
                 name: sessionTimeout

@@ -391,6 +391,27 @@
           </executions>
         </plugin>
 
+        <!-- PMD -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>3.6</version>
+          <executions>
+            <execution>
+              <id>default-check</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>default-cpd-check</id>
+              <goals>
+                <goal>cpd-check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
         <!-- Attach javadocs -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
