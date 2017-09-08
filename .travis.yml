@@ -16,9 +16,6 @@ branches:
   only:
   - master
   - develop
-  - /^feature\/.*$/
-  - /^hotfix\/.*$/
-  - /^release\/.*$/
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Ptravis
 script:
