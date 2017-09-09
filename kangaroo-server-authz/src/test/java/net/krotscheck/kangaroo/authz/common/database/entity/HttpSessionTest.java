@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
-import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +27,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Random;
 
 /**
  * Assert that the HTTP session data is sanely persisted.
@@ -43,12 +42,9 @@ public final class HttpSessionTest extends DatabaseTest {
     @Test
     public void testSimplePersistence() {
         HttpSession httpSession = new HttpSession();
-        httpSession.setCreationTime(1000);
 
         Assert.assertEquals(-1, httpSession.getSessionTimeout());
         httpSession.setSessionTimeout(1000);
-
-        httpSession.setTimestamp(2000);
 
         Assert.assertNull(httpSession.getId());
 
@@ -58,73 +54,9 @@ public final class HttpSessionTest extends DatabaseTest {
         s.getTransaction().commit();
 
         Assert.assertNotNull(httpSession.getId());
-        Assert.assertEquals(httpSession.getIdInternal(),
-                httpSession.getId().toString(16));
-        Assert.assertEquals(1000, httpSession.getCreationTime());
+        Assert.assertEquals(httpSession.getModifiedDate(),
+                httpSession.getCreatedDate());
         Assert.assertEquals(1000, httpSession.getSessionTimeout());
-        Assert.assertEquals(2000, httpSession.getTimestamp());
-    }
-
-    /**
-     * Assert that modifying the isValid parameter works as expected.
-     */
-    @Test
-    public void testIsValid() {
-        Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        now.add(Calendar.SECOND, -500);
-
-        HttpSession httpSession = new HttpSession();
-        httpSession.setCreationTime(now.getTimeInMillis());
-        httpSession.setTimestamp(now.getTimeInMillis());
-        httpSession.setSessionTimeout(1000);
-
-        Assert.assertTrue(httpSession.isValid());
-
-        httpSession.setValid(false);
-        Assert.assertFalse(httpSession.isValid());
-
-        httpSession.setValid(true);
-        Assert.assertTrue(httpSession.isValid());
-    }
-
-    /**
-     * Assert that the isNew parameter works as expected.
-     */
-    @Test
-    public void testIsNew() {
-        HttpSession httpSession = new HttpSession();
-        Assert.assertFalse(httpSession.isNew());
-        httpSession.setNew(true);
-        Assert.assertTrue(httpSession.isNew());
-        httpSession.setNew(false);
-        Assert.assertFalse(httpSession.isNew());
-    }
-
-    /**
-     * Assert that assertSetAttribute throws.
-     */
-    @Test(expected = NotImplementedException.class)
-    public void assertSetAttribute() {
-        HttpSession httpSession = new HttpSession();
-        httpSession.setAttribute("test", "value");
-    }
-
-    /**
-     * Assert that assertGetAttribute throws.
-     */
-    @Test(expected = NotImplementedException.class)
-    public void assertGetAttribute() {
-        HttpSession httpSession = new HttpSession();
-        httpSession.getAttribute("test");
-    }
-
-    /**
-     * Assert that assertSetAttribute throws.
-     */
-    @Test(expected = NotImplementedException.class)
-    public void assertRemoveAttribute() {
-        HttpSession httpSession = new HttpSession();
-        httpSession.removeAttribute("test");
     }
 
     /**
@@ -143,6 +75,34 @@ public final class HttpSessionTest extends DatabaseTest {
     }
 
     /**
+     * Test created date get/set.
+     */
+    @Test
+    public void testGetSetCreatedDate() {
+        HttpSession a = new HttpSession();
+        Calendar d = Calendar.getInstance();
+
+        Assert.assertNull(a.getCreatedDate());
+        a.setCreatedDate(d);
+        Assert.assertEquals(d, a.getCreatedDate());
+        Assert.assertNotSame(d, a.getCreatedDate());
+    }
+
+    /**
+     * Test created date get/set.
+     */
+    @Test
+    public void testGetSetModifiedDate() {
+        HttpSession a = new HttpSession();
+        Calendar d = Calendar.getInstance();
+
+        Assert.assertNull(a.getModifiedDate());
+        a.setModifiedDate(d);
+        Assert.assertEquals(d, a.getModifiedDate());
+        Assert.assertNotSame(d, a.getModifiedDate());
+    }
+
+    /**
      * Assert get id.
      */
     @Test
@@ -157,17 +117,93 @@ public final class HttpSessionTest extends DatabaseTest {
     }
 
     /**
-     * Assert calling the access() method updates the timestamp.
+     * Test Equality by ID.
      */
     @Test
-    public void assertAccess() {
-        HttpSession httpSession = new HttpSession();
-        httpSession.setNew(true);
-        httpSession.setTimestamp(2000);
-        httpSession.access();
+    public void testEquality() {
+        BigInteger id = new BigInteger(10, new Random());
+        BigInteger id2 = new BigInteger(10, new Random());
 
-        Assert.assertEquals(httpSession.getTimestamp(),
-                System.currentTimeMillis());
-        Assert.assertFalse(httpSession.isNew());
+        HttpSession a = new HttpSession();
+        a.setId(id);
+
+        HttpSession b = new HttpSession();
+        b.setId(id);
+
+        HttpSession c = new HttpSession();
+        c.setId(id2);
+
+        HttpSession d = new HttpSession();
+
+        Object e = new Object();
+
+        Assert.assertTrue(a.equals(a));
+        Assert.assertFalse(a.equals(null));
+        Assert.assertFalse(a.equals(e));
+        Assert.assertTrue(a.equals(b));
+        Assert.assertTrue(b.equals(a));
+        Assert.assertFalse(a.equals(c));
+        Assert.assertFalse(c.equals(a));
+        Assert.assertFalse(a.equals(d));
+        Assert.assertFalse(d.equals(a));
+    }
+
+    /**
+     * Test Equality by hashCode.
+     */
+    @Test
+    public void testHashCode() {
+        BigInteger id = new BigInteger(10, new Random());
+        BigInteger id2 = new BigInteger(10, new Random());
+
+        HttpSession a = new HttpSession();
+        a.setId(id);
+
+        HttpSession b = new HttpSession();
+        b.setId(id);
+
+        HttpSession c = new HttpSession();
+        c.setId(id2);
+
+        HttpSession d = new HttpSession();
+
+        Assert.assertEquals(a.hashCode(), b.hashCode());
+        Assert.assertNotEquals(a.hashCode(), c.hashCode());
+        Assert.assertNotEquals(a.hashCode(), d.hashCode());
+    }
+
+    /**
+     * Test toString.
+     */
+    @Test
+    public void testToString() {
+        BigInteger id = new BigInteger(10, new Random());
+        HttpSession a = new HttpSession();
+        a.setId(id);
+        HttpSession b = new HttpSession();
+
+        Assert.assertEquals(
+                String.format("net.krotscheck.kangaroo.authz.common.database"
+                                + ".entity.HttpSession [id=%s]",
+                        a.getId()),
+                a.toString());
+        Assert.assertEquals("net.krotscheck.kangaroo.authz"
+                + ".common.database.entity.HttpSession"
+                + " [id=null]", b.toString());
+    }
+
+    /**
+     * Test cloneable.
+     *
+     * @throws CloneNotSupportedException Should not be thrown.
+     */
+    @Test
+    public void testCloneable() throws CloneNotSupportedException {
+        BigInteger id = new BigInteger(10, new Random());
+        HttpSession a = new HttpSession();
+        a.setId(id);
+        HttpSession b = (HttpSession) a.clone();
+
+        Assert.assertEquals(a.getId(), b.getId());
     }
 }

@@ -19,8 +19,9 @@
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.NotImplementedException;
-import org.glassfish.grizzly.http.server.Session;
+import net.krotscheck.kangaroo.common.hibernate.entity.ICreatedDateEntity;
+import net.krotscheck.kangaroo.common.hibernate.entity.IModifiedDateEntity;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -36,12 +37,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * This hibernate entity describes an HTTP session that maintains 'refresh
@@ -52,7 +51,8 @@ import java.util.TimeZone;
  */
 @Entity
 @Table(name = "http_sessions")
-public final class HttpSession extends Session {
+public final class HttpSession
+        implements ICreatedDateEntity, IModifiedDateEntity, Cloneable {
 
     /**
      * A 64-byte id that identifies this particular session.
@@ -69,6 +69,22 @@ public final class HttpSession extends Session {
     private BigInteger id = null;
 
     /**
+     * The date this record was created.
+     */
+    @Column(name = "createdDate")
+    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
+            + ".CalendarTimestampType")
+    private Calendar createdDate;
+
+    /**
+     * The date this record was last modified.
+     */
+    @Column(name = "modifiedDate")
+    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
+            + ".CalendarTimestampType")
+    private Calendar modifiedDate;
+
+    /**
      * OAuth tokens attached to this session.
      */
     @OneToMany(
@@ -82,21 +98,6 @@ public final class HttpSession extends Session {
     private List<OAuthToken> refreshTokens = new ArrayList<>();
 
     /**
-     * The date this record was created.
-     */
-    @Column(name = "creationTime")
-    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
-            + ".CalendarTimestampType")
-    private Calendar creationTime =
-            Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-    /**
-     * Is this session new.
-     */
-    @Transient
-    private boolean isNew = false;
-
-    /**
      * Timeout.
      */
     @Basic(optional = false)
@@ -104,176 +105,65 @@ public final class HttpSession extends Session {
     private long sessionTimeout = -1;
 
     /**
-     * Last accessed timestamp.
+     * Set the ID.
+     *
+     * @return The ID for this session.
      */
-    @Column(name = "timestamp")
-    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
-            + ".CalendarTimestampType")
-    private Calendar timestamp =
-            Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-    /**
-     * Create a new session instance.
-     */
-    public HttpSession() {
-        super();
+    public BigInteger getId() {
+        return id;
     }
 
     /**
-     * Is the current Session valid?
+     * Get the ID.
      *
-     * @return true if valid.
+     * @param id The ID for this session.
      */
-    @Override
-    @Transient
-    @JsonIgnore
-    public boolean isValid() {
-        Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar expireDate = (Calendar) timestamp.clone();
-        expireDate.add(Calendar.SECOND,
-                ((Long) getSessionTimeout()).intValue());
-        return now.before(expireDate);
+    public void setId(final BigInteger id) {
+        this.id = id;
     }
 
     /**
-     * Set this object as validated.
+     * Get the date on which this record was created.
      *
-     * @param isValid
+     * @return The created date.
      */
-    @Override
-    public void setValid(final boolean isValid) {
-        Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        if (!isValid) {
-            now.add(Calendar.SECOND, -((Long) getSessionTimeout()).intValue());
-            setTimestamp(now.getTimeInMillis());
+    public Calendar getCreatedDate() {
+        if (createdDate == null) {
+            return null;
         } else {
-            this.setTimestamp(now.getTimeInMillis());
+            return (Calendar) createdDate.clone();
         }
     }
 
     /**
-     * Returns <code>true</code> if the client does not yet know about the
-     * session or if the client chooses not to join the session.  For
-     * example, if the server used only cookie-based sessions, and
-     * the client had disabled the use of cookies, then a session would
-     * be new on each request.
+     * Set the date on which this record was created.
      *
-     * @return <code>true</code> if the
-     * server has created a session,
-     * but the client has not yet joined
+     * @param date The creation date for this entity.
      */
-    @Override
-    public boolean isNew() {
-        return isNew;
+    public void setCreatedDate(final Calendar date) {
+        this.createdDate = (Calendar) date.clone();
     }
 
     /**
-     * Set whether the browser already knows about this session.
+     * Get the last modified date.
      *
-     * @param isNew Whether the session is new.
+     * @return The last time this record was modified, or null.
      */
-    public void setNew(final boolean isNew) {
-        this.isNew = isNew;
+    public Calendar getModifiedDate() {
+        if (modifiedDate == null) {
+            return null;
+        } else {
+            return (Calendar) modifiedDate.clone();
+        }
     }
 
     /**
-     * Add an attribute to this session. This is a no-op, as the system only
-     * permits attaching refresh tokens to the session.
+     * Set the last modified date.
      *
-     * @param key   The key.
-     * @param value The value.
+     * @param date The modified date for this entity.
      */
-    @Override
-    public void setAttribute(final String key, final Object value) {
-        throw new NotImplementedException("Please use setRefreshTokens");
-    }
-
-    /**
-     * Return an attribute. This is a no-op, please access the collection
-     * directly.
-     *
-     * @param key The key to check.
-     * @return Always null.
-     */
-    @Override
-    public Object getAttribute(final String key) {
-        throw new NotImplementedException("Please use getRefreshTokens");
-    }
-
-    /**
-     * Remove an attribute. This is a no-op, please access the collection
-     * directly.
-     *
-     * @param key The key to remove.
-     * @return Always false.
-     */
-    @Override
-    public Object removeAttribute(final String key) {
-        throw new NotImplementedException("Please use getRefreshTokens");
-    }
-
-    /**
-     * Returns the time when this session was created, measured
-     * in milliseconds since midnight January 1, 1970 GMT.
-     *
-     * @return a <code>long</code> specifying when this session was created,
-     * expressed in  milliseconds since 1/1/1970 GMT
-     */
-    @Override
-    public long getCreationTime() {
-        return creationTime.getTimeInMillis();
-    }
-
-    /**
-     * Set the creation time for this session.
-     *
-     * @param creationTime The new creation time, expressed in milliseconds GMT.
-     */
-    public void setCreationTime(final long creationTime) {
-        this.creationTime.setTimeInMillis(creationTime);
-    }
-
-    /**
-     * Return a long representing the maximum idle time (in milliseconds) a
-     * session can be.
-     *
-     * @return a long representing the maximum idle time (in milliseconds) a
-     * session can be.
-     */
-    @Override
-    public long getSessionTimeout() {
-        return sessionTimeout;
-    }
-
-    /**
-     * Set a long representing the maximum idle time (in milliseconds) a
-     * session can be.
-     *
-     * @param sessionTimeout a long representing the maximum idle time
-     *                       (in milliseconds) a session can be.
-     */
-    @Override
-    public void setSessionTimeout(final long sessionTimeout) {
-        this.sessionTimeout = sessionTimeout;
-    }
-
-    /**
-     * @return the timestamp when this session was accessed the last time
-     */
-    @Override
-    public long getTimestamp() {
-        return timestamp.getTimeInMillis();
-    }
-
-    /**
-     * Set the timestamp when this session was accessed the last time.
-     *
-     * @param timestamp a long representing when the session was accessed the
-     *                  last time
-     */
-    @Override
-    public void setTimestamp(final long timestamp) {
-        this.timestamp.setTimeInMillis(timestamp);
+    public void setModifiedDate(final Calendar date) {
+        this.modifiedDate = (Calendar) date.clone();
     }
 
     /**
@@ -295,43 +185,78 @@ public final class HttpSession extends Session {
     }
 
     /**
-     * Set the ID.
+     * Get the session timeout.
      *
-     * @return The ID for this session.
+     * @return Timeout, in seconds.
      */
-    public BigInteger getId() {
-        return id;
+    public long getSessionTimeout() {
+        return sessionTimeout;
     }
 
     /**
-     * Get the ID.
+     * Set the session timeout, in seconds.
      *
-     * @param id The ID for this session.
+     * @param sessionTimeout The new session timeout, in seconds.
      */
-    public void setId(final BigInteger id) {
-        this.id = id;
+    public void setSessionTimeout(final long sessionTimeout) {
+        this.sessionTimeout = sessionTimeout;
     }
 
     /**
-     * @return the session identifier for this session.
+     * Equality implementation, global.
+     *
+     * @param o The object to test.
+     * @return True if the ID's are equal, otherwise false.
+     */
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !this.getClass().isInstance(o)) {
+            return false;
+        }
+
+        // Cast
+        HttpSession other = (HttpSession) o;
+
+        // if the id is missing, return false
+        if (id == null) {
+            return false;
+        }
+
+        // equivalence by id
+        return id.equals(other.getId());
+    }
+
+    /**
+     * Public Hashcode generation.
+     *
+     * @return A hashcode for this entity.
+     */
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(this.getClass().getName())
+                .toHashCode();
+    }
+
+    /**
+     * Simplified Stringification.
+     *
+     * @return A string representation of the instance.
+     */
+    public String toString() {
+        return String.format("%s [id=%s]", this.getClass().getCanonicalName(),
+                getId());
+    }
+
+    /**
+     * Clone this instance.
+     *
+     * @return A clone of this entity.
      */
     @Override
-    @Transient
-    public String getIdInternal() {
-        return id.toString(16);
-    }
-
-    /**
-     * Updates the "last accessed" timestamp with the current time.
-     *
-     * @return the time stamp
-     */
-    @Override
-    @Transient
-    public long access() {
-        final long localTimeStamp = System.currentTimeMillis();
-        timestamp.setTimeInMillis(localTimeStamp);
-        isNew = false;
-        return localTimeStamp;
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
