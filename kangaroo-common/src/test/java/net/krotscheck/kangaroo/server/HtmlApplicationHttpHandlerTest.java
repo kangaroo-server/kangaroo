@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.server;
 
+import net.krotscheck.kangaroo.test.NetworkUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -48,13 +49,21 @@ public final class HtmlApplicationHttpHandlerTest {
     public static HttpServer server;
 
     /**
+     * The port in use by the server.
+     */
+    private static String port;
+
+    /**
      * Create and start up the server.
      *
      * @throws Exception Should not be thrown.
      */
     @BeforeClass
     public static void startServer() throws Exception {
-        URI serverUri = UriBuilder.fromUri("http://localhost:8080/").build();
+        port = String.valueOf(NetworkUtil.findFreePort());
+        URI serverUri = UriBuilder
+                .fromUri("http://localhost:" + port + "/")
+                .build();
         String appRoot = Paths.get("src/test/resources/html/index")
                 .toAbsolutePath().toString();
         server = GrizzlyHttpServerFactory.createHttpServer(serverUri, false);
@@ -104,7 +113,7 @@ public final class HtmlApplicationHttpHandlerTest {
     public void handleReadIndex() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        HttpGet httpGet1 = new HttpGet("http://localhost:8080/index.html");
+        HttpGet httpGet1 = new HttpGet("http://localhost:" + port + "/index.html");
         CloseableHttpResponse response = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
@@ -125,7 +134,7 @@ public final class HtmlApplicationHttpHandlerTest {
     public void handleReadRootPath() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        HttpGet httpGet1 = new HttpGet("http://localhost:8080");
+        HttpGet httpGet1 = new HttpGet("http://localhost:" + port);
         CloseableHttpResponse response = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
@@ -146,7 +155,8 @@ public final class HtmlApplicationHttpHandlerTest {
     public void handleValidSubdirectory() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        HttpGet httpGet1 = new HttpGet("http://localhost:8080/subdir/");
+        HttpGet httpGet1 =
+                new HttpGet("http://localhost:" + port + "/subdir/");
         CloseableHttpResponse response = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
@@ -167,7 +177,8 @@ public final class HtmlApplicationHttpHandlerTest {
     public void handle404Resource() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        HttpGet httpGet1 = new HttpGet("http://localhost:8080/invalid.html");
+        HttpGet httpGet1 =
+                new HttpGet("http://localhost:" + port + "/invalid.html");
         CloseableHttpResponse response = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
@@ -189,7 +200,7 @@ public final class HtmlApplicationHttpHandlerTest {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         HttpGet httpGet1 =
-                new HttpGet("http://localhost:8080/subdir/other.html");
+                new HttpGet("http://localhost:" + port + "/subdir/other.html");
         CloseableHttpResponse response = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
@@ -211,7 +222,7 @@ public final class HtmlApplicationHttpHandlerTest {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         HttpDelete httpDelete = new HttpDelete(
-                "http://localhost:8080/subdir/other.html");
+                "http://localhost:" + port + "/subdir/other.html");
         CloseableHttpResponse response = httpclient.execute(httpDelete);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
