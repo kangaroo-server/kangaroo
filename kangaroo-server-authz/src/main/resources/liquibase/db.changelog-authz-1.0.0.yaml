@@ -844,7 +844,7 @@ databaseChangeLog:
                   nullable: false
             - column:
                 name: expiresIn
-                type: int
+                type: bigint
                 constraints:
                   nullable: false
             - column:
