@@ -91,20 +91,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <configuration>
-          <dockerDirectory>${project.basedir}</dockerDirectory>
-          <imageName>kangaroo/oauth2</imageName>
-          <imageTags>
-            <imageTag>latest</imageTag>
-            <imageTag>${project.version}</imageTag>
-          </imageTags>
-        </configuration>
-      </plugin>
-
     </plugins>
   </build>
 
