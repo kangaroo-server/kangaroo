@@ -1,5 +1,5 @@
 # Kangaroo: An OAuth2 Server
-[![Build Status](https://travis-ci.org/kangaroo-server/kangaroo.svg)](https://travis-ci.org/kangaroo-server/kangaroo)
+[![Build Status](https://jenkins.krotscheck.net/buildStatus/icon?job=Kangaroo/kangaroo/develop)](https://jenkins.krotscheck.net/job/Kangaroo/kangaroo/develop)
 [![codecov](https://codecov.io/gh/kangaroo-server/kangaroo/branch/develop/graph/badge.svg)](https://codecov.io/gh/kangaroo-server/kangaroo)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/kangaroo/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.krotscheck/kangaroo)
 
@@ -32,7 +32,7 @@ This is a Java8 maven project, with no divergences from the standard maven
 lifecycle. The following maven profiles are supported:
 
 - `mvn clean install -p h2` (default) <br/>
-  Tests are run against an in-memory h2 database. This is run in travis.
+  Tests are run against an in-memory h2 database.
 - `mvn clean install -p mariadb` <br/>
   Tests are run against a MariaDB instance at `mysql://localhost:3306/`. The 
   root password is expected to be empty, so please secure your system 

@@ -56,7 +56,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <hibernate.connection.url>jdbc:h2:mem:target/test/db/h2/hibernate</hibernate.connection.url>
+        <hibernate.connection.url>jdbc:h2:file:${project.basedir}/${target-directory}/h2.test.db</hibernate.connection.url>
         <hibernate.connection.driver_class>org.h2.Driver</hibernate.connection.driver_class>
         <hibernate.dialect>org.hibernate.dialect.H2Dialect</hibernate.dialect>
       </properties>
@@ -86,8 +86,8 @@
   </organization>
 
   <ciManagement>
-    <system>travis</system>
-    <url>https://travis-ci.org/kangaroo-server/kangaroo</url>
+    <system>jenkins</system>
+    <url>https://jenkins.krotscheck.net/job/Kangaroo/job/kangaroo/</url>
   </ciManagement>
 
   <issueManagement>
@@ -147,6 +147,7 @@
   </distributionManagement>
 
   <properties>
+    <target-directory>target</target-directory>
     <jdk.version>1.8</jdk.version>
     <hibernate.version>5.2.10.Final</hibernate.version>
     <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
@@ -160,6 +161,8 @@
   </properties>
 
   <build>
+    <directory>${project.basedir}/${target-directory}</directory>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -279,17 +282,14 @@
           <configuration>
             <argLine>-Xmx1024m</argLine>
 
-            <systemProperties>
-              <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
-              <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-            </systemProperties>
-
             <systemPropertyVariables>
+              <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
               <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
               <hibernate.connection.username>oid</hibernate.connection.username>
               <hibernate.connection.password>oid</hibernate.connection.password>
               <hibernate.connection.driver_class>${hibernate.connection.driver_class}</hibernate.connection.driver_class>
               <hibernate.dialect>${hibernate.dialect}</hibernate.dialect>
+              <hibernate.root.password>${hibernate.root.password}</hibernate.root.password>
             </systemPropertyVariables>
           </configuration>
         </plugin>
@@ -348,7 +348,7 @@
                   <limit>
                     <counter>METHOD</counter>
                     <value>MISSEDCOUNT</value>
-                    <minimum>0</minimum>
+                    <maximum>0</maximum>
                   </limit>
                   <limit>
                     <counter>CLASS</counter>

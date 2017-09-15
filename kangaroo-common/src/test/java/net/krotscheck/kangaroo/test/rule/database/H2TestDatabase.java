@@ -18,6 +18,8 @@
 
 package net.krotscheck.kangaroo.test.rule.database;
 
+import org.h2.tools.DeleteDbFiles;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -85,7 +87,24 @@ public final class H2TestDatabase extends AbstractTestDatabase
     @Override
     public void close() throws IOException {
         try {
+            String url = connection.getMetaData().getURL();
             this.connection.close();
+
+            // Remove the prefix.
+            url = url.substring("jdbc:h2:".length());
+            // Split on protocol.
+            String[] parts = url.split(":");
+            String protocol = parts[0];
+            String path = parts[1];
+
+            // Grab the last path segment
+            String dir = path.substring(0, path.lastIndexOf('/'));
+            String db = path.substring(path.lastIndexOf('/') + 1);
+
+            if ("file".equals(protocol)) {
+                // Also delete the file.
+                DeleteDbFiles.execute(dir, db, true);
+            }
         } catch (SQLException sql) {
             throw new IOException(sql);
         }

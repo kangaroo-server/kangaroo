@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.server;
 
 import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.test.NetworkUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -133,16 +134,20 @@ public class ServerFactoryTest {
     public void testBuildAllConfigOptions() throws Exception {
         URL filePath = this.getClass()
                 .getResource("/config/test.properties");
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
 
         ServerFactory f = new ServerFactory()
-                .withCommandlineArgs(new String[]{"-p=9000", "-h=localhost"})
+                .withCommandlineArgs(new String[]{
+                        "-p=" + openPort,
+                        "-h=localhost"
+                })
                 .withPropertiesFile(filePath.toString());
 
         HttpServer s = f.build();
         s.start();
 
         CloseableHttpClient httpclient = getHttpClient();
-        HttpGet httpGet = new HttpGet("https://localhost:9000/");
+        HttpGet httpGet = new HttpGet("https://localhost:" + openPort + "/");
         CloseableHttpResponse response = httpclient.execute(httpGet);
 
         Assert.assertEquals(response.getStatusLine().getStatusCode(),
@@ -163,6 +168,7 @@ public class ServerFactoryTest {
     public void testMountMultipleServlets() throws Exception {
         Path appRoot = Paths.get("src/test/resources/html/index");
         String appPath = appRoot.toAbsolutePath().toString();
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
 
         ResourceConfig one = new ResourceConfig();
         one.register(StatusFeature.class);
@@ -172,7 +178,8 @@ public class ServerFactoryTest {
 
         ServerFactory f = new ServerFactory()
                 .withCommandlineArgs(new String[]{
-                        "--kangaroo.html_app_root=" + appPath
+                        "--kangaroo.html_app_root=" + appPath,
+                        "--kangaroo.port=" + openPort
                 })
                 .withResource("/one", one)
                 .withResource("/two", two);
@@ -181,19 +188,21 @@ public class ServerFactoryTest {
         s.start();
 
         CloseableHttpClient httpclient = getHttpClient();
-        HttpGet httpGet1 = new HttpGet("https://localhost:8080/one/status");
+        HttpGet httpGet1 = new HttpGet(
+                "https://localhost:" + openPort + "/one/status");
         CloseableHttpResponse response1 = httpclient.execute(httpGet1);
         Assert.assertEquals(response1.getStatusLine().getStatusCode(),
                 200);
         response1.close();
 
-        HttpGet httpGet2 = new HttpGet("https://localhost:8080/two/status");
+        HttpGet httpGet2 = new HttpGet(
+                "https://localhost:" + openPort + "/two/status");
         CloseableHttpResponse response2 = httpclient.execute(httpGet2);
         Assert.assertEquals(response2.getStatusLine().getStatusCode(),
                 200);
         response2.close();
 
-        HttpGet httpGet3 = new HttpGet("https://localhost:8080/");
+        HttpGet httpGet3 = new HttpGet("https://localhost:" + openPort + "/");
         CloseableHttpResponse response3 = httpclient.execute(httpGet3);
         String responseBody3 = EntityUtils.toString(response3.getEntity());
 
@@ -215,17 +224,19 @@ public class ServerFactoryTest {
     public void testAddHtmlApp() throws Exception {
         Path appRoot = Paths.get("src/test/resources/html/index");
         String appPath = appRoot.toAbsolutePath().toString();
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
 
         ServerFactory f = new ServerFactory()
                 .withCommandlineArgs(new String[]{
-                        "--kangaroo.html_app_root=" + appPath
+                        "--kangaroo.html_app_root=" + appPath,
+                        "--kangaroo.port=" + openPort
                 });
 
         HttpServer s = f.build();
         s.start();
 
         CloseableHttpClient httpclient = getHttpClient();
-        HttpGet httpGet1 = new HttpGet("https://localhost:8080/");
+        HttpGet httpGet1 = new HttpGet("https://localhost:" + openPort + "/");
         CloseableHttpResponse response1 = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response1.getEntity());
 

@@ -32,6 +32,8 @@
   <description>Kangaroo's Administration API.</description>
 
   <build>
+    <directory>${basedir}/${target-directory}</directory>
+
     <resources>
       <resource>
         <directory>${basedir}/src/main/resources</directory>

@@ -22,7 +22,7 @@
 
 <hibernate-configuration>
   <session-factory>
-    <property name="hibernate.connection.url">jdbc:h2:mem:target/test/db/h2/hibernate</property>
+    <property name="hibernate.connection.url">jdbc:h2:file:./target/h2.test.db</property>
     <property name="hibernate.connection.username">oid</property>
     <property name="hibernate.connection.password">oid</property>
     <property name="hibernate.connection.driver_class">org.h2.Driver</property>
