@@ -49,23 +49,11 @@
         </testResources>
       </build>
     </profile>
-    <profile>
-      <id>travis</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <testResources>
-          <testResource>
-            <directory>${basedir}/src/test/resources/logback/travis/</directory>
-            <targetPath>${project.build.testOutputDirectory}</targetPath>
-          </testResource>
-        </testResources>
-      </build>
-    </profile>
   </profiles>
 
   <build>
+    <directory>${basedir}/${target-directory}</directory>
+
     <resources>
       <resource>
         <directory>${basedir}/src/main/resources</directory>
@@ -74,9 +62,6 @@
     <testResources>
       <testResource>
         <directory>${basedir}/src/test/resources</directory>
-        <excludes>
-          <exclude>logback/**</exclude>
-        </excludes>
       </testResource>
     </testResources>
     <plugins>

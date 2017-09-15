@@ -10,6 +10,8 @@
 
 # Maven
 target
+**/target-h2
+**/target-mariadb
 jacoco.exec
 
 # IDE files

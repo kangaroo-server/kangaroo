@@ -52,7 +52,7 @@ public final class TestConfig {
      */
     public static String getDbJdbcPath() {
         return System.getProperty("hibernate.connection.url",
-                "jdbc:h2:mem:target/test/db/h2/hibernate");
+                "jdbc:h2:file:./target/h2.test.db");
     }
 
     /**
@@ -81,6 +81,15 @@ public final class TestConfig {
      */
     public static String getDbPassword() {
         return System.getProperty("hibernate.connection.password", "oid");
+    }
+
+    /**
+     * Evaluate the Root Database Password (Where appropriate).
+     *
+     * @return The root database password.
+     */
+    public static String getRootPassword() {
+        return System.getProperty("hibernate.root.password", "");
     }
 
     /**
