@@ -128,9 +128,21 @@ public final class BigIntegerType implements UserType {
                             final int index,
                             final SharedSessionContractImplementor session)
             throws HibernateException, SQLException {
+
         if (value != null) {
             BigInteger bigInteger = (BigInteger) value;
-            st.setBytes(index, bigInteger.toByteArray());
+            byte[] result = bigInteger.toByteArray();
+
+            if (result.length != 16) {
+                byte[] zerofill = new byte[16];
+                // Prefix zeros if necessary...
+                System.arraycopy(result, 0, zerofill,
+                        zerofill.length - result.length,
+                        result.length);
+                result = zerofill;
+            }
+
+            st.setBytes(index, result);
         } else {
             st.setNull(index, Types.BINARY);
         }

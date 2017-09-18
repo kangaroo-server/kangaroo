@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test;
 
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
@@ -31,10 +32,10 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Utility class for quick HTTP variable generation.
@@ -80,9 +81,9 @@ public final class HttpUtil {
      * @param password The password.
      * @return 'Basic base64(login + ':' + password)'
      */
-    public static String authHeaderBasic(final UUID login,
+    public static String authHeaderBasic(final BigInteger login,
                                          final String password) {
-        return authHeaderBasic(login.toString(), password);
+        return authHeaderBasic(IdUtil.toString(login), password);
     }
 
     /**
@@ -91,8 +92,8 @@ public final class HttpUtil {
      * @param token The bearer token ID.
      * @return 'Bearer (token)'
      */
-    public static String authHeaderBearer(final UUID token) {
-        return authHeaderBearer(token.toString());
+    public static String authHeaderBearer(final BigInteger token) {
+        return authHeaderBearer(IdUtil.toString(token));
     }
 
     /**

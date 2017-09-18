@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -129,7 +130,8 @@ public final class ImplicitHandler implements IAuthorizeHandler {
         // Generate the redirection url.
         URI callback = uriInfo.getAbsolutePathBuilder()
                 .path("/callback")
-                .queryParam("state", callbackState.getId())
+                .queryParam("state",
+                        IdUtil.toString(callbackState.getId()))
                 .build();
 
         // Run the authenticator.
@@ -171,7 +173,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
 
         List<BasicNameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("access_token",
-                t.getId().toString()));
+                IdUtil.toString(t.getId())));
         params.add(new BasicNameValuePair("token_type",
                 t.getTokenType().toString()));
         params.add(new BasicNameValuePair("expires_in",

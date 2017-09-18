@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.apache.lucene.search.Query;
@@ -47,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -465,7 +465,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         User secondaryOwner = getSecondaryContext().getOwner();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("owner", secondaryOwner.getId().toString());
+        params.put("owner", IdUtil.toString(secondaryOwner.getId()));
 
         // Determine result set.
         List<T> searchResults = getSearchResults(query);
@@ -514,8 +514,8 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         if (adminToken.getIdentity() != null) {
             Map<String, String> params = new HashMap<>();
             params.put("q", query);
-            params.put("owner", adminToken.getIdentity()
-                    .getUser().getId().toString());
+            params.put("owner", IdUtil.toString(adminToken.getIdentity()
+                    .getUser().getId()));
 
             // Determine result set.
             List<T> searchResults = getSearchResults(query);
@@ -554,7 +554,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
-        params.put("owner", UUID.randomUUID().toString());
+        params.put("owner", IdUtil.toString(IdUtil.next()));
 
         Response r = search(params, token);
 

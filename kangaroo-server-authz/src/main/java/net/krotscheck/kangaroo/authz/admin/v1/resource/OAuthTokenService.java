@@ -29,6 +29,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -57,8 +58,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
 
 /**
  * A RESTful api that permits management of OAuth Tokens that were issued by
@@ -92,10 +93,10 @@ public final class OAuthTokenService extends AbstractService {
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("user") final UUID userId,
-            @Optional @QueryParam("identity") final UUID userIdentityId,
-            @Optional @QueryParam("client") final UUID clientId,
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("user") final BigInteger userId,
+            @Optional @QueryParam("identity") final BigInteger userIdentityId,
+            @Optional @QueryParam("client") final BigInteger clientId,
             @Optional @QueryParam("type") final OAuthTokenType type) {
 
         // Start a query builder...
@@ -174,7 +175,7 @@ public final class OAuthTokenService extends AbstractService {
                 .createFullTextQuery(junction.createQuery(),
                         OAuthToken.class);
 
-        return executeQuery(query, offset, limit);
+        return executeQuery(OAuthToken.class, query, offset, limit);
     }
 
     /**
@@ -200,9 +201,9 @@ public final class OAuthTokenService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("identity") final UUID userIdentityId,
-            @Optional @QueryParam("client") final UUID clientId) {
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("identity") final BigInteger userIdentityId,
+            @Optional @QueryParam("client") final BigInteger clientId) {
 
         // Validate the incoming filters.
         User filterByOwner =
@@ -270,9 +271,9 @@ public final class OAuthTokenService extends AbstractService {
      */
     @SuppressWarnings("CPD-END")
     @GET
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final UUID id) {
+    public Response getResource(@PathParam("id") final BigInteger id) {
         OAuthToken token = getSession().get(OAuthToken.class, id);
         assertCanAccess(token, getAdminScope());
         return Response.ok(token).build();
@@ -313,7 +314,7 @@ public final class OAuthTokenService extends AbstractService {
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
                 .path(OAuthTokenService.class, "getResource")
-                .build(validToken.getId().toString());
+                .build(IdUtil.toString(validToken.getId()));
 
         return Response.created(resourceLocation).build();
     }
@@ -327,10 +328,10 @@ public final class OAuthTokenService extends AbstractService {
      * @return A response with the token that was updated.
      */
     @PUT
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final UUID id,
+    public Response updateResource(@PathParam("id") final BigInteger id,
                                    final OAuthToken token) {
         Session s = getSession();
 
@@ -379,8 +380,8 @@ public final class OAuthTokenService extends AbstractService {
      * @return A response that indicates the success of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response deleteResource(@PathParam("id") final UUID id) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response deleteResource(@PathParam("id") final BigInteger id) {
         Session s = getSession();
         OAuthToken token = s.get(OAuthToken.class, id);
 

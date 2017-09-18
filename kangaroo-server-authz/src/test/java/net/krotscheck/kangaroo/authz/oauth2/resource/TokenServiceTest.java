@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -87,8 +88,10 @@ public final class TokenServiceTest extends ContainerTest {
     public void testInvalidGrantType() {
         Form testData = new Form();
         testData.param("grant_type", "invalid");
-        testData.param("client_id", context.getClient().getId().toString());
-        testData.param("client_secret", context.getClient().getClientSecret());
+        testData.param("client_id",
+                IdUtil.toString(context.getClient().getId()));
+        testData.param("client_secret",
+                context.getClient().getClientSecret());
         Entity testEntity = Entity.entity(testData,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 
@@ -112,8 +115,10 @@ public final class TokenServiceTest extends ContainerTest {
         // created.
         Form testData = new Form();
         testData.param("grant_type", "client_credentials");
-        testData.param("client_id", context.getClient().getId().toString());
-        testData.param("client_secret", context.getClient().getClientSecret());
+        testData.param("client_id",
+                IdUtil.toString(context.getClient().getId()));
+        testData.param("client_secret",
+                context.getClient().getClientSecret());
         Entity testEntity = Entity.entity(testData,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 

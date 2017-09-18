@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeExcept
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
@@ -49,7 +50,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.UUID;
+
 
 /**
  * Unit tests for our common service abstractions.
@@ -61,10 +62,10 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
-            new GenericType<ListResponseEntity<AbstractEntity>>() {
+    private static final GenericType<ListResponseEntity<AbstractEntity>>
+            LIST_TYPE = new GenericType<ListResponseEntity<AbstractEntity>>() {
 
-            };
+    };
     /**
      * A user application from which we can issue tokens.
      */
@@ -166,7 +167,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -394,7 +395,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Mockito.doReturn(true).when(mockContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        service.resolveOwnershipFilter(UUID.randomUUID());
+        service.resolveOwnershipFilter(IdUtil.next());
     }
 
     /**
@@ -514,7 +515,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * Assert that we can require an entity with a null ID.
      */
     @Test(expected = BadRequestException.class)
-    public void testREquireEntityInputNoIdEntity() {
+    public void testRequireEntityInputNoIdEntity() {
         service.requireEntityInput(Application.class, new Application());
     }
 
@@ -577,7 +578,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Mockito.doReturn(true).when(mockContext)
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
-        service.resolveFilterEntity(Application.class, UUID.randomUUID());
+        service.resolveFilterEntity(Application.class, IdUtil.next());
     }
 
     /**
@@ -659,7 +660,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Mockito.doReturn(true).when(mockContext)
                 .isUserInRole(Scope.APPLICATION);
 
-        service.resolveFilterEntity(Application.class, UUID.randomUUID());
+        service.resolveFilterEntity(Application.class, IdUtil.next());
     }
 
     /**

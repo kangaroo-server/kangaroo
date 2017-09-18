@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -44,7 +46,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -289,14 +290,14 @@ public final class OAuthTokenTest {
     @Test
     public void testJacksonSerializable() throws Exception {
         UserIdentity identity = new UserIdentity();
-        identity.setId(UUID.randomUUID());
+        identity.setId(IdUtil.next());
 
         Client client = new Client();
         client.setType(ClientType.ClientCredentials);
-        client.setId(UUID.randomUUID());
+        client.setId(IdUtil.next());
 
         OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
+        token.setId(IdUtil.next());
         token.setCreatedDate(Calendar.getInstance());
         token.setModifiedDate(Calendar.getInstance());
         token.setIdentity(identity);
@@ -312,7 +313,7 @@ public final class OAuthTokenTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                token.getId().toString(),
+                IdUtil.toString(token.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(token.getCreatedDate().getTime()),
@@ -331,10 +332,10 @@ public final class OAuthTokenTest {
                 token.getRedirect().toString(),
                 node.get("redirect").asText());
         Assert.assertEquals(
-                token.getClient().getId().toString(),
+                IdUtil.toString(token.getClient().getId()),
                 node.get("client").asText());
         Assert.assertEquals(
-                token.getIdentity().getId().toString(),
+                IdUtil.toString(token.getIdentity().getId()),
                 node.get("identity").asText());
 
         // Enforce a given number of items.
@@ -356,7 +357,7 @@ public final class OAuthTokenTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
@@ -370,7 +371,7 @@ public final class OAuthTokenTest {
         OAuthToken c = m.readValue(output, OAuthToken.class);
 
         Assert.assertEquals(
-                c.getId().toString(),
+                IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(c.getCreatedDate().getTime()),
@@ -397,8 +398,8 @@ public final class OAuthTokenTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -407,6 +408,6 @@ public final class OAuthTokenTest {
         OAuthToken c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, c.getId());
+        Assert.assertEquals(newId, c.getId());
     }
 }

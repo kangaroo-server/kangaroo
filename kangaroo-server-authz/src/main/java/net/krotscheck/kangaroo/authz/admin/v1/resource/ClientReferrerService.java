@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.AbstractClientUri;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -51,8 +52,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
+
 
 /**
  * A RESTful API that permits the management of a client's referrer URI's.
@@ -66,7 +68,7 @@ public final class ClientReferrerService extends AbstractService {
     /**
      * The client from which the referrers are extracted.
      */
-    private final UUID clientId;
+    private final BigInteger clientId;
 
     /**
      * Create a new instance of this referrer service.
@@ -74,7 +76,8 @@ public final class ClientReferrerService extends AbstractService {
      * @param clientId The client id, provided by the routed path.
      */
     @Inject
-    public ClientReferrerService(@PathParam("clientId") final UUID clientId) {
+    public ClientReferrerService(
+            @PathParam("clientId") final BigInteger clientId) {
         this.clientId = clientId;
     }
 
@@ -143,9 +146,9 @@ public final class ClientReferrerService extends AbstractService {
      */
     @SuppressWarnings("CPD-END")
     @GET
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final UUID id) {
+    public Response getResource(@PathParam("id") final BigInteger id) {
         Session s = getSession();
         Client client = s.get(Client.class, clientId);
         assertCanAccess(client, getAdminScope());
@@ -204,7 +207,7 @@ public final class ClientReferrerService extends AbstractService {
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
                 .path(ClientReferrerService.class, "getResource")
-                .build(referrer.getId().toString());
+                .build(IdUtil.toString(referrer.getId()));
 
         return Response.created(resourceLocation).build();
     }
@@ -217,10 +220,10 @@ public final class ClientReferrerService extends AbstractService {
      * @return A response with the referrer that was updated.
      */
     @PUT
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final UUID id,
+    public Response updateResource(@PathParam("id") final BigInteger id,
                                    final ClientReferrer referrer) {
         Session s = getSession();
 
@@ -271,8 +274,9 @@ public final class ClientReferrerService extends AbstractService {
      * @return A response that indicates the success of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response deleteResource(@PathParam("id") final UUID referrerId) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response deleteResource(
+            @PathParam("id") final BigInteger referrerId) {
         Session s = getSession();
 
         // Make sure we're allowed to access the client.

@@ -18,21 +18,15 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
-import net.krotscheck.kangaroo.authz.admin.v1.servlet.FirstRunContainerLifecycleListener.Binder;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
-import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
-import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
-import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.glassfish.jersey.internal.inject.Injections;
-import org.glassfish.jersey.internal.inject.ServiceHolder;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
@@ -41,14 +35,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.inject.Singleton;
-import java.lang.annotation.Annotation;
-import java.util.List;
+import java.math.BigInteger;
 import java.util.Properties;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test our application bootstrap.
@@ -99,29 +87,29 @@ public final class FirstRunContainerLifecycleListenerTest
 
         // Make sure we have an application ID.
         String appId = testConfig.getString(Config.APPLICATION_ID);
-        UUID appUuid = UUID.fromString(appId);
-        Assert.assertNotNull(appUuid);
+        BigInteger appByte = IdUtil.fromString(appId);
+        Assert.assertNotNull(appByte);
 
         // Ensure that the app id can be resolved.
-        Application application = s.get(Application.class, appUuid);
+        Application application = s.get(Application.class, appByte);
         Assert.assertNotNull(application);
 
         // Make sure we have an application client ID
         String clientId = testConfig.getString(Config.APPLICATION_CLIENT_ID);
-        UUID clientUuid = UUID.fromString(clientId);
-        Assert.assertNotNull(clientUuid);
+        BigInteger clientByte = IdUtil.fromString(clientId);
+        Assert.assertNotNull(clientByte);
 
         // Ensure that the client id can be resolved.
-        Client client = s.get(Client.class, clientUuid);
+        Client client = s.get(Client.class, clientByte);
         Assert.assertNotNull(client);
 
         // Make sure we have an application user ID
         String adminId = testConfig.getString(Config.APPLICATION_ADMIN_ID);
-        UUID adminUuid = UUID.fromString(adminId);
-        Assert.assertNotNull(adminUuid);
+        BigInteger adminByte = IdUtil.fromString(adminId);
+        Assert.assertNotNull(adminByte);
 
         // Ensure that the client id can be resolved.
-        User user = s.get(User.class, adminUuid);
+        User user = s.get(User.class, adminByte);
         Assert.assertNotNull(user);
 
         // Cleanup

@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedExcept
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
@@ -36,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.container.ContainerRequestContext;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -139,7 +139,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test
     public void testValidPublicCredentials() throws Exception {
-        Credentials c = new Credentials(publicClient.getId().toString(), null);
+        Credentials c = new Credentials(IdUtil.toString(publicClient.getId()), null);
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
 
@@ -153,7 +153,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test
     public void testValidPrivateCredentials() throws Exception {
-        Credentials c = new Credentials(privateClient.getId().toString(),
+        Credentials c = new Credentials(IdUtil.toString(privateClient.getId()),
                 privateClient.getClientSecret());
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
@@ -168,7 +168,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void testInvalidCredentials() throws Exception {
-        Credentials c = new Credentials(privateClient.getId().toString(),
+        Credentials c = new Credentials(IdUtil.toString(privateClient.getId()),
                 "invalid");
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
@@ -183,7 +183,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test(expected = InvalidClientException.class)
     public void testCredentialsNoClient() throws Exception {
-        Credentials c = new Credentials(UUID.randomUUID().toString(),
+        Credentials c = new Credentials(IdUtil.toString(IdUtil.next()),
                 "invalid");
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
@@ -198,7 +198,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void testPrivateClientNoPassword() throws Exception {
-        Credentials c = new Credentials(privateClient.getId().toString(),
+        Credentials c = new Credentials(IdUtil.toString(privateClient.getId()),
                 null);
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
@@ -213,7 +213,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void testPrivateClientBadPassword() throws Exception {
-        Credentials c = new Credentials(privateClient.getId().toString(),
+        Credentials c = new Credentials(IdUtil.toString(privateClient.getId()),
                 "badPassword");
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
@@ -228,7 +228,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void testPrivateClientEmptyPassword() throws Exception {
-        Credentials c = new Credentials(privateClient.getId().toString(), "");
+        Credentials c = new Credentials(IdUtil.toString(privateClient.getId()), "");
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);
 
@@ -242,7 +242,7 @@ public final class ClientAuthorizationFilterTest extends ContainerTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void testPublicClientPassword() throws Exception {
-        Credentials c = new Credentials(publicClient.getId().toString(),
+        Credentials c = new Credentials(IdUtil.toString(publicClient.getId()),
                 "badPassword");
         ClientAuthorizationFilter filter =
                 new ClientAuthorizationFilter(() -> c, () -> session);

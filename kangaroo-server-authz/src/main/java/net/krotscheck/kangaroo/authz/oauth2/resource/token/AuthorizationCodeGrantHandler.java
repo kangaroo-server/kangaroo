@@ -24,7 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
@@ -32,9 +32,10 @@ import org.hibernate.Session;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
+
 
 /**
  * This token type handler takes care of the "authorization_code" grant_type
@@ -77,10 +78,10 @@ public final class AuthorizationCodeGrantHandler
             throw new InvalidGrantException();
         }
 
-        UUID authCodeId;
+        BigInteger authCodeId;
         URI redirect;
         try {
-            authCodeId = UUID.fromString(getOne(formData, "code"));
+            authCodeId = IdUtil.fromString(getOne(formData, "code"));
             redirect = UriBuilder.fromUri(getOne(formData, "redirect_uri"))
                     .build();
         } catch (IllegalArgumentException | NullPointerException e) {

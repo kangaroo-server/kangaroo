@@ -40,7 +40,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
-import java.util.UUID;
+import java.math.BigInteger;
+
 
 /**
  * A RESTful API that permits the management of application role resources.
@@ -54,14 +55,14 @@ public final class RoleScopeService extends AbstractService {
     /**
      * The role from which the scopes are extracted.
      */
-    private UUID roleId;
+    private BigInteger roleId;
 
     /**
      * Set the role for this instance of the scope service.
      *
      * @param roleId The role id.
      */
-    public void setRoleId(final UUID roleId) {
+    public void setRoleId(final BigInteger roleId) {
         this.roleId = roleId;
     }
 
@@ -72,8 +73,8 @@ public final class RoleScopeService extends AbstractService {
      * @return A redirect to the location where the role was created.
      */
     @POST
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response createResource(@PathParam("id") final UUID scopeId) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response createResource(@PathParam("id") final BigInteger scopeId) {
         Session s = getSession();
         SecurityContext security = getSecurityContext();
 
@@ -121,8 +122,8 @@ public final class RoleScopeService extends AbstractService {
      * @return A response that indicates the success of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response deleteResource(@PathParam("id") final UUID scopeId) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response deleteResource(@PathParam("id") final BigInteger scopeId) {
         Session s = getSession();
         SecurityContext security = getSecurityContext();
 

@@ -20,12 +20,13 @@ package net.krotscheck.kangaroo.authz.oauth2.resource;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.UUID;
+
 
 /**
  * Unit tests for our response entity factory.
@@ -38,7 +39,7 @@ public final class TokenResponseEntityTest {
     @Test
     public void testFactoryNoRefresh() {
         OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
+        token.setId(IdUtil.next());
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(100);
 
@@ -51,7 +52,7 @@ public final class TokenResponseEntityTest {
         scopes.put("test", test);
         token.setScopes(scopes);
 
-        String state = UUID.randomUUID().toString();
+        String state = IdUtil.toString(IdUtil.next());
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token, state);
         Assert.assertEquals(token.getId(), entity.getAccessToken());
@@ -69,7 +70,7 @@ public final class TokenResponseEntityTest {
     @Test
     public void testFactoryRefresh() {
         OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
+        token.setId(IdUtil.next());
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(100);
 
@@ -83,10 +84,10 @@ public final class TokenResponseEntityTest {
         token.setScopes(scopes);
 
         OAuthToken refresh = new OAuthToken();
-        refresh.setId(UUID.randomUUID());
+        refresh.setId(IdUtil.next());
         refresh.setTokenType(OAuthTokenType.Refresh);
 
-        String state = UUID.randomUUID().toString();
+        String state = IdUtil.toString(IdUtil.next());
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
                 refresh, state);
@@ -105,7 +106,7 @@ public final class TokenResponseEntityTest {
     @Test
     public void testFactoryNoScope() {
         OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
+        token.setId(IdUtil.next());
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(100);
 
@@ -113,10 +114,10 @@ public final class TokenResponseEntityTest {
         token.setScopes(scopes);
 
         OAuthToken refresh = new OAuthToken();
-        refresh.setId(UUID.randomUUID());
+        refresh.setId(IdUtil.next());
         refresh.setTokenType(OAuthTokenType.Refresh);
 
-        String state = UUID.randomUUID().toString();
+        String state = IdUtil.toString(IdUtil.next());
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
                 refresh, state);

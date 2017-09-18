@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.authz.common.authenticator.password;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
-import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator.Binder;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
@@ -29,8 +28,6 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -42,8 +39,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Unit tests for the password authenticator.
