@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -111,8 +112,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -142,9 +145,12 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("client_secret", testContext.getClient().getClientSecret());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("client_secret",
+                testContext.getClient().getClientSecret());
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -173,9 +179,11 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
         f.param("client_secret", "wrong_secret");
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -205,8 +213,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -240,8 +250,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -272,9 +284,12 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("client_secret", testContext.getClient().getClientSecret());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("client_secret",
+                testContext.getClient().getClientSecret());
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -306,8 +321,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -338,7 +355,8 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -366,7 +384,8 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id",
+                IdUtil.toString(c.getId()));
         f.param("refresh_token", "invalid_token");
         f.param("grant_type", "refresh_token");
 
@@ -399,8 +418,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -429,8 +450,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
 
         Entity postEntity = Entity.entity(f,
@@ -475,8 +498,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
         f.param("scope", "debug debug2");
 
@@ -510,8 +535,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
         f.param("scope", "debug2");
 
@@ -542,8 +569,10 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("refresh_token", testContext.getToken().getId().toString());
+        f.param("client_id",
+                IdUtil.toString(testContext.getClient().getId()));
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
         f.param("scope", "debug debug2");
 

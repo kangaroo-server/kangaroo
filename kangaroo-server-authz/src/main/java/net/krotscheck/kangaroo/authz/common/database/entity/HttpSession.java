@@ -19,27 +19,18 @@
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import net.krotscheck.kangaroo.common.hibernate.entity.ICreatedDateEntity;
-import net.krotscheck.kangaroo.common.hibernate.entity.IModifiedDateEntity;
-import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.GenericGenerator;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -51,37 +42,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "http_sessions")
-public final class HttpSession
-        implements ICreatedDateEntity, IModifiedDateEntity, Cloneable {
-
-    /**
-     * A 64-byte id that identifies this particular session.
-     */
-    @Id
-    @GenericGenerator(name = "secure_random_bytes",
-            strategy = "net.krotscheck.kangaroo.common.hibernate.id"
-                    + ".SecureRandomIdGenerator")
-    @GeneratedValue(generator = "secure_random_bytes")
-    @Column(name = "id", unique = true, nullable = false, updatable = false)
-    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
-            + ".BigIntegerType")
-    private BigInteger id = null;
-
-    /**
-     * The date this record was created.
-     */
-    @Column(name = "createdDate")
-    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
-            + ".CalendarTimestampType")
-    private Calendar createdDate;
-
-    /**
-     * The date this record was last modified.
-     */
-    @Column(name = "modifiedDate")
-    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
-            + ".CalendarTimestampType")
-    private Calendar modifiedDate;
+public final class HttpSession extends AbstractEntity {
 
     /**
      * OAuth tokens attached to this session.
@@ -102,68 +63,6 @@ public final class HttpSession
     @Basic(optional = false)
     @Column(name = "sessionTimeout", nullable = false)
     private long sessionTimeout = -1;
-
-    /**
-     * Set the ID.
-     *
-     * @return The ID for this session.
-     */
-    public BigInteger getId() {
-        return id;
-    }
-
-    /**
-     * Get the ID.
-     *
-     * @param id The ID for this session.
-     */
-    public void setId(final BigInteger id) {
-        this.id = id;
-    }
-
-    /**
-     * Get the date on which this record was created.
-     *
-     * @return The created date.
-     */
-    public Calendar getCreatedDate() {
-        if (createdDate == null) {
-            return null;
-        } else {
-            return (Calendar) createdDate.clone();
-        }
-    }
-
-    /**
-     * Set the date on which this record was created.
-     *
-     * @param date The creation date for this entity.
-     */
-    public void setCreatedDate(final Calendar date) {
-        this.createdDate = (Calendar) date.clone();
-    }
-
-    /**
-     * Get the last modified date.
-     *
-     * @return The last time this record was modified, or null.
-     */
-    public Calendar getModifiedDate() {
-        if (modifiedDate == null) {
-            return null;
-        } else {
-            return (Calendar) modifiedDate.clone();
-        }
-    }
-
-    /**
-     * Set the last modified date.
-     *
-     * @param date The modified date for this entity.
-     */
-    public void setModifiedDate(final Calendar date) {
-        this.modifiedDate = (Calendar) date.clone();
-    }
 
     /**
      * Return a {@link List} of refreshTokens.
@@ -201,61 +100,4 @@ public final class HttpSession
         this.sessionTimeout = sessionTimeout;
     }
 
-    /**
-     * Equality implementation, global.
-     *
-     * @param o The object to test.
-     * @return True if the ID's are equal, otherwise false.
-     */
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || !this.getClass().isInstance(o)) {
-            return false;
-        }
-
-        // Cast
-        HttpSession other = (HttpSession) o;
-
-        // if the id is missing, return false
-        if (id == null) {
-            return false;
-        }
-
-        // equivalence by id
-        return id.equals(other.getId());
-    }
-
-    /**
-     * Public Hashcode generation.
-     *
-     * @return A hashcode for this entity.
-     */
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getId())
-                .append(this.getClass().getName())
-                .toHashCode();
-    }
-
-    /**
-     * Simplified Stringification.
-     *
-     * @return A string representation of the instance.
-     */
-    public String toString() {
-        return String.format("%s [id=%s]", this.getClass().getCanonicalName(),
-                IdUtil.toString(getId()));
-    }
-
-    /**
-     * Clone this instance.
-     *
-     * @return A clone of this entity.
-     */
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
 }

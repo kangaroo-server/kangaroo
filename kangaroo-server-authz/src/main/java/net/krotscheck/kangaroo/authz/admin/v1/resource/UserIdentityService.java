@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.database.jackson.Views;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -55,8 +56,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
+
 
 /**
  * A RESTful API that permits the management of individual user identities.
@@ -88,8 +90,8 @@ public final class UserIdentityService extends AbstractService {
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("user") final UUID userId,
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("user") final BigInteger userId,
             @Optional @QueryParam("type") final AuthenticatorType type) {
 
         // Start a query builder...
@@ -141,7 +143,7 @@ public final class UserIdentityService extends AbstractService {
                 .createFullTextQuery(junction.createQuery(),
                         UserIdentity.class);
 
-        return executeQuery(query, offset, limit);
+        return executeQuery(UserIdentity.class, query, offset, limit);
     }
 
     /**
@@ -168,8 +170,8 @@ public final class UserIdentityService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("user") final UUID userId,
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("user") final BigInteger userId,
             @Optional @QueryParam("type") final AuthenticatorType type) {
 
         // Validate the incoming filters.
@@ -232,10 +234,10 @@ public final class UserIdentityService extends AbstractService {
      */
     @SuppressWarnings("CPD-END")
     @GET
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
-    public Response getResource(@PathParam("id") final UUID id) {
+    public Response getResource(@PathParam("id") final BigInteger id) {
         UserIdentity identity = getSession().get(UserIdentity.class, id);
         assertCanAccess(identity, getAdminScope());
         return Response.ok(identity).build();
@@ -307,7 +309,7 @@ public final class UserIdentityService extends AbstractService {
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
                 .path(UserIdentityService.class, "getResource")
-                .build(identity.getId().toString());
+                .build(IdUtil.toString(identity.getId()));
 
         return Response.created(resourceLocation).build();
     }
@@ -320,11 +322,11 @@ public final class UserIdentityService extends AbstractService {
      * @return A response with the identity that was updated.
      */
     @PUT
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
-    public Response updateResource(@PathParam("id") final UUID id,
+    public Response updateResource(@PathParam("id") final BigInteger id,
                                    final UserIdentity identity) {
         Session s = getSession();
 
@@ -368,9 +370,9 @@ public final class UserIdentityService extends AbstractService {
      * @return A response that indicates the successs of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @JsonView(Views.Public.class)
-    public Response deleteResource(@PathParam("id") final UUID id) {
+    public Response deleteResource(@PathParam("id") final BigInteger id) {
         Session s = getSession();
         UserIdentity identity = s.get(UserIdentity.class, id);
 

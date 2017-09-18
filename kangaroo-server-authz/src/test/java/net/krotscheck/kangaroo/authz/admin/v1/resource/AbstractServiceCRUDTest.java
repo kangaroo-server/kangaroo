@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -29,7 +28,9 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
@@ -43,7 +44,8 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.UUID;
+import java.math.BigInteger;
+
 
 /**
  * Test the CRUD methods of the scope service.
@@ -70,23 +72,19 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
      * The type of OAuth2 client to create.
      */
     private final ClientType clientType;
-
-    /**
-     * The client under test.
-     */
-    private Client client;
-
     /**
      * Whether to create a user, or fall back on an existing user. In most
      * cases, this will fall back to the owner of the admin scope.
      */
     private final Boolean createUser;
-
     /**
      * Do we expect the result to be successful, or rejected?
      */
     private final Boolean shouldSucceed;
-
+    /**
+     * The client under test.
+     */
+    private Client client;
     /**
      * The token issued to the admin app, with appropriate credentials.
      */
@@ -96,6 +94,27 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
      * Test container factory.
      */
     private SingletonTestContainerFactory testContainerFactory;
+
+    /**
+     * Create a new instance of this parameterized test.
+     *
+     * @param typingClass   The raw class type, used for type-based parsing.
+     * @param clientType    The type of  client.
+     * @param tokenScope    The client scope to issue.
+     * @param createUser    Whether to create a new user.
+     * @param shouldSucceed Should this test succeed?
+     */
+    public AbstractServiceCRUDTest(final Class<T> typingClass,
+                                   final ClientType clientType,
+                                   final String tokenScope,
+                                   final Boolean createUser,
+                                   final Boolean shouldSucceed) {
+        this.typingClass = typingClass;
+        this.tokenScope = tokenScope;
+        this.clientType = clientType;
+        this.createUser = createUser;
+        this.shouldSucceed = shouldSucceed;
+    }
 
     /**
      * This method overrides the underlying default test container provider,
@@ -117,27 +136,6 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
                             this.getClass());
         }
         return testContainerFactory;
-    }
-
-    /**
-     * Create a new instance of this parameterized test.
-     *
-     * @param typingClass   The raw class type, used for type-based parsing.
-     * @param clientType    The type of  client.
-     * @param tokenScope    The client scope to issue.
-     * @param createUser    Whether to create a new user.
-     * @param shouldSucceed Should this test succeed?
-     */
-    public AbstractServiceCRUDTest(final Class<T> typingClass,
-                                   final ClientType clientType,
-                                   final String tokenScope,
-                                   final Boolean createUser,
-                                   final Boolean shouldSucceed) {
-        this.typingClass = typingClass;
-        this.tokenScope = tokenScope;
-        this.clientType = clientType;
-        this.createUser = createUser;
-        this.shouldSucceed = shouldSucceed;
     }
 
     /**
@@ -345,8 +343,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
      */
     @Test
     public final void testGetMalformedId() throws Exception {
-        Response r = getEntity("malformed_id",
-                HttpUtil.authHeaderBearer(adminAppToken.getId().toString()));
+        Response r = getEntity("malformed_id", HttpUtil
+                .authHeaderBearer(IdUtil.toString(adminAppToken.getId())));
 
         assertErrorResponse(r, Status.NOT_FOUND);
     }
@@ -358,8 +356,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
      */
     @Test
     public final void testGetNonexistent() throws Exception {
-        Response r = getEntity(UUID.randomUUID().toString(),
-                HttpUtil.authHeaderBearer(adminAppToken.getId().toString()));
+        Response r = getEntity(IdUtil.toString(IdUtil.next()), HttpUtil
+                .authHeaderBearer(IdUtil.toString(adminAppToken.getId())));
 
         assertErrorResponse(r, Status.NOT_FOUND);
     }
@@ -408,7 +406,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     @Test
     public final void testPostWithId() throws Exception {
         T testEntity = createValidEntity(getAdminContext());
-        testEntity.setId(UUID.randomUUID());
+        testEntity.setId(IdUtil.next());
 
         // Issue the request.
         Response r = postEntity(testEntity, adminAppToken);
@@ -543,11 +541,11 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Evict so we can use it.
         s.evict(testEntity);
 
-        UUID oldId = testEntity.getId();
-        testEntity.setId(UUID.randomUUID());
+        BigInteger oldId = testEntity.getId();
+        testEntity.setId(IdUtil.next());
 
         // Issue the request.
-        Response r = putEntity(oldId.toString(), testEntity,
+        Response r = putEntity(IdUtil.toString(oldId), testEntity,
                 HttpUtil.authHeaderBearer(adminAppToken.getId()));
 
         if (this.isAccessible(testEntity, adminAppToken)) {
@@ -607,7 +605,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     @Test
     public final void testPutNonexistent() throws Exception {
         T testingEntity = getNewEntity();
-        testingEntity.setId(UUID.randomUUID());
+        testingEntity.setId(IdUtil.next());
         Response r = putEntity(testingEntity, adminAppToken);
         assertErrorResponse(r, Status.NOT_FOUND);
     }
@@ -694,7 +692,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
      */
     @Test
     public final void testDeleteNonexistent() throws Exception {
-        Response r = deleteEntity(UUID.randomUUID().toString(),
+        Response r = deleteEntity(IdUtil.toString(IdUtil.next()),
                 HttpUtil.authHeaderBearer(adminAppToken.getId()));
         assertErrorResponse(r, Status.NOT_FOUND);
     }

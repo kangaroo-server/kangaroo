@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -114,7 +115,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     public void testValidRequest() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
-                context.getClient().getId().toString());
+                IdUtil.toString(context.getClient().getId()));
         testData.putSingle("client_secret",
                 context.getClient().getClientSecret());
         testData.putSingle("scope", "debug");
@@ -142,7 +143,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     public void testInvalidClientType() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
-                implicitContext.getClient().getId().toString());
+                IdUtil.toString(implicitContext.getClient().getId()));
         testData.putSingle("client_secret",
                 implicitContext.getClient().getClientSecret());
         testData.putSingle("scope", "debug");
@@ -159,7 +160,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     public void testNoClientSecret() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
-                noSecretContext.getClient().getId().toString());
+                IdUtil.toString(noSecretContext.getClient().getId()));
         testData.putSingle("scope", "debug");
         testData.putSingle("grant_type", "client_credentials");
 
@@ -173,7 +174,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     public void testInvalidScope() {
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
         testData.putSingle("client_id",
-                context.getClient().getId().toString());
+                IdUtil.toString(context.getClient().getId()));
         testData.putSingle("client_secret",
                 context.getClient().getClientSecret());
         testData.putSingle("scope", "debug invalid");
@@ -201,7 +202,7 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     public void testNoScope() {
         Client c = noScopeContext.getClient();
         MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id", c.getId().toString());
+        testData.putSingle("client_id", IdUtil.toString(c.getId()));
         testData.putSingle("client_secret", c.getClientSecret());
         testData.putSingle("scope", "");
         testData.putSingle("grant_type", "client_credentials");

@@ -25,6 +25,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.internal.inject.InjectionManager;
@@ -40,7 +42,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.util.UUID;
+import java.math.BigInteger;
 
 /**
  * Abstract implementation of our common services.
@@ -256,7 +258,7 @@ public abstract class AbstractService {
     protected final Application getAdminApplication() {
         Session s = getSession();
         String configId = config.getString(Config.APPLICATION_ID);
-        UUID appId = UUID.fromString(configId);
+        BigInteger appId = IdUtil.fromString(configId);
         return s.get(Application.class, appId);
     }
 
@@ -325,7 +327,7 @@ public abstract class AbstractService {
      * @param ownerId The passed-in owner id, could be null.
      * @return A , or null, indicating a valid filter action.
      */
-    protected final User resolveOwnershipFilter(final UUID ownerId) {
+    protected final User resolveOwnershipFilter(final BigInteger ownerId) {
 
         String adminScope = getAdminScope();
 
@@ -363,7 +365,7 @@ public abstract class AbstractService {
      */
     protected final <T extends AbstractAuthzEntity> T resolveFilterEntity(
             final Class<T> roleClass,
-            final UUID entityId) {
+            final BigInteger entityId) {
 
         String ownerScope = getAccessScope();
         String adminScope = getAdminScope();
@@ -407,20 +409,21 @@ public abstract class AbstractService {
     /**
      * Execute a search query.
      *
+     * @param klass  The type to cast to.
      * @param query  The fulltext query to execute.
      * @param offset The query offset.
      * @param limit  The query limit.
      * @return A response with the return values of this type.
      */
     protected final Response executeQuery(
+            final Class<? extends AbstractEntity> klass,
             final FullTextQuery query,
             final int offset,
             final int limit) {
         query.setFirstResult(offset);
         query.setMaxResults(limit);
 
-        return ListResponseBuilder
-                .builder()
+        return ListResponseBuilder.builder()
                 .offset(offset)
                 .limit(limit)
                 .addResult(query.list())
@@ -461,7 +464,7 @@ public abstract class AbstractService {
      */
     protected final <K extends AbstractAuthzEntity> K resolveEntityInput(
             final Class<K> requestedType,
-            final UUID entityId) {
+            final BigInteger entityId) {
         // Sanity check
         if (entityId == null) {
             return null;

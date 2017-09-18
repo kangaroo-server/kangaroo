@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -95,7 +96,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", c.getClientSecret());
         f.param("grant_type", "client_credentials");
 
@@ -122,7 +123,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", "invalid_secret");
         f.param("grant_type", "client_credentials");
 
@@ -173,7 +174,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", c.getClientSecret());
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -198,7 +199,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("grant_type", "client_credentials");
         f.param("scope", "debug");
         Entity postEntity = Entity.entity(f,
@@ -226,7 +227,7 @@ public final class Section440ClientCredentialsTest
     public void testTokenAuthHeaderMismatchClientId() {
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -282,7 +283,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -310,7 +311,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", c.getClientSecret());
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
@@ -338,7 +339,7 @@ public final class Section440ClientCredentialsTest
         Client c = authContext.getClient();
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", c.getClientSecret());
         f.param("grant_type", "password");
         Entity postEntity = Entity.entity(f,
@@ -364,7 +365,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", c.getClientSecret());
         f.param("grant_type", "refresh_token");
         Entity postEntity = Entity.entity(f,
@@ -390,7 +391,7 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", c.getId().toString());
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("client_secret", c.getClientSecret());
         f.param("grant_type", "unknown_grant_type");
         Entity postEntity = Entity.entity(f,

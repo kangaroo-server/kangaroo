@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Test;
@@ -215,7 +216,7 @@ public final class RoleServiceBrowseTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -227,7 +228,7 @@ public final class RoleServiceBrowseTest
         Application filtered = getAdminContext().getApplication();
 
         Map<String, String> params = new HashMap<>();
-        params.put("application", filtered.getId().toString());
+        params.put("application", IdUtil.toString(filtered.getId()));
         Response r = browse(params, getAdminToken());
 
         Long expectedEntities = getAccessibleEntities(getAdminToken())

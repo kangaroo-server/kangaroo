@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Test;
@@ -41,7 +42,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -209,7 +209,7 @@ public final class UserServiceBrowseTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -221,7 +221,7 @@ public final class UserServiceBrowseTest
                 .getApplication();
 
         Map<String, String> params = new HashMap<>();
-        params.put("application", filtered.getId().toString());
+        params.put("application", IdUtil.toString(filtered.getId()));
         Response r = browse(params, getAdminToken());
 
         List<User> expectedResults =
@@ -257,7 +257,7 @@ public final class UserServiceBrowseTest
     @Test
     public void testBrowseFilterByInvalidApplication() {
         Map<String, String> params = new HashMap<>();
-        params.put("application", UUID.randomUUID().toString());
+        params.put("application", IdUtil.toString(IdUtil.next()));
         Response r = browse(params, getAdminToken());
 
         if (isLimitedByClientCredentials()) {
@@ -281,7 +281,7 @@ public final class UserServiceBrowseTest
                 .get(0);
 
         Map<String, String> params = new HashMap<>();
-        params.put("role", filtered.getId().toString());
+        params.put("role", IdUtil.toString(filtered.getId()));
         Response r = browse(params, getAdminToken());
 
         List<User> expectedResults =
@@ -317,7 +317,7 @@ public final class UserServiceBrowseTest
     @Test
     public void testBrowseFilterByInvalidRole() {
         Map<String, String> params = new HashMap<>();
-        params.put("role", UUID.randomUUID().toString());
+        params.put("role", IdUtil.toString(IdUtil.next()));
         Response r = browse(params, getAdminToken());
 
         if (isLimitedByClientCredentials()) {

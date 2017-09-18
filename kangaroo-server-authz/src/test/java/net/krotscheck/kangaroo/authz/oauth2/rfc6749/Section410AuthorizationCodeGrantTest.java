@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.http.HttpHeaders;
@@ -40,8 +41,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -198,7 +200,7 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeSimpleRequest() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id", IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -228,7 +230,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        authContext.getClient().getId().toString())
+                        IdUtil.toString(authContext.getClient().getId()))
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
                 .header("Authorization", authHeader)
@@ -259,7 +261,7 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeAuthHeaderMismatchClientId() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id", UUID.randomUUID().toString())
+                .queryParam("client_id", IdUtil.toString(IdUtil.next()))
                 .request()
                 .header("Authorization", authHeader)
                 .get();
@@ -307,7 +309,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        authContext.getClient().getId().toString())
+                        IdUtil.toString(authContext.getClient().getId()))
                 .request()
                 .header("Authorization", "badpassword")
                 .get();
@@ -331,7 +333,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        authContext.getClient().getId().toString())
+                        IdUtil.toString(authContext.getClient().getId()))
                 .queryParam("client_secret",
                         authContext.getClient().getClientSecret())
                 .request()
@@ -356,7 +358,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "invalid")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -409,7 +411,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "debug")
                 .request()
                 .get();
@@ -439,7 +441,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        noauthContext.getClient().getId().toString())
+                        IdUtil.toString(noauthContext.getClient().getId()))
                 .queryParam("scope", "debug")
                 .request()
                 .get();
@@ -471,7 +473,8 @@ public final class Section410AuthorizationCodeGrantTest
                 .queryParam("authenticator", "Test")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        misconfiguredAuthContext.getClient().getId().toString())
+                        IdUtil.toString(misconfiguredAuthContext.getClient()
+                                .getId()))
                 .queryParam("scope", "debug")
                 .request()
                 .get();
@@ -501,7 +504,8 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeScopeInvalid() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "invalid")
                 .request()
                 .get();
@@ -532,11 +536,11 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeStateSimple() {
-        String state = UUID.randomUUID().toString();
+        String state = IdUtil.toString(IdUtil.next());
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "debug")
                 .queryParam("state", state)
                 .request()
@@ -567,7 +571,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
                 .get();
@@ -594,12 +598,12 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectState() {
-        UUID state = UUID.randomUUID();
+        BigInteger state = IdUtil.next();
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("state", state.toString())
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
                 .get();
@@ -629,7 +633,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        authContext.getClient().getId().toString())
+                        IdUtil.toString(authContext.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://redirect.example.com/redirect")
                 .request()
@@ -662,7 +666,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        bareContext.getClient().getId().toString())
+                        IdUtil.toString(bareContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -686,7 +690,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        bareContext.getClient().getId().toString())
+                        IdUtil.toString(bareContext.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://redirect.example.com/redirect")
                 .request()
@@ -713,7 +717,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        authContext.getClient().getId().toString())
+                        IdUtil.toString(authContext.getClient().getId()))
                 .request()
                 .header("Authorization", authHeader)
                 .get();
@@ -738,7 +742,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -769,7 +773,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://valid.example.com/redirect?foo=bar")
                 .request()
@@ -802,7 +806,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://invalid.example.com/redirect")
                 .request()
@@ -829,7 +833,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response first = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        noUserRoleContext.getClient().getId().toString())
+                        IdUtil.toString(noUserRoleContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -862,7 +866,8 @@ public final class Section410AuthorizationCodeGrantTest
         Response first = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("scope", "debug1")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -896,7 +901,7 @@ public final class Section410AuthorizationCodeGrantTest
         Response first = target("/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
-                        noScopeRoleContext.getClient().getId().toString())
+                        IdUtil.toString(noScopeRoleContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -930,8 +935,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -959,7 +964,7 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("code", token.getId().toString());
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -983,7 +988,7 @@ public final class Section410AuthorizationCodeGrantTest
     public void testTokenNoCode() {
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1016,9 +1021,9 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", one.getId().toString());
-        f.param("code", two.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(one.getId()));
+        f.param("code", IdUtil.toString(two.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1047,8 +1052,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -1076,8 +1081,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -1106,8 +1111,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", authContext.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://redirect.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1141,7 +1146,7 @@ public final class Section410AuthorizationCodeGrantTest
         // Build the entity.
         Form f = new Form();
         f.param("client_id", "other_client_id");
-        f.param("code", token.getId().toString());
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1204,8 +1209,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", authContext.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1238,9 +1243,9 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", authContext.getClient().getId().toString());
+        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
         f.param("client_secret", authContext.getClient().getClientSecret());
-        f.param("code", token.getId().toString());
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://redirect.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1268,9 +1273,9 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", authContext.getClient().getId().toString());
+        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
         f.param("client_secret", authContext.getClient().getClientSecret());
-        f.param("code", token.getId().toString());
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1302,8 +1307,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "password");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1332,8 +1337,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "refresh_token");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1362,8 +1367,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "client_credentials");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1392,8 +1397,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "unknown_grant_type");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1422,8 +1427,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", testContext.getClient().getId().toString());
-        f.param("code", testContext.getToken().getId().toString());
+        f.param("client_id", IdUtil.toString(testContext.getClient().getId()));
+        f.param("code", IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1447,8 +1452,8 @@ public final class Section410AuthorizationCodeGrantTest
     public void testTokenInvalidCode() {
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", UUID.randomUUID().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(IdUtil.next()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1472,8 +1477,8 @@ public final class Section410AuthorizationCodeGrantTest
     public void testTokenMalformedCode() {
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", "not_a_uuid");
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", "not_a_BigInteger");
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1503,8 +1508,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1534,8 +1539,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1565,8 +1570,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1597,8 +1602,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1628,8 +1633,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1659,8 +1664,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", authContext.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1694,8 +1699,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", authContext.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -1728,8 +1733,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
@@ -1760,9 +1765,9 @@ public final class Section410AuthorizationCodeGrantTest
         // Build the entity.
         Form f = new Form();
         f.param("client_id",
-                testContext.getClient().getId().toString());
+                IdUtil.toString(testContext.getClient().getId()));
         f.param("code",
-                testContext.getToken().getId().toString());
+                IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect?foo=bar");
         Entity postEntity = Entity.entity(f,
@@ -1795,9 +1800,9 @@ public final class Section410AuthorizationCodeGrantTest
         // Build the entity.
         Form f = new Form();
         f.param("client_id",
-                context.getClient().getId().toString());
+                IdUtil.toString(context.getClient().getId()));
         f.param("code",
-                token.getId().toString());
+                IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect?lol=cat");
         Entity postEntity = Entity.entity(f,
@@ -1827,8 +1832,8 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
-        f.param("code", token.getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
+        f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1850,10 +1855,11 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testFullAuthorizationFlow() {
-        String state1 = UUID.randomUUID().toString();
+        String state1 = IdUtil.toString(IdUtil.next());
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "debug")
                 .queryParam("state", state1)
                 .request()
@@ -1876,9 +1882,9 @@ public final class Section410AuthorizationCodeGrantTest
         Assert.assertEquals(state1, params.getFirst("state"));
 
         // Extract the authorization code and issue a token request
-        String state2 = UUID.randomUUID().toString();
+        String state2 = IdUtil.toString(IdUtil.next());
         Form f = new Form();
-        f.param("client_id", context.getClient().getId().toString());
+        f.param("client_id", IdUtil.toString(context.getClient().getId()));
         f.param("code", params.getFirst("code"));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");

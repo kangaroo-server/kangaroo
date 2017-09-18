@@ -29,6 +29,7 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestExce
 import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.IAuthorizeHandler;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
@@ -45,9 +46,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.SortedMap;
-import java.util.UUID;
 
 
 /**
@@ -203,7 +204,7 @@ public final class AuthorizationService {
      */
     private AuthenticatorState getAuthenticatorState(final String stateString) {
         try {
-            UUID id = UUID.fromString(stateString);
+            BigInteger id = IdUtil.fromString(stateString);
             AuthenticatorState callbackState =
                     session.get(AuthenticatorState.class, id);
             if (callbackState == null) {

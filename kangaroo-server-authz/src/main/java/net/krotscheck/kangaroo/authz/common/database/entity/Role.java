@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import net.krotscheck.kangaroo.common.hibernate.deserializer.AbstractEntityReferenceDeserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.SortNatural;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;

@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.common.hibernate.deserializer;
+package net.krotscheck.kangaroo.common.hibernate.id;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import java.util.UUID;
+import java.math.BigInteger;
 
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ public final class AbstractEntityReferenceDeserializerTest {
 
     /**
      * Test generic class method invocation.
-     * <p>
+     *
      * Using and extending generics compiled in older JDK's creates shadow
      * methods that are nondeterministic. This invokes that method to ensure
      * proper code coverage.
@@ -52,10 +52,9 @@ public final class AbstractEntityReferenceDeserializerTest {
      */
     @Test
     public void testAbstractConstructor() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
-        StdScalarDeserializer deserializer =
-                new TestDeserializer();
+        BigInteger intId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(intId));
+        StdScalarDeserializer deserializer = new TestDeserializer();
 
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
@@ -65,7 +64,7 @@ public final class AbstractEntityReferenceDeserializerTest {
                 deserializer.deserialize(preloadedParser,
                         mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, e.getId());
+        Assert.assertEquals(intId, e.getId());
     }
 
     /**
@@ -75,8 +74,8 @@ public final class AbstractEntityReferenceDeserializerTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger intId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(intId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -85,7 +84,7 @@ public final class AbstractEntityReferenceDeserializerTest {
         TestChildEntity e = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, e.getId());
+        Assert.assertEquals(intId, e.getId());
     }
 
     /**
@@ -95,8 +94,8 @@ public final class AbstractEntityReferenceDeserializerTest {
      */
     @Test(expected = JsonMappingException.class)
     public void testSerializePrivate() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger intId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(intId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.

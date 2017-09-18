@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -43,7 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -312,11 +313,11 @@ public final class ClientTest {
     @Test
     public void testJacksonSerializable() throws Exception {
         Application application = new Application();
-        application.setId(UUID.randomUUID());
+        application.setId(IdUtil.next());
 
         List<OAuthToken> tokens = new ArrayList<>();
         OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
+        token.setId(IdUtil.next());
         tokens.add(token);
 
         Map<String, String> configuration = new HashMap<>();
@@ -325,7 +326,7 @@ public final class ClientTest {
 
         Client c = new Client();
         c.setApplication(application);
-        c.setId(UUID.randomUUID());
+        c.setId(IdUtil.next());
         c.setCreatedDate(Calendar.getInstance());
         c.setModifiedDate(Calendar.getInstance());
         c.setName("name");
@@ -355,7 +356,7 @@ public final class ClientTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                c.getId().toString(),
+                IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(c.getCreatedDate().getTime()),
@@ -365,7 +366,7 @@ public final class ClientTest {
                 node.get("modifiedDate").asText());
 
         Assert.assertEquals(
-                c.getApplication().getId().toString(),
+                IdUtil.toString(c.getApplication().getId()),
                 node.get("application").asText());
         Assert.assertEquals(
                 c.getName(),
@@ -411,7 +412,7 @@ public final class ClientTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
@@ -429,7 +430,7 @@ public final class ClientTest {
         Client c = m.readValue(output, Client.class);
 
         Assert.assertEquals(
-                c.getId().toString(),
+                IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(c.getCreatedDate().getTime()),
@@ -465,8 +466,8 @@ public final class ClientTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -475,6 +476,6 @@ public final class ClientTest {
         Client c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, c.getId());
+        Assert.assertEquals(newId, c.getId());
     }
 }

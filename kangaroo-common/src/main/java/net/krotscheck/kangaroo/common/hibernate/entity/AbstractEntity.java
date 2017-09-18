@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
 import org.apache.lucene.analysis.charfilter.MappingCharFilterFactory;
@@ -35,6 +36,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.CharFilterDef;
+import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
@@ -43,8 +45,8 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import java.math.BigInteger;
 import java.util.Calendar;
-import java.util.UUID;
 
 /**
  * Generic entity, from which all other entities are born.
@@ -53,7 +55,8 @@ import java.util.UUID;
  */
 @MappedSuperclass
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AnalyzerDef(name = "entity_analyzer",
@@ -84,11 +87,15 @@ public abstract class AbstractEntity implements Cloneable,
      * The DB ID.
      */
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    @Type(type = "uuid-binary")
+    @DocumentId
+    @GenericGenerator(name = "secure_random_bytes",
+            strategy = "net.krotscheck.kangaroo.common.hibernate.id"
+                    + ".SecureRandomIdGenerator")
+    @GeneratedValue(generator = "secure_random_bytes")
     @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private UUID id;
+    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
+            + ".BigIntegerType")
+    private BigInteger id = null;
 
     /**
      * The date this record was created.
@@ -111,7 +118,7 @@ public abstract class AbstractEntity implements Cloneable,
      *
      * @return The id for this entity.
      */
-    public final UUID getId() {
+    public final BigInteger getId() {
         return id;
     }
 
@@ -120,7 +127,7 @@ public abstract class AbstractEntity implements Cloneable,
      *
      * @param id The unique ID for this entity.
      */
-    public final void setId(final UUID id) {
+    public final void setId(final BigInteger id) {
         this.id = id;
     }
 
@@ -213,7 +220,7 @@ public abstract class AbstractEntity implements Cloneable,
      */
     public final String toString() {
         return String.format("%s [id=%s]", this.getClass().getCanonicalName(),
-                getId());
+                IdUtil.toString(getId()));
     }
 
     /**

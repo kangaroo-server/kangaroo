@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -42,7 +43,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -198,7 +198,7 @@ public final class ClientServiceSearchTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -212,7 +212,7 @@ public final class ClientServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("application", a.getId().toString());
+        params.put("application", IdUtil.toString(a.getId()));
         Response r = search(params, token);
 
         // Determine result set.
@@ -254,7 +254,7 @@ public final class ClientServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
-        params.put("application", UUID.randomUUID().toString());
+        params.put("application", IdUtil.toString(IdUtil.next()));
 
         Response r = search(params, token);
         if (isLimitedByClientCredentials()) {

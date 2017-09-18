@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Test;
@@ -56,10 +57,10 @@ public final class AuthenticatorServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<ListResponseEntity<Authenticator>> LIST_TYPE =
-            new GenericType<ListResponseEntity<Authenticator>>() {
+    private static final GenericType<ListResponseEntity<Authenticator>>
+            LIST_TYPE = new GenericType<ListResponseEntity<Authenticator>>() {
 
-            };
+    };
 
     /**
      * Create a new instance of this parameterized test.
@@ -72,16 +73,6 @@ public final class AuthenticatorServiceBrowseTest
                                           final String tokenScope,
                                           final Boolean createUser) {
         super(clientType, tokenScope, createUser);
-    }
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    @Override
-    protected GenericType<ListResponseEntity<Authenticator>> getListType() {
-        return LIST_TYPE;
     }
 
     /**
@@ -122,6 +113,16 @@ public final class AuthenticatorServiceBrowseTest
                         Scope.AUTHENTICATOR,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Authenticator>> getListType() {
+        return LIST_TYPE;
     }
 
     /**
@@ -210,7 +211,7 @@ public final class AuthenticatorServiceBrowseTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -220,7 +221,7 @@ public final class AuthenticatorServiceBrowseTest
     public void testBrowseFilterByClient() {
         Client c = getAdminContext().getClient();
         Map<String, String> params = new HashMap<>();
-        params.put("client", c.getId().toString());
+        params.put("client", IdUtil.toString(c.getId()));
         Response r = browse(params, getAdminToken());
 
         List<Authenticator> expectedResults =
