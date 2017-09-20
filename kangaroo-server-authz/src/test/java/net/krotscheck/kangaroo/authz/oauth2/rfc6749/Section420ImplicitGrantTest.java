@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
@@ -52,6 +51,30 @@ import static org.junit.Assert.assertTrue;
 public final class Section420ImplicitGrantTest
         extends AbstractRFC6749Test {
 
+    /**
+     * The environment context for the regular client.
+     */
+    private static ApplicationContext context;
+    /**
+     * The environment context for the regular client and two redirects.
+     */
+    private static ApplicationContext twoRedirectContext;
+    /**
+     * An application with no role.
+     */
+    private static ApplicationContext noRoleContext;
+    /**
+     * An application with a role, but no scopes on that role.
+     */
+    private static ApplicationContext roleNoScopeContext;
+    /**
+     * The test context for a bare-bones application.
+     */
+    private static ApplicationContext bareContext;
+    /**
+     * An application without an authenticator.
+     */
+    private static ApplicationContext noauthContext;
     /**
      * Test data loading for this test.
      */
@@ -108,36 +131,6 @@ public final class Section420ImplicitGrantTest
                             .build();
                 }
             };
-
-    /**
-     * The environment context for the regular client.
-     */
-    private static ApplicationContext context;
-
-    /**
-     * The environment context for the regular client and two redirects.
-     */
-    private static ApplicationContext twoRedirectContext;
-
-    /**
-     * An application with no role.
-     */
-    private static ApplicationContext noRoleContext;
-
-    /**
-     * An application with a role, but no scopes on that role.
-     */
-    private static ApplicationContext roleNoScopeContext;
-
-    /**
-     * The test context for a bare-bones application.
-     */
-    private static ApplicationContext bareContext;
-
-    /**
-     * An application without an authenticator.
-     */
-    private static ApplicationContext noauthContext;
 
     /**
      * Assert that a simple request works. This request requires the setup of a

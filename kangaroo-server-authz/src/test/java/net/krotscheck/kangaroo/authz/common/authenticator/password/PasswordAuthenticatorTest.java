@@ -29,12 +29,8 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.jersey.process.internal.RequestScoped;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -46,7 +42,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.List;
+
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Unit tests for the password authenticator.
@@ -55,6 +52,10 @@ import java.util.List;
  */
 public final class PasswordAuthenticatorTest extends DatabaseTest {
 
+    /**
+     * The environment set up for this test suite.
+     */
+    private static ApplicationContext context;
     /**
      * Test data loading for this test.
      */
@@ -74,11 +75,6 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
                             .build();
                 }
             };
-
-    /**
-     * The environment set up for this test suite.
-     */
-    private static ApplicationContext context;
 
     /**
      * Assert that the test delegate does nothing.
@@ -163,35 +159,5 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         params.add("password", "wrongpassword");
         UserIdentity i = a.authenticate(context.getAuthenticator(), params);
         Assert.assertNull(i);
-    }
-
-    /**
-     * Assert that we can invoke the binder.
-     *
-     * @throws Exception An authenticator exception.
-     */
-    @Test
-    public void testBinder() throws Exception {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocator locator = factory.create("PasswordAuthenticatorTest");
-
-        Binder b = new PasswordAuthenticator.Binder();
-        ServiceLocatorUtilities.bind(locator, b);
-
-        List<ActiveDescriptor<?>> descriptors =
-                locator.getDescriptors(
-                        BuilderHelper.createContractFilter(
-                                PasswordAuthenticator.class.getName()));
-        Assert.assertEquals(1, descriptors.size());
-
-        ActiveDescriptor descriptor = descriptors.get(0);
-        Assert.assertNotNull(descriptor);
-        // Request scoped...
-        Assert.assertEquals(RequestScoped.class.getCanonicalName(),
-                descriptor.getScope());
-
-        // ... with the 'password' name.
-        Assert.assertEquals(AuthenticatorType.Password.name(),
-                descriptor.getName());
     }
 }

@@ -18,10 +18,15 @@
 
 package net.krotscheck.kangaroo.common.cors;
 
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 /**
+ * This class assists in managing the systems' permitted CORS exposed headers.
+ * By constructing and registering this binder, you may add any headers you
+ * want.
  *
+ * @author Michael Krotscheck
  */
 public final class ExposedHeaders extends AbstractBinder {
 

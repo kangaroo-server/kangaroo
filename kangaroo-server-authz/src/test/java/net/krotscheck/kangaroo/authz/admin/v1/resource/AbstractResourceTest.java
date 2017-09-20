@@ -21,15 +21,15 @@ package net.krotscheck.kangaroo.authz.admin.v1.resource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.authz.admin.AdminV1API;
 import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.authz.common.authenticator.test.TestAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.test.jersey.ContainerTest;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -603,7 +603,8 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * @param <T>      The instance type.
      * @return This same database instance, attached to the test's session.
      */
-    protected final <T extends AbstractAuthzEntity> T getAttached(final T instance) {
+    protected final <T extends AbstractAuthzEntity> T getAttached(
+            final T instance) {
         return (T) getSession().get(instance.getClass(),
                 instance.getId());
     }
@@ -631,8 +632,8 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * @param <T>       The instance type.
      * @return This same database instance, attached to the test's session.
      */
-    protected final <T extends AbstractAuthzEntity> SortedMap<String, T> getAttached(
-            final SortedMap<String, T> instances) {
+    protected final <T extends AbstractAuthzEntity>
+        SortedMap<String, T> getAttached(final SortedMap<String, T> instances) {
         SortedMap<String, T> attached = new TreeMap<>();
         for (Entry<String, T> entry : instances.entrySet()) {
             attached.put(entry.getKey(), getAttached(entry.getValue()));

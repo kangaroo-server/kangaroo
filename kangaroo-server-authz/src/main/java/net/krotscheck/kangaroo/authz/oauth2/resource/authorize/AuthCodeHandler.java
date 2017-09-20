@@ -28,8 +28,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
@@ -42,14 +42,16 @@ import java.net.URI;
 import java.util.SortedMap;
 
 /**
- * Created by mkrotscheck on 7/9/17.
+ * This handler is passed all authorization code requests.
+ *
+ * @author Michael Krotscheck
  */
 public final class AuthCodeHandler implements IAuthorizeHandler {
 
     /**
-     * The service locator.
+     * The injection manager.
      */
-    private final ServiceLocator locator;
+    private final InjectionManager injector;
 
     /**
      * The active database session.
@@ -59,14 +61,14 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
     /**
      * Create a new handler.
      *
-     * @param locator The service locator.
-     * @param session The hibernate session.
+     * @param injector The injection manager.
+     * @param session  The hibernate session.
      */
     @Inject
     @SuppressWarnings({"CPD-START"})
-    public AuthCodeHandler(final ServiceLocator locator,
+    public AuthCodeHandler(final InjectionManager injector,
                            final Session session) {
-        this.locator = locator;
+        this.injector = injector;
         this.session = session;
     }
 
@@ -79,7 +81,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
      */
     public IAuthenticator getAuthenticator(final AuthenticatorState state) {
         Authenticator a = state.getAuthenticator();
-        return locator.getService(IAuthenticator.class, a.getType().name());
+        return injector.getInstance(IAuthenticator.class, a.getType().name());
     }
 
 
@@ -102,7 +104,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
                            final String state) {
 
         // Retrieve the authenticator instance.
-        IAuthenticator authImpl = locator.getService(
+        IAuthenticator authImpl = injector.getInstance(
                 IAuthenticator.class, auth.getType().name());
 
         // Create the intermediate authorization store.

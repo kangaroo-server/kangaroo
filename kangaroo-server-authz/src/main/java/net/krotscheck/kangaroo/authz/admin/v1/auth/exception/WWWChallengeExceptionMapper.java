@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.authz.admin.v1.auth.exception;
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.KangarooException.ErrorCode;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;

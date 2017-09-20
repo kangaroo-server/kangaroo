@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
@@ -56,9 +56,9 @@ public final class FulltextSearchFactoryFactoryTest {
     private ApplicationHandler handler;
 
     /**
-     * The jersey application service locator.
+     * The jersey application injector.
      */
-    private ServiceLocator locator;
+    private InjectionManager injector;
 
     /**
      * Setup the application handler for this test.
@@ -68,7 +68,7 @@ public final class FulltextSearchFactoryFactoryTest {
         ResourceConfig config = new ResourceConfig();
         config.register(TestFeature.class);
         handler = new ApplicationHandler(config);
-        locator = handler.getServiceLocator();
+        injector = handler.getInjectionManager();
     }
 
     /**
@@ -76,8 +76,8 @@ public final class FulltextSearchFactoryFactoryTest {
      */
     @After
     public void teardown() {
-        locator.shutdown();
-        locator = null;
+        injector.shutdown();
+        injector = null;
         handler = null;
     }
 
@@ -87,7 +87,7 @@ public final class FulltextSearchFactoryFactoryTest {
     @Test
     public void testProvideDispose() {
         SessionFactory sessionFactory =
-                locator.getService(SessionFactory.class);
+                injector.getInstance(SessionFactory.class);
         Session hibernateSession = sessionFactory.openSession();
         FullTextSession ftSession = Search.getFullTextSession(hibernateSession);
 
@@ -96,11 +96,8 @@ public final class FulltextSearchFactoryFactoryTest {
                 new FulltextSearchFactoryFactory(ftSession);
 
         // Make sure that we can create a search factory.
-        SearchFactory searchFactory = factory.provide();
+        SearchFactory searchFactory = factory.get();
         Assert.assertNotNull(searchFactory);
-
-        // Make sure we can dispose of the factory (does nothing, sadly).
-        factory.dispose(searchFactory);
 
         if (hibernateSession.isOpen()) {
             hibernateSession.close();

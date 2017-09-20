@@ -62,10 +62,9 @@ public final class SecurityHeadersFilterTest extends KangarooJerseyTest {
         // one provided by the filter.
         MultivaluedMap<String, Object> headers = r.getHeaders();
 
-        Assert.assertEquals(4, headers.size());
+        Assert.assertEquals(3, headers.size());
 
         // Framework provided tests.
-        Assert.assertNotNull(headers.get(HttpHeaders.DATE));
         Assert.assertNotNull(headers.get(HttpHeaders.CONTENT_LENGTH));
 
         // Expected headers.
@@ -93,5 +92,4 @@ public final class SecurityHeadersFilterTest extends KangarooJerseyTest {
         }
 
     }
-
 }

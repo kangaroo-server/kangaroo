@@ -22,8 +22,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Streams;
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.util.RequestUtil;
-import org.glassfish.hk2.api.IterableProvider;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -82,11 +81,11 @@ public final class CORSFilter implements ContainerResponseFilter {
      */
     @Inject
     public CORSFilter(@Named(AllowedHeaders.NAME) final
-                      IterableProvider<String> allowedHeaders,
+                      Iterable<String> allowedHeaders,
                       @Named(AllowedMethods.NAME) final
-                      IterableProvider<String> allowedMethods,
+                      Iterable<String> allowedMethods,
                       @Named(ExposedHeaders.NAME) final
-                      IterableProvider<String> exposedHeaders,
+                      Iterable<String> exposedHeaders,
                       final ICORSValidator validator) {
         this.allowedHeaders = Streams.stream(allowedHeaders)
                 .filter(h -> !Strings.isNullOrEmpty(h))

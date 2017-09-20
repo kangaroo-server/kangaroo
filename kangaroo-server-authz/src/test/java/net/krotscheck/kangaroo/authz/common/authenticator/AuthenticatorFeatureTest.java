@@ -22,7 +22,7 @@ import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.http.HttpStatus;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -78,16 +78,16 @@ public final class AuthenticatorFeatureTest extends ContainerTest {
         /**
          * The system configuration from which to read status features.
          */
-        private ServiceLocator locator;
+        private InjectionManager locator;
 
         /**
          * Create a new instance of the status service.
          *
-         * @param locator Injected system locator.
+         * @param injector Injected locator.
          */
         @Inject
-        public MockService(final ServiceLocator locator) {
-            this.locator = locator;
+        public MockService(final InjectionManager injector) {
+            this.locator = injector;
         }
 
         /**
@@ -102,13 +102,13 @@ public final class AuthenticatorFeatureTest extends ContainerTest {
             // Make sure all the enums are available.
             for (AuthenticatorType t : AuthenticatorType.values()) {
                 IAuthenticator authenticator =
-                        locator.getService(IAuthenticator.class, t.name());
+                        locator.getInstance(IAuthenticator.class, t.name());
                 Assert.assertNotNull(authenticator);
             }
 
             // Make sure there aren't any zombies.
             List<IAuthenticator> authenticators =
-                    locator.getAllServices(IAuthenticator.class);
+                    locator.getAllInstances(IAuthenticator.class);
             Assert.assertEquals(AuthenticatorType.values().length,
                     authenticators.size());
 

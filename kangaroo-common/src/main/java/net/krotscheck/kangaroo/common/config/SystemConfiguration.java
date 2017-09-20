@@ -20,8 +20,7 @@ package net.krotscheck.kangaroo.common.config;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.api.IterableProvider;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,16 +50,16 @@ public final class SystemConfiguration extends CompositeConfiguration {
     @Inject
     public SystemConfiguration(
             @Named("kangaroo_external_configuration")
-            final IterableProvider<Configuration> configurations) {
+            final Iterable<Configuration> configurations) {
 
         // If the injected list of configurations is empty, at least add the
         // system configuration.
         logger.debug("Building System Configuration");
-        if (configurations.getSize() == 0) {
+        configurations.forEach(this::addConfiguration);
+
+        if (this.getNumberOfConfigurations() == 1) { // Base config is one.
             addConfiguration(
                     new org.apache.commons.configuration.SystemConfiguration());
-        } else {
-            configurations.forEach(this::addConfiguration);
         }
 
         // Run the global configuration.

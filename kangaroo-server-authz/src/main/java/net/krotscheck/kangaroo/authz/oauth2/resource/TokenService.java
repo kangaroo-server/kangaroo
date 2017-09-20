@@ -19,11 +19,11 @@ package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
-import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.ITokenRequestHandler;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
 
 import javax.annotation.security.PermitAll;
@@ -63,25 +63,25 @@ public final class TokenService {
     private final Credentials credentials;
 
     /**
-     * Service locator.
+     * injection manager.
      */
-    private final ServiceLocator locator;
+    private final InjectionManager injector;
 
     /**
      * Create a new token service.
      *
      * @param session     Injected hibernate session.
      * @param credentials Injected, resolved client credentials.
-     * @param locator     Service locator, to find the appropriate request
+     * @param injector    injection manager, to find the appropriate request
      *                    handler.
      */
     @Inject
     public TokenService(final Session session,
                         final Credentials credentials,
-                        final ServiceLocator locator) {
+                        final InjectionManager injector) {
         this.session = session;
         this.credentials = credentials;
-        this.locator = locator;
+        this.injector = injector;
     }
 
     /**
@@ -104,7 +104,7 @@ public final class TokenService {
         Client client = session.get(Client.class, credentials.getLogin());
 
         // Get and validate the token type.
-        ITokenRequestHandler handler = locator.getService(
+        ITokenRequestHandler handler = injector.getInstance(
                 ITokenRequestHandler.class, grantType);
         if (handler == null) {
             throw new InvalidGrantException();

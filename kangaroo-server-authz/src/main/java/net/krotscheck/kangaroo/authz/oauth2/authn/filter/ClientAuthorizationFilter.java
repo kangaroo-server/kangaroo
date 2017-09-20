@@ -23,7 +23,8 @@ import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Cre
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.Session;
 
 import javax.annotation.Priority;

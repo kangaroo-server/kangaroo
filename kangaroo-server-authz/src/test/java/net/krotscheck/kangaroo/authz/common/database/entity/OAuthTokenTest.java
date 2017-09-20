@@ -70,7 +70,7 @@ public final class OAuthTokenTest {
     }
 
     /**
-     * Assert that we can get and set the token's http session
+     * Assert that we can get and set the token's http session.
      */
     @Test
     public void testGetSetHttpSession() {

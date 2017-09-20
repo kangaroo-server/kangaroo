@@ -19,10 +19,10 @@ package net.krotscheck.kangaroo.common.exception;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.CommonProperties;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -70,7 +70,8 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         Assert.assertEquals(404, r.getStatus());
         Assert.assertEquals("not_found", response.getError());
-        Assert.assertEquals("HTTP 404 Not Found", response.getErrorDescription());
+        Assert.assertEquals("HTTP 404 Not Found",
+                response.getErrorDescription());
     }
 
     /**

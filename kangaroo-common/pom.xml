@@ -103,6 +103,10 @@
   <dependencies>
     <!-- Jersey (JAX-RS) -->
     <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-servlet</artifactId>
     </dependency>
@@ -118,8 +122,11 @@
     <!-- Grizzly -->
     <dependency>
       <groupId>org.glassfish.grizzly</groupId>
+      <artifactId>grizzly-http-servlet</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.grizzly</groupId>
       <artifactId>grizzly-http-servlet-extras</artifactId>
-      <version>2.3.31</version>
     </dependency>
 
     <!-- Hibernate -->
@@ -243,4 +250,33 @@
       <version>1.51</version>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- Grizzly -->
+      <dependency>
+        <groupId>org.glassfish.grizzly</groupId>
+        <artifactId>grizzly-bom</artifactId>
+        <version>2.4.2</version>
+        <type>pom</type>
+        <scope>import</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- Jersey2 -->
+      <dependency>
+        <groupId>org.glassfish.jersey</groupId>
+        <artifactId>jersey-bom</artifactId>
+        <version>2.26</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

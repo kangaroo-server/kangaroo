@@ -21,10 +21,8 @@ package net.krotscheck.kangaroo.common.hibernate.factory;
 import com.mchange.v2.c3p0.PoolBackedDataSource;
 import com.mchange.v2.c3p0.PooledDataSource;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
-import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 /**
  * Unit tests for the pooled data source factory.
@@ -41,21 +39,8 @@ public final class PooledDataSourceFactoryTest extends DatabaseTest {
         PooledDataSourceFactory factory =
                 new PooledDataSourceFactory(getSessionFactory());
 
-        PooledDataSource ds = factory.provide();
+        PooledDataSource ds = factory.get();
         Assert.assertNotNull(ds);
         Assert.assertTrue(ds instanceof PoolBackedDataSource);
-    }
-
-    /**
-     * Assert that disposal does nothing (is left to C3P0).
-     */
-    @Test
-    public void testDispose() {
-        PooledDataSource mockDS = Mockito.mock(PooledDataSource.class);
-        SessionFactory mockFactory = Mockito.mock(SessionFactory.class);
-        PooledDataSourceFactory factory =
-                new PooledDataSourceFactory(mockFactory);
-        factory.dispose(mockDS);
-        Mockito.verifyNoMoreInteractions(mockDS);
     }
 }

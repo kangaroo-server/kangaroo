@@ -115,6 +115,9 @@ public final class ParameterizedSingleInstanceTestRunner
         return childrenInvoker(notifier);
     }
 
+    /**
+     * Test runner factory.
+     */
     public static final class ParameterizedSingleInstanceTestRunnerFactory
             implements ParametersRunnerFactory {
         /**

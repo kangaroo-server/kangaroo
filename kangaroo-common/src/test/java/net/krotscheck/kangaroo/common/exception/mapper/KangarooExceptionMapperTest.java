@@ -71,5 +71,4 @@ public class KangarooExceptionMapperTest {
             super(CODE);
         }
     }
-
 }

@@ -26,22 +26,22 @@ import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * A factory that builds object mappers.
  *
  * @author Michael Krotscheck
  */
-public final class ObjectMapperFactory implements Factory<ObjectMapper> {
+public final class ObjectMapperFactory implements Supplier<ObjectMapper> {
 
     /**
      * Logger instance.
@@ -50,19 +50,19 @@ public final class ObjectMapperFactory implements Factory<ObjectMapper> {
             LoggerFactory.getLogger(ObjectMapperFactory.class);
 
     /**
-     * The global service locator.
+     * The global injector.
      */
-    private final ServiceLocator locator;
+    private final InjectionManager injectionManager;
 
     /**
      * Create a new instance of this factory.
      *
-     * @param serviceLocator The injected service locator, used for discovering
-     *                       other injected jackson components.
+     * @param injectionManager The injection manager, used for discovering
+     *                         other injected jackson components.
      */
     @Inject
-    public ObjectMapperFactory(final ServiceLocator serviceLocator) {
-        locator = serviceLocator;
+    public ObjectMapperFactory(final InjectionManager injectionManager) {
+        this.injectionManager = injectionManager;
     }
 
     /**
@@ -71,7 +71,7 @@ public final class ObjectMapperFactory implements Factory<ObjectMapper> {
      * @return The configured and injected object mapper.
      */
     @Override
-    public ObjectMapper provide() {
+    public ObjectMapper get() {
 
         // Create the new object mapper.
         ObjectMapper mapper = new ObjectMapper();
@@ -105,7 +105,7 @@ public final class ObjectMapperFactory implements Factory<ObjectMapper> {
         mapper.setAnnotationIntrospector(combinedIntrospector);
 
         // Inject our serializers/deserializers.
-        List<Module> modules = locator.getAllServices(Module.class);
+        List<Module> modules = injectionManager.getAllInstances(Module.class);
         for (Module module : modules) {
             logger.info(String.format(
                     "Registering module with ObjectMapper: %s",
@@ -114,16 +114,6 @@ public final class ObjectMapperFactory implements Factory<ObjectMapper> {
         }
 
         return mapper;
-    }
-
-    /**
-     * Dispose of the object mapper.
-     *
-     * @param instance The mapper to dispose of.
-     */
-    @Override
-    public void dispose(final ObjectMapper instance) {
-        // Do nothing, object mappers have no disposal mechanism.
     }
 
     /**

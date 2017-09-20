@@ -20,9 +20,8 @@ package net.krotscheck.kangaroo.authz.common.database.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.glassfish.hk2.api.ServiceLocator;
-
-import static org.mockito.Mockito.mock;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 
 /**
  * Jackson utility.
@@ -43,6 +42,9 @@ public final class JacksonUtil {
      * @return A new, simple object mapper.
      */
     public static ObjectMapper buildMapper() {
-        return new ObjectMapperFactory(mock(ServiceLocator.class)).provide();
+        InjectionManager manager = Injections.createInjectionManager();
+        ObjectMapper mapper = new ObjectMapperFactory(manager).get();
+        manager.shutdown();
+        return mapper;
     }
 }

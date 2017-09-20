@@ -31,7 +31,7 @@ public final class SingleInstanceTestRunner
         extends BlockJUnit4ClassRunner {
 
     /**
-     * Creates a BlockJUnit4ClassRunner to run {@code klass}
+     * Creates a BlockJUnit4ClassRunner to run {@code klass}.
      *
      * @param klass The test class to execute.
      * @throws InitializationError If the test class is malformed.

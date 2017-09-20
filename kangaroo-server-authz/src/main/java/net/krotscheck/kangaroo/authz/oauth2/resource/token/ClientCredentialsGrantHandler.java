@@ -27,7 +27,8 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantExcept
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnauthorizedClientException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 

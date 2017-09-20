@@ -17,14 +17,12 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
-import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -52,6 +50,18 @@ public final class Section440ClientCredentialsTest
         extends AbstractRFC6749Test {
 
     /**
+     * Generic context.
+     */
+    private static ApplicationContext context;
+    /**
+     * The test context for an authenticated application.
+     */
+    private static ApplicationContext authContext;
+    /**
+     * The auth header string for each test.
+     */
+    private static String authHeader;
+    /**
      * Test data loading for this test.
      */
     @ClassRule
@@ -75,21 +85,6 @@ public final class Section440ClientCredentialsTest
                             authContext.getClient().getClientSecret());
                 }
             };
-
-    /**
-     * Generic context.
-     */
-    private static ApplicationContext context;
-
-    /**
-     * The test context for an authenticated application.
-     */
-    private static ApplicationContext authContext;
-
-    /**
-     * The auth header string for each test.
-     */
-    private static String authHeader;
 
     /**
      * Assert that a simple token request works.

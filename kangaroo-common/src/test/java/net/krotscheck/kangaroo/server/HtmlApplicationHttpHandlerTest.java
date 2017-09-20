@@ -46,7 +46,7 @@ public final class HtmlApplicationHttpHandlerTest {
     /**
      * The server under test, which contains our handler.
      */
-    public static HttpServer server;
+    private static HttpServer server;
 
     /**
      * The port in use by the server.
@@ -113,7 +113,8 @@ public final class HtmlApplicationHttpHandlerTest {
     public void handleReadIndex() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        HttpGet httpGet1 = new HttpGet("http://localhost:" + port + "/index.html");
+        HttpGet httpGet1 =
+                new HttpGet("http://localhost:" + port + "/index.html");
         CloseableHttpResponse response = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
@@ -126,7 +127,7 @@ public final class HtmlApplicationHttpHandlerTest {
     }
 
     /**
-     * Assert that we can read the root directory and get index.html
+     * Assert that we can read the root directory and get index.html.
      *
      * @throws Exception Should not be thrown.
      */
@@ -147,7 +148,7 @@ public final class HtmlApplicationHttpHandlerTest {
     }
 
     /**
-     * Assert that a valid subdirectory request returns index.html
+     * Assert that a valid subdirectory request returns index.html.
      *
      * @throws Exception Should not be thrown.
      */
@@ -169,7 +170,7 @@ public final class HtmlApplicationHttpHandlerTest {
     }
 
     /**
-     * Assert that a 404 request returns index.html
+     * Assert that a 404 request returns index.html.
      *
      * @throws Exception Should not be thrown.
      */

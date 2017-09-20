@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.authz.common.database;
 
 import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEventListener;
@@ -77,16 +77,16 @@ public final class DatabaseFeatureTest extends ContainerTest {
         /**
          * The system configuration from which to read status features.
          */
-        private ServiceLocator serviceLocator;
+        private InjectionManager injector;
 
         /**
          * Create a new instance of the status service.
          *
-         * @param serviceLocator Service locator.
+         * @param injector injection manager.
          */
         @Inject
-        public MockService(final ServiceLocator serviceLocator) {
-            this.serviceLocator = serviceLocator;
+        public MockService(final InjectionManager injector) {
+            this.injector = injector;
         }
 
         /**
@@ -97,10 +97,10 @@ public final class DatabaseFeatureTest extends ContainerTest {
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         public Response status() {
-            List<PreInsertEventListener> insertListeners = serviceLocator
-                    .getAllServices(PreInsertEventListener.class);
-            List<PreUpdateEventListener> updateListeners = serviceLocator
-                    .getAllServices(PreUpdateEventListener.class);
+            List<PreInsertEventListener> insertListeners = injector
+                    .getAllInstances(PreInsertEventListener.class);
+            List<PreUpdateEventListener> updateListeners = injector
+                    .getAllInstances(PreUpdateEventListener.class);
 
             Assert.assertEquals(1, insertListeners.size());
             Assert.assertEquals(1, updateListeners.size());

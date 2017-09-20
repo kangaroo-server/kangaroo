@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.server.keystore;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
@@ -32,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.security.KeyStore;
 import java.security.Principal;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**

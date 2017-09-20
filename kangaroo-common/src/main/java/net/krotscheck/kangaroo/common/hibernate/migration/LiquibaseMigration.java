@@ -29,8 +29,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +38,7 @@ import javax.inject.Singleton;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * This factory runs the database migration.
@@ -46,7 +46,7 @@ import java.util.List;
  * @author Michael Krotscheck
  */
 public final class LiquibaseMigration
-        implements Factory<DatabaseMigrationState> {
+        implements Supplier<DatabaseMigrationState> {
 
     /**
      * Logger instance.
@@ -77,7 +77,7 @@ public final class LiquibaseMigration
      * @return The produces object
      */
     @Override
-    public DatabaseMigrationState provide() {
+    public DatabaseMigrationState get() {
         try {
             Connection c = dataSource.getConnection();
 
@@ -112,16 +112,6 @@ public final class LiquibaseMigration
             logger.error("Cannot migrate database.", e);
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Do nothing, migration is a run-once operation.
-     *
-     * @param instance The instance to dispose of
-     */
-    @Override
-    public void dispose(final DatabaseMigrationState instance) {
-
     }
 
     /**
