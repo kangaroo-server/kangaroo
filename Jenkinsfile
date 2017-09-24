@@ -15,6 +15,11 @@ pipeline {
         DB_ROOT = credentials('mysql')
     }
 
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
     stages {
 
         /**
