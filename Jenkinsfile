@@ -1,9 +1,9 @@
 /**
- * Java build pipeline for th ekangaroo-server project.
+ * Java build pipeline for the kangaroo-server project.
  */
 
-def dbName = env.BUILD_TAG.replace('-', '_').toLowerCase()
-def jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/${dbName}?useUnicode=yes"
+def gitCommit = ''
+def jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes"
 
 pipeline {
 
@@ -27,8 +27,14 @@ pipeline {
          */
         stage('Stat') {
             steps {
-                sh 'env'
-                sh 'mvn --version'
+                script {
+                    sh 'env'
+                    sh 'mvn --version'
+                    gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/" +
+                            "${gitCommit.substring(0, 16)}" +
+                            "?useUnicode=yes"
+                }
             }
         }
 
@@ -44,11 +50,13 @@ pipeline {
                                     ' -Dtarget-directory=target-h2'
                         },
                         "mariadb": {
-                            sh "mvn install" +
-                                    " -Pmariadb" +
-                                    " -Dhibernate.root.password=${DB_ROOT_PSW}" +
-                                    " -Dtarget-directory=target-mariadb" +
-                                    " -Dhibernate.connection.url=${jdbc_mariadb}"
+                            sh """
+                                mvn install \
+                                    -Pmariadb \
+                                    -Dhibernate.root.password=${DB_ROOT_PSW} \
+                                    -Dtarget-directory=target-mariadb \
+                                    -Dhibernate.connection.url=${jdbc_mariadb}
+                            """
                         })
             }
         }
