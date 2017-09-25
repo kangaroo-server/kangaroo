@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.common.jackson.mock;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 import java.io.IOException;
 import javax.inject.Singleton;

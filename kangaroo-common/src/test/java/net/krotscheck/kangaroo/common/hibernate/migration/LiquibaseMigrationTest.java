@@ -98,7 +98,7 @@ public final class LiquibaseMigrationTest {
             Mockito.doReturn(testConnection).when(ps).getConnection();
 
             LiquibaseMigration listener = new LiquibaseMigration(ps);
-            listener.provide();
+            listener.get();
 
             // Assert that the connection is closed after migration.
             Assert.assertTrue(testConnection.isClosed());
@@ -123,7 +123,7 @@ public final class LiquibaseMigrationTest {
         LiquibaseMigration listener = new LiquibaseMigration(ps);
 
         try {
-            listener.provide();
+            listener.get();
             Assert.fail();
         } catch (RuntimeException e) {
             Assert.assertNotNull(e);
@@ -144,7 +144,7 @@ public final class LiquibaseMigrationTest {
         LiquibaseMigration listener = new LiquibaseMigration(ps);
 
         try {
-            listener.provide();
+            listener.get();
             Assert.fail();
         } catch (RuntimeException e) {
             Assert.assertNotNull(e);
@@ -165,7 +165,7 @@ public final class LiquibaseMigrationTest {
         LiquibaseMigration listener = new LiquibaseMigration(ps);
 
         try {
-            listener.provide();
+            listener.get();
             Assert.fail();
         } catch (RuntimeException e) {
             Assert.assertNotNull(e);
@@ -199,7 +199,7 @@ public final class LiquibaseMigrationTest {
 
             try {
                 LiquibaseMigration listener = new LiquibaseMigration(ps);
-                listener.provide();
+                listener.get();
                 Assert.fail();
             } catch (RuntimeException e) {
                 Assert.assertNotNull(e);
@@ -240,7 +240,7 @@ public final class LiquibaseMigrationTest {
 
             try {
                 LiquibaseMigration listener = new LiquibaseMigration(ps);
-                listener.provide();
+                listener.get();
                 Assert.fail();
             } catch (BadRequestException e) {
                 Assert.assertNotNull(e);
@@ -252,20 +252,5 @@ public final class LiquibaseMigrationTest {
             // Ensure that the tables have been created.
             Assert.assertFalse(hasTestTable(c));
         }
-    }
-
-    /**
-     * Make sure nothing happens on dispose.
-     */
-    @Test
-    @PrepareOnlyThisForTest(DatabaseMigrationState.class)
-    public void testNoShutDownInteraction() {
-        DatabaseMigrationState marker =
-                PowerMockito.mock(DatabaseMigrationState.class);
-        PooledDataSource ps = Mockito.mock(PooledDataSource.class);
-        LiquibaseMigration listener = new LiquibaseMigration(ps);
-
-        listener.dispose(marker);
-        Mockito.verifyNoMoreInteractions(marker);
     }
 }

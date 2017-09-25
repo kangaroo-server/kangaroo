@@ -17,7 +17,7 @@
 
 package net.krotscheck.kangaroo.common.jackson;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;

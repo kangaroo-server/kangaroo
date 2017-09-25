@@ -29,7 +29,7 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
@@ -56,6 +56,10 @@ import java.util.UUID;
 public final class AbstractServiceTest extends AbstractResourceTest {
 
     /**
+     * A user application from which we can issue tokens.
+     */
+    private static ApplicationContext userApp;
+    /**
      * Test data loading for this test.
      */
     @ClassRule
@@ -76,6 +80,15 @@ public final class AbstractServiceTest extends AbstractResourceTest {
                             .build();
                 }
             };
+    /**
+     * The mock security context constructed for this test.
+     */
+    private SecurityContext mockContext;
+
+    /**
+     * The abstract service under test.
+     */
+    private AbstractService service;
 
     /**
      * Setup test data.
@@ -92,22 +105,6 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         service.setSearchFactory(getSearchFactory());
         service.setSecurityContext(mockContext);
     }
-
-
-    /**
-     * The mock security context constructed for this test.
-     */
-    private SecurityContext mockContext;
-
-    /**
-     * The abstract service under test.
-     */
-    private AbstractService service;
-
-    /**
-     * A user application from which we can issue tokens.
-     */
-    private static ApplicationContext userApp;
 
     /**
      * Return the token scope required for admin access on this test.
@@ -161,12 +158,12 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Configuration config = Mockito.mock(Configuration.class);
         UriInfo info = Mockito.mock(UriInfo.class);
         Session session = Mockito.mock(Session.class);
-        ServiceLocator serviceLocator = Mockito.mock(ServiceLocator.class);
+        InjectionManager injector = Mockito.mock(InjectionManager.class);
         SearchFactory factory = Mockito.mock(SearchFactory.class);
         FullTextSession ftSession = Mockito.mock(FullTextSession.class);
         SecurityContext c = Mockito.mock(SecurityContext.class);
         AbstractService s = new TestService();
-        s.setServiceLocator(serviceLocator);
+        s.setInjector(injector);
         s.setConfig(config);
         s.setSession(session);
         s.setSearchFactory(factory);
@@ -174,7 +171,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         s.setSecurityContext(c);
         s.setUriInfo(info);
 
-        Assert.assertEquals(serviceLocator, s.getServiceLocator());
+        Assert.assertEquals(injector, s.getInjector());
         Assert.assertEquals(session, s.getSession());
         Assert.assertEquals(factory, s.getSearchFactory());
         Assert.assertEquals(ftSession, s.getFullTextSession());

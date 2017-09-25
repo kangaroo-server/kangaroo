@@ -129,5 +129,4 @@ public final class WWWChallengeExceptionTest {
             super(CODE, requestInfo, requiredScopes);
         }
     }
-
 }

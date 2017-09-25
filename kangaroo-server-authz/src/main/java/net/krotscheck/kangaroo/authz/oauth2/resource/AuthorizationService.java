@@ -24,13 +24,13 @@ import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
+import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingException;
-import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.IAuthorizeHandler;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
 import org.jvnet.hk2.annotations.Optional;
 
@@ -71,24 +71,24 @@ public final class AuthorizationService {
     private final Credentials credentials;
 
     /**
-     * The Service Locator.
+     * The injection manager.
      */
-    private final ServiceLocator locator;
+    private final InjectionManager injector;
 
     /**
      * Create a new authorization service.
      *
      * @param session     Injected hibernate session.
      * @param credentials Injected, resolved client credentials.
-     * @param locator     Injected service locator
+     * @param injector    Injected injection manager
      */
     @Inject
     public AuthorizationService(final Session session,
                                 final Credentials credentials,
-                                final ServiceLocator locator) {
+                                final InjectionManager injector) {
         this.session = session;
         this.credentials = credentials;
-        this.locator = locator;
+        this.injector = injector;
     }
 
     /**
@@ -144,7 +144,7 @@ public final class AuthorizationService {
                             client.getApplication().getScopes());
 
             IAuthorizeHandler handler =
-                    locator.getService(IAuthorizeHandler.class,
+                    injector.getInstance(IAuthorizeHandler.class,
                             c.getType().toString());
 
             return handler.handle(uriInfo, auth, redirect, scopes, state);
@@ -178,7 +178,7 @@ public final class AuthorizationService {
 
         try {
             IAuthorizeHandler handler =
-                    locator.getService(IAuthorizeHandler.class,
+                    injector.getInstance(IAuthorizeHandler.class,
                             c.getType().toString());
 
             // Just in case this was linked to an invalid client type...

@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.transaction;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;

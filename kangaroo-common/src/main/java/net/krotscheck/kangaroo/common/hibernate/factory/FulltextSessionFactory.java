@@ -18,16 +18,18 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.DisposableSupplier;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * This factory creates a request-scoped FulltextSession from the provided
@@ -35,7 +37,8 @@ import javax.inject.Inject;
  *
  * @author Michael Krotscheck
  */
-public final class FulltextSessionFactory implements Factory<FullTextSession> {
+public final class FulltextSessionFactory
+        implements DisposableSupplier<FullTextSession> {
 
     /**
      * Logger instance.
@@ -54,7 +57,8 @@ public final class FulltextSessionFactory implements Factory<FullTextSession> {
      * @param session The hibernate session from which to read our resources.
      */
     @Inject
-    public FulltextSessionFactory(final Session session) {
+    public FulltextSessionFactory(@Named("root_session")
+                                      final SessionImpl session) {
         this.hibernateSession = session;
     }
 
@@ -64,7 +68,7 @@ public final class FulltextSessionFactory implements Factory<FullTextSession> {
      * @return A fulltext session attached to the current hibernate session.
      */
     @Override
-    public FullTextSession provide() {
+    public FullTextSession get() {
         logger.trace("Creating hibernate fulltext session.");
         return Search.getFullTextSession(hibernateSession);
     }

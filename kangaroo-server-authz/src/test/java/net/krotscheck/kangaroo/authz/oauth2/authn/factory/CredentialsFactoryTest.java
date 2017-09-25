@@ -19,18 +19,18 @@ package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.test.HttpUtil;
-import org.glassfish.hk2.api.Factory;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.UUID;
 import javax.inject.Provider;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -124,10 +124,9 @@ public final class CredentialsFactoryTest {
                         null);
 
         // Intentionally using the generic untyped interface here.
-        Factory factory = new CredentialsFactory(provider);
-        Object instance = (Credentials) factory.provide();
+        Supplier factory = new CredentialsFactory(provider);
+        Object instance = factory.get();
         Assert.assertNotNull(instance);
-        factory.dispose(instance);
     }
 
     /**
@@ -145,7 +144,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(clientId, creds.getLogin());
         Assert.assertEquals("password", creds.getPassword());
@@ -166,7 +165,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(null, creds.getLogin());
         Assert.assertEquals(null, creds.getPassword());
@@ -187,7 +186,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(null, creds.getLogin());
         Assert.assertEquals(null, creds.getPassword());
@@ -208,7 +207,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(null, creds.getLogin());
         Assert.assertEquals(null, creds.getPassword());
@@ -229,7 +228,7 @@ public final class CredentialsFactoryTest {
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(clientId, creds.getLogin());
         Assert.assertEquals("password", creds.getPassword());
@@ -249,7 +248,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -270,7 +269,7 @@ public final class CredentialsFactoryTest {
                         "");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(clientId, creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -291,7 +290,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(clientId, creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -311,7 +310,7 @@ public final class CredentialsFactoryTest {
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -331,7 +330,7 @@ public final class CredentialsFactoryTest {
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -352,7 +351,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertEquals(clientId, creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -372,7 +371,7 @@ public final class CredentialsFactoryTest {
                         "foo");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -393,7 +392,7 @@ public final class CredentialsFactoryTest {
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -413,7 +412,7 @@ public final class CredentialsFactoryTest {
                         "");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -433,7 +432,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -456,7 +455,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -478,7 +477,7 @@ public final class CredentialsFactoryTest {
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -500,7 +499,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
@@ -522,30 +521,11 @@ public final class CredentialsFactoryTest {
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());
         Assert.assertFalse(creds.isValid());
-    }
-
-    /**
-     * Assert that dispose does nothing (coverage).
-     */
-    @Test
-    public void testDispose() {
-        UUID clientId = UUID.randomUUID();
-        Provider<ContainerRequest> provider =
-                buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
-                                "password"),
-                        HttpMethod.GET,
-                        clientId.toString(),
-                        null);
-
-        CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
-        factory.dispose(creds);
     }
 
     /**
@@ -563,7 +543,7 @@ public final class CredentialsFactoryTest {
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
-        Credentials creds = factory.provide();
+        Credentials creds = factory.get();
 
         Assert.assertNull(creds.getLogin());
         Assert.assertNull(creds.getPassword());

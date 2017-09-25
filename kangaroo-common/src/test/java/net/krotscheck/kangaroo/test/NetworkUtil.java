@@ -29,6 +29,13 @@ import java.net.ServerSocket;
 public final class NetworkUtil {
 
     /**
+     * Utility class, private constructor.
+     */
+    private NetworkUtil() {
+
+    }
+
+    /**
      * Returns a free port number on localhost.
      *
      * Heavily inspired from org.eclipse.jdt.launching.SocketUtil

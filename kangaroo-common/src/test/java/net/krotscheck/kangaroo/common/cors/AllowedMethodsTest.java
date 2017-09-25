@@ -19,14 +19,11 @@
 package net.krotscheck.kangaroo.common.cors;
 
 import com.google.common.collect.Lists;
-import net.krotscheck.kangaroo.common.cors.AllowedMethods;
-import org.glassfish.hk2.api.IterableProvider;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.Binder;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.internal.inject.Binder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.junit.Assert;
 import org.junit.Test;
-import org.jvnet.hk2.internal.ServiceLocatorImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,25 +35,24 @@ import java.util.List;
  * @author Michael Krotscheck
  */
 public class AllowedMethodsTest {
+
     /**
-     * Assert that we can inject values using this binder
+     * Assert that we can inject values using this binder.
      *
      * @throws Exception An authenticator exception.
      */
     @Test
     public void testBinder() throws Exception {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocatorImpl locator = (ServiceLocatorImpl)
-                factory.create(this.getClass().getSimpleName());
+        InjectionManager injector = Injections.createInjectionManager();
 
         Binder b1 = new AllowedMethods(new String[]{"Test1", "Test2"});
-        ServiceLocatorUtilities.bind(locator, b1);
         Binder b2 = new AllowedMethods(new String[]{"Test3", "Test4"});
-        ServiceLocatorUtilities.bind(locator, b2);
+        injector.register(b1);
+        injector.register(b2);
 
         Injectee testInjectee = new Injectee();
 
-        locator.inject(testInjectee);
+        injector.inject(testInjectee);
 
         List<String> values = Lists.newArrayList(testInjectee.getValues());
         Assert.assertTrue(values.contains("Test1"));
@@ -64,6 +60,8 @@ public class AllowedMethodsTest {
         Assert.assertTrue(values.contains("Test3"));
         Assert.assertTrue(values.contains("Test4"));
         Assert.assertEquals(4, values.size());
+
+        injector.shutdown();
     }
 
     /**
@@ -74,14 +72,14 @@ public class AllowedMethodsTest {
         /**
          * The injected iterator of values.
          */
-        private IterableProvider<String> values;
+        private Iterable<String> values;
 
         /**
          * Get the values.
          *
          * @return The iterator, or null if not available.
          */
-        public IterableProvider<String> getValues() {
+        public Iterable<String> getValues() {
             return values;
         }
 
@@ -92,7 +90,7 @@ public class AllowedMethodsTest {
          */
         @Inject
         public void setValues(@Named(AllowedMethods.NAME) final
-                              IterableProvider<String> values) {
+                              Iterable<String> values) {
             this.values = values;
         }
     }

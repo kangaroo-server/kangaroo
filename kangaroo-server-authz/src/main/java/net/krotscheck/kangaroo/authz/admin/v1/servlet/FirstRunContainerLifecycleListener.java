@@ -31,7 +31,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;

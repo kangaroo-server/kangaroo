@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.common.exception.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;

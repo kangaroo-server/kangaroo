@@ -21,8 +21,7 @@ import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Cre
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ContainerRequest;
 
@@ -36,6 +35,7 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * This factory attempts to determine the current client credentials
@@ -44,7 +44,7 @@ import java.util.UUID;
  *
  * @author Michael Krotscheck
  */
-public final class CredentialsFactory implements Factory<Credentials> {
+public final class CredentialsFactory implements Supplier<Credentials> {
 
     /**
      * Convenient empty credential instance.
@@ -73,7 +73,7 @@ public final class CredentialsFactory implements Factory<Credentials> {
      * @return The produces object
      */
     @Override
-    public Credentials provide() {
+    public Credentials get() {
         ContainerRequest request = requestProvider.get();
         Credentials headerCreds;
         Credentials requestCreds;
@@ -177,16 +177,6 @@ public final class CredentialsFactory implements Factory<Credentials> {
             return new Credentials(clientId, clientSecret);
         }
         return null;
-    }
-
-    /**
-     * Credentials are static pojo's, they can just be dereferenced.
-     *
-     * @param instance The credentials to dispose of.
-     */
-    @Override
-    public void dispose(final Credentials instance) {
-        // Do nothing.
     }
 
     /**

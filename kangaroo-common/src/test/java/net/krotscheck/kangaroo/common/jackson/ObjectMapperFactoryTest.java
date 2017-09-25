@@ -20,22 +20,15 @@ package net.krotscheck.kangaroo.common.jackson;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import java.util.function.Supplier;
 
 /**
  * Unit tests for the ObjectMapperFactory.
@@ -52,12 +45,13 @@ public final class ObjectMapperFactoryTest {
      */
     @Test
     public void testGenericInterface() throws Exception {
-        ServiceLocator locator = mock(ServiceLocator.class);
-        Factory factory = new ObjectMapperFactory(locator);
+        InjectionManager injector = Injections.createInjectionManager();
+        Supplier factory = new ObjectMapperFactory(injector);
 
-        Object instance = factory.provide();
+        Object instance = factory.get();
         Assert.assertTrue(instance instanceof ObjectMapper);
-        factory.dispose(instance);
+
+        injector.shutdown();
     }
 
     /**
@@ -67,14 +61,16 @@ public final class ObjectMapperFactoryTest {
      */
     @Test
     public void testProvideObjectMapper() throws Exception {
-        ServiceLocator locator = mock(ServiceLocator.class);
-        ObjectMapperFactory factory = new ObjectMapperFactory(locator);
+        InjectionManager injector = Injections.createInjectionManager();
+        ObjectMapperFactory factory = new ObjectMapperFactory(injector);
 
-        ObjectMapper mapper = factory.provide();
+        ObjectMapper mapper = factory.get();
         JsonNode node = mapper.readTree("{}");
         String result = mapper.writeValueAsString(node);
 
         Assert.assertEquals(result, "{}");
+
+        injector.shutdown();
     }
 
     /**
@@ -84,10 +80,10 @@ public final class ObjectMapperFactoryTest {
      */
     @Test
     public void testObjectMapperConfig() throws Exception {
-        ServiceLocator locator = mock(ServiceLocator.class);
-        ObjectMapperFactory factory = new ObjectMapperFactory(locator);
+        InjectionManager injector = Injections.createInjectionManager();
+        ObjectMapperFactory factory = new ObjectMapperFactory(injector);
 
-        ObjectMapper mapper = factory.provide();
+        ObjectMapper mapper = factory.get();
 
         // Test the Deserialization configuration
         DeserializationConfig dConfig = mapper.getDeserializationConfig();
@@ -106,22 +102,8 @@ public final class ObjectMapperFactoryTest {
                 .isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING));
         Assert.assertFalse(sConfig
                 .isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES));
-    }
 
-    /**
-     * Assert that the object mapper is appropriately disposed of.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testObjectMapperDispose() throws Exception {
-        ServiceLocator locator = mock(ServiceLocator.class);
-        ObjectMapperFactory factory = new ObjectMapperFactory(locator);
-        ObjectMapper mapperSpy = spy(ObjectMapper.class);
-
-        factory.dispose(mapperSpy);
-
-        verifyNoMoreInteractions(mapperSpy);
+        injector.shutdown();
     }
 
     /**
@@ -132,12 +114,11 @@ public final class ObjectMapperFactoryTest {
      */
     @Test
     public void testModuleRegistration() throws Exception {
-        ServiceLocator locator = mock(ServiceLocator.class);
-        List<Module> modules = new ArrayList<>();
-        modules.add(new JacksonSerializerModule(locator));
-        when(locator.getAllServices(Module.class)).thenReturn(modules);
+        InjectionManager injector = Injections.createInjectionManager();
 
-        ObjectMapperFactory factory = new ObjectMapperFactory(locator);
-        factory.provide();
+        injector.register(new JacksonSerializerModule.Binder());
+
+        ObjectMapperFactory factory = new ObjectMapperFactory(injector);
+        factory.get();
     }
 }

@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.authz.common.cors;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import net.krotscheck.kangaroo.common.cors.ICORSValidator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

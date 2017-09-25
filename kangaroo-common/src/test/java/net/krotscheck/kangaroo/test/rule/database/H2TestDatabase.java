@@ -45,6 +45,7 @@ public final class H2TestDatabase extends AbstractTestDatabase
      */
     @Override
     public ITestDatabase create() {
+        deleteDatabase(getJdbcConnectionString());
         connection = getConnection();
         return this;
     }
@@ -87,26 +88,34 @@ public final class H2TestDatabase extends AbstractTestDatabase
     @Override
     public void close() throws IOException {
         try {
-            String url = connection.getMetaData().getURL();
             this.connection.close();
-
-            // Remove the prefix.
-            url = url.substring("jdbc:h2:".length());
-            // Split on protocol.
-            String[] parts = url.split(":");
-            String protocol = parts[0];
-            String path = parts[1];
-
-            // Grab the last path segment
-            String dir = path.substring(0, path.lastIndexOf('/'));
-            String db = path.substring(path.lastIndexOf('/') + 1);
-
-            if ("file".equals(protocol)) {
-                // Also delete the file.
-                DeleteDbFiles.execute(dir, db, true);
-            }
+            deleteDatabase(getJdbcConnectionString());
         } catch (SQLException sql) {
             throw new IOException(sql);
+        }
+    }
+
+    /**
+     * Helper method, to delete any existing databases.
+     *
+     * @param jbdcUrl The JDBC Url, tested for protocol.
+     */
+    private void deleteDatabase(final String jbdcUrl) {
+
+        // Remove the prefix.
+        String url = jbdcUrl.substring("jdbc:h2:".length());
+        // Split on protocol.
+        String[] parts = url.split(":");
+        String protocol = parts[0];
+        String path = parts[1];
+
+        // Grab the last path segment
+        String dir = path.substring(0, path.lastIndexOf('/'));
+        String db = path.substring(path.lastIndexOf('/') + 1);
+
+        if ("file".equals(protocol)) {
+            // Also delete the file.
+            DeleteDbFiles.execute(dir, db, true);
         }
     }
 }

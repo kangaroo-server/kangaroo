@@ -34,7 +34,6 @@ import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.net.URI;
 
 /**
  * Data validation tests for the errors defined in RFC6749.
