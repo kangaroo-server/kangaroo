@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.server;
 
 import com.google.common.base.Strings;
-import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.krotscheck.kangaroo.common.config.ConfigurationBinder;
 import net.krotscheck.kangaroo.server.keystore.FSKeystoreProvider;
 import net.krotscheck.kangaroo.server.keystore.GeneratedKeystoreProvider;

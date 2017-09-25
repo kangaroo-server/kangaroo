@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.timedtasks;
 
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.spi.Container;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,9 +40,9 @@ import java.util.TimerTask;
 public class TimedTasksLifecycleListenerTest {
 
     /**
-     * The service locator (This is a mockito mock).
+     * The injector (This is a mockito mock).
      */
-    private ServiceLocator serviceLocator;
+    private InjectionManager injectionManager;
 
     /**
      * The class under test.
@@ -54,8 +54,8 @@ public class TimedTasksLifecycleListenerTest {
      */
     @Before
     public void setupLifecycleListener() {
-        serviceLocator = Mockito.mock(ServiceLocator.class);
-        listener = new TimedTasksLifecycleListener(serviceLocator);
+        injectionManager = Mockito.mock(InjectionManager.class);
+        listener = new TimedTasksLifecycleListener(injectionManager);
     }
 
     /**
@@ -74,8 +74,8 @@ public class TimedTasksLifecycleListenerTest {
         tasks.add(two);
 
         Mockito.doReturn(tasks)
-                .when(serviceLocator)
-                .getAllServices(RepeatingTask.class);
+                .when(injectionManager)
+                .getAllInstances(RepeatingTask.class);
 
         listener.onStartup(container);
         Mockito.verifyNoMoreInteractions(container);
@@ -116,21 +116,21 @@ public class TimedTasksLifecycleListenerTest {
         private long tickCount = 0;
 
         /**
-         * Return the tick count.
-         *
-         * @return The tick count.
-         */
-        public long getTickCount() {
-            return tickCount;
-        }
-
-        /**
          * Create a new test task.
          *
          * @param period The period of the task execution.
          */
         TestTask(final long period) {
             this.period = period;
+        }
+
+        /**
+         * Return the tick count.
+         *
+         * @return The tick count.
+         */
+        public long getTickCount() {
+            return tickCount;
         }
 
         /**

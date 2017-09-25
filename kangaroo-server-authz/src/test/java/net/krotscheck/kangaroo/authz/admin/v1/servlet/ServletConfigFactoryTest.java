@@ -18,22 +18,19 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
-import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory.Binder;
+import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator;
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import javax.inject.Singleton;
-import java.util.List;
+import java.util.function.Supplier;
+
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Test that the admin configuration factory creates a singleton instance of
@@ -55,53 +52,10 @@ public final class ServletConfigFactoryTest extends DatabaseTest {
         // Create a new instance from the factory.
         ServletConfigFactory factory =
                 new ServletConfigFactory(getSessionFactory());
-        Configuration created = factory.provide();
+        Configuration created = factory.get();
 
         // Make sure it can access the data.
         Assert.assertEquals("property", created.getString("test"));
-    }
-
-    /**
-     * Assert that disposing doesn't really do anything.
-     */
-    @Test
-    public void testDispose() {
-        // Create a new instance from the factory.
-        ServletConfigFactory factory =
-                new ServletConfigFactory(getSessionFactory());
-        Configuration mock = Mockito.mock(Configuration.class);
-        factory.dispose(mock);
-
-        Mockito.verifyNoMoreInteractions(mock);
-    }
-
-    /**
-     * Assert that the component is bound properly.
-     */
-    @Test
-    public void testBinder() {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocator locator = factory.create(getClass().getCanonicalName());
-
-        Binder b = new ServletConfigFactory.Binder();
-        ServiceLocatorUtilities.bind(locator, b);
-
-        List<ActiveDescriptor<?>> descriptors =
-                locator.getDescriptors(
-                        BuilderHelper.createNameAndContractFilter(
-                                Configuration.class.getName(),
-                                ServletConfigFactory.GROUP_NAME));
-        Assert.assertEquals(1, descriptors.size());
-
-        ActiveDescriptor descriptor = descriptors.get(0);
-        Assert.assertNotNull(descriptor);
-        // Check scope...
-        Assert.assertEquals(Singleton.class.getCanonicalName(),
-                descriptor.getScope());
-
-        // ... check name.
-        Assert.assertEquals(ServletConfigFactory.GROUP_NAME,
-                descriptor.getName());
     }
 
     /**
@@ -113,9 +67,8 @@ public final class ServletConfigFactoryTest extends DatabaseTest {
     @Test
     public void testGenericInterface() throws Exception {
         // Intentionally using the generic untyped interface here.
-        Factory factory = new ServletConfigFactory(getSessionFactory());
-        Object instance = factory.provide();
+        Supplier factory = new ServletConfigFactory(getSessionFactory());
+        Object instance = factory.get();
         Assert.assertTrue(instance instanceof HibernateConfiguration);
-        factory.dispose(instance);
     }
 }

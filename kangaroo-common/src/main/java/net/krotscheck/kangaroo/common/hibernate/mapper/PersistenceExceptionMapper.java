@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.inject.Singleton;

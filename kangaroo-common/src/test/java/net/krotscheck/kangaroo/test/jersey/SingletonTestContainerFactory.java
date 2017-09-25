@@ -95,7 +95,8 @@ public class SingletonTestContainerFactory implements TestContainerFactory {
                     methods.add(method);
                 }
             }
-            // move to the upper class in the hierarchy in search for more methods
+            // move to the upper class in the hierarchy in search for more
+            // methods
             klass = klass.getSuperclass();
         }
         return methods;
@@ -105,10 +106,12 @@ public class SingletonTestContainerFactory implements TestContainerFactory {
      * Create a test container instance.
      *
      * @param baseUri           base URI for the test container to run at.
-     * @param deploymentContext deployment context of the tested JAX-RS / Jersey application .
+     * @param deploymentContext deployment context of the tested
+     *                          JAX-RS / Jersey application.
      * @return new test container configured to run the tested application.
-     * @throws IllegalArgumentException if {@code deploymentContext} is not supported
-     *                                  by this test container factory.
+     * @throws IllegalArgumentException if {@code deploymentContext} is not
+     *                                  supported by this test container
+     *                                  factory.
      */
     @Override
     public TestContainer create(final URI baseUri,
@@ -161,8 +164,9 @@ public class SingletonTestContainerFactory implements TestContainerFactory {
         /**
          * Get a client configuration specific to the test container.
          *
-         * @return a client configuration specific to the test container, otherwise {@code null} if there
-         * is no specific client configuration required.
+         * @return a client configuration specific to the test container,
+         * otherwise {@code null} if there is no specific client
+         * configuration required.
          */
         @Override
         public ClientConfig getClientConfig() {

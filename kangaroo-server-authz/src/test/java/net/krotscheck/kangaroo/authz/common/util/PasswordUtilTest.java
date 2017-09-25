@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.common.util;
 
-import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,10 +28,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.crypto.SecretKeyFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.security.NoSuchAlgorithmException;
-import javax.crypto.SecretKeyFactory;
 
 import static org.mockito.Mockito.when;
 

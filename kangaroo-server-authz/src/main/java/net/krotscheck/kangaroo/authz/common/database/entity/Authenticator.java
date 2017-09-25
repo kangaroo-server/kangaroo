@@ -133,7 +133,7 @@ public final class Authenticator extends AbstractAuthzEntity {
 
     /**
      * Get the authenticator type, a string lookup key by which the
-     * authenticator is retrieved from the service locator.
+     * authenticator is retrieved from the injection manager.
      *
      * @return The type.
      */

@@ -19,9 +19,9 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
-import org.glassfish.hk2.api.PerThread;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.PerThread;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
@@ -76,9 +76,9 @@ public final class HibernateSessionFactoryFactoryTest {
     private ApplicationHandler handler;
 
     /**
-     * The jersey application service locator.
+     * The jersey application injector.
      */
-    private ServiceLocator locator;
+    private InjectionManager injector;
 
     /**
      * Setup the application handler for this test.
@@ -88,7 +88,7 @@ public final class HibernateSessionFactoryFactoryTest {
         ResourceConfig config = new ResourceConfig();
         config.register(TestFeature.class);
         handler = new ApplicationHandler(config);
-        locator = handler.getServiceLocator();
+        injector = handler.getInjectionManager();
     }
 
     /**
@@ -96,8 +96,8 @@ public final class HibernateSessionFactoryFactoryTest {
      */
     @After
     public void teardown() {
-        locator.shutdown();
-        locator = null;
+        injector.shutdown();
+        injector = null;
         handler = null;
     }
 
@@ -107,10 +107,10 @@ public final class HibernateSessionFactoryFactoryTest {
     @Test
     public void testProvideDispose() {
         ServiceRegistry serviceRegistry =
-                locator.getService(ServiceRegistry.class);
+                injector.getInstance(ServiceRegistry.class);
         HibernateSessionFactoryFactory factoryFactory =
-                new HibernateSessionFactoryFactory(serviceRegistry, locator);
-        SessionFactory factory = locator.getService(SessionFactory.class);
+                new HibernateSessionFactoryFactory(serviceRegistry, injector);
+        SessionFactory factory = injector.getInstance(SessionFactory.class);
 
         // Assert that the factory is open.
         Assert.assertFalse(factory.isClosed());
@@ -139,8 +139,8 @@ public final class HibernateSessionFactoryFactoryTest {
     public void testBinder() {
 
         // Create a fake application.
-        SessionFactory factoryFactory = locator
-                .getService(SessionFactory.class);
+        SessionFactory factoryFactory = injector
+                .getInstance(SessionFactory.class);
         Assert.assertNotNull(factoryFactory);
 
         // Make sure it's reading from the same place.
@@ -148,7 +148,7 @@ public final class HibernateSessionFactoryFactoryTest {
 
         // Make sure it's a singleton...
         SessionFactory factoryFactory2 = handler
-                .getServiceLocator().getService(SessionFactory.class);
+                .getInjectionManager().getInstance(SessionFactory.class);
         Assert.assertSame(factoryFactory, factoryFactory2);
     }
 
@@ -159,8 +159,8 @@ public final class HibernateSessionFactoryFactoryTest {
     public void testEventInjection() {
 
         // Create a fake application.
-        SessionFactory factoryFactory = locator
-                .getService(SessionFactory.class);
+        SessionFactory factoryFactory = injector
+                .getInstance(SessionFactory.class);
         Assert.assertNotNull(factoryFactory);
 
 

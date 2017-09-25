@@ -28,12 +28,8 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.jersey.process.internal.RequestScoped;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -48,6 +44,8 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Test the test authenticator.
  *
@@ -55,6 +53,10 @@ import java.util.List;
  */
 public final class TestAuthenticatorTest extends DatabaseTest {
 
+    /**
+     * DB Context, constructed for testing.
+     */
+    private static ApplicationContext context;
     /**
      * Test data loading for this test.
      */
@@ -73,12 +75,6 @@ public final class TestAuthenticatorTest extends DatabaseTest {
                             .build();
                 }
             };
-
-
-    /**
-     * DB Context, constructed for testing.
-     */
-    private static ApplicationContext context;
 
     /**
      * Assert that delegate simply redirects to the authentication endpoint.
@@ -107,8 +103,8 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         UserIdentity i = a.authenticate(config, params);
 
-        Assert.assertNotNull(i);
-        Assert.assertNotNull(i.getId());
+        assertNotNull(i);
+        assertNotNull(i.getId());
         Assert.assertTrue(getSession().contains(i));
         Assert.assertEquals("dev_user", i.getRemoteId());
     }
@@ -118,7 +114,7 @@ public final class TestAuthenticatorTest extends DatabaseTest {
      */
     @Test
     public void authenticateTestUserWithMatchingRoles() {
-        Assert.assertNotNull(context.getApplication().getDefaultRole());
+        assertNotNull(context.getApplication().getDefaultRole());
 
         IAuthenticator a = new TestAuthenticator(getSession());
         Authenticator config = context.getAuthenticator();
@@ -126,8 +122,8 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         UserIdentity i = a.authenticate(config, params);
 
-        Assert.assertNotNull(i);
-        Assert.assertNotNull(i.getId());
+        assertNotNull(i);
+        assertNotNull(i.getId());
         Assert.assertTrue(getSession().contains(i));
         Assert.assertEquals("dev_user", i.getRemoteId());
         Assert.assertEquals(context.getApplication().getDefaultRole(),
@@ -153,37 +149,5 @@ public final class TestAuthenticatorTest extends DatabaseTest {
         UserIdentity i = a.authenticate(config, params);
 
         Assert.assertEquals(persistedIdentity, i);
-    }
-
-    /**
-     * Assert that we can invoke the binder.
-     *
-     * @throws Exception An authenticator exception.
-     */
-    @Test
-    public void testBinder() throws Exception {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocator locator =
-                factory.create(this.getClass().getCanonicalName());
-
-        Binder b = new TestAuthenticator.Binder();
-        ServiceLocatorUtilities.bind(locator, b);
-
-        List<ActiveDescriptor<?>> descriptors =
-                locator.getDescriptors(
-                        BuilderHelper.createContractFilter(
-                                IAuthenticator.class.getName()));
-        Assert.assertEquals(1, descriptors.size());
-
-        ActiveDescriptor descriptor = descriptors.get(0);
-        Assert.assertNotNull(descriptor);
-
-        // Request scoped...
-        Assert.assertEquals(RequestScoped.class.getCanonicalName(),
-                descriptor.getScope());
-
-        // ... with the 'password' name.
-        Assert.assertEquals(AuthenticatorType.Test.name(),
-                descriptor.getName());
     }
 }

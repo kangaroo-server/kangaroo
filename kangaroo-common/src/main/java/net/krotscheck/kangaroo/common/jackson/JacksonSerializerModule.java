@@ -21,14 +21,14 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * A jackson mapper module that collects all serializers and deserializers that
@@ -47,15 +47,15 @@ public final class JacksonSerializerModule extends SimpleModule {
     /**
      * Create a new instance of the configuration reader.
      *
-     * @param locator The service locator for the injection context.
+     * @param injector The injector for the injection context.
      */
     @Inject
-    public JacksonSerializerModule(final ServiceLocator locator) {
+    public JacksonSerializerModule(final InjectionManager injector) {
         super("JacksonMapperModule");
 
         // Register deserializers
         List<StdDeserializer> deserializers =
-                locator.getAllServices(StdDeserializer.class);
+                injector.getAllInstances(StdDeserializer.class);
         for (StdDeserializer deserializer : deserializers) {
             logger.warn(String.format("Registering deserializer for [%s]",
                     deserializer.handledType()));
@@ -64,7 +64,7 @@ public final class JacksonSerializerModule extends SimpleModule {
 
         // Register serializers
         List<StdSerializer> serializers =
-                locator.getAllServices(StdSerializer.class);
+                injector.getAllInstances(StdSerializer.class);
         for (StdSerializer serializer : serializers) {
             logger.warn(String.format("Registering serializer for [%s]",
                     serializer.handledType()));

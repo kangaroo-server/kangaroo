@@ -30,8 +30,8 @@ import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
@@ -47,14 +47,16 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 /**
- * Created by mkrotscheck on 7/9/17.
+ * Implicit request handler.
+ *
+ * @author Michael Krotscheck
  */
 public final class ImplicitHandler implements IAuthorizeHandler {
 
     /**
-     * The service locator.
+     * The system injector.
      */
-    private final ServiceLocator locator;
+    private final InjectionManager injector;
 
     /**
      * The active database session.
@@ -64,14 +66,14 @@ public final class ImplicitHandler implements IAuthorizeHandler {
     /**
      * Create a new handler.
      *
-     * @param locator The service locator.
-     * @param session The hibernate session.
+     * @param injector The system injection manager..
+     * @param session  The hibernate session.
      */
     @Inject
     @SuppressWarnings({"CPD-START"})
-    public ImplicitHandler(final ServiceLocator locator,
+    public ImplicitHandler(final InjectionManager injector,
                            final Session session) {
-        this.locator = locator;
+        this.injector = injector;
         this.session = session;
     }
 
@@ -84,7 +86,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      */
     public IAuthenticator getAuthenticator(final AuthenticatorState state) {
         Authenticator a = state.getAuthenticator();
-        return locator.getService(IAuthenticator.class, a.getType().name());
+        return injector.getInstance(IAuthenticator.class, a.getType().name());
     }
 
     /**
@@ -111,7 +113,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
                            final String state) {
 
         // Retrieve the authenticator instance.
-        IAuthenticator authImpl = locator.getService(
+        IAuthenticator authImpl = injector.getInstance(
                 IAuthenticator.class, auth.getType().name());
 
         // Create the intermediate authorization store.

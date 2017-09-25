@@ -20,12 +20,14 @@ package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.SessionFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.function.Supplier;
 
 /**
  * This factory instantiates a configuration element which contains all
@@ -36,7 +38,7 @@ import javax.inject.Singleton;
  * @author Michael Krotscheck
  */
 public final class ServletConfigFactory
-        implements Factory<Configuration> {
+        implements Supplier<Configuration> {
 
     /**
      * The name of the configuration group.
@@ -66,20 +68,8 @@ public final class ServletConfigFactory
      * @return The produces object
      */
     @Override
-    public Configuration provide() {
+    public Configuration get() {
         return new HibernateConfiguration(factory, GROUP_NAME);
-    }
-
-    /**
-     * This method will dispose of objects created with this scope.  This
-     * method should not be annotated, as it is naturally paired with the
-     * provide method.
-     *
-     * @param instance The instance to dispose of
-     */
-    @Override
-    public void dispose(final Configuration instance) {
-        // Do nothing, the config should close with the hibernate instance.
     }
 
     /**

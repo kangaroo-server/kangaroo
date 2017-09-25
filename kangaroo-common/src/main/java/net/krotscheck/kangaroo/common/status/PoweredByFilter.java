@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.status;
 
 import com.google.common.net.HttpHeaders;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 import javax.inject.Singleton;
 import javax.ws.rs.container.ContainerRequestContext;

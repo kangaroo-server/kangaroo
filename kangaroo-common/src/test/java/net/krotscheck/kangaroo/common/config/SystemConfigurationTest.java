@@ -17,10 +17,8 @@
 
 package net.krotscheck.kangaroo.common.config;
 
-import net.krotscheck.kangaroo.test.hk2.SimpleIterableProvider;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -42,15 +40,14 @@ public final class SystemConfigurationTest {
      */
     @Test
     public void testConfigurationDefaults() {
-        SimpleIterableProvider<Configuration> configs =
-                new SimpleIterableProvider<>(Collections.emptyList());
-        SystemConfiguration config = new SystemConfiguration(configs);
+        SystemConfiguration config =
+                new SystemConfiguration(Collections.emptyList());
 
-        Assert.assertEquals(TimeZone.getTimeZone("UTC"), config.getTimezone());
+        assertEquals(TimeZone.getTimeZone("UTC"), config.getTimezone());
 
         Configuration c =
                 new org.apache.commons.configuration.SystemConfiguration();
-        c.getKeys().forEachRemaining(s -> assertTrue(config.containsKey(s)));
+        c.getKeys().forEachRemaining(s -> assertTrue(s, config.containsKey(s)));
     }
 
     /**
@@ -61,11 +58,9 @@ public final class SystemConfigurationTest {
         Properties properties = new Properties();
         properties.setProperty("foo", "bar");
         MapConfiguration mapConfig = new MapConfiguration(properties);
-        SimpleIterableProvider<Configuration> configs =
-                new SimpleIterableProvider<>(
-                        Collections.singletonList(mapConfig));
 
-        SystemConfiguration config = new SystemConfiguration(configs);
+        SystemConfiguration config =
+                new SystemConfiguration(Collections.singletonList(mapConfig));
 
         properties.forEach((k, v) -> assertEquals(v,
                 config.getString(k.toString())));

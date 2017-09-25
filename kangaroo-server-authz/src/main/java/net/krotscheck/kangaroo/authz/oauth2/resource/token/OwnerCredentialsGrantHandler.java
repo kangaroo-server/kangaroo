@@ -30,8 +30,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
@@ -58,21 +58,21 @@ public final class OwnerCredentialsGrantHandler
     private final Session session;
 
     /**
-     * Service locator, injected.
+     * injection manager, injected.
      */
-    private final ServiceLocator locator;
+    private final InjectionManager injector;
 
     /**
      * Create a new instance of this token handler.
      *
-     * @param session Injected hibernate session.
-     * @param locator The service locator.
+     * @param session  Injected hibernate session.
+     * @param injector The injection manager.
      */
     @Inject
     public OwnerCredentialsGrantHandler(final Session session,
-                                        final ServiceLocator locator) {
+                                        final InjectionManager injector) {
         this.session = session;
-        this.locator = locator;
+        this.injector = injector;
     }
 
     /**
@@ -93,7 +93,7 @@ public final class OwnerCredentialsGrantHandler
 
         // Get the authenticator impl.
         IAuthenticator authenticator =
-                locator.getService(PasswordAuthenticator.class);
+                injector.getInstance(PasswordAuthenticator.class);
 
         // Pull the password authenticator configuration.
         Authenticator authConfig = ValidationUtil

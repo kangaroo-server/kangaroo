@@ -20,16 +20,12 @@ package net.krotscheck.kangaroo.common.cors;
 
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
-import org.jvnet.hk2.internal.ServiceLocatorImpl;
 
-import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.OPTIONS;
@@ -47,6 +43,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * Unit tests for the CORS filter.
@@ -89,23 +87,21 @@ public class CORSFilterTest extends ContainerTest {
      */
     @Test
     public void testBinder() throws Exception {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocatorImpl locator = (ServiceLocatorImpl)
-                factory.create(this.getClass().getSimpleName());
+        InjectionManager injector = Injections.createInjectionManager();
+        injector.register(new TestCORSValidator.Binder());
+        injector.register(new CORSFilter.Binder());
 
-        ServiceLocatorUtilities.bind(locator, new CORSFilter.Binder());
+        List<ContainerResponseFilter> crfList =
+                injector.getAllInstances(ContainerResponseFilter.class);
+        assertEquals(1, crfList.size());
 
-        // Ensure it's a response filter.
-        List<ActiveDescriptor<?>> respDescriptors =
-                locator.getDescriptors(
-                        BuilderHelper.createContractFilter(
-                                ContainerResponseFilter.class.getName()));
-        Assert.assertEquals(1, respDescriptors.size());
+        // assert singleton.
+        ContainerResponseFilter crf2 =
+                injector.getInstance(ContainerResponseFilter.class);
 
-        ActiveDescriptor respDescriptor = respDescriptors.get(0);
-        Assert.assertNotNull(respDescriptor);
-        Assert.assertEquals(Singleton.class.getCanonicalName(),
-                respDescriptor.getScope());
+        assertSame(crf2, crfList.get(0));
+
+        injector.shutdown();
     }
 
     /**
@@ -154,7 +150,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -171,7 +167,7 @@ public class CORSFilterTest extends ContainerTest {
         long foundHeaders = received.keySet().stream()
                 .filter(omittedHeaders::contains)
                 .count();
-        Assert.assertEquals(0, foundHeaders);
+        assertEquals(0, foundHeaders);
     }
 
     /**
@@ -205,7 +201,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -240,7 +236,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -278,7 +274,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -316,7 +312,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -351,7 +347,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(404, r.getStatus());
+        assertEquals(404, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -388,7 +384,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(404, r.getStatus());
+        assertEquals(404, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -423,7 +419,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -460,7 +456,7 @@ public class CORSFilterTest extends ContainerTest {
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_MAX_AGE));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -486,20 +482,27 @@ public class CORSFilterTest extends ContainerTest {
                 .invoke();
 
         MultivaluedMap<String, Object> expHeaders = new MultivaluedHashMap<>();
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ORIGIN);
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://valid.example.com");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "300");
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ORIGIN);
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                "GET");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                "http://valid.example.com");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                "true");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE,
+                "300");
 
         List<String> omittedHeaders = new ArrayList<>();
         omittedHeaders.addAll(Arrays.asList(
                 HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -524,22 +527,32 @@ public class CORSFilterTest extends ContainerTest {
                 .invoke();
 
         MultivaluedMap<String, Object> expHeaders = new MultivaluedHashMap<>();
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ORIGIN);
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://valid.example.com");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "one");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "two");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "three");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "300");
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ORIGIN);
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                "GET");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                "http://valid.example.com");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                "true");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                "one");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                "two");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                "three");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE,
+                "300");
 
         List<String> omittedHeaders = new ArrayList<>();
         omittedHeaders.addAll(Arrays.asList(
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }
@@ -565,23 +578,33 @@ public class CORSFilterTest extends ContainerTest {
                 .invoke();
 
         MultivaluedMap<String, Object> expHeaders = new MultivaluedHashMap<>();
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ORIGIN);
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-        expHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://valid.example.com");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "one");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "two");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "three");
-        expHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "300");
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ORIGIN);
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+        expHeaders.add(HttpHeaders.VARY,
+                HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                "GET");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                "http://valid.example.com");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                "true");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                "one");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                "two");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                "three");
+        expHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE,
+                "300");
         expHeaders.add("Test", "One");
 
         List<String> omittedHeaders = new ArrayList<>();
         omittedHeaders.addAll(Arrays.asList(
                 HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
         validateContainsHeaders(expHeaders, r.getHeaders());
         validateOmitHeaders(omittedHeaders, r.getHeaders());
     }

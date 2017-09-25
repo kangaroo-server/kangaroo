@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.common.config;
 
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 /**
  * A custom, configurable binder that may be used to inject additional

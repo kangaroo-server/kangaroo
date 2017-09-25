@@ -18,8 +18,8 @@
 
 package net.krotscheck.kangaroo.common.timedtasks;
 
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.slf4j.Logger;
@@ -46,9 +46,9 @@ public final class TimedTasksLifecycleListener
             .getLogger(TimedTasksLifecycleListener.class);
 
     /**
-     * The service locator.
+     * The injector.
      */
-    private ServiceLocator locator;
+    private InjectionManager injector;
 
     /**
      * The timer.
@@ -58,11 +58,11 @@ public final class TimedTasksLifecycleListener
     /**
      * Create a new lifecycle listener.
      *
-     * @param serviceLocator The service locator from which to resolve tasks.
+     * @param injector The injector from which to resolve tasks.
      */
     @Inject
-    public TimedTasksLifecycleListener(final ServiceLocator serviceLocator) {
-        this.locator = serviceLocator;
+    public TimedTasksLifecycleListener(final InjectionManager injector) {
+        this.injector = injector;
     }
 
     /**
@@ -75,7 +75,8 @@ public final class TimedTasksLifecycleListener
         logger.info("Starting timer");
         timer = new Timer(true);
 
-        List<RepeatingTask> tasks = locator.getAllServices(RepeatingTask.class);
+        List<RepeatingTask> tasks =
+                injector.getAllInstances(RepeatingTask.class);
         for (RepeatingTask task : tasks) {
             logger.debug(
                     String.format(

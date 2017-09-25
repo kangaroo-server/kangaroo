@@ -24,7 +24,11 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientExcep
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.common.exception.mapper.KangarooExceptionMapper;
 import net.krotscheck.kangaroo.test.HttpUtil;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.ExceptionMapperFactory;
+import org.glassfish.jersey.internal.inject.Bindings;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
+import org.glassfish.jersey.internal.inject.InstanceBinding;
 import org.glassfish.jersey.spi.ExceptionMappers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -52,16 +56,16 @@ public final class RedirectingExceptionMapperTest {
     @Test
     public void testRegularMapping() throws Exception {
         KangarooException ke = new InvalidClientException();
-        ExceptionMappers mockMappers = Mockito.mock(ExceptionMappers.class);
-        ServiceLocator mockLocator = Mockito.mock(ServiceLocator.class);
+        InjectionManager injector = Injections.createInjectionManager();
+        ExceptionMappers mappers = new ExceptionMapperFactory(injector);
 
-        doReturn(mockMappers).when(mockLocator)
-                .getService(ExceptionMappers.class);
-        doReturn(new KangarooExceptionMapper()).when(mockMappers)
-                .findMapping(ke);
+        injector.register(new KangarooExceptionMapper.Binder());
+        injector.register(new RedirectingExceptionMapper.Binder());
+        injector.register(Bindings.service(mappers)
+                .to(ExceptionMappers.class));
 
         RedirectingExceptionMapper mapper =
-                new RedirectingExceptionMapper(mockLocator);
+                injector.getInstance(RedirectingExceptionMapper.class);
 
         URI redirect = UriBuilder.fromUri("http://redirect.example.com/")
                 .build();
@@ -96,16 +100,16 @@ public final class RedirectingExceptionMapperTest {
     @Test
     public void testImplicitMapping() throws Exception {
         KangarooException ke = new InvalidClientException();
-        ExceptionMappers mockMappers = Mockito.mock(ExceptionMappers.class);
-        ServiceLocator mockLocator = Mockito.mock(ServiceLocator.class);
+        InjectionManager injector = Injections.createInjectionManager();
+        ExceptionMappers mappers = new ExceptionMapperFactory(injector);
 
-        doReturn(mockMappers).when(mockLocator)
-                .getService(ExceptionMappers.class);
-        doReturn(new KangarooExceptionMapper()).when(mockMappers)
-                .findMapping(ke);
+        injector.register(new KangarooExceptionMapper.Binder());
+        injector.register(new RedirectingExceptionMapper.Binder());
+        injector.register(Bindings.service(mappers)
+                .to(ExceptionMappers.class));
 
         RedirectingExceptionMapper mapper =
-                new RedirectingExceptionMapper(mockLocator);
+                injector.getInstance(RedirectingExceptionMapper.class);
 
         URI redirect = UriBuilder.fromUri("http://redirect.example.com/")
                 .build();
@@ -130,6 +134,8 @@ public final class RedirectingExceptionMapperTest {
                 ke.getCode().getError());
         Assert.assertEquals(params.getFirst("error_description"),
                 ke.getCode().getErrorDescription());
+
+        injector.shutdown();
     }
 
 }

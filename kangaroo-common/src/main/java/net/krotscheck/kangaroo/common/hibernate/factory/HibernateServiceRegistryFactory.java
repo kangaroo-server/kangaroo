@@ -18,8 +18,8 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.DisposableSupplier;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ import javax.inject.Singleton;
  * @author Michael Krotscheck
  */
 public final class HibernateServiceRegistryFactory
-        implements Factory<ServiceRegistry> {
+        implements DisposableSupplier<ServiceRegistry> {
 
     /**
      * Logger instance.
@@ -51,7 +51,7 @@ public final class HibernateServiceRegistryFactory
      * @return The hibernate serfice registry.
      */
     @Override
-    public ServiceRegistry provide() {
+    public ServiceRegistry get() {
         logger.trace("Service Registry provide");
 
         return new StandardServiceRegistryBuilder()
