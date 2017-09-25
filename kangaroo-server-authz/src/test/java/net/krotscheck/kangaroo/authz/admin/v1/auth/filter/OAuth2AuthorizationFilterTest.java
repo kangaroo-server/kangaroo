@@ -30,7 +30,6 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

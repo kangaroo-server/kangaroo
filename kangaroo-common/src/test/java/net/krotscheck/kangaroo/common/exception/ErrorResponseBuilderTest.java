@@ -33,7 +33,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;

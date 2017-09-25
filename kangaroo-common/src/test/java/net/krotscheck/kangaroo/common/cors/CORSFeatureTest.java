@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.http.HttpStatus;
-import org.glassfish.hk2.api.IterableProvider;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -146,11 +145,11 @@ public class CORSFeatureTest extends ContainerTest {
          */
         @Inject
         public MockService(@Named(AllowedHeaders.NAME) final
-                           IterableProvider<String> allowedHeaders,
+                           Iterable<String> allowedHeaders,
                            @Named(ExposedHeaders.NAME) final
-                           IterableProvider<String> exposedHeaders,
+                           Iterable<String> exposedHeaders,
                            @Named(AllowedMethods.NAME) final
-                           IterableProvider<String> allowedMethods) {
+                           Iterable<String> allowedMethods) {
             this.allowedHeaders = Lists.newArrayList(allowedHeaders);
             this.exposedHeaders = Lists.newArrayList(exposedHeaders);
             this.allowedMethods = Lists.newArrayList(allowedMethods);

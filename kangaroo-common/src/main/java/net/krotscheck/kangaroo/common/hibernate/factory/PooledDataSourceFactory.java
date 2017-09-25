@@ -19,8 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import com.mchange.v2.c3p0.PooledDataSource;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.internal.SessionFactoryImpl;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.function.Supplier;
 
 /**
  * This factory extracts the pooled connection that underlies Hibernate's
@@ -39,13 +39,17 @@ import javax.inject.Singleton;
  * @author Michael Krotscheck
  */
 public final class PooledDataSourceFactory
-        implements Factory<PooledDataSource> {
+        implements Supplier<PooledDataSource> {
 
     /**
      * Logger instance.
      */
     private static Logger logger = LoggerFactory
             .getLogger(PooledDataSourceFactory.class);
+    /**
+     * Session factory for this environment.
+     */
+    private final SessionFactoryImpl sessionFactory;
 
     /**
      * Create a new pooled data source factory.
@@ -58,17 +62,12 @@ public final class PooledDataSourceFactory
     }
 
     /**
-     * Session factory for this environment.
-     */
-    private final SessionFactoryImpl sessionFactory;
-
-    /**
      * Provide a singleton instance of the hibernate session factory.
      *
      * @return A session factory.
      */
     @Override
-    public PooledDataSource provide() {
+    public PooledDataSource get() {
         logger.trace("Extracting PooledDataSource from hibernate session "
                 + "factory.");
         SessionFactoryServiceRegistryImpl src =
@@ -76,16 +75,6 @@ public final class PooledDataSourceFactory
                         sessionFactory.getServiceRegistry();
         ConnectionProvider cp = src.getService(ConnectionProvider.class);
         return cp.unwrap(PooledDataSource.class);
-    }
-
-    /**
-     * Dispose of the hibernate session.
-     *
-     * @param sessionFactory The session to dispose.
-     */
-    @Override
-    public void dispose(final PooledDataSource sessionFactory) {
-        // Do nothing, this is handled by the session factory.
     }
 
     /**

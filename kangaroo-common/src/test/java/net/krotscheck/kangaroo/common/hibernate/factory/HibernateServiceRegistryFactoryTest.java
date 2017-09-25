@@ -57,7 +57,7 @@ public final class HibernateServiceRegistryFactoryTest {
         HibernateServiceRegistryFactory factory = new
                 HibernateServiceRegistryFactory();
 
-        ServiceRegistry serviceRegistry = factory.provide();
+        ServiceRegistry serviceRegistry = factory.get();
 
         String dbDriver = TestConfig.getDbDriver();
         Dialect d = new MetadataSources(serviceRegistry)
@@ -97,7 +97,7 @@ public final class HibernateServiceRegistryFactoryTest {
         // Create a fake application.
         ApplicationHandler handler = new ApplicationHandler(config);
         ServiceRegistry serviceRegistry = handler
-                .getServiceLocator().getService(ServiceRegistry.class);
+                .getInjectionManager().getInstance(ServiceRegistry.class);
         Assert.assertNotNull(serviceRegistry);
 
         // Make sure it's reading from the same place.
@@ -118,8 +118,8 @@ public final class HibernateServiceRegistryFactoryTest {
 
         // Make sure it's a singleton...
         ServiceRegistry serviceRegistry2 = handler
-                .getServiceLocator()
-                .getService(ServiceRegistry.class);
+                .getInjectionManager()
+                .getInstance(ServiceRegistry.class);
         Assert.assertSame(serviceRegistry, serviceRegistry2);
     }
 

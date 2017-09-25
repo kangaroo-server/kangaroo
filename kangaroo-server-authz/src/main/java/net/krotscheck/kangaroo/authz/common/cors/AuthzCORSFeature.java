@@ -41,6 +41,7 @@ public final class AuthzCORSFeature implements Feature {
      */
     @Override
     public boolean configure(final FeatureContext context) {
+
         // Inject the CORS feature.
         context.register(CORSFeature.class);
 

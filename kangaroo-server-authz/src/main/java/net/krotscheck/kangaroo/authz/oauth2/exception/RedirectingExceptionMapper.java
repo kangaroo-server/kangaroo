@@ -21,8 +21,8 @@ package net.krotscheck.kangaroo.authz.oauth2.exception;
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.spi.ExceptionMappers;
 
 import javax.inject.Inject;
@@ -43,21 +43,21 @@ public final class RedirectingExceptionMapper
         implements ExceptionMapper<RedirectingException> {
 
     /**
-     * The service locator. This class makes use of all registered
+     * The injection manager. This class makes use of all registered
      * ExceptionMappers to perform a first-pass of the exception before
      * turning it into a redirect. Since that creates a circular dependency,
      * we read it - on request - from the injector instead.
      */
-    private final ServiceLocator serviceLocator;
+    private final InjectionManager injector;
 
     /**
      * Create a new exception mapper for our redirecting exceptions.
      *
-     * @param serviceLocator The service locator.
+     * @param injector The injection manager.
      */
     @Inject
-    RedirectingExceptionMapper(final ServiceLocator serviceLocator) {
-        this.serviceLocator = serviceLocator;
+    RedirectingExceptionMapper(final InjectionManager injector) {
+        this.injector = injector;
     }
 
     /**
@@ -70,8 +70,7 @@ public final class RedirectingExceptionMapper
         Throwable cause = exception.getCause();
 
         // Retrieve the exception mapper for this cause.
-        ExceptionMappers mappers =
-                serviceLocator.getService(ExceptionMappers.class);
+        ExceptionMappers mappers = injector.getInstance(ExceptionMappers.class);
         ExceptionMapper mapper = mappers.findMapping(cause);
         Response r = mapper.toResponse(cause);
         ErrorResponse responseEntity = (ErrorResponse) r.getEntity();
@@ -102,6 +101,7 @@ public final class RedirectingExceptionMapper
         @Override
         protected void configure() {
             bind(RedirectingExceptionMapper.class)
+                    .to(RedirectingExceptionMapper.class)
                     .to(ExceptionMapper.class)
                     .in(Singleton.class);
         }

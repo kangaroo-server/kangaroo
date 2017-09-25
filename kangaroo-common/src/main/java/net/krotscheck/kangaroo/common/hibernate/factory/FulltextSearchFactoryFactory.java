@@ -18,8 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.function.Supplier;
 
 /**
  * This factory will generate a Hibernate Search SearchFactory from the current
@@ -36,7 +36,7 @@ import javax.inject.Inject;
  * @author Michael Krotscheck
  */
 public final class FulltextSearchFactoryFactory
-        implements Factory<SearchFactory> {
+        implements Supplier<SearchFactory> {
 
     /**
      * Logger instance.
@@ -65,19 +65,9 @@ public final class FulltextSearchFactoryFactory
      * @return A new SearchFactory
      */
     @Override
-    public SearchFactory provide() {
+    public SearchFactory get() {
         logger.trace("Creating hibernate search factory.");
         return session.getSearchFactory();
-    }
-
-    /**
-     * Dispose of the search factory.
-     *
-     * @param factory The factory to dispose of.
-     */
-    @Override
-    public void dispose(final SearchFactory factory) {
-        // Do nothing- the factory has no disposal requirements.
     }
 
     /**

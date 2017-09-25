@@ -18,9 +18,9 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.DisposableSupplier;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -57,37 +57,34 @@ import java.util.List;
  * @author Michael Krotscheck
  */
 public final class HibernateSessionFactoryFactory
-        implements Factory<SessionFactory> {
+        implements DisposableSupplier<SessionFactory> {
 
     /**
      * Logger instance.
      */
     private static Logger logger = LoggerFactory
             .getLogger(HibernateSessionFactoryFactory.class);
-
-    /**
-     * Create a new factory factory.
-     *
-     * @param registry       The Hibernate Service Registry
-     * @param serviceLocator The service locator from which to resolve event
-     *                       handlers.
-     */
-    @Inject
-    public HibernateSessionFactoryFactory(final ServiceRegistry registry,
-                                          final ServiceLocator serviceLocator) {
-        this.serviceRegistry = registry;
-        this.locator = serviceLocator;
-    }
-
     /**
      * Injected hibernate configuration.
      */
     private ServiceRegistry serviceRegistry;
+    /**
+     * The injector.
+     */
+    private InjectionManager injectionManager;
 
     /**
-     * The service locator.
+     * Create a new factory factory.
+     *
+     * @param registry The Hibernate Service Registry
+     * @param iManager The injection manager.
      */
-    private ServiceLocator locator;
+    @Inject
+    public HibernateSessionFactoryFactory(final ServiceRegistry registry,
+                                          final InjectionManager iManager) {
+        this.serviceRegistry = registry;
+        this.injectionManager = iManager;
+    }
 
     /**
      * Provide a singleton instance of the hibernate session factory.
@@ -95,7 +92,7 @@ public final class HibernateSessionFactoryFactory
      * @return A session factory.
      */
     @Override
-    public SessionFactory provide() {
+    public SessionFactory get() {
         logger.trace("Creating hibernate session factory.");
 
         // Build the service registry.
@@ -134,8 +131,8 @@ public final class HibernateSessionFactoryFactory
         EventListenerRegistry eventRegistry = registry
                 .getService(EventListenerRegistry.class);
 
-        List<PostInsertEventListener> postInsertEvents = locator
-                .getAllServices(PostInsertEventListener.class);
+        List<PostInsertEventListener> postInsertEvents = injectionManager
+                .getAllInstances(PostInsertEventListener.class);
         for (PostInsertEventListener piEventListener : postInsertEvents) {
             logger.trace("Registering PostInsert: " + piEventListener
                     .getClass().getCanonicalName());
@@ -143,8 +140,8 @@ public final class HibernateSessionFactoryFactory
                     piEventListener);
         }
 
-        List<PostUpdateEventListener> postUpdateEvents = locator
-                .getAllServices(PostUpdateEventListener.class);
+        List<PostUpdateEventListener> postUpdateEvents = injectionManager
+                .getAllInstances(PostUpdateEventListener.class);
         for (PostUpdateEventListener puEventListener : postUpdateEvents) {
             logger.trace("Registering PostUpdate: " + puEventListener
                     .getClass().getCanonicalName());
@@ -152,8 +149,8 @@ public final class HibernateSessionFactoryFactory
                     puEventListener);
         }
 
-        List<PostDeleteEventListener> postDeleteEvents = locator
-                .getAllServices(PostDeleteEventListener.class);
+        List<PostDeleteEventListener> postDeleteEvents = injectionManager
+                .getAllInstances(PostDeleteEventListener.class);
         for (PostDeleteEventListener pdEventListener : postDeleteEvents) {
             logger.trace("Registering PostDelete: " + pdEventListener
                     .getClass().getCanonicalName());
@@ -161,8 +158,8 @@ public final class HibernateSessionFactoryFactory
                     pdEventListener);
         }
 
-        List<PreInsertEventListener> preInsertEvents = locator
-                .getAllServices(PreInsertEventListener.class);
+        List<PreInsertEventListener> preInsertEvents = injectionManager
+                .getAllInstances(PreInsertEventListener.class);
         for (PreInsertEventListener piEventListener : preInsertEvents) {
             logger.trace("Registering PreInsert: " + piEventListener
                     .getClass().getCanonicalName());
@@ -170,8 +167,8 @@ public final class HibernateSessionFactoryFactory
                     piEventListener);
         }
 
-        List<PreUpdateEventListener> preUpdateEvents = locator
-                .getAllServices(PreUpdateEventListener.class);
+        List<PreUpdateEventListener> preUpdateEvents = injectionManager
+                .getAllInstances(PreUpdateEventListener.class);
         for (PreUpdateEventListener puEventListener : preUpdateEvents) {
             logger.trace("Registering PreUpdate: " + puEventListener
                     .getClass().getCanonicalName());
@@ -179,8 +176,8 @@ public final class HibernateSessionFactoryFactory
                     puEventListener);
         }
 
-        List<PreDeleteEventListener> preDeleteEvents = locator
-                .getAllServices(PreDeleteEventListener.class);
+        List<PreDeleteEventListener> preDeleteEvents = injectionManager
+                .getAllInstances(PreDeleteEventListener.class);
         for (PreDeleteEventListener pdEventListener : preDeleteEvents) {
             logger.trace("Registering PreDelete: " + pdEventListener
                     .getClass().getCanonicalName());
@@ -188,8 +185,8 @@ public final class HibernateSessionFactoryFactory
                     pdEventListener);
         }
 
-        List<PostCommitInsertEventListener> pciEvents = locator
-                .getAllServices(PostCommitInsertEventListener.class);
+        List<PostCommitInsertEventListener> pciEvents = injectionManager
+                .getAllInstances(PostCommitInsertEventListener.class);
         for (PostCommitInsertEventListener cpiEventListener : pciEvents) {
             logger.trace("Registering PostCommitInsert: " + cpiEventListener
                     .getClass().getCanonicalName());
@@ -197,8 +194,8 @@ public final class HibernateSessionFactoryFactory
                     cpiEventListener);
         }
 
-        List<PostCommitUpdateEventListener> pcuEvents = locator
-                .getAllServices(PostCommitUpdateEventListener.class);
+        List<PostCommitUpdateEventListener> pcuEvents = injectionManager
+                .getAllInstances(PostCommitUpdateEventListener.class);
         for (PostCommitUpdateEventListener cpuEventListener : pcuEvents) {
             logger.trace("Registering PostCommitUpdate: " + cpuEventListener
                     .getClass().getCanonicalName());
@@ -206,8 +203,8 @@ public final class HibernateSessionFactoryFactory
                     cpuEventListener);
         }
 
-        List<PostCommitDeleteEventListener> pcdEvents = locator
-                .getAllServices(PostCommitDeleteEventListener.class);
+        List<PostCommitDeleteEventListener> pcdEvents = injectionManager
+                .getAllInstances(PostCommitDeleteEventListener.class);
         for (PostCommitDeleteEventListener cpdEventListener : pcdEvents) {
             logger.trace("Registering PostCommitDelete: " + cpdEventListener
                     .getClass().getCanonicalName());

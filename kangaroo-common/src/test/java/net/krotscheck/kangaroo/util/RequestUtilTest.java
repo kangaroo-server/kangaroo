@@ -174,7 +174,7 @@ public class RequestUtilTest {
     }
 
     /**
-     * Assert that we can get the host with a port
+     * Assert that we can get the host with a port.
      *
      * @throws Exception Should not be thrown.
      */
@@ -558,7 +558,8 @@ public class RequestUtilTest {
      * @throws Exception Should not be thrown.
      */
     @Test
-    public void testCrossOriginWithReferrerAndForwardMisMatch() throws Exception {
+    public void testCrossOriginWithReferrerAndForwardMisMatch()
+            throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.HOST, "proxy.example.com");
         headers.add(HttpHeaders.REFERER, "http://example.com/some/page.html");
@@ -579,7 +580,8 @@ public class RequestUtilTest {
      * @throws Exception Should not be thrown.
      */
     @Test(expected = BadRequestException.class)
-    public void testCrossOriginWithReferrerAndInvalidForward() throws Exception {
+    public void testCrossOriginWithReferrerAndInvalidForward()
+            throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.REFERER, "http://example.com/some/page.html");
         headers.add(HttpHeaders.X_FORWARDED_PROTO, "http");

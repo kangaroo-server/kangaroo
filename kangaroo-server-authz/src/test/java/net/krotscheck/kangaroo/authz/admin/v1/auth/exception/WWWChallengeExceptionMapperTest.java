@@ -122,7 +122,7 @@ public final class WWWChallengeExceptionMapperTest extends ContainerTest {
      * @param headerString The string value of the header.
      * @return Map of key/value pairs.
      */
-    private Map<String, String> decodeHeader(String headerString) {
+    private Map<String, String> decodeHeader(final String headerString) {
 
         Assert.assertTrue(headerString.indexOf("Bearer") == 0);
 

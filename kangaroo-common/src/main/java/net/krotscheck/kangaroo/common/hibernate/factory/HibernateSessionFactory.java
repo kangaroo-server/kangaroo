@@ -18,11 +18,12 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.internal.inject.DisposableSupplier;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,8 @@ import javax.inject.Inject;
  *
  * @author Michael Krotscheck
  */
-public final class HibernateSessionFactory implements Factory<Session> {
+public final class HibernateSessionFactory
+        implements DisposableSupplier<Session> {
 
     /**
      * Logger instance.
@@ -66,7 +68,7 @@ public final class HibernateSessionFactory implements Factory<Session> {
      * @return A new, unused hibernate session.
      */
     @Override
-    public Session provide() {
+    public Session get() {
         logger.trace("Creating hibernate session.");
         return factory.openSession();
     }
@@ -93,6 +95,8 @@ public final class HibernateSessionFactory implements Factory<Session> {
         protected void configure() {
             bindFactory(HibernateSessionFactory.class)
                     .to(Session.class)
+                    .to(SessionImpl.class)
+                    .named("root_session")
                     .in(RequestScoped.class);
         }
     }

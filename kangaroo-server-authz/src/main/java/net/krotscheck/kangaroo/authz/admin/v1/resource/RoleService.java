@@ -345,8 +345,8 @@ public final class RoleService extends AbstractService {
             @PathParam("id") final UUID roleId) {
 
         // Build a new role scope service.
-        RoleScopeService scopeService = getServiceLocator()
-                .getService(RoleScopeService.class);
+        RoleScopeService scopeService = getInjector()
+                .getInstance(RoleScopeService.class);
         scopeService.setRoleId(roleId);
 
         return scopeService;

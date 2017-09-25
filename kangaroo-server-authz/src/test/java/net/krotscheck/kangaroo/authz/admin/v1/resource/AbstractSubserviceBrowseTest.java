@@ -55,7 +55,8 @@ import java.util.Map;
  */
 @RunWith(Parameterized.class)
 @UseParametersRunnerFactory(ParameterizedSingleInstanceTestRunnerFactory.class)
-public abstract class AbstractSubserviceBrowseTest<K extends AbstractAuthzEntity,
+public abstract class AbstractSubserviceBrowseTest<K
+        extends AbstractAuthzEntity,
         T extends AbstractAuthzEntity> extends AbstractResourceTest {
 
     /**

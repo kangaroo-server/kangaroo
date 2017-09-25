@@ -22,16 +22,17 @@ import net.krotscheck.kangaroo.authz.admin.v1.servlet.FirstRunContainerLifecycle
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
+import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
+import org.glassfish.jersey.internal.inject.ServiceHolder;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
@@ -41,9 +42,13 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.inject.Singleton;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test our application bootstrap.
@@ -148,34 +153,5 @@ public final class FirstRunContainerLifecycleListenerTest
         l.onReload(mockContainer);
         Mockito.verifyNoMoreInteractions(mockFactory);
         Mockito.verifyNoMoreInteractions(mockContainer);
-    }
-
-    /**
-     * Assert that we can invoke the binder.
-     *
-     * @throws Exception An authenticator exception.
-     */
-    @Test
-    public void testBinder() throws Exception {
-        ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-        ServiceLocator locator = factory.create(getClass().getCanonicalName());
-
-        Binder b = new FirstRunContainerLifecycleListener.Binder();
-        ServiceLocatorUtilities.bind(locator, b);
-
-        List<ActiveDescriptor<?>> descriptors =
-                locator.getDescriptors(
-                        BuilderHelper.createContractFilter(
-                                ContainerLifecycleListener.class.getName()));
-        Assert.assertEquals(1, descriptors.size());
-
-        ActiveDescriptor descriptor = descriptors.get(0);
-        Assert.assertNotNull(descriptor);
-        // Check scope...
-        Assert.assertEquals(Singleton.class.getCanonicalName(),
-                descriptor.getScope());
-
-        // ... check name.
-        Assert.assertNull(descriptor.getName());
     }
 }

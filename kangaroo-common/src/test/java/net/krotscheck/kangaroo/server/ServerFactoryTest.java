@@ -104,7 +104,7 @@ public class ServerFactoryTest {
     }
 
     /**
-     * Test building with a provided, invalid SSL certificate
+     * Test building with a provided, invalid SSL certificate.
      *
      * @throws Exception Should not be thrown.
      */

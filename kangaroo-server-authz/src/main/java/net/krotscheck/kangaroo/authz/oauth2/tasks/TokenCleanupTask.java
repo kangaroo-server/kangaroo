@@ -20,7 +20,8 @@ package net.krotscheck.kangaroo.authz.oauth2.tasks;
 
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.common.timedtasks.RepeatingTask;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

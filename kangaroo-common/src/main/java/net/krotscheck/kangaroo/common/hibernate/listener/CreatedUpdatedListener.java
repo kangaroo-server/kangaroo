@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.common.hibernate.listener;
 import net.krotscheck.kangaroo.common.hibernate.entity.ICreatedDateEntity;
 import net.krotscheck.kangaroo.common.hibernate.entity.IModifiedDateEntity;
 import org.apache.commons.lang3.ArrayUtils;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.event.spi.PreInsertEvent;
 import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEvent;

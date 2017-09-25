@@ -147,3 +147,5 @@ public final class HibernateFeatureTest extends KangarooJerseyTest {
     }
 
 }
+
+

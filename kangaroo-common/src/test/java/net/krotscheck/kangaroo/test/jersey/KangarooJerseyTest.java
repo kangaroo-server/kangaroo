@@ -29,6 +29,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.TestProperties;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -60,6 +61,24 @@ public abstract class KangarooJerseyTest extends JerseyTest {
             SLF4JBridgeHandler.removeHandlersForRootLogger();
             SLF4JBridgeHandler.install();
         }
+    }
+
+    /**
+     * Override system properties necessary for testing.
+     */
+    @BeforeClass
+    public static void overrideSystemProperties() {
+        System.setProperty("hibernate.c3p0.min_size", "0");
+        System.setProperty("hibernate.c3p0.max_size", "5");
+    }
+
+    /**
+     * Cleanup system property overrides.
+     */
+    @AfterClass
+    public static void cleanupSystemProperties() {
+        System.clearProperty("hibernate.c3p0.min_size");
+        System.clearProperty("hibernate.c3p0.max_size");
     }
 
     /**

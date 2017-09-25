@@ -106,8 +106,6 @@ public class HibernateResource implements TestRule {
                 name);
         System.setProperty("hibernate.search.default.exclusive_index_use",
                 "false");
-        System.setProperty("hibernate.c3p0.min_size", "0");
-        System.setProperty("hibernate.c3p0.max_size", "5");
     }
 
     /**
@@ -116,9 +114,6 @@ public class HibernateResource implements TestRule {
     private void resetSearchIndexProvider() {
         System.clearProperty("hibernate.search.default.directory_provider");
         System.clearProperty("hibernate.search.default.exclusive_index_use");
-
-        System.clearProperty("hibernate.c3p0.min_size");
-        System.clearProperty("hibernate.c3p0.max_size");
     }
 
     /**
@@ -141,7 +136,7 @@ public class HibernateResource implements TestRule {
     private void createHibernateConnection() {
         // Create the session factory.
         logger.debug("Creating ServiceRegistry");
-        registry = new HibernateServiceRegistryFactory().provide();
+        registry = new HibernateServiceRegistryFactory().get();
 
         logger.debug("Creating SessionFactory");
         sessionFactory = new MetadataSources(registry)

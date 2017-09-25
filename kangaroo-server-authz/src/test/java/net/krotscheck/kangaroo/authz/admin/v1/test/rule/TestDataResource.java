@@ -63,6 +63,15 @@ public final class TestDataResource
     private Configuration systemConfig;
 
     /**
+     * Create a new instance of the test data resource.
+     *
+     * @param factoryProvider The session factory provider.
+     */
+    public TestDataResource(final HibernateResource factoryProvider) {
+        super(factoryProvider);
+    }
+
+    /**
      * Return the context of the current admin application.
      *
      * @return The admin application context.
@@ -90,15 +99,6 @@ public final class TestDataResource
     }
 
     /**
-     * Create a new instance of the test data resource.
-     *
-     * @param factoryProvider The session factory provider.
-     */
-    public TestDataResource(final HibernateResource factoryProvider) {
-        super(factoryProvider);
-    }
-
-    /**
      * Create the test application using the FirstRun context listener. This
      * is to prevent it running when the application starts up.
      *
@@ -109,7 +109,7 @@ public final class TestDataResource
 
         // Initialize the servlet configuration.
         ServletConfigFactory configFactory = new ServletConfigFactory(factory);
-        systemConfig = configFactory.provide();
+        systemConfig = configFactory.get();
 
         // Initialize the application.
         FirstRunContainerLifecycleListener listener =

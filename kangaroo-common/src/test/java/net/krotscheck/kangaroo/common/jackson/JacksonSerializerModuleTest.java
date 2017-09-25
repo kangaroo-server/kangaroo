@@ -24,15 +24,13 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojo;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojoDeserializer;
 import net.krotscheck.kangaroo.common.jackson.mock.MockPojoSerializer;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test for the jackson serializer module.
@@ -49,20 +47,17 @@ public final class JacksonSerializerModuleTest {
      */
     @Test
     public void testCollectsDeSerializers() throws Exception {
-        ServiceLocator locator = mock(ServiceLocator.class);
+        InjectionManager injector = Injections.createInjectionManager();
+
         List<StdDeserializer> deserializers = new ArrayList<>();
         List<StdSerializer> serializers = new ArrayList<>();
 
         // Build our deserializer collections
-        deserializers.add(new MockPojoDeserializer());
-        serializers.add(new MockPojoSerializer());
+        injector.register(new MockPojoDeserializer.Binder());
+        injector.register(new MockPojoSerializer.Binder());
 
-        when(locator.getAllServices(StdDeserializer.class))
-                .thenReturn(deserializers);
-        when(locator.getAllServices(StdSerializer.class))
-                .thenReturn(serializers);
-
-        JacksonSerializerModule m = new JacksonSerializerModule(locator);
+        JacksonSerializerModule m =
+                new JacksonSerializerModule(injector);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(m);
 
@@ -79,5 +74,7 @@ public final class JacksonSerializerModuleTest {
         // Deserialize the value, make sure it passes through the deserializer.
         MockPojo deserialized = mapper.readValue(json, MockPojo.class);
         Assert.assertTrue(deserialized.isInvokedDeserializer());
+
+        injector.shutdown();
     }
 }

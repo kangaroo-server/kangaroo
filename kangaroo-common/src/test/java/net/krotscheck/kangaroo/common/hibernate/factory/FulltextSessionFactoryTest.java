@@ -19,11 +19,12 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.search.FullTextSession;
 import org.junit.After;
 import org.junit.Assert;
@@ -54,9 +55,9 @@ public final class FulltextSessionFactoryTest {
     private ApplicationHandler handler;
 
     /**
-     * The jersey application service locator.
+     * The jersey application injector.
      */
-    private ServiceLocator locator;
+    private InjectionManager injectionManager;
 
     /**
      * Setup the application handler for this test.
@@ -66,7 +67,7 @@ public final class FulltextSessionFactoryTest {
         ResourceConfig config = new ResourceConfig();
         config.register(TestFeature.class);
         handler = new ApplicationHandler(config);
-        locator = handler.getServiceLocator();
+        injectionManager = handler.getInjectionManager();
     }
 
     /**
@@ -74,8 +75,8 @@ public final class FulltextSessionFactoryTest {
      */
     @After
     public void teardown() {
-        locator.shutdown();
-        locator = null;
+        injectionManager.shutdown();
+        injectionManager = null;
         handler = null;
     }
 
@@ -85,14 +86,14 @@ public final class FulltextSessionFactoryTest {
     @Test
     public void testProvideDispose() {
         SessionFactory sessionFactory =
-                locator.getService(SessionFactory.class);
+                injectionManager.getInstance(SessionFactory.class);
         Session hibernateSession = sessionFactory.openSession();
 
         FulltextSessionFactory factory =
-                new FulltextSessionFactory(hibernateSession);
+                new FulltextSessionFactory((SessionImpl) hibernateSession);
 
         // Make sure that we can create a session.
-        FullTextSession session = factory.provide();
+        FullTextSession session = factory.get();
         Assert.assertNotNull(session);
         Assert.assertTrue(session.isOpen());
 

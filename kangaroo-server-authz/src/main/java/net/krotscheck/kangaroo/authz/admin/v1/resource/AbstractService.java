@@ -27,7 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
@@ -50,10 +50,10 @@ import java.util.UUID;
 public abstract class AbstractService {
 
     /**
-     * Service Locator.
+     * injection manager.
      */
     @Inject
-    private ServiceLocator serviceLocator;
+    private InjectionManager injector;
 
     /**
      * Servlet Configuration.
@@ -93,21 +93,21 @@ public abstract class AbstractService {
     private UriInfo uriInfo;
 
     /**
-     * Retrieve the service locator for this context.
+     * Retrieve the injector for this context.
      *
      * @return The locator.
      */
-    public final ServiceLocator getServiceLocator() {
-        return serviceLocator;
+    public final InjectionManager getInjector() {
+        return injector;
     }
 
     /**
-     * Set (via injection, usually) the service locator for this resource.
+     * Set (via injection, usually) the injector for this resource.
      *
-     * @param serviceLocator The locator.
+     * @param injector The injector.
      */
-    public final void setServiceLocator(final ServiceLocator serviceLocator) {
-        this.serviceLocator = serviceLocator;
+    public final void setInjector(final InjectionManager injector) {
+        this.injector = injector;
     }
 
     /**
