@@ -41,7 +41,8 @@ public final class ListResponseBuilderTest {
         ListResponseBuilder b = ListResponseBuilder.builder();
         b.addResult(entity);
         Response response = b.build();
-        Assert.assertEquals(entity, response.getEntity());
+        ListResponseEntity e = (ListResponseEntity) response.getEntity();
+        Assert.assertEquals(entity, e.getResults());
     }
 
     /**

@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -34,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -52,6 +54,14 @@ public final class ApplicationServiceCRUDTest
         extends AbstractServiceCRUDTest<Application> {
 
     /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<Application>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Application>>() {
+
+            };
+
+    /**
      * Create a new instance of this parameterized test.
      *
      * @param clientType    The type of  client.
@@ -65,6 +75,62 @@ public final class ApplicationServiceCRUDTest
                                       final Boolean shouldSucceed) {
         super(Application.class, clientType, tokenScope, createUser,
                 shouldSucceed);
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return A list of parameters used to initialize the test class.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION_ADMIN,
+                        false,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION,
+                        false,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION_ADMIN,
+                        true,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION,
+                        true,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.APPLICATION_ADMIN,
+                        false,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.APPLICATION,
+                        false,
+                        false
+                });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Application>> getListType() {
+        return LIST_TYPE;
     }
 
     /**
@@ -149,52 +215,6 @@ public final class ApplicationServiceCRUDTest
             return getUrlForId(null);
         }
         return getUrlForId(entity.getId().toString());
-    }
-
-    /**
-     * Test parameters.
-     *
-     * @return A list of parameters used to initialize the test class.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION_ADMIN,
-                        false,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION,
-                        false,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION_ADMIN,
-                        true,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION,
-                        true,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.APPLICATION_ADMIN,
-                        false,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.APPLICATION,
-                        false,
-                        false
-                });
     }
 
     /**

@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
@@ -25,9 +26,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,8 +56,8 @@ public final class AuthenticatorServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<Authenticator>> LIST_TYPE =
-            new GenericType<List<Authenticator>>() {
+    private static final GenericType<ListResponseEntity<Authenticator>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Authenticator>>() {
 
             };
 
@@ -72,6 +72,56 @@ public final class AuthenticatorServiceBrowseTest
                                           final String tokenScope,
                                           final Boolean createUser) {
         super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Authenticator>> getListType() {
+        return LIST_TYPE;
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The list of parameters.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.AUTHENTICATOR_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.AUTHENTICATOR,
+                        false
+                });
     }
 
     /**
@@ -92,16 +142,6 @@ public final class AuthenticatorServiceBrowseTest
     @Override
     protected String getRegularScope() {
         return Scope.AUTHENTICATOR;
-    }
-
-    /**
-     * Return the list type used to decode browse results.
-     *
-     * @return The list type.
-     */
-    @Override
-    protected GenericType<List<Authenticator>> getListType() {
-        return LIST_TYPE;
     }
 
     /**
@@ -147,46 +187,6 @@ public final class AuthenticatorServiceBrowseTest
                 .flatMap(c -> c.getAuthenticators().stream())
                 .collect(Collectors.toList());
         return aList;
-    }
-
-    /**
-     * Test parameters.
-     *
-     * @return The list of parameters.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.AUTHENTICATOR_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.AUTHENTICATOR,
-                        false
-                });
     }
 
     /**
@@ -240,14 +240,11 @@ public final class AuthenticatorServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(c, getAdminToken())) {
-            List<Authenticator> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }

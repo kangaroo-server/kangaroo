@@ -27,6 +27,9 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.entity.TestEntity;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.internal.inject.InjectionManager;
@@ -42,6 +45,7 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -56,9 +60,28 @@ import java.util.UUID;
 public final class AbstractServiceTest extends AbstractResourceTest {
 
     /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
+            new GenericType<ListResponseEntity<AbstractEntity>>() {
+
+            };
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<AbstractEntity>> getListType() {
+        return LIST_TYPE;
+    }
+
+    /**
      * A user application from which we can issue tokens.
      */
     private static ApplicationContext userApp;
+
     /**
      * Test data loading for this test.
      */

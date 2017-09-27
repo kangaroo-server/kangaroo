@@ -17,20 +17,36 @@
 
 package net.krotscheck.kangaroo.common.response;
 
-import java.util.List;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Convenience utility to build our common list response objects.
  *
+ * @param <T> The data type returned.
  * @author Michael Krotscheck
  */
-public final class ListResponseBuilder {
+public final class ListResponseBuilder<T extends AbstractEntity> {
 
     /**
      * The wrapped builder.
      */
     private Response.ResponseBuilder builder = Response.ok();
+
+    /**
+     * The response entity that will be sent with the response.
+     */
+    private ListResponseEntity<T> responseEntity
+            = new ListResponseEntity<>();
+
+    /**
+     * Private constructor.
+     */
+    private ListResponseBuilder() {
+        this.builder.entity(responseEntity);
+    }
 
     /**
      * Create a new personal response builder.
@@ -47,8 +63,8 @@ public final class ListResponseBuilder {
      * @param results Some results.
      * @return The builder.
      */
-    public ListResponseBuilder addResult(final List<?> results) {
-        builder.entity(results);
+    public ListResponseBuilder addResult(final List<T> results) {
+        responseEntity.setResults(results);
         return this;
     }
 
@@ -59,6 +75,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder limit(final Number limit) {
+        responseEntity.setLimit(limit);
         builder.header(ApiParam.LIMIT_HEADER, limit.longValue());
         return this;
     }
@@ -70,6 +87,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder total(final Number total) {
+        responseEntity.setTotal(total);
         builder.header(ApiParam.TOTAL_HEADER, total.longValue());
         return this;
     }
@@ -81,8 +99,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder total(final Object total) {
-        builder.header(ApiParam.TOTAL_HEADER, Long.valueOf(total.toString()));
-        return this;
+        return this.total(Long.valueOf(total.toString()));
     }
 
     /**
@@ -92,6 +109,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder offset(final Number offset) {
+        responseEntity.setOffset(offset);
         builder.header(ApiParam.OFFSET_HEADER, offset.longValue());
         return this;
     }
@@ -103,6 +121,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder sort(final String sort) {
+        responseEntity.setSort(sort);
         builder.header(ApiParam.SORT_HEADER, sort);
         return this;
     }
@@ -114,6 +133,7 @@ public final class ListResponseBuilder {
      * @return The builder.
      */
     public ListResponseBuilder order(final SortOrder order) {
+        responseEntity.setOrder(order);
         builder.header(ApiParam.ORDER_HEADER, order.toString());
         return this;
     }

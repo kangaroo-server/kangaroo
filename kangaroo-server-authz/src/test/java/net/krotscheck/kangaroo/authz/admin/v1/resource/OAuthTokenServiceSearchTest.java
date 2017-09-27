@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -26,7 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,8 +58,8 @@ public final class OAuthTokenServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<List<OAuthToken>> LIST_TYPE =
-            new GenericType<List<OAuthToken>>() {
+    private static final GenericType<ListResponseEntity<OAuthToken>> LIST_TYPE =
+            new GenericType<ListResponseEntity<OAuthToken>>() {
 
             };
 
@@ -76,12 +77,52 @@ public final class OAuthTokenServiceSearchTest
     }
 
     /**
+     * Test parameters.
+     *
+     * @return The parameters passed to this test during every run.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.TOKEN_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.TOKEN,
+                        false
+                });
+    }
+
+    /**
      * Return the appropriate list type for this test suite.
      *
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<OAuthToken>> getListType() {
+    protected GenericType<ListResponseEntity<OAuthToken>> getListType() {
         return LIST_TYPE;
     }
 
@@ -157,46 +198,6 @@ public final class OAuthTokenServiceSearchTest
     }
 
     /**
-     * Test parameters.
-     *
-     * @return The parameters passed to this test during every run.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.TOKEN_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.TOKEN,
-                        false
-                });
-    }
-
-    /**
      * Test that we can filter a search by an user ID.
      */
     @Test
@@ -240,14 +241,11 @@ public final class OAuthTokenServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<OAuthToken> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -326,14 +324,11 @@ public final class OAuthTokenServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<OAuthToken> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -408,14 +403,11 @@ public final class OAuthTokenServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<OAuthToken> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -487,14 +479,11 @@ public final class OAuthTokenServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<OAuthToken> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
