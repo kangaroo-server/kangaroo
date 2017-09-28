@@ -25,12 +25,14 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -44,6 +46,14 @@ import java.util.UUID;
  */
 public final class ClientRedirectServiceCRUDTest
         extends AbstractSubserviceCRUDTest<Client, ClientRedirect> {
+
+    /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<ClientRedirect>> LIST_TYPE =
+            new GenericType<ListResponseEntity<ClientRedirect>>() {
+
+            };
 
     /**
      * Create a new instance of this parameterized test.
@@ -105,6 +115,16 @@ public final class ClientRedirectServiceCRUDTest
                         false,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<ClientRedirect>> getListType() {
+        return LIST_TYPE;
     }
 
     /**

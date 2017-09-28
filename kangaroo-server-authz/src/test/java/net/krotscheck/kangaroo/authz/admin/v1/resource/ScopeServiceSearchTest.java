@@ -18,13 +18,14 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,14 @@ import java.util.stream.Collectors;
 @RunWith(Parameterized.class)
 public final class ScopeServiceSearchTest
         extends AbstractServiceSearchTest<ApplicationScope> {
+
+    /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<ApplicationScope>> LIST_TYPE =
+            new GenericType<ListResponseEntity<ApplicationScope>>() {
+
+            };
 
     /**
      * Create a new instance of this parameterized test.
@@ -104,14 +113,6 @@ public final class ScopeServiceSearchTest
                         false
                 });
     }
-
-    /**
-     * Convenience generic type for response decoding.
-     */
-    private static final GenericType<List<ApplicationScope>> LIST_TYPE =
-            new GenericType<List<ApplicationScope>>() {
-
-            };
 
     /**
      * Return the token scope required for admin access on this test.
@@ -195,16 +196,11 @@ public final class ScopeServiceSearchTest
                 .contains(Scope.SCOPE_ADMIN)) {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<ApplicationScope> results = r.readEntity(LIST_TYPE);
-
-            Assert.assertEquals(200, r.getStatus());
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -232,7 +228,7 @@ public final class ScopeServiceSearchTest
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<ApplicationScope>> getListType() {
+    protected GenericType<ListResponseEntity<ApplicationScope>> getListType() {
         return LIST_TYPE;
     }
 

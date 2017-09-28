@@ -18,12 +18,13 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -47,8 +48,8 @@ public final class ApplicationServiceBrowseTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<List<Application>> LIST_TYPE =
-            new GenericType<List<Application>>() {
+    private static final GenericType<ListResponseEntity<Application>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Application>>() {
 
             };
 
@@ -71,8 +72,48 @@ public final class ApplicationServiceBrowseTest
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<Application>> getListType() {
+    protected GenericType<ListResponseEntity<Application>> getListType() {
         return LIST_TYPE;
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return A list of parameters used to initialize the test class.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.APPLICATION,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.APPLICATION_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.APPLICATION,
+                        false
+                });
     }
 
     /**
@@ -151,45 +192,5 @@ public final class ApplicationServiceBrowseTest
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
         return getUrlForId(entity.getId().toString());
-    }
-
-    /**
-     * Test parameters.
-     *
-     * @return A list of parameters used to initialize the test class.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.APPLICATION,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.APPLICATION_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.APPLICATION,
-                        false
-                });
     }
 }

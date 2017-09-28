@@ -18,17 +18,19 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -44,6 +46,14 @@ import java.util.UUID;
  */
 public final class ClientServiceCRUDTest
         extends AbstractServiceCRUDTest<Client> {
+
+    /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<Client>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Client>>() {
+
+            };
 
     /**
      * Create a new instance of this parameterized test.
@@ -104,6 +114,16 @@ public final class ClientServiceCRUDTest
                         false,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Client>> getListType() {
+        return LIST_TYPE;
     }
 
     /**
