@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,8 +57,8 @@ public final class UserServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<User>> LIST_TYPE =
-            new GenericType<List<User>>() {
+    private static final GenericType<ListResponseEntity<User>> LIST_TYPE =
+            new GenericType<ListResponseEntity<User>>() {
 
             };
 
@@ -100,7 +101,7 @@ public final class UserServiceBrowseTest
      * @return The list type.
      */
     @Override
-    protected GenericType<List<User>> getListType() {
+    protected GenericType<ListResponseEntity<User>> getListType() {
         return LIST_TYPE;
     }
 
@@ -241,14 +242,11 @@ public final class UserServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(filtered, getAdminToken())) {
-            List<User> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -304,14 +302,11 @@ public final class UserServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(filtered, getAdminToken())) {
-            List<User> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }

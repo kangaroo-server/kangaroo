@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
@@ -25,9 +26,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -54,6 +54,14 @@ public final class ScopeServiceBrowseTest
         extends AbstractServiceBrowseTest<ApplicationScope> {
 
     /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<ApplicationScope>> LIST_TYPE =
+            new GenericType<ListResponseEntity<ApplicationScope>>() {
+
+            };
+
+    /**
      * Create a new instance of this parameterized test.
      *
      * @param clientType The type of  client.
@@ -64,80 +72,6 @@ public final class ScopeServiceBrowseTest
                                   final String tokenScope,
                                   final Boolean createUser) {
         super(clientType, tokenScope, createUser);
-    }
-
-    /**
-     * Return the token scope required for admin access on this test.
-     *
-     * @return The correct scope string.
-     */
-    @Override
-    protected String getAdminScope() {
-        return Scope.SCOPE_ADMIN;
-    }
-
-    /**
-     * Return the token scope required for generic user access.
-     *
-     * @return The correct scope string.
-     */
-    @Override
-    protected String getRegularScope() {
-        return Scope.SCOPE;
-    }
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    @Override
-    protected GenericType<List<ApplicationScope>> getListType() {
-        return LIST_TYPE;
-    }
-
-
-    /**
-     * Return the list of entities which should be accessible given a
-     * specific token.
-     *
-     * @param token The oauth token to test against.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<ApplicationScope> getAccessibleEntities(
-            final OAuthToken token) {
-        // If you're an admin, you get to see everything. If you're not, you
-        // only get to see what you own.
-        OAuthToken attachedToken = getAttached(token);
-        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
-            return getOwnedEntities(attachedToken);
-        }
-
-        // We know you're an admin. Get all applications in the system.
-        Criteria c = getSession().createCriteria(Application.class);
-
-        // Get all the owned clients.
-        return ((List<Application>) c.list())
-                .stream()
-                .flatMap(a -> a.getScopes().values().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Return the list of entities which are owned by the given oauth token.
-     *
-     * @param owner The owner of these entities.
-     * @return A list of entities (could be empty).
-     */
-    @Override
-    protected List<ApplicationScope> getOwnedEntities(final User owner) {
-        // Get all the owned clients.
-        return owner.getApplications()
-                .stream()
-                .flatMap(a -> a.getScopes().values().stream())
-                .collect(Collectors.toList());
     }
 
     /**
@@ -181,12 +115,77 @@ public final class ScopeServiceBrowseTest
     }
 
     /**
-     * Convenience generic type for response decoding.
+     * Return the token scope required for admin access on this test.
+     *
+     * @return The correct scope string.
      */
-    private static final GenericType<List<ApplicationScope>> LIST_TYPE =
-            new GenericType<List<ApplicationScope>>() {
+    @Override
+    protected String getAdminScope() {
+        return Scope.SCOPE_ADMIN;
+    }
 
-            };
+    /**
+     * Return the token scope required for generic user access.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getRegularScope() {
+        return Scope.SCOPE;
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<ApplicationScope>> getListType() {
+        return LIST_TYPE;
+    }
+
+    /**
+     * Return the list of entities which should be accessible given a
+     * specific token.
+     *
+     * @param token The oauth token to test against.
+     * @return A list of entities (could be empty).
+     */
+    @Override
+    protected List<ApplicationScope> getAccessibleEntities(
+            final OAuthToken token) {
+        // If you're an admin, you get to see everything. If you're not, you
+        // only get to see what you own.
+        OAuthToken attachedToken = getAttached(token);
+        if (!attachedToken.getScopes().containsKey(getAdminScope())) {
+            return getOwnedEntities(attachedToken);
+        }
+
+        // We know you're an admin. Get all applications in the system.
+        Criteria c = getSession().createCriteria(Application.class);
+
+        // Get all the owned clients.
+        return ((List<Application>) c.list())
+                .stream()
+                .flatMap(a -> a.getScopes().values().stream())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Return the list of entities which are owned by the given oauth token.
+     *
+     * @param owner The owner of these entities.
+     * @return A list of entities (could be empty).
+     */
+    @Override
+    protected List<ApplicationScope> getOwnedEntities(final User owner) {
+        // Get all the owned clients.
+        return owner.getApplications()
+                .stream()
+                .flatMap(a -> a.getScopes().values().stream())
+                .collect(Collectors.toList());
+    }
 
     /**
      * Construct the request URL for this test given a specific resource ID.
@@ -242,14 +241,12 @@ public final class ScopeServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(adminApp, getAdminToken())) {
-            List<ApplicationScope> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -288,14 +285,12 @@ public final class ScopeServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(role, getAdminToken())) {
-            List<ApplicationScope> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }

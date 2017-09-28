@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
@@ -25,7 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -54,8 +55,8 @@ public final class UserIdentityServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<List<UserIdentity>> LIST_TYPE =
-            new GenericType<List<UserIdentity>>() {
+    private static final GenericType<ListResponseEntity<UserIdentity>> LIST_TYPE =
+            new GenericType<ListResponseEntity<UserIdentity>>() {
 
             };
 
@@ -119,7 +120,7 @@ public final class UserIdentityServiceSearchTest
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<UserIdentity>> getListType() {
+    protected GenericType<ListResponseEntity<UserIdentity>> getListType() {
         return LIST_TYPE;
     }
 
@@ -237,14 +238,11 @@ public final class UserIdentityServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<UserIdentity> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -317,14 +315,11 @@ public final class UserIdentityServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<UserIdentity> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 

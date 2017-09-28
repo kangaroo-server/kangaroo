@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
@@ -25,7 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,8 +57,8 @@ public final class AuthenticatorServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<List<Authenticator>> LIST_TYPE =
-            new GenericType<List<Authenticator>>() {
+    private static final GenericType<ListResponseEntity<Authenticator>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Authenticator>>() {
 
             };
 
@@ -80,8 +81,48 @@ public final class AuthenticatorServiceSearchTest
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<Authenticator>> getListType() {
+    protected GenericType<ListResponseEntity<Authenticator>> getListType() {
         return LIST_TYPE;
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The parameters passed to this test during every run.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.AUTHENTICATOR,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.AUTHENTICATOR_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.AUTHENTICATOR,
+                        false
+                });
     }
 
     /**
@@ -157,46 +198,6 @@ public final class AuthenticatorServiceSearchTest
     }
 
     /**
-     * Test parameters.
-     *
-     * @return The parameters passed to this test during every run.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.AUTHENTICATOR,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.AUTHENTICATOR_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.AUTHENTICATOR,
-                        false
-                });
-    }
-
-    /**
      * Test that we can filter a search by an client ID.
      */
     @Test
@@ -241,14 +242,12 @@ public final class AuthenticatorServiceSearchTest
         } else if (!isAccessible(c, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            List<Authenticator> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -321,14 +320,11 @@ public final class AuthenticatorServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<Authenticator> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 

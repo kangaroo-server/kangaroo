@@ -18,14 +18,15 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
-import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.Session;
@@ -33,6 +34,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -50,6 +52,14 @@ import java.util.stream.Collectors;
  */
 public final class RoleServiceCRUDTest
         extends AbstractServiceCRUDTest<Role> {
+
+    /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<Role>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Role>>() {
+
+            };
 
     /**
      * Create a new instance of this parameterized test.
@@ -110,6 +120,16 @@ public final class RoleServiceCRUDTest
                         false,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Role>> getListType() {
+        return LIST_TYPE;
     }
 
     /**

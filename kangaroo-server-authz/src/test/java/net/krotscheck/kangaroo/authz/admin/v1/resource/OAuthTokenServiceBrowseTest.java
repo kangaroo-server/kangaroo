@@ -18,15 +18,15 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -55,8 +55,8 @@ public final class OAuthTokenServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<OAuthToken>> LIST_TYPE =
-            new GenericType<List<OAuthToken>>() {
+    private static final GenericType<ListResponseEntity<OAuthToken>> LIST_TYPE =
+            new GenericType<ListResponseEntity<OAuthToken>>() {
 
             };
 
@@ -71,6 +71,46 @@ public final class OAuthTokenServiceBrowseTest
                                        final String tokenScope,
                                        final Boolean createUser) {
         super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The list of parameters.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.TOKEN,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.TOKEN_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.TOKEN,
+                        false
+                });
     }
 
     /**
@@ -99,7 +139,7 @@ public final class OAuthTokenServiceBrowseTest
      * @return The list type.
      */
     @Override
-    protected GenericType<List<OAuthToken>> getListType() {
+    protected GenericType<ListResponseEntity<OAuthToken>> getListType() {
         return LIST_TYPE;
     }
 
@@ -141,46 +181,6 @@ public final class OAuthTokenServiceBrowseTest
                 .flatMap(a -> a.getClients().stream())
                 .flatMap(c -> c.getTokens().stream())
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Test parameters.
-     *
-     * @return The list of parameters.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.TOKEN,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.TOKEN_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.TOKEN,
-                        false
-                });
     }
 
     /**
@@ -233,14 +233,11 @@ public final class OAuthTokenServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(c, getAdminToken())) {
-            List<OAuthToken> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -273,14 +270,11 @@ public final class OAuthTokenServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (isAccessible(identity, getAdminToken())) {
-            List<OAuthToken> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }

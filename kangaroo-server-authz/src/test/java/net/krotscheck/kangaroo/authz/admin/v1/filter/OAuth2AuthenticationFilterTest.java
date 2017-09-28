@@ -18,17 +18,20 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.filter;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.AbstractResourceTest;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.authz.admin.Scope;
-import net.krotscheck.kangaroo.authz.admin.v1.resource.AbstractResourceTest;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -44,24 +47,38 @@ public final class OAuth2AuthenticationFilterTest
         extends AbstractResourceTest {
 
     /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
+            new GenericType<ListResponseEntity<AbstractEntity>>() {
+
+            };
+    /**
      * A valid, non-expired, bearer token.
      */
     private OAuthToken validBearerToken;
-
     /**
      * A valid, non-expired, bearer token with no appropriate scope.
      */
     private OAuthToken noScopeBearerToken;
-
     /**
      * An expired bearer token.
      */
     private OAuthToken expiredBearerToken;
-
     /**
      * A non-bearer token.
      */
     private OAuthToken authToken;
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<AbstractEntity>> getListType() {
+        return LIST_TYPE;
+    }
 
     /**
      * Return the token scope required for admin access on this test.

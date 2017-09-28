@@ -18,17 +18,17 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-
 import org.hibernate.criterion.Restrictions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -54,8 +54,8 @@ public final class ClientRedirectServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<ClientRedirect>> LIST_TYPE =
-            new GenericType<List<ClientRedirect>>() {
+    private static final GenericType<ListResponseEntity<ClientRedirect>> LIST_TYPE =
+            new GenericType<ListResponseEntity<ClientRedirect>>() {
 
             };
 
@@ -70,6 +70,46 @@ public final class ClientRedirectServiceBrowseTest
                                            final String tokenScope,
                                            final Boolean createUser) {
         super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The list of parameters.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.CLIENT_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.CLIENT,
+                        false
+                });
     }
 
     /**
@@ -98,7 +138,7 @@ public final class ClientRedirectServiceBrowseTest
      * @return The list type.
      */
     @Override
-    protected GenericType<List<ClientRedirect>> getListType() {
+    protected GenericType<ListResponseEntity<ClientRedirect>> getListType() {
         return LIST_TYPE;
     }
 
@@ -157,46 +197,6 @@ public final class ClientRedirectServiceBrowseTest
                 .filter(c -> c.equals(parentEntity))
                 .flatMap(c -> c.getRedirects().stream())
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Test parameters.
-     *
-     * @return The list of parameters.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.CLIENT_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.CLIENT,
-                        false
-                });
     }
 
     /**

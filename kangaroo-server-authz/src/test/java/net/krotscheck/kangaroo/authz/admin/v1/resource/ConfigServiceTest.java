@@ -22,11 +22,14 @@ import net.krotscheck.kangaroo.authz.admin.v1.resource.ConfigService.Configurati
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.UUID;
@@ -37,6 +40,24 @@ import static org.junit.Assert.assertTrue;
  * Unit tests for the configuration service.
  */
 public final class ConfigServiceTest extends AbstractResourceTest {
+
+    /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
+            new GenericType<ListResponseEntity<AbstractEntity>>() {
+
+            };
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<AbstractEntity>> getListType() {
+        return LIST_TYPE;
+    }
 
     /**
      * This service is world accessible.

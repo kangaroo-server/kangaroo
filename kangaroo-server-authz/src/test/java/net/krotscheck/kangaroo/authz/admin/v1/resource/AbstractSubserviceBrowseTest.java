@@ -18,8 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
-import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -27,17 +25,17 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.response.ApiParam;
+import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Collections;
@@ -57,7 +55,7 @@ import java.util.Map;
 @UseParametersRunnerFactory(ParameterizedSingleInstanceTestRunnerFactory.class)
 public abstract class AbstractSubserviceBrowseTest<K
         extends AbstractAuthzEntity,
-        T extends AbstractAuthzEntity> extends AbstractResourceTest {
+        T extends AbstractAuthzEntity> extends AbstractResourceTest<T> {
 
     /**
      * The scope to token the issued token.
@@ -68,17 +66,16 @@ public abstract class AbstractSubserviceBrowseTest<K
      * The type of OAuth2 client to create.
      */
     private final ClientType clientType;
-
-    /**
-     * The client under test.
-     */
-    private Client client;
-
     /**
      * Whether to create a user, or fall back on an existing user. In most
      * cases, this will fall back to the owner of the admin scope.
      */
     private final Boolean createUser;
+
+    /**
+     * The client under test.
+     */
+    private Client client;
 
     /**
      * The token issued to the admin app, with appropriate credentials.
@@ -131,13 +128,6 @@ public abstract class AbstractSubserviceBrowseTest<K
         }
         return testContainerFactory;
     }
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    protected abstract GenericType<List<T>> getListType();
 
     /**
      * Return the list of entities which should be accessible given a
@@ -311,12 +301,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults, 10), results.size());
+            assertListResponse(r,
+                    Math.min(expectedResults, 10),
+                    0,
+                    10,
+                    expectedResults);
         }
     }
 
@@ -341,13 +330,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals(limit.toString(), r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults, limit),
-                    results.size());
+            assertListResponse(r,
+                    Math.min(expectedResults, limit),
+                    0,
+                    limit,
+                    expectedResults);
         }
     }
 
@@ -372,14 +359,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals(offset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults - offset, 10),
-                    results.size());
+            assertListResponse(r,
+                    Math.min(expectedResults - offset, 10),
+                    offset,
+                    10,
+                    expectedResults);
         }
     }
 
@@ -403,13 +387,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults, 10),
-                    results.size());
+            List<T> results = assertListResponse(r,
+                    Math.min(expectedResults, 10),
+                    0,
+                    10,
+                    expectedResults);
 
             results.stream().sorted((e1, e2) -> e1.getCreatedDate()
                     .compareTo(e2.getCreatedDate()));
@@ -437,13 +419,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults, 10),
-                    results.size());
+            List<T> results = assertListResponse(r,
+                    Math.min(expectedResults, 10),
+                    0,
+                    10,
+                    expectedResults);
 
             results.stream().sorted(
                     Comparator.comparing(AbstractAuthzEntity::getCreatedDate));
@@ -472,13 +452,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults, 10),
-                    results.size());
+            List<T> results = assertListResponse(r,
+                    Math.min(expectedResults, 10),
+                    0,
+                    10,
+                    expectedResults);
 
             results.stream().sorted((e1, e2) -> e2.getCreatedDate()
                     .compareTo(e1.getCreatedDate()));
@@ -506,13 +484,11 @@ public abstract class AbstractSubserviceBrowseTest<K
             assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
                     "not_found");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResults.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedResults, 10),
-                    results.size());
+            List<T> results = assertListResponse(r,
+                    Math.min(expectedResults, 10),
+                    0,
+                    10,
+                    expectedResults);
 
             results.stream().sorted((e1, e2) -> e1.getCreatedDate()
                     .compareTo(e2.getCreatedDate()));
