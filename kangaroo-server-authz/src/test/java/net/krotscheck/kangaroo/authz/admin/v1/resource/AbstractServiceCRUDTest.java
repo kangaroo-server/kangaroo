@@ -54,7 +54,7 @@ import java.util.UUID;
 @RunWith(Parameterized.class)
 @UseParametersRunnerFactory(ParameterizedSingleInstanceTestRunnerFactory.class)
 public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
-        extends AbstractResourceTest {
+        extends AbstractResourceTest<T> {
 
     /**
      * Class reference for this class' type, used in casting.

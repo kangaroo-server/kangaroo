@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
@@ -25,9 +26,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,16 +56,16 @@ public final class RoleServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<Role>> LIST_TYPE =
-            new GenericType<List<Role>>() {
+    private static final GenericType<ListResponseEntity<Role>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Role>>() {
 
             };
 
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<ApplicationScope>> SCOPE_LIST_TYPE =
-            new GenericType<List<ApplicationScope>>() {
+    private static final GenericType<ListResponseEntity<ApplicationScope>> SCOPE_LIST_TYPE =
+            new GenericType<ListResponseEntity<ApplicationScope>>() {
 
             };
 
@@ -80,6 +80,46 @@ public final class RoleServiceBrowseTest
                                  final String tokenScope,
                                  final Boolean createUser) {
         super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The list of parameters.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.ROLE_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.ROLE,
+                        false
+                });
     }
 
     /**
@@ -108,7 +148,7 @@ public final class RoleServiceBrowseTest
      * @return The list type.
      */
     @Override
-    protected GenericType<List<Role>> getListType() {
+    protected GenericType<ListResponseEntity<Role>> getListType() {
         return LIST_TYPE;
     }
 
@@ -155,46 +195,6 @@ public final class RoleServiceBrowseTest
     }
 
     /**
-     * Test parameters.
-     *
-     * @return The list of parameters.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.ROLE_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.ROLE,
-                        false
-                });
-    }
-
-    /**
      * Construct the request URL for this test given a specific resource ID.
      *
      * @param id The ID to use.
@@ -235,18 +235,22 @@ public final class RoleServiceBrowseTest
                 .filter(e -> e.getApplication().equals(filtered))
                 .count();
 
+        int expectedTotal = expectedEntities.intValue();
+        int expectedResultSize = Math.min(10, expectedTotal);
+        Integer expectedOffset = 0;
+        Integer expectedLimit = 10;
+
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (!isAccessible(filtered, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            List<Role> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedEntities.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedEntities, 10), results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 }

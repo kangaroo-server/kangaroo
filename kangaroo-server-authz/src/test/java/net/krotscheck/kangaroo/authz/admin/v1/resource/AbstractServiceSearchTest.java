@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -26,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.apache.lucene.search.Query;
 import org.glassfish.jersey.test.spi.TestContainerException;
@@ -40,7 +40,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Collections;
@@ -60,7 +59,7 @@ import java.util.stream.Collectors;
 @RunWith(Parameterized.class)
 @UseParametersRunnerFactory(ParameterizedSingleInstanceTestRunnerFactory.class)
 public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
-        extends AbstractResourceTest {
+        extends AbstractResourceTest<T> {
 
     /**
      * Class reference for this class' type, used in casting.
@@ -76,18 +75,15 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
      * The type of OAuth2 client to create.
      */
     private final ClientType clientType;
-
-    /**
-     * The client under test.
-     */
-    private Client client;
-
     /**
      * Whether to create a user, or fall back on an existing user. In most
      * cases, this will fall back to the owner of the admin scope.
      */
     private final Boolean createUser;
-
+    /**
+     * The client under test.
+     */
+    private Client client;
     /**
      * The token issued to the admin app, with appropriate credentials.
      */
@@ -168,13 +164,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
                 .build()
                 .getToken();
     }
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    protected abstract GenericType<List<T>> getListType();
 
     /**
      * Return the list of entities which should be accessible given a
@@ -376,14 +365,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         } else {
             Assert.assertTrue(expectedTotal > 1);
 
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -420,14 +406,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         } else {
             Assert.assertTrue(expectedTotal > 1);
 
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -464,14 +447,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         } else {
             Assert.assertTrue(expectedTotal > 1);
 
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -516,15 +496,11 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals(200, r.getStatus());
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -548,20 +524,22 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
                     .stream()
                     .filter((item) -> ownedEntities.indexOf(item) > -1)
                     .collect(Collectors.toList());
-            Integer expectedCount = expectedResults.size();
+
+            Integer expectedTotal = expectedResults.size();
+            int expectedResultSize = Math.min(10, expectedTotal);
+            Integer expectedOffset = 0;
+            Integer expectedLimit = 10;
 
             // Make request.
             Response r = search(params, adminToken);
 
-            Assert.assertTrue(expectedCount > 0);
+            Assert.assertTrue(expectedTotal > 0);
 
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals(200, r.getStatus());
-            Assert.assertEquals(expectedCount.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(Math.min(10, expectedCount), results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         } else {
             Assert.assertTrue(true);
         }
@@ -615,11 +593,8 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            List<T> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals("0", r.getHeaderString("Total"));
-            Assert.assertEquals(0, results.size());
+
+            assertListResponse(r, 0, 0, 10, 0);
         }
     }
 

@@ -28,6 +28,8 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.commons.configuration.Configuration;
@@ -43,6 +45,7 @@ import javax.persistence.Transient;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -64,13 +67,17 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Abstract test harness for the administration API. Handles all of our data
  * bootstrapping.
  *
  * @author Michael Krotscheck
+ * @param <T> The raw type.
  */
-public abstract class AbstractResourceTest extends ContainerTest {
+public abstract class AbstractResourceTest<T extends AbstractEntity>
+        extends ContainerTest {
 
     /**
      * Preload data into the system.
@@ -83,6 +90,13 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * The current running test application.
      */
     private ResourceConfig testApplication;
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    protected abstract GenericType<ListResponseEntity<T>> getListType();
 
     /**
      * Create the application under test.
@@ -514,7 +528,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
         }
 
         // First assert that we have the same type.
-        Assert.assertEquals(left.getClass(), right.getClass());
+        assertEquals(left.getClass(), right.getClass());
 
         try {
             PropertyDescriptor[] descriptors =
@@ -544,7 +558,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
                 Object leftValue = readMethod.invoke(left);
                 Object rightValue = readMethod.invoke(right);
 
-                Assert.assertEquals(leftValue, rightValue);
+                assertEquals(leftValue, rightValue);
             }
 
         } catch (Exception e) {
@@ -592,8 +606,48 @@ public abstract class AbstractResourceTest extends ContainerTest {
                 String.format("%s must not be a success code", r.getStatus()),
                 r.getStatus() < 400);
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(statusCode, r.getStatus());
-        Assert.assertEquals(expectedMessage, response.getError());
+        assertEquals(statusCode, r.getStatus());
+        assertEquals(expectedMessage, response.getError());
+    }
+
+    /**
+     * Test a list response for a specific size, and return the entities.
+     *
+     * @param r                   The response to test.
+     * @param expectedResultCount The actual # of results expected.
+     * @param offset              The offset.
+     * @param limit               The limit.
+     * @param total               The total.
+     * @return The list of results.
+     */
+    protected final List<T> assertListResponse(
+            final Response r,
+            final Integer expectedResultCount,
+            final Integer offset,
+            final Integer limit,
+            final Integer total) {
+
+        ListResponseEntity<T> results = r.readEntity(getListType());
+
+        assertEquals(200, r.getStatus());
+
+        // Test the offset.
+        assertEquals(offset.toString(), r.getHeaderString("Offset"));
+        assertEquals(offset, results.getOffset());
+
+        // Test the limit
+        assertEquals(limit.toString(), r.getHeaderString("Limit"));
+        assertEquals(limit, results.getLimit());
+
+        // Test the total
+        assertEquals(total.toString(), r.getHeaderString("Total"));
+        assertEquals(total, results.getTotal());
+
+        // Test the actual results.
+        assertEquals(expectedResultCount.intValue(),
+                results.getResults().size());
+
+        return results.getResults();
     }
 
     /**
@@ -633,7 +687,7 @@ public abstract class AbstractResourceTest extends ContainerTest {
      * @return This same database instance, attached to the test's session.
      */
     protected final <T extends AbstractAuthzEntity>
-        SortedMap<String, T> getAttached(final SortedMap<String, T> instances) {
+    SortedMap<String, T> getAttached(final SortedMap<String, T> instances) {
         SortedMap<String, T> attached = new TreeMap<>();
         for (Entry<String, T> entry : instances.entrySet()) {
             attached.put(entry.getKey(), getAttached(entry.getValue()));

@@ -18,13 +18,14 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,8 +57,8 @@ public final class ClientServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<List<Client>> LIST_TYPE =
-            new GenericType<List<Client>>() {
+    private static final GenericType<ListResponseEntity<Client>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Client>>() {
 
             };
 
@@ -75,12 +76,52 @@ public final class ClientServiceSearchTest
     }
 
     /**
+     * Test parameters.
+     *
+     * @return The parameters passed to this test during every run.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.CLIENT_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.CLIENT,
+                        false
+                });
+    }
+
+    /**
      * Return the appropriate list type for this test suite.
      *
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<Client>> getListType() {
+    protected GenericType<ListResponseEntity<Client>> getListType() {
         return LIST_TYPE;
     }
 
@@ -161,46 +202,6 @@ public final class ClientServiceSearchTest
     }
 
     /**
-     * Test parameters.
-     *
-     * @return The parameters passed to this test during every run.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.CLIENT_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.CLIENT,
-                        false
-                });
-    }
-
-    /**
      * Test that we can filter a search by an application ID.
      */
     @Test
@@ -237,14 +238,11 @@ public final class ClientServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 0);
 
-            List<Client> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 

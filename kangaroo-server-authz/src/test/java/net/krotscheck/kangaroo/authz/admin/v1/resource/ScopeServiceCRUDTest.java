@@ -18,15 +18,16 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
-import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -34,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -52,6 +54,14 @@ public final class ScopeServiceCRUDTest
         extends AbstractServiceCRUDTest<ApplicationScope> {
 
     /**
+     * Convenience generic type for response decoding.
+     */
+    private static final GenericType<ListResponseEntity<ApplicationScope>> LIST_TYPE =
+            new GenericType<ListResponseEntity<ApplicationScope>>() {
+
+            };
+
+    /**
      * Create a new instance of this parameterized test.
      *
      * @param clientType    The type of  client.
@@ -65,26 +75,6 @@ public final class ScopeServiceCRUDTest
                                 final Boolean shouldSucceed) {
         super(ApplicationScope.class, clientType, tokenScope, createUser,
                 shouldSucceed);
-    }
-
-    /**
-     * Return the token scope required for admin access on this test.
-     *
-     * @return The correct scope string.
-     */
-    @Override
-    protected String getAdminScope() {
-        return Scope.SCOPE_ADMIN;
-    }
-
-    /**
-     * Return the token scope required for generic user access.
-     *
-     * @return The correct scope string.
-     */
-    @Override
-    protected String getRegularScope() {
-        return Scope.SCOPE;
     }
 
     /**
@@ -131,6 +121,36 @@ public final class ScopeServiceCRUDTest
                         false,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<ApplicationScope>> getListType() {
+        return LIST_TYPE;
+    }
+
+    /**
+     * Return the token scope required for admin access on this test.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getAdminScope() {
+        return Scope.SCOPE_ADMIN;
+    }
+
+    /**
+     * Return the token scope required for generic user access.
+     *
+     * @return The correct scope string.
+     */
+    @Override
+    protected String getRegularScope() {
+        return Scope.SCOPE;
     }
 
     /**

@@ -18,13 +18,14 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,8 +56,8 @@ public final class RoleServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<List<Role>> LIST_TYPE =
-            new GenericType<List<Role>>() {
+    private static final GenericType<ListResponseEntity<Role>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Role>>() {
 
             };
 
@@ -74,12 +75,52 @@ public final class RoleServiceSearchTest
     }
 
     /**
+     * Test parameters.
+     *
+     * @return The parameters passed to this test during every run.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.ROLE,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.ROLE_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.ROLE,
+                        false
+                });
+    }
+
+    /**
      * Return the appropriate list type for this test suite.
      *
      * @return The list type, used for test decoding.
      */
     @Override
-    protected GenericType<List<Role>> getListType() {
+    protected GenericType<ListResponseEntity<Role>> getListType() {
         return LIST_TYPE;
     }
 
@@ -154,46 +195,6 @@ public final class RoleServiceSearchTest
     }
 
     /**
-     * Test parameters.
-     *
-     * @return The parameters passed to this test during every run.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.ROLE,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.ROLE_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.ROLE,
-                        false
-                });
-    }
-
-    /**
      * Test that we can filter a search by an application ID.
      */
     @Test
@@ -231,14 +232,11 @@ public final class RoleServiceSearchTest
         } else {
             Assert.assertTrue(expectedTotal > 1);
 
-            List<Role> results = r.readEntity(getListType());
-            Assert.assertEquals(expectedOffset.toString(),
-                    r.getHeaderString("Offset"));
-            Assert.assertEquals(expectedLimit.toString(),
-                    r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedTotal.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(expectedResultSize, results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 

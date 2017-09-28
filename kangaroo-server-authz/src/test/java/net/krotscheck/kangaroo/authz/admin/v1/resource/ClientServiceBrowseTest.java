@@ -18,13 +18,14 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,8 +56,8 @@ public final class ClientServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<List<Client>> LIST_TYPE =
-            new GenericType<List<Client>>() {
+    private static final GenericType<ListResponseEntity<Client>> LIST_TYPE =
+            new GenericType<ListResponseEntity<Client>>() {
 
             };
 
@@ -71,6 +72,46 @@ public final class ClientServiceBrowseTest
                                    final String tokenScope,
                                    final Boolean createUser) {
         super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The list of parameters.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.CLIENT,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.CLIENT_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.CLIENT,
+                        false
+                });
     }
 
     /**
@@ -99,7 +140,7 @@ public final class ClientServiceBrowseTest
      * @return The list type.
      */
     @Override
-    protected GenericType<List<Client>> getListType() {
+    protected GenericType<ListResponseEntity<Client>> getListType() {
         return LIST_TYPE;
     }
 
@@ -146,46 +187,6 @@ public final class ClientServiceBrowseTest
     }
 
     /**
-     * Test parameters.
-     *
-     * @return The list of parameters.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.CLIENT,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.CLIENT_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.CLIENT,
-                        false
-                });
-    }
-
-    /**
      * Construct the request URL for this test given a specific resource ID.
      *
      * @param id The ID to use.
@@ -226,18 +227,22 @@ public final class ClientServiceBrowseTest
                 .filter(e -> e.getApplication().equals(filtered))
                 .count();
 
+        int expectedTotal = expectedEntities.intValue();
+        int expectedResultSize = Math.min(10, expectedTotal);
+        Integer expectedOffset = 0;
+        Integer expectedLimit = 10;
+
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else if (!isAccessible(filtered, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            List<Client> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedEntities.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedEntities, 10), results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 
@@ -255,6 +260,11 @@ public final class ClientServiceBrowseTest
                 .filter(e -> e.getType().equals(ClientType.AuthorizationGrant))
                 .count();
 
+        int expectedTotal = expectedEntities.intValue();
+        int expectedResultSize = Math.min(10, expectedTotal);
+        Integer expectedOffset = 0;
+        Integer expectedLimit = 10;
+
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
@@ -262,12 +272,11 @@ public final class ClientServiceBrowseTest
             // Make sure we're actually testing against something here.
             Assert.assertTrue(expectedEntities > 0);
 
-            List<Client> results = r.readEntity(getListType());
-            Assert.assertEquals("0", r.getHeaderString("Offset"));
-            Assert.assertEquals("10", r.getHeaderString("Limit"));
-            Assert.assertEquals(expectedEntities.toString(),
-                    r.getHeaderString("Total"));
-            Assert.assertEquals(Math.min(expectedEntities, 10), results.size());
+            assertListResponse(r,
+                    expectedResultSize,
+                    expectedOffset,
+                    expectedLimit,
+                    expectedTotal);
         }
     }
 }
