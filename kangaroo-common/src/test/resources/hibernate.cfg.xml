@@ -59,6 +59,7 @@
     <!-- Entities -->
     <mapping class="net.krotscheck.kangaroo.common.hibernate.entity.ConfigurationEntry"/>
     <mapping class="net.krotscheck.kangaroo.common.hibernate.entity.TestEntity"/>
+    <mapping class="net.krotscheck.kangaroo.common.hibernate.entity.TestByteIdEntity"/>
 
   </session-factory>
 </hibernate-configuration>

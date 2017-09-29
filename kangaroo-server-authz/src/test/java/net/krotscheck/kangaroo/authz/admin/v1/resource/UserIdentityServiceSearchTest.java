@@ -55,10 +55,10 @@ public final class UserIdentityServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<UserIdentity>> LIST_TYPE =
-            new GenericType<ListResponseEntity<UserIdentity>>() {
+    private static final GenericType<ListResponseEntity<UserIdentity>>
+            LIST_TYPE = new GenericType<ListResponseEntity<UserIdentity>>() {
 
-            };
+    };
 
     /**
      * Create a new instance of this parameterized test.

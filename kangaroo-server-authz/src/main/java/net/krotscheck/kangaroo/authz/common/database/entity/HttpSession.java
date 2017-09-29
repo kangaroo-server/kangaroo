@@ -21,11 +21,11 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.hibernate.entity.ICreatedDateEntity;
 import net.krotscheck.kangaroo.common.hibernate.entity.IModifiedDateEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Basic;
@@ -37,7 +37,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -58,15 +57,12 @@ public final class HttpSession
      * A 64-byte id that identifies this particular session.
      */
     @Id
-    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
-            + ".BigIntegerType")
     @GenericGenerator(name = "secure_random_bytes",
-            parameters = @Parameter(name = "byteCount", value = "64"),
-            strategy = "net.krotscheck.kangaroo.authz.common.database.util"
+            strategy = "net.krotscheck.kangaroo.common.hibernate.id"
                     + ".SecureRandomIdGenerator")
     @GeneratedValue(generator = "secure_random_bytes")
     @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private BigInteger id = null;
+    private byte[] id = null;
 
     /**
      * The date this record was created.
@@ -109,7 +105,7 @@ public final class HttpSession
      *
      * @return The ID for this session.
      */
-    public BigInteger getId() {
+    public byte[] getId() {
         return id;
     }
 
@@ -118,7 +114,7 @@ public final class HttpSession
      *
      * @param id The ID for this session.
      */
-    public void setId(final BigInteger id) {
+    public void setId(final byte[] id) {
         this.id = id;
     }
 
@@ -247,7 +243,7 @@ public final class HttpSession
      */
     public String toString() {
         return String.format("%s [id=%s]", this.getClass().getCanonicalName(),
-                getId());
+                IdUtil.toString(getId()));
     }
 
     /**

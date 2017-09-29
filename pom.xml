@@ -283,6 +283,7 @@
             <argLine>-Xmx1024m</argLine>
 
             <systemPropertyVariables>
+              <java.security.egd>file:/dev/./urandom</java.security.egd>
               <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
               <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
               <hibernate.connection.username>oid</hibernate.connection.username>

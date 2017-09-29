@@ -17,6 +17,8 @@
  */
 
 /**
- * Unit tests for the deserializer.
+ * Custom identifier generators.
+ *
+ * @author Michael Krotscheck
  */
-package net.krotscheck.kangaroo.common.hibernate.deserializer;
+package net.krotscheck.kangaroo.common.hibernate.id;
