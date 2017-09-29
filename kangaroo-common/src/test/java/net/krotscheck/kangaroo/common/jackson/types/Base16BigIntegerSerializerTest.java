@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.junit.Test;
 
+import java.math.BigInteger;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -31,7 +33,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class Base16ByteSerializerTest {
+public class Base16BigIntegerSerializerTest {
 
     /**
      * Assert that we can access this class as its generic type.
@@ -40,10 +42,10 @@ public class Base16ByteSerializerTest {
      */
     @Test
     public void testGenericConstructor() throws Exception {
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         String idString = IdUtil.toString(id);
 
-        JsonSerializer serializer = new Base16ByteSerializer();
+        JsonSerializer serializer = new Base16BigIntegerSerializer();
         JsonGenerator generator = mock(JsonGenerator.class);
 
         serializer.serialize(id, generator, null);
@@ -58,10 +60,10 @@ public class Base16ByteSerializerTest {
      */
     @Test
     public void deserialize() throws Exception {
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         String idString = IdUtil.toString(id);
 
-        Base16ByteSerializer serializer = new Base16ByteSerializer();
+        Base16BigIntegerSerializer serializer = new Base16BigIntegerSerializer();
         JsonGenerator generator = mock(JsonGenerator.class);
 
         serializer.serialize(id, generator, null);

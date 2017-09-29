@@ -44,14 +44,13 @@ import java.util.UUID;
 public final class HttpUtil {
 
     /**
-     * Logger instance.
-     */
-    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
-
-    /**
      * The character set we're using.
      */
     private static final Charset UTF8 = Charset.forName("UTF-8");
+    /**
+     * Logger instance.
+     */
+    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     /**
      * Private constructor - utility class.
