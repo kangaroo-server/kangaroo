@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,112 +13,80 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package net.krotscheck.kangaroo.common.jackson;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.glassfish.jersey.internal.inject.Injections;
-import org.junit.Assert;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import org.junit.Test;
 
-import java.util.function.Supplier;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for the ObjectMapperFactory.
+ * Test for our singleton object mapper factory.
  *
  * @author Michael Krotscheck
  */
-public final class ObjectMapperFactoryTest {
+public class ObjectMapperFactoryTest {
 
     /**
-     * Assert that the generic interface works as expected.
-     *
-     * @throws Exception Should not be thrown.
-     * @see <a href="https://sourceforge.net/p/cobertura/bugs/92/">https://sourceforge.net/p/cobertura/bugs/92/</a>
+     * The mapper factory we're testing.
      */
-    @Test
-    public void testGenericInterface() throws Exception {
-        InjectionManager injector = Injections.createInjectionManager();
-        Supplier factory = new ObjectMapperFactory(injector);
-
-        Object instance = factory.get();
-        Assert.assertTrue(instance instanceof ObjectMapper);
-
-        injector.shutdown();
-    }
+    private static final ObjectMapperFactory FACTORY = new
+            ObjectMapperFactory();
 
     /**
-     * Assert that the factory creates a functioning Object Mapper.
-     *
-     * @throws Exception Should not be thrown.
+     * Assert that various configuration settings are what we need them to be.
      */
     @Test
-    public void testProvideObjectMapper() throws Exception {
-        InjectionManager injector = Injections.createInjectionManager();
-        ObjectMapperFactory factory = new ObjectMapperFactory(injector);
+    public void testConfigurationSettings() {
+        ObjectMapper mapper = FACTORY.get();
+        SerializationConfig serializationConfig =
+                mapper.getSerializationConfig();
+        DeserializationConfig deserializationConfig =
+                mapper.getDeserializationConfig();
 
-        ObjectMapper mapper = factory.get();
-        JsonNode node = mapper.readTree("{}");
-        String result = mapper.writeValueAsString(node);
-
-        Assert.assertEquals(result, "{}");
-
-        injector.shutdown();
-    }
-
-    /**
-     * Assert that expected configuration options on the ObjectMapper are set.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testObjectMapperConfig() throws Exception {
-        InjectionManager injector = Injections.createInjectionManager();
-        ObjectMapperFactory factory = new ObjectMapperFactory(injector);
-
-        ObjectMapper mapper = factory.get();
-
-        // Test the Deserialization configuration
-        DeserializationConfig dConfig = mapper.getDeserializationConfig();
-        Assert.assertTrue(dConfig
+        // Deserialization feature check
+        assertTrue(deserializationConfig
                 .isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING));
-        Assert.assertTrue(dConfig
+        assertTrue(deserializationConfig
                 .isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES));
-        Assert.assertTrue(dConfig
+        assertTrue(deserializationConfig
                 .isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
-        Assert.assertFalse(dConfig
+
+        assertFalse(deserializationConfig
                 .isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
 
-        // Test the Serialization configuration
-        SerializationConfig sConfig = mapper.getSerializationConfig();
-        Assert.assertTrue(sConfig
+        // Serialization feature check
+        assertTrue(serializationConfig
                 .isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING));
-        Assert.assertFalse(sConfig
-                .isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES));
 
-        injector.shutdown();
+        assertFalse(serializationConfig
+                .isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES));
     }
 
     /**
-     * Assert that modules injected into the context are registered with the
-     * Object Mapper.
-     *
-     * @throws Exception Should not be thrown.
+     * Assert that various configuration settings are what we need them to be.
      */
     @Test
-    public void testModuleRegistration() throws Exception {
-        InjectionManager injector = Injections.createInjectionManager();
+    public void testDateFormat() {
+        ObjectMapper mapper = FACTORY.get();
+        assertTrue(mapper.getDateFormat() instanceof ISO8601DateFormat);
+    }
 
-        injector.register(new JacksonSerializerModule.Binder());
-
-        ObjectMapperFactory factory = new ObjectMapperFactory(injector);
-        factory.get();
+    /**
+     * Assert that it's all a singleton.
+     */
+    @Test
+    public void testSingleton() {
+        assertSame(FACTORY.get(), FACTORY.get());
     }
 }

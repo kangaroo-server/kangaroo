@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,119 +13,81 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package net.krotscheck.kangaroo.common.jackson;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.glassfish.jersey.internal.inject.AbstractBinder;
-import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.krotscheck.kangaroo.common.jackson.types.KangarooCustomTypesModule;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * A factory that builds object mappers.
+ * Build our object mapper - note that while we adhere to the Jersey2
+ * injection SPI here, we are NOT injecting it. That is because this mapper
+ * needs to be provided during feature registration, not at resolution time.
  *
  * @author Michael Krotscheck
  */
 public final class ObjectMapperFactory implements Supplier<ObjectMapper> {
 
     /**
-     * Logger instance.
+     * The system's singleton object mapper.
      */
-    private static Logger logger =
-            LoggerFactory.getLogger(ObjectMapperFactory.class);
+    private static final ObjectMapper MAPPER;
 
-    /**
-     * The global injector.
-     */
-    private final InjectionManager injectionManager;
-
-    /**
-     * Create a new instance of this factory.
-     *
-     * @param injectionManager The injection manager, used for discovering
-     *                         other injected jackson components.
-     */
-    @Inject
-    public ObjectMapperFactory(final InjectionManager injectionManager) {
-        this.injectionManager = injectionManager;
-    }
-
-    /**
-     * Create an instance of our object mapper.
-     *
-     * @return The configured and injected object mapper.
-     */
-    @Override
-    public ObjectMapper get() {
+    static {
 
         // Create the new object mapper.
-        ObjectMapper mapper = new ObjectMapper();
+        MAPPER = new ObjectMapper();
 
         // Enable/disable various configuration flags.
-        mapper.configure(
+        MAPPER.configure(
                 DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
-        mapper.configure(
+        MAPPER.configure(
                 DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(
+        MAPPER.configure(
                 DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
-        mapper.configure(
+        MAPPER.configure(
                 DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true);
 
-        mapper.configure(
+        MAPPER.configure(
                 SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
-        mapper.configure(
+        MAPPER.configure(
                 SerializationFeature.WRITE_NULL_MAP_VALUES, false);
 
         // Make sure date format is ISO Compliant.
-        mapper.setDateFormat(new ISO8601DateFormat());
+        MAPPER.setDateFormat(new ISO8601DateFormat());
 
         // Add our annotation introspectors.
         AnnotationIntrospector jaxbIntrospector =
-                new JaxbAnnotationIntrospector(mapper.getTypeFactory());
+                new JaxbAnnotationIntrospector(MAPPER.getTypeFactory());
         AnnotationIntrospector jacksonIntrospector =
                 new JacksonAnnotationIntrospector();
         AnnotationIntrospectorPair combinedIntrospector =
                 new AnnotationIntrospectorPair(jacksonIntrospector,
                         jaxbIntrospector);
-        mapper.setAnnotationIntrospector(combinedIntrospector);
+        MAPPER.setAnnotationIntrospector(combinedIntrospector);
 
         // Inject our serializers/deserializers.
-        List<Module> modules = injectionManager.getAllInstances(Module.class);
-        for (Module module : modules) {
-            logger.info(String.format(
-                    "Registering module with ObjectMapper: %s",
-                    module.getModuleName()));
-            mapper.registerModule(module);
-        }
+        MAPPER.registerModule(new KangarooCustomTypesModule());
 
-        return mapper;
     }
 
     /**
-     * HK2 Binder for our injector context.
+     * Build a fully configured object mapper to use for de/serialization.
+     *
+     * @return The new mapper.
      */
-    public static final class Binder extends AbstractBinder {
-
-        @Override
-        protected void configure() {
-            bindFactory(ObjectMapperFactory.class)
-                    .to(ObjectMapper.class)
-                    .in(Singleton.class);
-        }
+    public ObjectMapper get() {
+        return MAPPER;
     }
 }

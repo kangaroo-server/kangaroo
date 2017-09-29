@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.kangaroo.authz.common.database.util.JacksonUtil;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public final class OAuthTokenTypeTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
 
         String authOutput = m.writeValueAsString(OAuthTokenType.Authorization);
         Assert.assertEquals("\"Authorization\"", authOutput);
@@ -56,7 +56,7 @@ public final class OAuthTokenTypeTest {
      */
     @Test
     public void testDeserialization() throws Exception {
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
         OAuthTokenType authOutput =
                 m.readValue("\"Authorization\"", OAuthTokenType.class);
         Assert.assertSame(authOutput, OAuthTokenType.Authorization);

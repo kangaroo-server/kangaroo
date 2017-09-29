@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.kangaroo.authz.common.database.util.JacksonUtil;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public final class ClientTypeTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
 
         String auth = m.writeValueAsString(ClientType.AuthorizationGrant);
         Assert.assertEquals("\"AuthorizationGrant\"", auth);
@@ -59,7 +59,7 @@ public final class ClientTypeTest {
      */
     @Test
     public void testDeserialization() throws Exception {
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
 
         ClientType auth =
                 m.readValue("\"AuthorizationGrant\"", ClientType.class);
