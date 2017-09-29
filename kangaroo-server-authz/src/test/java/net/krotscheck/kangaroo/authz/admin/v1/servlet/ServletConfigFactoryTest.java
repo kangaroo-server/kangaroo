@@ -18,19 +18,13 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
-import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator;
-import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.glassfish.jersey.internal.inject.Injections;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.function.Supplier;
-
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Test that the admin configuration factory creates a singleton instance of
