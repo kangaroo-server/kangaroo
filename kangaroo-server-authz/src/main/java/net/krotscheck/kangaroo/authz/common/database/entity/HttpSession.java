@@ -37,6 +37,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -62,7 +63,9 @@ public final class HttpSession
                     + ".SecureRandomIdGenerator")
     @GeneratedValue(generator = "secure_random_bytes")
     @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private byte[] id = null;
+    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
+            + ".BigIntegerType")
+    private BigInteger id = null;
 
     /**
      * The date this record was created.
@@ -105,7 +108,7 @@ public final class HttpSession
      *
      * @return The ID for this session.
      */
-    public byte[] getId() {
+    public BigInteger getId() {
         return id;
     }
 
@@ -114,7 +117,7 @@ public final class HttpSession
      *
      * @param id The ID for this session.
      */
-    public void setId(final byte[] id) {
+    public void setId(final BigInteger id) {
         this.id = id;
     }
 

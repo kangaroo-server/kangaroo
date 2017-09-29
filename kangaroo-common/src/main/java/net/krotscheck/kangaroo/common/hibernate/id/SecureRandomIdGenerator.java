@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.id;
 
+import net.krotscheck.kangaroo.common.hibernate.type.BigIntegerType;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.boot.model.naming.ObjectNameNormalizer;
@@ -29,10 +30,11 @@ import org.hibernate.id.IdentifierGenerationException;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.type.BinaryType;
+import org.hibernate.type.CustomType;
 import org.hibernate.type.Type;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -58,7 +60,7 @@ public final class SecureRandomIdGenerator
     /**
      * The type instance, used for adjusting our prepared statements.
      */
-    private Type type = BinaryType.INSTANCE;
+    private Type type = new CustomType(new BigIntegerType());
 
     /**
      * Id Util.
@@ -88,7 +90,7 @@ public final class SecureRandomIdGenerator
                                  final Object object)
             throws HibernateException {
 
-        byte[] nextId;
+        BigInteger nextId;
         do {
             nextId = id.next();
         } while (hasDuplicate(session, nextId));
@@ -139,7 +141,7 @@ public final class SecureRandomIdGenerator
      */
     protected boolean hasDuplicate(
             final SharedSessionContractImplementor session,
-            final byte[] id) {
+            final BigInteger id) {
 
         PreparedStatement st = session
                 .getJdbcCoordinator()

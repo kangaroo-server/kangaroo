@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -33,7 +35,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class Base16ByteDeserializerTest {
+public class Base16BigIntegerDeserializerTest {
 
     /**
      * Assert that we can access this class as its generic type.
@@ -42,18 +44,18 @@ public class Base16ByteDeserializerTest {
      */
     @Test
     public void testGenericConstructor() throws Exception {
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         String idBody = String.format("\"%s\"", IdUtil.toString(id));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(idBody);
         preloadedParser.nextToken(); // Advance to the first value.
 
-        JsonDeserializer deserializer = new Base16ByteDeserializer();
-        byte[] deserializedId = (byte[])
+        JsonDeserializer deserializer = new Base16BigIntegerDeserializer();
+        BigInteger deserializedId = (BigInteger)
                 deserializer.deserialize(preloadedParser,
                         mock(DeserializationContext.class));
 
-        assertArrayEquals(id, deserializedId);
+        assertEquals(id, deserializedId);
     }
 
     /**
@@ -63,16 +65,16 @@ public class Base16ByteDeserializerTest {
      */
     @Test
     public void deserialize() throws Exception {
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         String idBody = String.format("\"%s\"", IdUtil.toString(id));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(idBody);
         preloadedParser.nextToken(); // Advance to the first value.
 
-        Base16ByteDeserializer deserializer = new Base16ByteDeserializer();
-        byte[] deserializedId = deserializer.deserialize(preloadedParser,
+        Base16BigIntegerDeserializer deserializer = new Base16BigIntegerDeserializer();
+        BigInteger deserializedId = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        assertArrayEquals(id, deserializedId);
+        assertEquals(id, deserializedId);
     }
 }

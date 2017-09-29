@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.common.jackson.types;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module.SetupContext;
@@ -30,6 +31,8 @@ import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -82,16 +85,16 @@ public final class KangarooCustomTypesModuleTest {
         verify(c).addDeserializers(deserializers.capture());
 
         TypeFactory t = TypeFactory.defaultInstance();
-        ArrayType byteArrayType = t.constructArrayType(byte.class);
+        JavaType bigIntegerType = t.constructType(BigInteger.class);
 
         SimpleSerializers s = (SimpleSerializers) serializers.getValue();
         JsonSerializer byteSerializer =
-                s.findSerializer(null, byteArrayType, null);
-        assertTrue(byteSerializer instanceof Base16ByteSerializer);
+                s.findSerializer(null, bigIntegerType, null);
+        assertTrue(byteSerializer instanceof Base16BigIntegerSerializer);
 
         SimpleDeserializers d = (SimpleDeserializers) deserializers.getValue();
         JsonDeserializer byteDeserializer =
-                d.findBeanDeserializer(byteArrayType, null, null);
-        assertTrue(byteDeserializer instanceof Base16ByteDeserializer);
+                d.findBeanDeserializer(bigIntegerType, null, null);
+        assertTrue(byteDeserializer instanceof Base16BigIntegerDeserializer);
     }
 }
