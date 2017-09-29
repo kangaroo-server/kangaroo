@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -41,7 +40,6 @@ import static org.junit.Assert.assertTrue;
  * @author Michael Krotscheck
  */
 public final class SecureRandomIdGeneratorTest extends DatabaseTest {
-
 
     /**
      * Assert that using it via an annotated ID works.
@@ -58,7 +56,6 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
 
         assertNotNull(e);
         assertNotNull(e.getId());
-        assertEquals(16, e.getId().length);
     }
 
     /**
@@ -110,7 +107,7 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
 
         // Mariadb can signal an error directly.
         String sql = "signal set message_text='an error occurred';";
-        
+
         if (TestConfig.getDbDialect().equals(H2Dialect.class.getName())) {
             sql = "select id from test where 1=0";
         }

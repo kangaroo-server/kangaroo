@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -112,7 +113,7 @@ public final class HttpSessionTest extends DatabaseTest {
 
         Assert.assertNull(httpSession.getId());
 
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         httpSession.setId(id);
         Assert.assertEquals(id, httpSession.getId());
     }
@@ -124,8 +125,8 @@ public final class HttpSessionTest extends DatabaseTest {
      */
     @Test
     public void testEquality() throws Exception {
-        byte[] id = IdUtil.next();
-        byte[] id2 = IdUtil.next();
+        BigInteger id = IdUtil.next();
+        BigInteger id2 = IdUtil.next();
 
         HttpSession a = new HttpSession();
         a.setId(id);
@@ -158,8 +159,8 @@ public final class HttpSessionTest extends DatabaseTest {
      */
     @Test
     public void testHashCode() throws Exception {
-        byte[] id = IdUtil.next();
-        byte[] id2 = IdUtil.next();
+        BigInteger id = IdUtil.next();
+        BigInteger id2 = IdUtil.next();
 
         HttpSession a = new HttpSession();
         a.setId(id);
@@ -184,7 +185,7 @@ public final class HttpSessionTest extends DatabaseTest {
      */
     @Test
     public void testToString() throws Exception {
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         HttpSession a = new HttpSession();
         a.setId(id);
         HttpSession b = new HttpSession();
@@ -206,7 +207,7 @@ public final class HttpSessionTest extends DatabaseTest {
      */
     @Test
     public void testCloneable() throws Exception {
-        byte[] id = IdUtil.next();
+        BigInteger id = IdUtil.next();
         HttpSession a = new HttpSession();
         a.setId(id);
         HttpSession b = (HttpSession) a.clone();

@@ -18,39 +18,32 @@
 
 package net.krotscheck.kangaroo.common.jackson.types;
 
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 
 import javax.inject.Singleton;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
- * Base16 deserializer for byte arrays.
+ * Base16 serializer for bigintegers.
  *
  * @author Michael Krotscheck
  */
 @Provider
 @Singleton
-public final class Base16ByteDeserializer
-        extends JsonDeserializer<byte[]> {
+public final class Base16BigIntegerSerializer
+        extends JsonSerializer<BigInteger> {
 
-    /**
-     * Deserialize a JSON value (usually a string) into a byte array.
-     *
-     * @param p    The JSON parser.
-     * @param ctxt The serialization context.
-     * @return The value as a byte array.
-     * @throws IOException             Not thrown.
-     * @throws JsonProcessingException Not thrown.
-     */
     @Override
-    public byte[] deserialize(final JsonParser p,
-                              final DeserializationContext ctxt)
+    public void serialize(final BigInteger value,
+                          final JsonGenerator gen,
+                          final SerializerProvider serializers)
             throws IOException, JsonProcessingException {
-        return IdUtil.fromString(p.getValueAsString());
+        gen.writeString(IdUtil.toString(value));
     }
 }
