@@ -18,16 +18,15 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
-import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -73,6 +72,46 @@ public final class UserServiceBrowseTest
                                  final String tokenScope,
                                  final Boolean createUser) {
         super(clientType, tokenScope, createUser);
+    }
+
+    /**
+     * Test parameters.
+     *
+     * @return The list of parameters.
+     */
+    @Parameterized.Parameters
+    public static Collection parameters() {
+        return Arrays.asList(
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER,
+                        false
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER_ADMIN,
+                        true
+                },
+                new Object[]{
+                        ClientType.Implicit,
+                        Scope.USER,
+                        true
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.USER_ADMIN,
+                        false
+                },
+                new Object[]{
+                        ClientType.ClientCredentials,
+                        Scope.USER,
+                        false
+                });
     }
 
     /**
@@ -147,46 +186,6 @@ public final class UserServiceBrowseTest
                 .flatMap(a -> a.getUsers().stream())
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Test parameters.
-     *
-     * @return The list of parameters.
-     */
-    @Parameterized.Parameters
-    public static Collection parameters() {
-        return Arrays.asList(
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.USER_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.USER,
-                        false
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.USER_ADMIN,
-                        true
-                },
-                new Object[]{
-                        ClientType.Implicit,
-                        Scope.USER,
-                        true
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.USER_ADMIN,
-                        false
-                },
-                new Object[]{
-                        ClientType.ClientCredentials,
-                        Scope.USER,
-                        false
-                });
     }
 
     /**

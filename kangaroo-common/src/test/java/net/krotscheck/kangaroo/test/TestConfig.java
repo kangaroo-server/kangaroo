@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.database.TestDB;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,13 @@ public final class TestConfig {
      * Logger instance.
      */
     private static Logger logger = LoggerFactory.getLogger(TestConfig.class);
+
+    /**
+     * Utility class, private constructor.
+     */
+    private TestConfig() {
+
+    }
 
     /**
      * Get the database type under test.
@@ -110,12 +118,5 @@ public final class TestConfig {
     public static String getDbChangelog() {
         return System.getProperty("test.db.changelog",
                 "liquibase/db.changelog-master.yaml");
-    }
-
-    /**
-     * Utility class, private constructor.
-     */
-    private TestConfig() {
-
     }
 }

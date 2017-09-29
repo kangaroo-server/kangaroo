@@ -32,7 +32,7 @@ pipeline {
                     sh 'mvn --version'
                     gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/" +
-                            "${gitCommit.substring(0, 16)}" +
+                            "test_${gitCommit.substring(0, 16)}" +
                             "?useUnicode=yes"
                 }
             }
@@ -45,9 +45,11 @@ pipeline {
             steps {
                 parallel(
                         "h2": {
-                            sh 'mvn install' +
-                                    ' -Ph2' +
-                                    ' -Dtarget-directory=target-h2'
+                            sh """
+                                mvn install \
+                                    -Ph2 \
+                                    -Dtarget-directory=target-h2
+                            """
                         },
                         "mariadb": {
                             sh """
