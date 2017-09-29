@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope.Deserializer;
-import net.krotscheck.kangaroo.authz.common.database.util.JacksonUtil;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -146,7 +146,7 @@ public final class ApplicationScopeTest {
         a.setName("name");
 
         // De/serialize to json.
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
@@ -184,7 +184,7 @@ public final class ApplicationScopeTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());

@@ -22,6 +22,8 @@ import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonP
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
+import static org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
+
 /**
  * This feature collects all custom serializers and deserializers in the
  * injection scope, and builds a jackson object mapper that may be used anywhere
@@ -34,14 +36,12 @@ public final class JacksonFeature implements Feature {
      */
     @Override
     public boolean configure(final FeatureContext context) {
-
-        // Pull in the Jackson provider, but not the exception mappers.
-        context.register(JacksonJaxbJsonProvider.class);
-
-        // Jackson configuration.
-        context.register(new JacksonSerializerModule.Binder());
-        context.register(new ObjectMapperFactory.Binder());
+        ObjectMapperFactory mapperFactory = new ObjectMapperFactory();
+        JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider(
+                mapperFactory.get(), DEFAULT_ANNOTATIONS);
+        context.register(provider);
 
         return true;
     }
+
 }

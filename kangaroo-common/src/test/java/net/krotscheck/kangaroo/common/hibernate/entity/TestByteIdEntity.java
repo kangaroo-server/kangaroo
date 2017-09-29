@@ -118,7 +118,11 @@ public final class TestByteIdEntity {
      * @param date The creation date for this entity.
      */
     public void setCreatedDate(final Calendar date) {
-        this.createdDate = (Calendar) date.clone();
+        if (date == null) {
+            this.createdDate = null;
+        } else {
+            this.createdDate = (Calendar) date.clone();
+        }
     }
 
     /**
@@ -140,7 +144,11 @@ public final class TestByteIdEntity {
      * @param date The modified date for this entity.
      */
     public void setModifiedDate(final Calendar date) {
-        this.modifiedDate = (Calendar) date.clone();
+        if (date == null) {
+            this.modifiedDate = null;
+        } else {
+            this.modifiedDate = (Calendar) date.clone();
+        }
     }
 
     /**
