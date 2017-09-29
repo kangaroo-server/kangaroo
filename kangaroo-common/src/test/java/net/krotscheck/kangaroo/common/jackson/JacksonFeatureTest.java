@@ -17,12 +17,9 @@
 
 package net.krotscheck.kangaroo.common.jackson;
 
-import net.krotscheck.kangaroo.common.jackson.mock.MockPojo;
-import net.krotscheck.kangaroo.common.jackson.mock.MockPojoDeserializer;
-import net.krotscheck.kangaroo.common.jackson.mock.MockPojoSerializer;
+import net.krotscheck.kangaroo.common.hibernate.entity.TestByteIdEntity;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.POST;
@@ -32,10 +29,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Test the jackson feature injection.
- *ss
+ * ss
+ *
  * @author Michael Krotscheck
  */
 public final class JacksonFeatureTest extends KangarooJerseyTest {
@@ -49,8 +50,6 @@ public final class JacksonFeatureTest extends KangarooJerseyTest {
     protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
         config.register(JacksonFeature.class);
-        config.register(new MockPojoDeserializer.Binder());
-        config.register(new MockPojoSerializer.Binder());
         config.register(MockService.class);
         return config;
     }
@@ -60,20 +59,17 @@ public final class JacksonFeatureTest extends KangarooJerseyTest {
      */
     @Test
     public void testProperDeserialization() {
-        MockPojo pojo = new MockPojo();
-        Entity pojoEntity = Entity.entity(pojo,
+        TestByteIdEntity entity = new TestByteIdEntity();
+        Entity pojoEntity = Entity.entity(entity,
                 MediaType.APPLICATION_JSON_TYPE);
-        MockPojo response = target("/").request()
-                .post(pojoEntity, MockPojo.class);
+        TestByteIdEntity response = target("/").request()
+                .post(pojoEntity, TestByteIdEntity.class);
 
-        Assert.assertTrue(response.isInvokedDeserializer());
-        Assert.assertTrue(response.isInvokedSerializer());
-        Assert.assertTrue(response.isServiceData());
+        assertArrayEquals(entity.getId(), response.getId());
     }
 
-
     /**
-     * A simple endpoint that manipulates the MockPojo.
+     * A simple endpoint that returns the entity, to test a full circuit.
      *
      * @author Michael Krotscheck
      */
@@ -88,10 +84,8 @@ public final class JacksonFeatureTest extends KangarooJerseyTest {
          */
         @POST
         @Produces(MediaType.APPLICATION_JSON)
-        public Response modifyPojo(final MockPojo pojo) {
-            pojo.setServiceData(true);
+        public Response modifyPojo(final TestByteIdEntity pojo) {
             return Response.ok(pojo).build();
         }
-
     }
 }

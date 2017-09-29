@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken.Deserializer;
-import net.krotscheck.kangaroo.authz.common.database.util.JacksonUtil;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -306,7 +306,7 @@ public final class OAuthTokenTest {
         token.setExpiresIn(100);
 
         // De/serialize to json.
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(token);
         JsonNode node = m.readTree(output);
@@ -353,7 +353,7 @@ public final class OAuthTokenTest {
      */
     @Test
     public void testJacksonDeserializable() throws Exception {
-        ObjectMapper m = JacksonUtil.buildMapper();
+        ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
         node.put("id", UUID.randomUUID().toString());
