@@ -61,7 +61,7 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: BINARY(64)
+                type: BINARY(16)
                 constraints:
                   primaryKey: true
                   nullable: false

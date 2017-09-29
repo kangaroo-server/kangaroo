@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeExcept
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
-import net.krotscheck.kangaroo.common.hibernate.entity.TestEntity;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.apache.commons.configuration.Configuration;
@@ -66,22 +65,10 @@ public final class AbstractServiceTest extends AbstractResourceTest {
             new GenericType<ListResponseEntity<AbstractEntity>>() {
 
             };
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    @Override
-    protected GenericType<ListResponseEntity<AbstractEntity>> getListType() {
-        return LIST_TYPE;
-    }
-
     /**
      * A user application from which we can issue tokens.
      */
     private static ApplicationContext userApp;
-
     /**
      * Test data loading for this test.
      */
@@ -107,11 +94,20 @@ public final class AbstractServiceTest extends AbstractResourceTest {
      * The mock security context constructed for this test.
      */
     private SecurityContext mockContext;
-
     /**
      * The abstract service under test.
      */
     private AbstractService service;
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<AbstractEntity>> getListType() {
+        return LIST_TYPE;
+    }
 
     /**
      * Setup test data.

@@ -18,16 +18,15 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Assert that the HTTP session data is sanely persisted.
@@ -104,25 +103,29 @@ public final class HttpSessionTest extends DatabaseTest {
 
     /**
      * Assert get id.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void assertGetSetId() {
+    public void assertGetSetId() throws Exception {
         HttpSession httpSession = new HttpSession();
 
         Assert.assertNull(httpSession.getId());
 
-        BigInteger id = BigInteger.TEN;
+        byte[] id = IdUtil.next();
         httpSession.setId(id);
         Assert.assertEquals(id, httpSession.getId());
     }
 
     /**
      * Test Equality by ID.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testEquality() {
-        BigInteger id = new BigInteger(10, new Random());
-        BigInteger id2 = new BigInteger(10, new Random());
+    public void testEquality() throws Exception {
+        byte[] id = IdUtil.next();
+        byte[] id2 = IdUtil.next();
 
         HttpSession a = new HttpSession();
         a.setId(id);
@@ -150,11 +153,13 @@ public final class HttpSessionTest extends DatabaseTest {
 
     /**
      * Test Equality by hashCode.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testHashCode() {
-        BigInteger id = new BigInteger(10, new Random());
-        BigInteger id2 = new BigInteger(10, new Random());
+    public void testHashCode() throws Exception {
+        byte[] id = IdUtil.next();
+        byte[] id2 = IdUtil.next();
 
         HttpSession a = new HttpSession();
         a.setId(id);
@@ -174,10 +179,12 @@ public final class HttpSessionTest extends DatabaseTest {
 
     /**
      * Test toString.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testToString() {
-        BigInteger id = new BigInteger(10, new Random());
+    public void testToString() throws Exception {
+        byte[] id = IdUtil.next();
         HttpSession a = new HttpSession();
         a.setId(id);
         HttpSession b = new HttpSession();
@@ -185,7 +192,7 @@ public final class HttpSessionTest extends DatabaseTest {
         Assert.assertEquals(
                 String.format("net.krotscheck.kangaroo.authz.common.database"
                                 + ".entity.HttpSession [id=%s]",
-                        a.getId()),
+                        IdUtil.toString(a.getId())),
                 a.toString());
         Assert.assertEquals("net.krotscheck.kangaroo.authz"
                 + ".common.database.entity.HttpSession"
@@ -195,11 +202,11 @@ public final class HttpSessionTest extends DatabaseTest {
     /**
      * Test cloneable.
      *
-     * @throws CloneNotSupportedException Should not be thrown.
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testCloneable() throws CloneNotSupportedException {
-        BigInteger id = new BigInteger(10, new Random());
+    public void testCloneable() throws Exception {
+        byte[] id = IdUtil.next();
         HttpSession a = new HttpSession();
         a.setId(id);
         HttpSession b = (HttpSession) a.clone();
