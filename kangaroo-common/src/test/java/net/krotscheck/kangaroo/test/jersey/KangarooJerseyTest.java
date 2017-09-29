@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test.jersey;
 
+import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -131,5 +132,6 @@ public abstract class KangarooJerseyTest extends JerseyTest {
     protected final void configureClient(final ClientConfig config) {
         config.property(ClientProperties.FOLLOW_REDIRECTS, false);
         config.register(CsrfProtectionFilter.class);
+        config.register(JacksonFeature.class);
     }
 }
