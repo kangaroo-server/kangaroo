@@ -34,6 +34,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
+import java.math.BigInteger;
 import java.util.Calendar;
 
 /**
@@ -54,7 +55,9 @@ public final class TestByteIdEntity {
                     + ".SecureRandomIdGenerator")
     @GeneratedValue(generator = "secure_random_bytes")
     @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private byte[] id = null;
+    @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
+            + ".BigIntegerType")
+    private BigInteger id = null;
 
     /**
      * The date this record was created.
@@ -86,7 +89,7 @@ public final class TestByteIdEntity {
      *
      * @return The id for this entity.
      */
-    public byte[] getId() {
+    public BigInteger getId() {
         return id;
     }
 
@@ -95,7 +98,7 @@ public final class TestByteIdEntity {
      *
      * @param id The unique ID for this entity.
      */
-    public void setId(final byte[] id) {
+    public void setId(final BigInteger id) {
         this.id = id;
     }
 

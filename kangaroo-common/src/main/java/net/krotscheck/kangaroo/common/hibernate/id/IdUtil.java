@@ -19,8 +19,8 @@
 package net.krotscheck.kangaroo.common.hibernate.id;
 
 import com.google.common.base.Strings;
-import com.google.common.io.BaseEncoding;
 
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -36,11 +36,6 @@ public final class IdUtil {
      * Static ID util, for convenience access.
      */
     private static final IdUtil INSTANCE = new IdUtil();
-
-    /**
-     * Our Base16 encoder/decoder.
-     */
-    private static final BaseEncoding BASE_16 = BaseEncoding.base16();
 
     /**
      * The # of bytes in the ID. OSSTP recommends 128 bits, which means 16
@@ -70,15 +65,11 @@ public final class IdUtil {
      * @param idString The string.
      * @return The BigInteger representation of that ID.
      */
-    public static byte[] fromString(final String idString) {
+    public static BigInteger fromString(final String idString) {
         if (Strings.isNullOrEmpty(idString)) {
             return null;
         }
-        byte[] decoded = BASE_16.decode(idString);
-        if (decoded == null || decoded.length != BYTE_COUNT) {
-            throw new IllegalArgumentException("id is not the correct length");
-        }
-        return decoded;
+        return new BigInteger(idString, 16);
     }
 
     /**
@@ -87,14 +78,11 @@ public final class IdUtil {
      * @param id The ID to convert.
      * @return The string representation of this id.
      */
-    public static String toString(final byte[] id) {
+    public static String toString(final BigInteger id) {
         if (id == null) {
             return null;
         }
-        if (id.length != BYTE_COUNT) {
-            throw new IllegalArgumentException("id is not the correct length");
-        }
-        return BASE_16.encode(id);
+        return id.toString(16);
     }
 
     /**
@@ -102,7 +90,7 @@ public final class IdUtil {
      *
      * @return An ID generated from the SecureRandom stream of bytes.
      */
-    public static byte[] next() {
+    public static BigInteger next() {
         return INSTANCE.nextInternal();
     }
 
@@ -111,9 +99,9 @@ public final class IdUtil {
      *
      * @return An ID generated from the SecureRandom stream of bytes.
      */
-    protected byte[] nextInternal() {
+    protected BigInteger nextInternal() {
         byte[] randomBytes = new byte[BYTE_COUNT];
         randomNumberGenerator.nextBytes(randomBytes);
-        return randomBytes;
+        return new BigInteger(randomBytes);
     }
 }

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.module.SimpleSerializers;
 
 import javax.inject.Singleton;
 import javax.ws.rs.ext.Provider;
+import java.math.BigInteger;
 
 /**
  * This Jackson Module registers all the necessary De/Serializers for proper
@@ -77,10 +78,12 @@ public final class KangarooCustomTypesModule extends Module {
     @Override
     public void setupModule(final SetupContext context) {
         SimpleDeserializers des = new SimpleDeserializers();
-        des.addDeserializer(byte[].class, new Base16ByteDeserializer());
+        des.addDeserializer(BigInteger.class,
+                new Base16BigIntegerDeserializer());
 
         SimpleSerializers ser = new SimpleSerializers();
-        ser.addSerializer(byte[].class, new Base16ByteSerializer());
+        ser.addSerializer(BigInteger.class,
+                new Base16BigIntegerSerializer());
 
         context.addDeserializers(des);
         context.addSerializers(ser);

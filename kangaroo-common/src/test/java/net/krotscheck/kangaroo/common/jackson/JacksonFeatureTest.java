@@ -29,7 +29,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 
@@ -65,7 +64,7 @@ public final class JacksonFeatureTest extends KangarooJerseyTest {
         TestByteIdEntity response = target("/").request()
                 .post(pojoEntity, TestByteIdEntity.class);
 
-        assertArrayEquals(entity.getId(), response.getId());
+        assertEquals(entity.getId(), response.getId());
     }
 
     /**
