@@ -18,15 +18,12 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
-import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -72,146 +69,5 @@ public final class HttpSessionTest extends DatabaseTest {
         httpSession.setRefreshTokens(refreshTokens);
         Assert.assertEquals(refreshTokens, httpSession.getRefreshTokens());
         Assert.assertNotSame(refreshTokens, httpSession.getRefreshTokens());
-    }
-
-    /**
-     * Test created date get/set.
-     */
-    @Test
-    public void testGetSetCreatedDate() {
-        HttpSession a = new HttpSession();
-        Calendar d = Calendar.getInstance();
-
-        Assert.assertNull(a.getCreatedDate());
-        a.setCreatedDate(d);
-        Assert.assertEquals(d, a.getCreatedDate());
-        Assert.assertNotSame(d, a.getCreatedDate());
-    }
-
-    /**
-     * Test created date get/set.
-     */
-    @Test
-    public void testGetSetModifiedDate() {
-        HttpSession a = new HttpSession();
-        Calendar d = Calendar.getInstance();
-
-        Assert.assertNull(a.getModifiedDate());
-        a.setModifiedDate(d);
-        Assert.assertEquals(d, a.getModifiedDate());
-        Assert.assertNotSame(d, a.getModifiedDate());
-    }
-
-    /**
-     * Assert get id.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void assertGetSetId() throws Exception {
-        HttpSession httpSession = new HttpSession();
-
-        Assert.assertNull(httpSession.getId());
-
-        BigInteger id = IdUtil.next();
-        httpSession.setId(id);
-        Assert.assertEquals(id, httpSession.getId());
-    }
-
-    /**
-     * Test Equality by ID.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testEquality() throws Exception {
-        BigInteger id = IdUtil.next();
-        BigInteger id2 = IdUtil.next();
-
-        HttpSession a = new HttpSession();
-        a.setId(id);
-
-        HttpSession b = new HttpSession();
-        b.setId(id);
-
-        HttpSession c = new HttpSession();
-        c.setId(id2);
-
-        HttpSession d = new HttpSession();
-
-        Object e = new Object();
-
-        Assert.assertTrue(a.equals(a));
-        Assert.assertFalse(a.equals(null));
-        Assert.assertFalse(a.equals(e));
-        Assert.assertTrue(a.equals(b));
-        Assert.assertTrue(b.equals(a));
-        Assert.assertFalse(a.equals(c));
-        Assert.assertFalse(c.equals(a));
-        Assert.assertFalse(a.equals(d));
-        Assert.assertFalse(d.equals(a));
-    }
-
-    /**
-     * Test Equality by hashCode.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testHashCode() throws Exception {
-        BigInteger id = IdUtil.next();
-        BigInteger id2 = IdUtil.next();
-
-        HttpSession a = new HttpSession();
-        a.setId(id);
-
-        HttpSession b = new HttpSession();
-        b.setId(id);
-
-        HttpSession c = new HttpSession();
-        c.setId(id2);
-
-        HttpSession d = new HttpSession();
-
-        Assert.assertEquals(a.hashCode(), b.hashCode());
-        Assert.assertNotEquals(a.hashCode(), c.hashCode());
-        Assert.assertNotEquals(a.hashCode(), d.hashCode());
-    }
-
-    /**
-     * Test toString.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testToString() throws Exception {
-        BigInteger id = IdUtil.next();
-        HttpSession a = new HttpSession();
-        a.setId(id);
-        HttpSession b = new HttpSession();
-
-        Assert.assertEquals(
-                String.format("net.krotscheck.kangaroo.authz.common.database"
-                                + ".entity.HttpSession [id=%s]",
-                        IdUtil.toString(a.getId())),
-                a.toString());
-        Assert.assertEquals("net.krotscheck.kangaroo.authz"
-                + ".common.database.entity.HttpSession"
-                + " [id=null]", b.toString());
-    }
-
-    /**
-     * Test cloneable.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void testCloneable() throws Exception {
-        BigInteger id = IdUtil.next();
-        HttpSession a = new HttpSession();
-        a.setId(id);
-        HttpSession b = (HttpSession) a.clone();
-
-        Assert.assertEquals(a.getId(), b.getId());
     }
 }

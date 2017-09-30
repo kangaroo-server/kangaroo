@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Test;
@@ -208,7 +209,7 @@ public final class ScopeServiceBrowseTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -219,7 +220,7 @@ public final class ScopeServiceBrowseTest
         OAuthToken token = getAdminToken();
         Application adminApp = getAdminContext().getApplication();
         Map<String, String> params = new HashMap<>();
-        params.put("application", adminApp.getId().toString());
+        params.put("application", IdUtil.toString(adminApp.getId()));
 
         Response r = browse(params, token);
 
@@ -265,7 +266,7 @@ public final class ScopeServiceBrowseTest
                 .collect(Collectors.toList())
                 .get(0);
         Map<String, String> params = new HashMap<>();
-        params.put("role", role.getId().toString());
+        params.put("role", IdUtil.toString(role.getId()));
 
         Response r = browse(params, token);
 

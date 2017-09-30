@@ -21,11 +21,11 @@ package net.krotscheck.kangaroo.authz.common.util;
 
 import org.apache.commons.codec.binary.Base64;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
 /**
  * Password hashing and comparison utilities.

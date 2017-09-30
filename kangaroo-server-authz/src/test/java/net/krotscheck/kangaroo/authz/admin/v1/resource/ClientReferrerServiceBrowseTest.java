@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -35,11 +36,11 @@ import org.junit.runners.Parameterized;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.UriBuilder;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -212,10 +213,11 @@ public final class ClientReferrerServiceBrowseTest
         Session s = getSession();
         s.getTransaction().begin();
         try {
-            ClientReferrer r = s.get(ClientReferrer.class, UUID.fromString(id));
-            parentId = r.getClient().getId().toString();
+            ClientReferrer r = s.get(ClientReferrer.class, IdUtil.fromString(id));
+            parentId = IdUtil.toString(r.getClient().getId());
         } catch (Exception e) {
-            parentId = getParentEntity(getAdminContext()).getId().toString();
+            parentId =
+                    IdUtil.toString(getParentEntity(getAdminContext()).getId());
         } finally {
             s.getTransaction().commit();
         }
@@ -238,16 +240,16 @@ public final class ClientReferrerServiceBrowseTest
         if (referrer == null) {
             return getUrlForId(null);
         } else {
-            UUID referrerId = referrer.getId();
-            childId = referrerId == null ? null : referrerId.toString();
+            BigInteger referrerId = referrer.getId();
+            childId = referrerId == null ? null : IdUtil.toString(referrerId);
         }
 
         Client client = referrer.getClient();
         if (client == null) {
             return getUrlForId(null);
         } else {
-            UUID clientId = client.getId();
-            parentId = clientId == null ? null : clientId.toString();
+            BigInteger clientId = client.getId();
+            parentId = clientId == null ? null : IdUtil.toString(clientId);
         }
         return getUrlForEntity(parentId, childId);
     }

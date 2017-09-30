@@ -18,11 +18,14 @@
 
 package net.krotscheck.kangaroo.common.hibernate.entity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.Calendar;
-import java.util.UUID;
 
 /**
  * Unit tests for our abstract entity.
@@ -30,11 +33,47 @@ import java.util.UUID;
 public final class AbstractEntityTest {
 
     /**
+     * Object mapper, used for testing.
+     */
+    private static final ObjectMapper MAPPER =
+            new ObjectMapperFactory().get();
+
+    /**
+     * Test re/serialization.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testSerialize() throws Exception {
+
+        // Test entity.
+        TestEntity a = new TestEntity();
+        TestChildEntity c = new TestChildEntity();
+        a.setId(IdUtil.next());
+        c.setId(IdUtil.next());
+        a.setChildEntity(c);
+
+        String jsonString = MAPPER.writeValueAsString(a);
+        TestEntity b = MAPPER.readValue(jsonString, TestEntity.class);
+
+        Assert.assertEquals(a, b);
+        Assert.assertEquals(
+                a.getId(),
+                b.getId());
+        Assert.assertEquals(
+                a.getChildEntity(),
+                b.getChildEntity());
+        Assert.assertEquals(
+                a.getChildEntity().getId(),
+                b.getChildEntity().getId());
+    }
+
+    /**
      * Test ID get/set.
      */
     @Test
     public void testGetSetId() {
-        UUID id = UUID.randomUUID();
+        BigInteger id = IdUtil.next();
         AbstractEntity a = new TestEntity();
         Assert.assertNull(a.getId());
         a.setId(id);
@@ -74,7 +113,7 @@ public final class AbstractEntityTest {
      */
     @Test
     public void testEquality() {
-        UUID id = UUID.randomUUID();
+        BigInteger id = IdUtil.next();
         AbstractEntity a = new TestEntity();
         a.setId(id);
 
@@ -82,12 +121,12 @@ public final class AbstractEntityTest {
         b.setId(id);
 
         AbstractEntity c = new TestEntity();
-        c.setId(UUID.randomUUID());
+        c.setId(IdUtil.next());
 
         AbstractEntity d = new TestEntity();
 
-        AbstractEntity e = new TestEntity2();
-        e.setId(UUID.randomUUID());
+        AbstractEntity e = new TestChildEntity();
+        e.setId(IdUtil.next());
 
         Assert.assertTrue(a.equals(a));
         Assert.assertFalse(a.equals(null));
@@ -106,7 +145,7 @@ public final class AbstractEntityTest {
      */
     @Test
     public void testHashCode() {
-        UUID id = UUID.randomUUID();
+        BigInteger id = IdUtil.next();
         AbstractEntity a = new TestEntity();
         a.setId(id);
 
@@ -114,12 +153,12 @@ public final class AbstractEntityTest {
         b.setId(id);
 
         AbstractEntity c = new TestEntity();
-        c.setId(UUID.randomUUID());
+        c.setId(IdUtil.next());
 
         AbstractEntity d = new TestEntity();
 
-        AbstractEntity e = new TestEntity2();
-        e.setId(UUID.randomUUID());
+        AbstractEntity e = new TestChildEntity();
+        e.setId(IdUtil.next());
 
         Assert.assertEquals(a.hashCode(), b.hashCode());
         Assert.assertNotEquals(a.hashCode(), c.hashCode());
@@ -133,16 +172,16 @@ public final class AbstractEntityTest {
     @Test
     public void testToString() {
         AbstractEntity a = new TestEntity();
-        a.setId(UUID.randomUUID());
+        a.setId(IdUtil.next());
         AbstractEntity b = new TestEntity();
 
         Assert.assertEquals(
                 String.format("net.krotscheck.kangaroo.common.hibernate.entity"
-                                + ".AbstractEntityTest.TestEntity [id=%s]",
-                        a.getId()),
+                                + ".TestEntity [id=%s]",
+                        IdUtil.toString(a.getId())),
                 a.toString());
         Assert.assertEquals("net.krotscheck.kangaroo.common"
-                + ".hibernate.entity.AbstractEntityTest.TestEntity"
+                + ".hibernate.entity.TestEntity"
                 + " [id=null]", b.toString());
     }
 
@@ -153,22 +192,11 @@ public final class AbstractEntityTest {
      */
     @Test
     public void testCloneable() throws CloneNotSupportedException {
+        BigInteger id = IdUtil.next();
         AbstractEntity a = new TestEntity();
-        a.setId(UUID.randomUUID());
+        a.setId(id);
         AbstractEntity b = (AbstractEntity) a.clone();
 
         Assert.assertEquals(a.getId(), b.getId());
-    }
-
-    /**
-     * Test entity, used for testing!
-     */
-    private static class TestEntity extends AbstractEntity {
-    }
-
-    /**
-     * Another test entity, used for testing!
-     */
-    private static class TestEntity2 extends AbstractEntity {
     }
 }

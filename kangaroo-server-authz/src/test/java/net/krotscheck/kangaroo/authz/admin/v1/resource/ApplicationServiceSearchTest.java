@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -46,10 +47,10 @@ public final class ApplicationServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<Application>> LIST_TYPE =
-            new GenericType<ListResponseEntity<Application>>() {
+    private static final GenericType<ListResponseEntity<Application>>
+            LIST_TYPE = new GenericType<ListResponseEntity<Application>>() {
 
-            };
+    };
 
     /**
      * Create a new instance of this parameterized test.
@@ -62,16 +63,6 @@ public final class ApplicationServiceSearchTest
                                         final String tokenScope,
                                         final Boolean createUser) {
         super(Application.class, clientType, tokenScope, createUser);
-    }
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    @Override
-    protected GenericType<ListResponseEntity<Application>> getListType() {
-        return LIST_TYPE;
     }
 
     /**
@@ -112,6 +103,16 @@ public final class ApplicationServiceSearchTest
                         Scope.APPLICATION,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Application>> getListType() {
+        return LIST_TYPE;
     }
 
     /**
@@ -178,6 +179,6 @@ public final class ApplicationServiceSearchTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 }

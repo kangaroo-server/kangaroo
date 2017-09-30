@@ -26,7 +26,9 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
+import net.krotscheck.kangaroo.test.HttpUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +38,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
-import java.util.UUID;
+
 
 /**
  * Tests for our authorization filter.
@@ -147,7 +149,7 @@ public final class OAuth2AuthenticationFilterTest
         Response r = target("/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
-                        String.format("Bearer %s", validBearerToken.getId()))
+                        HttpUtil.authHeaderBearer(validBearerToken.getId()))
                 .get();
         Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
     }
@@ -171,7 +173,7 @@ public final class OAuth2AuthenticationFilterTest
         Response r = target("/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
-                        String.format("Bearer %s", noScopeBearerToken.getId()))
+                        HttpUtil.authHeaderBearer(noScopeBearerToken.getId()))
                 .get();
         Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
@@ -184,7 +186,7 @@ public final class OAuth2AuthenticationFilterTest
         Response r = target("/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
-                        String.format("Bearer %s", expiredBearerToken.getId()))
+                        HttpUtil.authHeaderBearer(expiredBearerToken.getId()))
                 .get();
         Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
@@ -197,13 +199,14 @@ public final class OAuth2AuthenticationFilterTest
         Response r = target("/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
-                        String.format("Bearer %s", UUID.randomUUID()))
+                        HttpUtil.authHeaderBearer(
+                                IdUtil.toString(IdUtil.next())))
                 .get();
         Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
-     * Test a bearer token that isn't formatted correctly (invalid UUID).
+     * Test a bearer token that isn't formatted correctly (invalid BigInteger).
      */
     @Test
     public void testMalformedBearerToken() {
@@ -223,7 +226,7 @@ public final class OAuth2AuthenticationFilterTest
         Response r = target("/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
-                        String.format("Bearer %s", authToken.getId()))
+                        HttpUtil.authHeaderBearer(authToken.getId()))
                 .get();
         Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }

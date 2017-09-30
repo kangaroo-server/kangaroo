@@ -21,6 +21,7 @@ package net.krotscheck.kangaroo.authz.admin.v1.resource;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.UUID;
+
 
 /**
  * Test the CRUD methods of the scope service.
@@ -133,7 +134,7 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
     public void testGetInvalidParent() throws Exception {
         T originalEntity = (T) getEntity(getAdminContext()).clone();
         K testParent = createParentEntity(getAdminContext());
-        testParent.setId(UUID.randomUUID());
+        testParent.setId(IdUtil.next());
 
         T testEntity = createValidEntity(getAdminContext(), testParent);
         testEntity.setId(originalEntity.getId());
@@ -151,7 +152,7 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
     @Test
     public final void testPostInvalidParent() throws Exception {
         K testParent = createParentEntity(getAdminContext());
-        testParent.setId(UUID.randomUUID());
+        testParent.setId(IdUtil.next());
         T testEntity = createValidEntity(getAdminContext(), testParent);
 
         // Issue the request.
@@ -185,7 +186,7 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
     @Test
     public final void testPutInvalidParent() throws Exception {
         K testParent = createParentEntity(getAdminContext());
-        testParent.setId(UUID.randomUUID());
+        testParent.setId(IdUtil.next());
         T testEntity = createValidEntity(getAdminContext(), testParent);
         T validEntity = getEntity(getAdminContext());
         testEntity.setId(validEntity.getId());
@@ -220,7 +221,7 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
     @Test
     public final void testDeleteInvalidParent() throws Exception {
         K testParent = createParentEntity(getAdminContext());
-        testParent.setId(UUID.randomUUID());
+        testParent.setId(IdUtil.next());
         T testEntity = createValidEntity(getAdminContext(), testParent);
         T validEntity = getEntity(getAdminContext());
         testEntity.setId(validEntity.getId());

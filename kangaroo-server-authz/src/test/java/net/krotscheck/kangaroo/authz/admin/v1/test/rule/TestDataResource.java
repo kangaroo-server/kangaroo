@@ -27,15 +27,17 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 
 
 /**
@@ -102,9 +104,9 @@ public final class TestDataResource
      * Create the test application using the FirstRun context listener. This
      * is to prevent it running when the application starts up.
      *
-     * @return The UUID of the admin application that was created.
+     * @return The BigInteger of the admin application that was created.
      */
-    private UUID createAdminApplication() {
+    private BigInteger createAdminApplication() {
         SessionFactory factory = getSessionFactory();
 
         // Initialize the servlet configuration.
@@ -119,7 +121,7 @@ public final class TestDataResource
         listener.onShutdown(null);
 
         // Store the application id.
-        return UUID.fromString(systemConfig.getString(Config.APPLICATION_ID));
+        return IdUtil.fromString(systemConfig.getString(Config.APPLICATION_ID));
     }
 
     /**
@@ -127,7 +129,7 @@ public final class TestDataResource
      */
     @Override
     protected void loadTestData(final Session session) {
-        UUID adminAppId = createAdminApplication();
+        BigInteger adminAppId = createAdminApplication();
 
         ApplicationBuilder adminBuilder = ApplicationBuilder
                 .fromApplication(session, adminAppId)

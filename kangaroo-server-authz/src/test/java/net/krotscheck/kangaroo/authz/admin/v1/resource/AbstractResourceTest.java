@@ -54,6 +54,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +65,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -257,7 +258,7 @@ public abstract class AbstractResourceTest<T extends AbstractEntity>
         if (entity != null) {
             // Temporarily null any ID from the entity so we generate a proper
             // POST path.
-            UUID oldId = entity.getId();
+            BigInteger oldId = entity.getId();
             entity.setId(null);
             location = getUrlForEntity(entity);
             entity.setId(oldId);

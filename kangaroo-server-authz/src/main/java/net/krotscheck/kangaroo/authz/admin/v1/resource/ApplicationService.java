@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -52,9 +53,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.Objects;
-import java.util.UUID;
+
 
 /**
  * A RESTful API that permits the management of application resources.
@@ -83,7 +85,7 @@ public final class ApplicationService extends AbstractService {
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
-            @Optional @QueryParam("owner") final UUID ownerId) {
+            @Optional @QueryParam("owner") final BigInteger ownerId) {
 
         // Start a query builder...
         QueryBuilder builder = getSearchFactory()
@@ -114,7 +116,7 @@ public final class ApplicationService extends AbstractService {
                 .createFullTextQuery(junction.createQuery(),
                         Application.class);
 
-        return executeQuery(query, offset, limit);
+        return executeQuery(Application.class, query, offset, limit);
     }
 
     /**
@@ -139,7 +141,7 @@ public final class ApplicationService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
-            @Optional @QueryParam("owner") final UUID ownerId) {
+            @Optional @QueryParam("owner") final BigInteger ownerId) {
         // Validate the incoming owner id.
         User owner = resolveOwnershipFilter(ownerId);
 
@@ -176,9 +178,9 @@ public final class ApplicationService extends AbstractService {
      * @return A response with the application that was requested.
      */
     @GET
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final UUID id) {
+    public Response getResource(@PathParam("id") final BigInteger id) {
         Application application = getSession().get(Application.class, id);
         assertCanAccess(application, getAdminScope());
         return Response.ok(application).build();
@@ -220,7 +222,7 @@ public final class ApplicationService extends AbstractService {
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
                 .path(ApplicationService.class, "getResource")
-                .build(application.getId().toString());
+                .build(IdUtil.toString(application.getId()));
 
         return Response.created(resourceLocation).build();
     }
@@ -233,10 +235,10 @@ public final class ApplicationService extends AbstractService {
      * @return A response with the application that was updated.
      */
     @PUT
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final UUID id,
+    public Response updateResource(@PathParam("id") final BigInteger id,
                                    final Application application) {
         Session s = getSession();
 
@@ -293,8 +295,8 @@ public final class ApplicationService extends AbstractService {
      * @return A response that indicates the successs of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response deleteResource(@PathParam("id") final UUID id) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response deleteResource(@PathParam("id") final BigInteger id) {
         Session s = getSession();
         Application a = s.get(Application.class, id);
 
@@ -330,4 +332,5 @@ public final class ApplicationService extends AbstractService {
     protected String getAccessScope() {
         return Scope.APPLICATION;
     }
+
 }

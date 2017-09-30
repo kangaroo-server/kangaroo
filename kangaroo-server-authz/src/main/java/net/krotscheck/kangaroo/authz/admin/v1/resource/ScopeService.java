@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -53,8 +54,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
+
 
 /**
  * A RESTful API that permits the management of scope resources.
@@ -85,9 +87,9 @@ public final class ScopeService extends AbstractService {
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("application") final UUID applicationId,
-            @Optional @QueryParam("role") final UUID roleId) {
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("application") final BigInteger applicationId,
+            @Optional @QueryParam("role") final BigInteger roleId) {
 
         // Start a query builder...
         QueryBuilder builder = getSearchFactory()
@@ -130,7 +132,7 @@ public final class ScopeService extends AbstractService {
                 .createFullTextQuery(junction.createQuery(),
                         ApplicationScope.class);
 
-        return executeQuery(query, offset, limit);
+        return executeQuery(ApplicationScope.class, query, offset, limit);
     }
 
     /**
@@ -156,9 +158,9 @@ public final class ScopeService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("application") final UUID applicationId,
-            @Optional @QueryParam("role") final UUID roleId) {
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("application") final BigInteger applicationId,
+            @Optional @QueryParam("role") final BigInteger roleId) {
 
         // Validate the incoming filters.
         User filterByOwner = resolveOwnershipFilter(ownerId);
@@ -223,9 +225,9 @@ public final class ScopeService extends AbstractService {
      */
     @SuppressWarnings("CPD-END")
     @GET
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final UUID id) {
+    public Response getResource(@PathParam("id") final BigInteger id) {
         ApplicationScope scope = getSession().get(ApplicationScope.class, id);
         assertCanAccess(scope, getAdminScope());
         return Response.ok(scope).build();
@@ -273,7 +275,7 @@ public final class ScopeService extends AbstractService {
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
                 .path(ScopeService.class, "getResource")
-                .build(scope.getId().toString());
+                .build(IdUtil.toString(scope.getId()));
 
         return Response.created(resourceLocation).build();
     }
@@ -286,10 +288,10 @@ public final class ScopeService extends AbstractService {
      * @return A response with the scope that was updated.
      */
     @PUT
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final UUID id,
+    public Response updateResource(@PathParam("id") final BigInteger id,
                                    final ApplicationScope scope) {
         Session s = getSession();
 
@@ -328,8 +330,8 @@ public final class ScopeService extends AbstractService {
      * @return A response that indicates the successs of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response deleteResource(@PathParam("id") final UUID id) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response deleteResource(@PathParam("id") final BigInteger id) {
         Session s = getSession();
         ApplicationScope a = s.get(ApplicationScope.class, id);
 

@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,7 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -139,15 +140,15 @@ public final class RoleTest {
     public void testJacksonSerializable() throws Exception {
         List<User> users = new ArrayList<>();
         User user = new User();
-        user.setId(UUID.randomUUID());
+        user.setId(IdUtil.next());
         users.add(user);
 
         Application a = new Application();
-        a.setId(UUID.randomUUID());
+        a.setId(IdUtil.next());
 
         Role role = new Role();
         role.setApplication(a);
-        role.setId(UUID.randomUUID());
+        role.setId(IdUtil.next());
         role.setCreatedDate(Calendar.getInstance());
         role.setModifiedDate(Calendar.getInstance());
         role.setName("name");
@@ -160,7 +161,7 @@ public final class RoleTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                role.getId().toString(),
+                IdUtil.toString(role.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(role.getCreatedDate().getTime()),
@@ -170,7 +171,7 @@ public final class RoleTest {
                 node.get("modifiedDate").asText());
 
         Assert.assertEquals(
-                role.getApplication().getId().toString(),
+                IdUtil.toString(role.getApplication().getId()),
                 node.get("application").asText());
         Assert.assertEquals(
                 role.getName(),
@@ -198,7 +199,7 @@ public final class RoleTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
@@ -209,7 +210,7 @@ public final class RoleTest {
         Role c = m.readValue(output, Role.class);
 
         Assert.assertEquals(
-                c.getId().toString(),
+                IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(c.getCreatedDate().getTime()),
@@ -230,8 +231,8 @@ public final class RoleTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -240,6 +241,6 @@ public final class RoleTest {
         Role c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, c.getId());
+        Assert.assertEquals(newId, c.getId());
     }
 }
