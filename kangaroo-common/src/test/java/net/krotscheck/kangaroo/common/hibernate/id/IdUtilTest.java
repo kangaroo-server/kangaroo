@@ -24,7 +24,6 @@ import org.junit.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
-import java.security.Security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -44,29 +43,11 @@ public class IdUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = IdUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isProtected(c.getModifiers()));
+        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
         c.newInstance();
-    }
-
-    /**
-     * Assert that a security exception is rethrown.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test(expected = RuntimeException.class)
-    public void testSecureRandomThrows() throws Exception {
-        String key = "securerandom.strongAlgorithms";
-        String propValue = Security.getProperty(key);
-        Security.setProperty(key, "");
-
-        try {
-            new IdUtil();
-        } finally {
-            Security.setProperty(key, propValue);
-        }
     }
 
     /**
