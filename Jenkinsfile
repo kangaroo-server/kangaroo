@@ -65,6 +65,44 @@ pipeline {
     }
 
     post {
+
+        /**
+         * When the build status changed, send the result.
+         */
+        changed {
+            script {
+                def buildStatus = currentBuild.currentResult
+                def url = env.BUILD_URL, message, color
+
+                if (env.CHANGE_URL && buildStatus == 'SUCCESS') {
+                    url = env.CHANGE_URL
+                }
+
+                switch (buildStatus) {
+                    case 'FAILURE':
+                        message = "Build <${url}|${env.BRANCH_NAME}> failed."
+                        color = '#AA0000'
+                        break
+                    case 'SUCCESS':
+                        message = "Build <${url}|${env.BRANCH_NAME}> passed."
+                        color = '#00AA00'
+                        break
+                    case 'UNSTABLE':
+                    default:
+                        message = "Build <${url}|${env.BRANCH_NAME}> unstable."
+                        color = '#FFAA00'
+                }
+
+                slackSend(
+                        channel: '#build-notifications',
+                        tokenCredentialId: 'kangaroo-server-slack-id',
+                        teamDomain: 'kangaroo-server',
+                        color: color,
+                        message: message
+                )
+            }
+        }
+
         /**
          * Actions always to run at the end of a pipeline.
          */
@@ -107,8 +145,6 @@ pipeline {
                     unstableTotalLow   : '0',
                     unstableTotalNormal: '0'
             ])
-
-            //   - bash <(curl -s https://codecov.io/bash)
 
             /**
              * PMD & PMD/CPD
