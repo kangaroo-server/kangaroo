@@ -34,11 +34,13 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
 import javax.ws.rs.core.UriBuilder;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +51,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 /**
@@ -112,7 +114,7 @@ public final class ApplicationBuilder {
      * @return A new context builder.
      */
     public static ApplicationBuilder newApplication(final Session session) {
-        return newApplication(session, UUID.randomUUID().toString());
+        return newApplication(session, IdUtil.toString(IdUtil.next()));
     }
 
     /**
@@ -156,7 +158,7 @@ public final class ApplicationBuilder {
      * @return A new context builder.
      */
     public static ApplicationBuilder fromApplication(final Session session,
-                                                     final UUID id) {
+                                                     final BigInteger id) {
         // Start a transaction.
         session.getTransaction().begin();
 
@@ -351,7 +353,7 @@ public final class ApplicationBuilder {
         context.client.setApplication(context.application);
 
         if (isPrivate) {
-            context.client.setClientSecret(UUID.randomUUID().toString());
+            context.client.setClientSecret(IdUtil.toString(IdUtil.next()));
         }
 
         persist(context.client);
@@ -507,7 +509,7 @@ public final class ApplicationBuilder {
      * @return This builder.
      */
     public ApplicationBuilder identity() {
-        return identity(UUID.randomUUID().toString());
+        return identity(IdUtil.toString(IdUtil.next()));
     }
 
     /**

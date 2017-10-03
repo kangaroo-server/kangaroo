@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +40,6 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -156,7 +156,7 @@ public final class UserIdentityServiceCRUDTest
         if (entity == null || entity.getId() == null) {
             return getUrlForId((String) null);
         }
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -209,8 +209,8 @@ public final class UserIdentityServiceCRUDTest
     @Override
     protected UserIdentity createValidEntity(final ApplicationContext context) {
         UserIdentity identity = new UserIdentity();
-        identity.setRemoteId(UUID.randomUUID().toString());
-        identity.setPassword(UUID.randomUUID().toString());
+        identity.setRemoteId(IdUtil.toString(IdUtil.next()));
+        identity.setPassword(IdUtil.toString(IdUtil.next()));
         identity.setUser(context.getUser());
         identity.getClaims().put("foo", "bar");
         identity.getClaims().put("lol", "cat");
@@ -373,7 +373,7 @@ public final class UserIdentityServiceCRUDTest
     public void testPostInvalidUser() throws Exception {
         UserIdentity testEntity = createValidEntity(getAdminContext());
         User invalidUser = new User();
-        invalidUser.setId(UUID.randomUUID());
+        invalidUser.setId(IdUtil.next());
         testEntity.setUser(invalidUser);
 
         // Issue the request.

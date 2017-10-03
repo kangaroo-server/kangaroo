@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,13 +36,13 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -106,12 +107,12 @@ public final class ClientReferrerTest {
     @Test
     public void testJacksonSerializable() throws Exception {
         Client client = new Client();
-        client.setId(UUID.randomUUID());
+        client.setId(IdUtil.next());
 
         ClientReferrer r = new ClientReferrer();
         r.setClient(client);
         r.setUri(URI.create("http://example.com/"));
-        r.setId(UUID.randomUUID());
+        r.setId(IdUtil.next());
         r.setCreatedDate(Calendar.getInstance());
         r.setModifiedDate(Calendar.getInstance());
 
@@ -122,7 +123,7 @@ public final class ClientReferrerTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                r.getId().toString(),
+                IdUtil.toString(r.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(r.getCreatedDate().getTime()),
@@ -154,19 +155,19 @@ public final class ClientReferrerTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
-        node.put("client", UUID.randomUUID().toString());
+        node.put("client", IdUtil.toString(IdUtil.next()));
         node.put("uri", "http://example.com/");
 
         String output = m.writeValueAsString(node);
         ClientReferrer r = m.readValue(output, ClientReferrer.class);
 
         Assert.assertEquals(
-                r.getId().toString(),
+                IdUtil.toString(r.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(r.getCreatedDate().getTime()),
@@ -190,8 +191,8 @@ public final class ClientReferrerTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -200,6 +201,6 @@ public final class ClientReferrerTest {
         Client c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, c.getId());
+        Assert.assertEquals(newId, c.getId());
     }
 }

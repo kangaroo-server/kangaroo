@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Session;
@@ -31,8 +32,8 @@ import org.junit.Test;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 
@@ -106,9 +107,9 @@ public final class ConfigServiceTest extends AbstractResourceTest {
     public void testBasicUsage() {
         Session session = getSession();
         Configuration config = getSystemConfig();
-        UUID applicationId = UUID.fromString(config
+        BigInteger applicationId = IdUtil.fromString(config
                 .getString(Config.APPLICATION_ID));
-        UUID clientId = UUID.fromString(config
+        BigInteger clientId = IdUtil.fromString(config
                 .getString(Config.APPLICATION_CLIENT_ID));
 
         Application a = session.get(Application.class, applicationId);

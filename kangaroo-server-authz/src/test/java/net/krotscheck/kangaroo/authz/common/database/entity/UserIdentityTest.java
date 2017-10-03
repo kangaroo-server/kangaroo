@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,7 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -174,15 +175,15 @@ public final class UserIdentityTest {
     @Test
     public void testJacksonSerializable() throws Exception {
         User user = new User();
-        user.setId(UUID.randomUUID());
+        user.setId(IdUtil.next());
 
         Authenticator authenticator = new Authenticator();
         authenticator.setType(AuthenticatorType.Test);
-        authenticator.setId(UUID.randomUUID());
+        authenticator.setId(IdUtil.next());
 
         List<OAuthToken> tokens = new ArrayList<>();
         OAuthToken token = new OAuthToken();
-        token.setId(UUID.randomUUID());
+        token.setId(IdUtil.next());
         tokens.add(token);
 
         Map<String, String> claims = new HashMap<>();
@@ -190,7 +191,7 @@ public final class UserIdentityTest {
         claims.put("two", "value");
 
         UserIdentity identity = new UserIdentity();
-        identity.setId(UUID.randomUUID());
+        identity.setId(IdUtil.next());
         identity.setCreatedDate(Calendar.getInstance());
         identity.setModifiedDate(Calendar.getInstance());
         identity.setType(authenticator.getType());
@@ -208,7 +209,7 @@ public final class UserIdentityTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                identity.getId().toString(),
+                IdUtil.toString(identity.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(identity.getCreatedDate().getTime()),
@@ -221,7 +222,7 @@ public final class UserIdentityTest {
                 identity.getType().toString(),
                 node.get("type").asText());
         Assert.assertEquals(
-                identity.getUser().getId().toString(),
+                IdUtil.toString(identity.getUser().getId()),
                 node.get("user").asText());
         Assert.assertEquals(
                 identity.getRemoteId(),
@@ -261,7 +262,7 @@ public final class UserIdentityTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
@@ -277,7 +278,7 @@ public final class UserIdentityTest {
         UserIdentity a = m.readValue(output, UserIdentity.class);
 
         Assert.assertEquals(
-                a.getId().toString(),
+                IdUtil.toString(a.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(a.getCreatedDate().getTime()),
@@ -307,8 +308,8 @@ public final class UserIdentityTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -317,6 +318,6 @@ public final class UserIdentityTest {
         UserIdentity u = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, u.getId());
+        Assert.assertEquals(newId, u.getId());
     }
 }

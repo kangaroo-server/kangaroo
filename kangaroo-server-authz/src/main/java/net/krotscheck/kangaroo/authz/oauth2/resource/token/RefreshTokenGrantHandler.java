@@ -25,15 +25,16 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
+import java.math.BigInteger;
 import java.util.SortedMap;
-import java.util.UUID;
+
 
 /**
  * This token type handler takes care of the "refresh_token" grant_type
@@ -77,10 +78,13 @@ public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
             throw new InvalidGrantException();
         }
 
-        // Cast the token to a UUID.
-        UUID refreshId;
+        // Cast the token to a BigInteger.
+        BigInteger refreshId;
         try {
-            refreshId = UUID.fromString(formData.getFirst("refresh_token"));
+            refreshId = IdUtil.fromString(formData.getFirst("refresh_token"));
+            if (refreshId == null) {
+                throw new NullPointerException();
+            }
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new InvalidGrantException();
         }

@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Assert;
@@ -37,7 +38,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
+
 
 /**
  * Test the CRUD methods of the scope service.
@@ -152,7 +153,7 @@ public final class ClientServiceCRUDTest
         if (entity == null || entity.getId() == null) {
             return getUrlForId((String) null);
         }
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -317,9 +318,9 @@ public final class ClientServiceCRUDTest
     @Test
     public void testPutRegularEntity() throws Exception {
         Client a = getEntity(getSecondaryContext());
-        a.setName(UUID.randomUUID().toString());
+        a.setName(IdUtil.toString(IdUtil.next()));
         a.setType(ClientType.OwnerCredentials);
-        a.setClientSecret(UUID.randomUUID().toString());
+        a.setClientSecret(IdUtil.toString(IdUtil.next()));
         Response r = putEntity(a, getAdminToken());
 
         if (isAccessible(a, getAdminToken())) {

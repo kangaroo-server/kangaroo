@@ -23,9 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * A POJO that represents the response from the token endpoint.
@@ -39,7 +39,7 @@ public final class TokenResponseEntity {
      * The access token.
      */
     @JsonProperty("access_token")
-    private UUID accessToken;
+    private BigInteger accessToken;
 
     /**
      * The token type (bearer or authorization).
@@ -57,7 +57,7 @@ public final class TokenResponseEntity {
      * The refresh token.
      */
     @JsonProperty("refresh_token")
-    private UUID refreshToken;
+    private BigInteger refreshToken;
 
     /**
      * The requested scope from the original authorization request.
@@ -76,60 +76,6 @@ public final class TokenResponseEntity {
      */
     private TokenResponseEntity() {
 
-    }
-
-    /**
-     * Retrieve the access token.
-     *
-     * @return The access token.
-     */
-    public UUID getAccessToken() {
-        return accessToken;
-    }
-
-    /**
-     * Get the token type!
-     *
-     * @return The token type.
-     */
-    public OAuthTokenType getTokenType() {
-        return tokenType;
-    }
-
-    /**
-     * Get the expiration time, in seconds.
-     *
-     * @return The expiration time, in seconds.
-     */
-    public Long getExpiresIn() {
-        return expiresIn;
-    }
-
-    /**
-     * Get the refresh token.
-     *
-     * @return The refresh token.
-     */
-    public UUID getRefreshToken() {
-        return refreshToken;
-    }
-
-    /**
-     * Get the scope.
-     *
-     * @return The token scope.
-     */
-    public String getScope() {
-        return scope;
-    }
-
-    /**
-     * Retrieve the state for the token response.
-     *
-     * @return A provided state, or null.
-     */
-    public String getState() {
-        return state;
     }
 
     /**
@@ -171,5 +117,59 @@ public final class TokenResponseEntity {
         TokenResponseEntity t = factory(token, state);
         t.refreshToken = refresh.getId();
         return t;
+    }
+
+    /**
+     * Retrieve the access token.
+     *
+     * @return The access token.
+     */
+    public BigInteger getAccessToken() {
+        return accessToken;
+    }
+
+    /**
+     * Get the token type!
+     *
+     * @return The token type.
+     */
+    public OAuthTokenType getTokenType() {
+        return tokenType;
+    }
+
+    /**
+     * Get the expiration time, in seconds.
+     *
+     * @return The expiration time, in seconds.
+     */
+    public Long getExpiresIn() {
+        return expiresIn;
+    }
+
+    /**
+     * Get the refresh token.
+     *
+     * @return The refresh token.
+     */
+    public BigInteger getRefreshToken() {
+        return refreshToken;
+    }
+
+    /**
+     * Get the scope.
+     *
+     * @return The token scope.
+     */
+    public String getScope() {
+        return scope;
+    }
+
+    /**
+     * Retrieve the state for the token response.
+     *
+     * @return A provided state, or null.
+     */
+    public String getState() {
+        return state;
     }
 }

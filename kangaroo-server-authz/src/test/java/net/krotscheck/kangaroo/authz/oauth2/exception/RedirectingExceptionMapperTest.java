@@ -28,18 +28,14 @@ import org.glassfish.jersey.internal.ExceptionMapperFactory;
 import org.glassfish.jersey.internal.inject.Bindings;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
-import org.glassfish.jersey.internal.inject.InstanceBinding;
 import org.glassfish.jersey.spi.ExceptionMappers;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Tests for the redirecting exception mapper.

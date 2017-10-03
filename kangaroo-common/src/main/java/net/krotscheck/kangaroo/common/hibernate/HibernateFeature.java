@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistry
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
 import net.krotscheck.kangaroo.common.hibernate.factory.PooledDataSourceFactory;
+import net.krotscheck.kangaroo.common.hibernate.id.Base16BigIntegerConverterProvider;
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
 import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
 import net.krotscheck.kangaroo.common.hibernate.mapper.ConstraintViolationExceptionMapper;
@@ -85,6 +86,9 @@ public final class HibernateFeature implements Feature {
 
         // Permit the @Transactional annotation.
         context.register(new TransactionFilter.Binder());
+
+        // Correctly map ID's
+        context.register(Base16BigIntegerConverterProvider.class);
 
         return true;
     }

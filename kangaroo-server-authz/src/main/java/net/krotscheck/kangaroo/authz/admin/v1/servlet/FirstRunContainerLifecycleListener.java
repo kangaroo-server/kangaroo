@@ -29,9 +29,9 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import org.apache.commons.configuration.Configuration;
-
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
@@ -182,19 +182,19 @@ public final class FirstRunContainerLifecycleListener
         s.getTransaction().commit();
 
         logger.debug(String.format("Application ID: %s",
-                servletApp.getId()));
+                IdUtil.toString(servletApp.getId())));
         logger.debug(String.format("Admin User ID: %s",
-                adminUser.getId()));
+                IdUtil.toString(adminUser.getId())));
         logger.debug(String.format("WebUI Client ID: %s",
-                servletClient.getId()));
+                IdUtil.toString(servletClient.getId())));
         logger.debug("Application created. Let's rock!");
 
         servletConfig.addProperty(Config.APPLICATION_ID,
-                servletApp.getId());
+                IdUtil.toString(servletApp.getId()));
         servletConfig.addProperty(Config.APPLICATION_CLIENT_ID,
-                servletClient.getId());
+                IdUtil.toString(servletClient.getId()));
         servletConfig.addProperty(Config.APPLICATION_ADMIN_ID,
-                adminUser.getId());
+                IdUtil.toString(adminUser.getId()));
 
         // Refresh the servlet app, populating all persisted references.
         s.refresh(servletApp);

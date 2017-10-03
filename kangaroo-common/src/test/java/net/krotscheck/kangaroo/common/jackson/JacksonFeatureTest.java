@@ -17,7 +17,7 @@
 
 package net.krotscheck.kangaroo.common.jackson;
 
-import net.krotscheck.kangaroo.common.hibernate.entity.TestByteIdEntity;
+import net.krotscheck.kangaroo.common.hibernate.entity.TestEntity;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
@@ -58,11 +58,11 @@ public final class JacksonFeatureTest extends KangarooJerseyTest {
      */
     @Test
     public void testProperDeserialization() {
-        TestByteIdEntity entity = new TestByteIdEntity();
+        TestEntity entity = new TestEntity();
         Entity pojoEntity = Entity.entity(entity,
                 MediaType.APPLICATION_JSON_TYPE);
-        TestByteIdEntity response = target("/").request()
-                .post(pojoEntity, TestByteIdEntity.class);
+        TestEntity response = target("/").request()
+                .post(pojoEntity, TestEntity.class);
 
         assertEquals(entity.getId(), response.getId());
     }
@@ -83,7 +83,7 @@ public final class JacksonFeatureTest extends KangarooJerseyTest {
          */
         @POST
         @Produces(MediaType.APPLICATION_JSON)
-        public Response modifyPojo(final TestByteIdEntity pojo) {
+        public Response modifyPojo(final TestEntity pojo) {
             return Response.ok(pojo).build();
         }
     }

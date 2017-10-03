@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.common.hibernate.deserializer;
+package net.krotscheck.kangaroo.common.hibernate.id;
 
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * A hibernate reference deserializer for generic references - converts
@@ -66,7 +65,7 @@ public abstract class AbstractEntityReferenceDeserializer
 
         try {
             T instance = (T) handledType().newInstance();
-            instance.setId(UUID.fromString(id));
+            instance.setId(IdUtil.fromString(id));
             return instance;
         } catch (InstantiationException | IllegalAccessException ie) {
             throw context.mappingException("Cannot instantiate mapped "

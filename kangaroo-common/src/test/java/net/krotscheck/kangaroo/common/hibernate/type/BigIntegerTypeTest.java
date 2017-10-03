@@ -143,6 +143,23 @@ public final class BigIntegerTypeTest {
     }
 
     /**
+     * Assert that a 'short' byte string is appropriately zero padded.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void nullSafeShort() throws Exception {
+        BigIntegerType type = new BigIntegerType();
+        PreparedStatement st = Mockito.mock(PreparedStatement.class);
+        BigInteger one = BigInteger.TEN;
+        type.nullSafeSet(st, one, 0, null);
+        Mockito.verify(st, times(1))
+                .setBytes(0, new byte[]{
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10
+                });
+    }
+
+    /**
      * Assert that setting with a null value sets null.
      *
      * @throws Exception Should not be thrown.
