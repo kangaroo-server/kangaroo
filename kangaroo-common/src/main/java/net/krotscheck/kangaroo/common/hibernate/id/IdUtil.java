@@ -22,9 +22,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Random;
 
 /**
  * A small utility that generates positive database identifiers.
@@ -34,29 +32,20 @@ import java.util.Random;
 public final class IdUtil {
 
     /**
-     * Static ID util, for convenience access.
-     */
-    private static final IdUtil INSTANCE = new IdUtil();
-
-    /**
-     * The # of bits in the ID. OSSTP recommends 128 bits.
+     * The # of bytes in the ID. OSSTP recommends 128 bits, which means 16
+     * bytes.
      */
     private static final int BIT_COUNT = 128;
 
     /**
      * Random number generator.
      */
-    private Random randomNumberGenerator;
+    private static final SecureRandom RND = new SecureRandom();
 
     /**
      * Utility class, private constructor.
      */
-    protected IdUtil() {
-        try {
-            randomNumberGenerator = SecureRandom.getInstanceStrong();
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new RuntimeException(nsae);
-        }
+    private IdUtil() {
     }
 
     /**
@@ -91,15 +80,6 @@ public final class IdUtil {
      * @return An ID generated from the SecureRandom stream of bytes.
      */
     public static BigInteger next() {
-        return INSTANCE.nextInternal();
-    }
-
-    /**
-     * Generate an ID.
-     *
-     * @return An ID generated from the SecureRandom stream of bytes.
-     */
-    protected BigInteger nextInternal() {
-        return new BigInteger(BIT_COUNT - 1, randomNumberGenerator);
+        return new BigInteger(BIT_COUNT - 1, RND);
     }
 }
