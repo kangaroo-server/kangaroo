@@ -63,11 +63,6 @@ public final class SecureRandomIdGenerator
     private Type type = new CustomType(new BigIntegerType());
 
     /**
-     * Id Util.
-     */
-    private IdUtil id = new IdUtil();
-
-    /**
      * Set a new SQL statement (used for testing).
      *
      * @param sql New statement.
@@ -92,7 +87,7 @@ public final class SecureRandomIdGenerator
 
         BigInteger nextId;
         do {
-            nextId = id.next();
+            nextId = IdUtil.next();
         } while (hasDuplicate(session, nextId));
 
         return nextId;
