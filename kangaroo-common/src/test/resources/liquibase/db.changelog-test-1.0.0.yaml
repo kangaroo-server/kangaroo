@@ -4,6 +4,24 @@ databaseChangeLog:
       author: krotscheck
       changes:
 
+      # The Test child entity table
+      - createTable:
+          tableName: child
+          columns:
+            - column:
+                name: id
+                type: BINARY(16)
+                constraints:
+                  primaryKey: true
+                  nullable: false
+                  primaryKeyName: pk_child_id
+            - column:
+                name: createdDate
+                type: bigint
+            - column:
+                name: modifiedDate
+                type: bigint
+
       # The Test entity table
       - createTable:
           tableName: test
@@ -14,7 +32,7 @@ databaseChangeLog:
                 constraints:
                   primaryKey: true
                   nullable: false
-                  primaryKeyName: pk_applications_id
+                  primaryKeyName: pk_parent_id
             - column:
                 name: createdDate
                 type: bigint
@@ -26,7 +44,27 @@ databaseChangeLog:
                 type: varchar(255)
                 constraints:
                   nullable: false
+            - column:
+                name: childEntity
+                type: BINARY(16)
+      - createIndex:
+          columns:
+          - column:
+              name: childEntity
+              type: BINARY(16)
+          indexName: idx_parent_child_entity
+          tableName: test
+      - addForeignKeyConstraint:
+          baseColumnNames: childEntity
+          baseTableName: test
+          constraintName: fk_parent_child
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: child
 
       rollback:
         - dropTable:
             tableName: test
+        - dropTable:
+            tableName: child

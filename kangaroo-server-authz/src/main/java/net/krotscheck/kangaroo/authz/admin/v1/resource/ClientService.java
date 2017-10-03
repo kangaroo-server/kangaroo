@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.util.SortUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
@@ -55,8 +56,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
+
 
 /**
  * A RESTful API that permits the management of application client resources.
@@ -83,11 +85,16 @@ public final class ClientService extends AbstractService {
     @Produces(MediaType.APPLICATION_JSON)
     @SuppressWarnings({"CPD-START"})
     public Response search(
-            @DefaultValue("0") @QueryParam("offset") final Integer offset,
-            @DefaultValue("10") @QueryParam("limit") final Integer limit,
-            @DefaultValue("") @QueryParam("q") final String queryString,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("application") final UUID applicationId) {
+            @DefaultValue("0") @QueryParam("offset")
+            final Integer offset,
+            @DefaultValue("10") @QueryParam("limit")
+            final Integer limit,
+            @DefaultValue("") @QueryParam("q")
+            final String queryString,
+            @Optional @QueryParam("owner")
+            final BigInteger ownerId,
+            @Optional @QueryParam("application")
+            final BigInteger applicationId) {
 
         // Start a query builder...
         QueryBuilder builder = getSearchFactory()
@@ -130,7 +137,7 @@ public final class ClientService extends AbstractService {
                 .createFullTextQuery(junction.createQuery(),
                         Client.class);
 
-        return executeQuery(query, offset, limit);
+        return executeQuery(Client.class, query, offset, limit);
     }
 
     /**
@@ -156,8 +163,8 @@ public final class ClientService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
-            @Optional @QueryParam("owner") final UUID ownerId,
-            @Optional @QueryParam("application") final UUID applicationId,
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @Optional @QueryParam("application") final BigInteger applicationId,
             @Optional @QueryParam("type") final ClientType clientType) {
 
         // Validate the incoming filters.
@@ -217,9 +224,9 @@ public final class ClientService extends AbstractService {
      */
     @SuppressWarnings("CPD-END")
     @GET
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final UUID id) {
+    public Response getResource(@PathParam("id") final BigInteger id) {
         Client client = getSession().get(Client.class, id);
         assertCanAccess(client, getAdminScope());
         return Response.ok(client).build();
@@ -264,7 +271,7 @@ public final class ClientService extends AbstractService {
         // Build the URI of the new resources.
         URI resourceLocation = getUriInfo().getAbsolutePathBuilder()
                 .path(ClientService.class, "getResource")
-                .build(client.getId().toString());
+                .build(IdUtil.toString(client.getId()));
 
         return Response.created(resourceLocation).build();
     }
@@ -277,10 +284,10 @@ public final class ClientService extends AbstractService {
      * @return A response with the client that was updated.
      */
     @PUT
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
+    @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final UUID id,
+    public Response updateResource(@PathParam("id") final BigInteger id,
                                    final Client client) {
         Session s = getSession();
 
@@ -324,8 +331,8 @@ public final class ClientService extends AbstractService {
      * @return A response that indicates the successs of this operation.
      */
     @DELETE
-    @Path("/{id: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}}")
-    public Response deleteResource(@PathParam("id") final UUID id) {
+    @Path("/{id: [a-f0-9]{32}}")
+    public Response deleteResource(@PathParam("id") final BigInteger id) {
         Session s = getSession();
         Client client = s.get(Client.class, id);
 
@@ -352,10 +359,9 @@ public final class ClientService extends AbstractService {
      * @param clientId The ID of the client.
      * @return The subresource.
      */
-    @Path("/{clientId: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}"
-            + "-[a-f0-9]{4}-[a-f0-9]{12}}/redirect")
+    @Path("/{clientId: [a-f0-9]{32}}/redirect")
     public Class<ClientRedirectService> getRedirectService(
-            @PathParam("clientId") final UUID clientId) {
+            @PathParam("clientId") final BigInteger clientId) {
         return ClientRedirectService.class;
     }
 
@@ -367,10 +373,9 @@ public final class ClientService extends AbstractService {
      * @param clientId The ID of the client.
      * @return The subresource.
      */
-    @Path("/{clientId: [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}"
-            + "-[a-f0-9]{4}-[a-f0-9]{12}}/referrer")
+    @Path("/{clientId: [a-f0-9]{32}}/referrer")
     public Class<ClientReferrerService> getReferrerService(
-            @PathParam("clientId") final UUID clientId) {
+            @PathParam("clientId") final BigInteger clientId) {
         return ClientReferrerService.class;
     }
 

@@ -26,10 +26,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,7 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -157,28 +158,28 @@ public final class ApplicationTest {
     public void testJacksonSerializable() throws Exception {
 
         User owner = new User();
-        owner.setId(UUID.randomUUID());
+        owner.setId(IdUtil.next());
 
         Role defaultRole = new Role();
-        defaultRole.setId(UUID.randomUUID());
+        defaultRole.setId(IdUtil.next());
 
         List<User> users = new ArrayList<>();
         User user = new User();
-        user.setId(UUID.randomUUID());
+        user.setId(IdUtil.next());
         users.add(user);
 
         List<Client> clients = new ArrayList<>();
         Client client = new Client();
-        client.setId(UUID.randomUUID());
+        client.setId(IdUtil.next());
         clients.add(client);
 
         List<Role> roles = new ArrayList<>();
         Role role = new Role();
-        role.setId(UUID.randomUUID());
+        role.setId(IdUtil.next());
         roles.add(role);
 
         Application a = new Application();
-        a.setId(UUID.randomUUID());
+        a.setId(IdUtil.next());
         a.setCreatedDate(Calendar.getInstance());
         a.setModifiedDate(Calendar.getInstance());
         a.setOwner(owner);
@@ -197,7 +198,7 @@ public final class ApplicationTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                a.getId().toString(),
+                IdUtil.toString(a.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(a.getCreatedDate().getTime()),
@@ -206,10 +207,10 @@ public final class ApplicationTest {
                 format.format(a.getCreatedDate().getTime()),
                 node.get("modifiedDate").asText());
         Assert.assertEquals(
-                a.getOwner().getId().toString(),
+                IdUtil.toString(a.getOwner().getId()),
                 node.get("owner").asText());
         Assert.assertEquals(
-                a.getDefaultRole().getId().toString(),
+                IdUtil.toString(a.getDefaultRole().getId()),
                 node.get("defaultRole").asText());
         Assert.assertEquals(
                 a.getName(),
@@ -237,7 +238,7 @@ public final class ApplicationTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
@@ -248,7 +249,7 @@ public final class ApplicationTest {
         Application a = m.readValue(output, Application.class);
 
         Assert.assertEquals(
-                a.getId().toString(),
+                IdUtil.toString(a.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(a.getCreatedDate().getTime()),
@@ -268,8 +269,8 @@ public final class ApplicationTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newInteger = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newInteger));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -278,6 +279,6 @@ public final class ApplicationTest {
         Application a = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, a.getId());
+        Assert.assertEquals(newInteger, a.getId());
     }
 }

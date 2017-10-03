@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -34,8 +35,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -82,9 +83,9 @@ public final class ConfigService {
     @SuppressWarnings({"CPD-START"})
     public Response readConfiguration() {
         // Read the needed ID's...
-        UUID applicationId = UUID.fromString(this.config
+        BigInteger applicationId = IdUtil.fromString(this.config
                 .getString(Config.APPLICATION_ID));
-        UUID clientId = UUID.fromString(this.config
+        BigInteger clientId = IdUtil.fromString(this.config
                 .getString(Config.APPLICATION_CLIENT_ID));
 
         // Load all the scopes.
@@ -115,7 +116,7 @@ public final class ConfigService {
         /**
          * The ID of the web-ui admin client.
          */
-        private UUID client;
+        private BigInteger client;
 
         /**
          * Available scopes.
@@ -145,7 +146,7 @@ public final class ConfigService {
          *
          * @return The client ID.
          */
-        public UUID getClient() {
+        public BigInteger getClient() {
             return client;
         }
 
@@ -154,7 +155,7 @@ public final class ConfigService {
          *
          * @param client The client ID.
          */
-        public void setClient(final UUID client) {
+        public void setClient(final BigInteger client) {
             this.client = client;
         }
     }

@@ -18,6 +18,7 @@
 package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -31,10 +32,10 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -187,7 +188,7 @@ public final class CredentialsFactory implements Supplier<Credentials> {
         /**
          * The login.
          */
-        private UUID login = null;
+        private BigInteger login = null;
 
         /**
          * The password.
@@ -207,7 +208,7 @@ public final class CredentialsFactory implements Supplier<Credentials> {
          * @param password The password.
          */
         public Credentials(final String login, final String password) {
-            this.login = UUID.fromString(login);
+            this.login = IdUtil.fromString(login);
 
             if (StringUtils.isEmpty(password)) {
                 this.password = null;
@@ -224,7 +225,7 @@ public final class CredentialsFactory implements Supplier<Credentials> {
         public Credentials(final Form formData) {
             MultivaluedMap<String, String> data = formData.asMap();
             if (data.containsKey("client_id")) {
-                login = UUID.fromString(data.getFirst("client_id"));
+                login = IdUtil.fromString(data.getFirst("client_id"));
             } else {
                 login = null;
             }
@@ -242,7 +243,7 @@ public final class CredentialsFactory implements Supplier<Credentials> {
          *
          * @return The login.
          */
-        public UUID getLogin() {
+        public BigInteger getLogin() {
             return login;
         }
 

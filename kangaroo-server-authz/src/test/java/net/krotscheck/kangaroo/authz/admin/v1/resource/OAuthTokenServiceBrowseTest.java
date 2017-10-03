@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Test;
@@ -204,7 +205,7 @@ public final class OAuthTokenServiceBrowseTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -214,7 +215,7 @@ public final class OAuthTokenServiceBrowseTest
     public void testBrowseFilterByClient() {
         Client c = getAdminContext().getClient();
         Map<String, String> params = new HashMap<>();
-        params.put("client", c.getId().toString());
+        params.put("client", IdUtil.toString(c.getId()));
         Response r = browse(params, getAdminToken());
 
         List<OAuthToken> expectedResults =
@@ -250,7 +251,7 @@ public final class OAuthTokenServiceBrowseTest
     public void testBrowseFilterByIdentity() {
         UserIdentity identity = getAdminContext().getUserIdentity();
         Map<String, String> params = new HashMap<>();
-        params.put("identity", identity.getId().toString());
+        params.put("identity", IdUtil.toString(identity.getId()));
         Response r = browse(params, getAdminToken());
 
         List<OAuthToken> expectedResults =

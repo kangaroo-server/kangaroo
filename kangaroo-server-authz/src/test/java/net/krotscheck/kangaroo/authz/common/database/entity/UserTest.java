@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.User.Deserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,12 +36,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -139,17 +140,17 @@ public final class UserTest {
     public void testJacksonSerializable() throws Exception {
         List<UserIdentity> identities = new ArrayList<>();
         UserIdentity identity = new UserIdentity();
-        identity.setId(UUID.randomUUID());
+        identity.setId(IdUtil.next());
         identities.add(identity);
 
         Role role = new Role();
-        role.setId(UUID.randomUUID());
+        role.setId(IdUtil.next());
 
         Application application = new Application();
-        application.setId(UUID.randomUUID());
+        application.setId(IdUtil.next());
 
         User user = new User();
-        user.setId(UUID.randomUUID());
+        user.setId(IdUtil.next());
         user.setCreatedDate(Calendar.getInstance());
         user.setModifiedDate(Calendar.getInstance());
         user.setApplication(application);
@@ -163,7 +164,7 @@ public final class UserTest {
         JsonNode node = m.readTree(output);
 
         Assert.assertEquals(
-                user.getId().toString(),
+                IdUtil.toString(user.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(user.getCreatedDate().getTime()),
@@ -173,10 +174,10 @@ public final class UserTest {
                 node.get("modifiedDate").asText());
 
         Assert.assertEquals(
-                user.getRole().getId().toString(),
+                IdUtil.toString(user.getRole().getId()),
                 node.get("role").asText());
         Assert.assertEquals(
-                user.getApplication().getId().toString(),
+                IdUtil.toString(user.getApplication().getId()),
                 node.get("application").asText());
 
         // Should not be serialized.
@@ -201,7 +202,7 @@ public final class UserTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         DateFormat format = new ISO8601DateFormat();
         ObjectNode node = m.createObjectNode();
-        node.put("id", UUID.randomUUID().toString());
+        node.put("id", IdUtil.toString(IdUtil.next()));
         node.put("createdDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("modifiedDate",
@@ -211,7 +212,7 @@ public final class UserTest {
         User user = m.readValue(output, User.class);
 
         Assert.assertEquals(
-                user.getId().toString(),
+                IdUtil.toString(user.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
                 format.format(user.getCreatedDate().getTime()),
@@ -229,8 +230,8 @@ public final class UserTest {
      */
     @Test
     public void testDeserializeSimple() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        String id = String.format("\"%s\"", uuid);
+        BigInteger newId = IdUtil.next();
+        String id = String.format("\"%s\"", IdUtil.toString(newId));
         JsonFactory f = new JsonFactory();
         JsonParser preloadedParser = f.createParser(id);
         preloadedParser.nextToken(); // Advance to the first value.
@@ -239,6 +240,6 @@ public final class UserTest {
         User u = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(uuid, u.getId());
+        Assert.assertEquals(newId, u.getId());
     }
 }

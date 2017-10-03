@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import net.krotscheck.kangaroo.common.hibernate.deserializer.AbstractEntityReferenceDeserializer;
+import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.SortNatural;

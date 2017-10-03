@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
@@ -51,7 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -99,7 +100,7 @@ public class OAuth2AuthenticationFilterTest extends DatabaseTest {
     private final Provider<Configuration> configProvider = () -> {
         Map<String, Object> config = new HashMap<>();
         config.put(Config.APPLICATION_ID,
-                context.getApplication().getId().toString());
+                IdUtil.toString(context.getApplication().getId()));
         return new MapConfiguration(config);
     };
 
@@ -213,7 +214,7 @@ public class OAuth2AuthenticationFilterTest extends DatabaseTest {
         OAuth2AuthenticationFilter filter = new OAuth2AuthenticationFilter(
                 sessionProvider, configProvider, new String[]{"one"});
 
-        String header = HttpUtil.authHeaderBearer(UUID.randomUUID());
+        String header = HttpUtil.authHeaderBearer(IdUtil.next());
         doReturn(header).when(requestContext)
                 .getHeaderString(HttpHeaders.AUTHORIZATION);
 
@@ -291,7 +292,7 @@ public class OAuth2AuthenticationFilterTest extends DatabaseTest {
     }
 
     /**
-     * Assert that a non-UUID bearer header value fails.
+     * Assert that a non-BigInteger bearer header value fails.
      *
      * @throws Exception Should be thrown.
      */
@@ -300,7 +301,7 @@ public class OAuth2AuthenticationFilterTest extends DatabaseTest {
         OAuth2AuthenticationFilter filter = new OAuth2AuthenticationFilter(
                 sessionProvider, configProvider, new String[]{"one"});
 
-        doReturn("Bearer not_a_uuid").when(requestContext)
+        doReturn("Bearer not_a_BigInteger").when(requestContext)
                 .getHeaderString(HttpHeaders.AUTHORIZATION);
 
         filter.filter(requestContext);

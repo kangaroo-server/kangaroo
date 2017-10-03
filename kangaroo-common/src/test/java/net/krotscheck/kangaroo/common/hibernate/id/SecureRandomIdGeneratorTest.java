@@ -18,7 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.id;
 
-import net.krotscheck.kangaroo.common.hibernate.entity.TestByteIdEntity;
+import net.krotscheck.kangaroo.common.hibernate.entity.TestEntity;
 import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.Session;
@@ -46,7 +46,7 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
      */
     @Test
     public void assertAnnotationPersistence() {
-        TestByteIdEntity e = new TestByteIdEntity();
+        TestEntity e = new TestEntity();
         e.setName("foo");
 
         Session s = getSession();
@@ -80,7 +80,7 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
      */
     @Test
     public void assertDuplicateTrueMatch() throws Exception {
-        TestByteIdEntity e = new TestByteIdEntity();
+        TestEntity e = new TestEntity();
         e.setName("foo");
 
         Session s = getSession();

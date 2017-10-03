@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
@@ -33,7 +34,8 @@ import org.junit.Assert;
 import org.junit.runner.RunWith;
 
 import javax.ws.rs.core.MultivaluedMap;
-import java.util.UUID;
+import java.math.BigInteger;
+
 
 /**
  * Abstract testing class that bootstraps a full OAuthAPI that's ready for
@@ -70,7 +72,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
         String tokenType = params.getFirst("token_type");
         String state = params.getFirst("state");
         Long expiresIn = Long.valueOf(params.getFirst("expires_in"));
-        UUID accessTokenId = UUID.fromString(accessTokenString);
+        BigInteger accessTokenId = IdUtil.fromString(accessTokenString);
 
         OAuthToken t = s.get(OAuthToken.class, accessTokenId);
         Assert.assertEquals(OAuthTokenType.valueOf(tokenType),
@@ -113,7 +115,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
         }
 
         // Validate any attached refresh token.
-        UUID refreshTokenId = token.getRefreshToken();
+        BigInteger refreshTokenId = token.getRefreshToken();
         if (refreshTokenId != null) {
             OAuthToken refresh = s.get(OAuthToken.class, refreshTokenId);
             Assert.assertEquals(refresh.getAuthToken(), bearer);

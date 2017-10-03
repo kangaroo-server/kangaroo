@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
@@ -47,6 +48,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the list and filter methods of the scope service.
@@ -445,7 +448,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
         User owner = getAdminContext().getApplication().getOwner();
 
         Map<String, String> params = new HashMap<>();
-        params.put("owner", owner.getId().toString());
+        params.put("owner", IdUtil.toString(owner.getId()));
         Response r = browse(params, getAdminToken());
 
         List<T> accessibleEntities = getAccessibleEntities(getAdminToken());
@@ -460,9 +463,9 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedResults > 0);
+            assertTrue(expectedResults > 0);
 
-            List<? extends AbstractEntity> results = assertListResponse(r,
+            assertListResponse(r,
                     Math.min(expectedResults, 10),
                     0,
                     10,
@@ -476,7 +479,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
     @Test
     public final void testBrowseFilterByMalformedOwner() {
         Response response = target(getBrowseUrl().getPath())
-                .queryParam("owner", "malformed")
+                .queryParam("owner", "malformed1")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(adminAppToken.getId()))
@@ -493,7 +496,8 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
         if (adminAppToken.getIdentity() != null) {
             Response r = target(getBrowseUrl().getPath())
                     .queryParam("owner",
-                            adminAppToken.getIdentity().getUser().getId())
+                            IdUtil.toString(adminAppToken.getIdentity()
+                                    .getUser().getId()))
                     .request()
                     .header(HttpHeaders.AUTHORIZATION,
                             HttpUtil.authHeaderBearer(adminAppToken.getId()))
@@ -509,7 +513,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                     10,
                     expectedResults);
         } else {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
     }
 

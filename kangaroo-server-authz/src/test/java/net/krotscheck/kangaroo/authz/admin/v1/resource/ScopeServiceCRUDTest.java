@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
@@ -42,7 +43,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
+
 
 /**
  * Test the CRUD methods of the scope service.
@@ -179,7 +180,7 @@ public final class ScopeServiceCRUDTest
         if (entity == null || entity.getId() == null) {
             return getUrlForId((String) null);
         }
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -361,7 +362,7 @@ public final class ScopeServiceCRUDTest
      */
     @Test
     public void testPutAdminScope() throws Exception {
-        String newName = UUID.randomUUID().toString();
+        String newName = IdUtil.toString(IdUtil.next());
         ApplicationScope scope = getAdminContext().getScope();
         scope.setName(newName);
 
@@ -395,7 +396,7 @@ public final class ScopeServiceCRUDTest
         s.save(scope);
         s.getTransaction().commit();
 
-        String newName = UUID.randomUUID().toString();
+        String newName = IdUtil.toString(IdUtil.next());
         scope.setName(newName);
         Response r = putEntity(scope, getAdminToken());
 

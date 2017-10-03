@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -35,7 +36,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -140,7 +140,8 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeSimpleRequest() {
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -167,7 +168,8 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeResponseTypeInvalid() {
         Response r = target("/authorize")
                 .queryParam("response_type", "invalid")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -217,7 +219,8 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeScopeSimple() {
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "debug")
                 .request()
                 .get();
@@ -246,7 +249,9 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeNone() {
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", noauthContext.getClient().getId())
+                .queryParam("client_id",
+
+                        IdUtil.toString(noauthContext.getClient().getId()))
                 .queryParam("scope", "debug")
                 .request()
                 .get();
@@ -275,7 +280,8 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeScopeInvalid() {
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "invalid")
                 .request()
                 .get();
@@ -302,10 +308,12 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeStateSimple() {
-        String state = UUID.randomUUID().toString();
+        String state =
+                IdUtil.toString(IdUtil.next());
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("scope", "debug")
                 .queryParam("state", state)
                 .request()
@@ -336,7 +344,8 @@ public final class Section420ImplicitGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("scope", "debug")
-                .queryParam("client_id", context.getClient().getId().toString())
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
                 .get();
@@ -367,7 +376,8 @@ public final class Section420ImplicitGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        twoRedirectContext.getClient().getId().toString())
+
+                        IdUtil.toString(twoRedirectContext.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://other.example.com/redirect")
                 .request()
@@ -398,7 +408,9 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeRedirectNoneRegistered() {
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", bareContext.getClient().getId())
+                .queryParam("client_id",
+
+                        IdUtil.toString(bareContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -421,7 +433,9 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeRedirectNoneRegisteredWithRequest() {
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", bareContext.getClient().getId())
+                .queryParam("client_id",
+
+                        IdUtil.toString(bareContext.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://redirect.example.com/redirect")
                 .request()
@@ -448,7 +462,8 @@ public final class Section420ImplicitGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        twoRedirectContext.getClient().getId().toString())
+
+                        IdUtil.toString(twoRedirectContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -472,7 +487,8 @@ public final class Section420ImplicitGrantTest
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 
@@ -503,7 +519,8 @@ public final class Section420ImplicitGrantTest
         Response r = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        context.getClient().getId().toString())
+
+                        IdUtil.toString(context.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://invalid.example.com/redirect")
                 .request()
@@ -530,7 +547,8 @@ public final class Section420ImplicitGrantTest
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        noRoleContext.getClient().getId().toString())
+
+                        IdUtil.toString(noRoleContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -573,7 +591,8 @@ public final class Section420ImplicitGrantTest
                 .queryParam("response_type", "token")
                 .queryParam("scope", "debug")
                 .queryParam("client_id",
-                        testContext.getClient().getId().toString())
+
+                        IdUtil.toString(testContext.getClient().getId()))
                 .request()
                 .get();
 
@@ -605,7 +624,8 @@ public final class Section420ImplicitGrantTest
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
-                        roleNoScopeContext.getClient().getId().toString())
+
+                        IdUtil.toString(roleNoScopeContext.getClient().getId()))
                 .request()
                 .get();
 
