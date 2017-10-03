@@ -76,9 +76,17 @@ public class IdUtilTest {
      */
     @Test
     public void testIdStringConvert() throws Exception {
-        BigInteger id = IdUtil.next();
-        String idString = IdUtil.toString(id);
-        assertEquals(id, IdUtil.fromString(idString));
+        // Test this 1000 times.
+        for (int i = 0; i < 1000; i++) {
+            BigInteger id = IdUtil.next();
+            String idString = IdUtil.toString(id);
+
+            // They must match.
+            assertEquals(id, IdUtil.fromString(idString));
+
+            // The string must be 32 characters long.
+            assertEquals(String.valueOf(i), 32, idString.length());
+        }
     }
 
     /**

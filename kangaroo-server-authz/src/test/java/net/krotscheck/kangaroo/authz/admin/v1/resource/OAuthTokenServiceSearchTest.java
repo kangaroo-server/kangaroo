@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +44,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -194,7 +194,7 @@ public final class OAuthTokenServiceSearchTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -216,7 +216,7 @@ public final class OAuthTokenServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("user", user.getId().toString());
+        params.put("user", IdUtil.toString(user.getId()));
         Response r = search(params, token);
 
         // Determine result set.
@@ -257,7 +257,7 @@ public final class OAuthTokenServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
-        params.put("user", UUID.randomUUID().toString());
+        params.put("user", IdUtil.toString(IdUtil.next()));
 
         Response r = search(params, token);
         if (isLimitedByClientCredentials()) {
@@ -300,7 +300,7 @@ public final class OAuthTokenServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("identity", identity.getId().toString());
+        params.put("identity", IdUtil.toString(identity.getId()));
         Response r = search(params, token);
 
         // Determine result set.
@@ -340,7 +340,7 @@ public final class OAuthTokenServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
-        params.put("identity", UUID.randomUUID().toString());
+        params.put("identity", IdUtil.toString(IdUtil.next()));
 
         Response r = search(params, token);
         if (isLimitedByClientCredentials()) {
@@ -377,7 +377,7 @@ public final class OAuthTokenServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("client", client.getId().toString());
+        params.put("client", IdUtil.toString(client.getId()));
         Response r = search(params, token);
 
         // Determine result set.
@@ -419,7 +419,7 @@ public final class OAuthTokenServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
-        params.put("client", UUID.randomUUID().toString());
+        params.put("client", IdUtil.toString(IdUtil.next()));
 
         Response r = search(params, token);
         if (isLimitedByClientCredentials()) {

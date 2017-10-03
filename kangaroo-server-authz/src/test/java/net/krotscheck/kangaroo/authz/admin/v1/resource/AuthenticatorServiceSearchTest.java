@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +43,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -57,10 +57,10 @@ public final class AuthenticatorServiceSearchTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<Authenticator>> LIST_TYPE =
-            new GenericType<ListResponseEntity<Authenticator>>() {
+    private static final GenericType<ListResponseEntity<Authenticator>>
+            LIST_TYPE = new GenericType<ListResponseEntity<Authenticator>>() {
 
-            };
+    };
 
     /**
      * Create a new instance of this parameterized test.
@@ -73,16 +73,6 @@ public final class AuthenticatorServiceSearchTest
                                           final String tokenScope,
                                           final Boolean createUser) {
         super(Authenticator.class, clientType, tokenScope, createUser);
-    }
-
-    /**
-     * Return the appropriate list type for this test suite.
-     *
-     * @return The list type, used for test decoding.
-     */
-    @Override
-    protected GenericType<ListResponseEntity<Authenticator>> getListType() {
-        return LIST_TYPE;
     }
 
     /**
@@ -123,6 +113,16 @@ public final class AuthenticatorServiceSearchTest
                         Scope.AUTHENTICATOR,
                         false
                 });
+    }
+
+    /**
+     * Return the appropriate list type for this test suite.
+     *
+     * @return The list type, used for test decoding.
+     */
+    @Override
+    protected GenericType<ListResponseEntity<Authenticator>> getListType() {
+        return LIST_TYPE;
     }
 
     /**
@@ -194,7 +194,7 @@ public final class AuthenticatorServiceSearchTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -218,7 +218,7 @@ public final class AuthenticatorServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", query);
-        params.put("client", c.getId().toString());
+        params.put("client", IdUtil.toString(c.getId()));
         Response r = search(params, token);
 
         // Determine result set.
@@ -259,7 +259,7 @@ public final class AuthenticatorServiceSearchTest
         OAuthToken token = getAdminToken();
         Map<String, String> params = new HashMap<>();
         params.put("q", "many");
-        params.put("client", UUID.randomUUID().toString());
+        params.put("client", IdUtil.toString(IdUtil.next()));
 
         Response r = search(params, token);
         if (isLimitedByClientCredentials()) {

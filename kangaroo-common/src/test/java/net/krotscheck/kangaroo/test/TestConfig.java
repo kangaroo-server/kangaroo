@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.database.TestDB;
-import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

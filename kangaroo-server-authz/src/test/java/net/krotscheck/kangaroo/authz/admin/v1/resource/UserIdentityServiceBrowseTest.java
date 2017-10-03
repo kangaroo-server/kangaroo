@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
 import org.junit.Assert;
@@ -44,7 +45,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -214,7 +214,7 @@ public final class UserIdentityServiceBrowseTest
      */
     @Override
     protected URI getUrlForEntity(final AbstractAuthzEntity entity) {
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -225,7 +225,7 @@ public final class UserIdentityServiceBrowseTest
         User filtered = getAdminContext().getUserIdentity().getUser();
 
         Map<String, String> params = new HashMap<>();
-        params.put("user", filtered.getId().toString());
+        params.put("user", IdUtil.toString(filtered.getId()));
         Response r = browse(params, getAdminToken());
 
         List<UserIdentity> expectedResults =
@@ -261,7 +261,7 @@ public final class UserIdentityServiceBrowseTest
     @Test
     public void testBrowseFilterByInvalidUser() {
         Map<String, String> params = new HashMap<>();
-        params.put("user", UUID.randomUUID().toString());
+        params.put("user", IdUtil.toString(IdUtil.next()));
         Response r = browse(params, getAdminToken());
 
         if (isLimitedByClientCredentials()) {

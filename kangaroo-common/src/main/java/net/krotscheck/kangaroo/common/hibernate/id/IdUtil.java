@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.common.hibernate.id;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -38,10 +39,9 @@ public final class IdUtil {
     private static final IdUtil INSTANCE = new IdUtil();
 
     /**
-     * The # of bytes in the ID. OSSTP recommends 128 bits, which means 16
-     * bytes.
+     * The # of bits in the ID. OSSTP recommends 128 bits.
      */
-    private static final int BYTE_COUNT = 16;
+    private static final int BIT_COUNT = 128;
 
     /**
      * Random number generator.
@@ -82,7 +82,7 @@ public final class IdUtil {
         if (id == null) {
             return null;
         }
-        return id.toString(16);
+        return StringUtils.leftPad(id.toString(16), 32, "0");
     }
 
     /**
@@ -100,8 +100,6 @@ public final class IdUtil {
      * @return An ID generated from the SecureRandom stream of bytes.
      */
     protected BigInteger nextInternal() {
-        byte[] randomBytes = new byte[BYTE_COUNT];
-        randomNumberGenerator.nextBytes(randomBytes);
-        return new BigInteger(randomBytes);
+        return new BigInteger(BIT_COUNT - 1, randomNumberGenerator);
     }
 }

@@ -18,6 +18,7 @@
 package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.junit.Assert;
@@ -29,7 +30,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
-import java.util.UUID;
+import java.math.BigInteger;
 import java.util.function.Supplier;
 
 import static org.mockito.Mockito.doReturn;
@@ -114,13 +115,13 @@ public final class CredentialsFactoryTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testGenericInterface() throws Exception {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         // Intentionally using the generic untyped interface here.
@@ -134,13 +135,13 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testValidAuthHeader() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -156,12 +157,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testAuthHeaderNoPassword() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(), ""),
+                        HttpUtil.authHeaderBasic(clientId, ""),
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -177,12 +178,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testAuthHeaderMalformed() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         "invalid_auth_header",
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -194,16 +195,16 @@ public final class CredentialsFactoryTest {
     }
 
     /**
-     * Assert that an auth header that does not conform to the UUID spec fails.
+     * Assert that an auth header that does not conform to the BigInteger spec fails.
      */
     @Test
-    public void testAuthHeaderNoUUID() {
-        UUID clientId = UUID.randomUUID();
+    public void testAuthHeaderNoByte() {
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic("not_a_uuid", "password"),
+                        HttpUtil.authHeaderBasic("not_a_BigInteger", "password"),
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -219,12 +220,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testPostValid() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.POST,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -260,12 +261,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testPostEmptySecret() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.POST,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         "");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -281,12 +282,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testPostNoSecret() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.POST,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -318,15 +319,15 @@ public final class CredentialsFactoryTest {
     }
 
     /**
-     * Assert that post credentials with a malformed client UUID fail.
+     * Assert that post credentials with a malformed client BigInteger fail.
      */
     @Test
-    public void testPostNoUUID() {
+    public void testPostNoByte() {
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.POST,
-                        "not_a_uuid",
+                        "not_a_BigInteger",
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -342,12 +343,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testGetValid() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -383,12 +384,12 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testGetIgnoreSecret() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(clientId),
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -420,15 +421,15 @@ public final class CredentialsFactoryTest {
     }
 
     /**
-     * Assert that GET credentials with a malformed UUID is not found.
+     * Assert that GET credentials with a malformed BigInteger is not found.
      */
     @Test
-    public void testGetNoUUID() {
+    public void testGetNoByte() {
         Provider<ContainerRequest> provider =
                 buildTestContext(
                         null,
                         HttpMethod.GET,
-                        "not_a_uuid",
+                        "not_a_BigInteger",
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -445,13 +446,13 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testPostMismatchClientId() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.POST,
-                        UUID.randomUUID().toString(),
+                        IdUtil.toString(IdUtil.next()),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -467,13 +468,13 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testPostDoubleAuth() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.POST,
-                        clientId.toString(),
+                        IdUtil.toString(IdUtil.next()),
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -489,13 +490,13 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testGetMismatchClientId() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.GET,
-                        UUID.randomUUID().toString(),
+                        IdUtil.toString(IdUtil.next()),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -511,13 +512,13 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testGetDoubleAuth() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.GET,
-                        clientId.toString(),
+                        IdUtil.toString(IdUtil.next()),
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
@@ -533,13 +534,13 @@ public final class CredentialsFactoryTest {
      */
     @Test
     public void testNonGetPost() {
-        UUID clientId = UUID.randomUUID();
+        BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId.toString(),
+                        HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.DELETE,
-                        clientId.toString(),
+                        IdUtil.toString(IdUtil.next()),
                         null);
 
         CredentialsFactory factory = new CredentialsFactory(provider);

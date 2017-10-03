@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
@@ -39,10 +40,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -158,7 +159,20 @@ public final class RoleServiceCRUDTest
         if (entity == null || entity.getId() == null) {
             return getUrlForId((String) null);
         }
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
+    }
+
+    /**
+     * Construct the request URL for a subresource ID.
+     *
+     * @param id    The root ID to use.
+     * @param subId The subresource ID to use.
+     * @return The resource URL.
+     */
+    private String getUrlForSubresourceId(final BigInteger id,
+                                          final BigInteger subId) {
+        return getUrlForSubresourceId(IdUtil.toString(id),
+                IdUtil.toString(subId));
     }
 
     /**
@@ -300,7 +314,7 @@ public final class RoleServiceCRUDTest
     @Test
     public void testPutRole() throws Exception {
         Role testEntity = getEntity(getSecondaryContext());
-        String newName = UUID.randomUUID().toString();
+        String newName = IdUtil.toString(IdUtil.next());
         testEntity.setName(newName);
 
         // Issue the request.
@@ -347,7 +361,7 @@ public final class RoleServiceCRUDTest
     @Test
     public void testPutAdminApp() throws Exception {
         Role testEntity = (Role) getEntity(getAdminContext()).clone();
-        testEntity.setName(UUID.randomUUID().toString());
+        testEntity.setName(IdUtil.toString(IdUtil.next()));
 
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
@@ -418,11 +432,11 @@ public final class RoleServiceCRUDTest
         // Build our request URI for an existing role and a new scope.
         ApplicationContext testContext = getSecondaryContext()
                 .getBuilder()
-                .scope(UUID.randomUUID().toString())
+                .scope(IdUtil.toString(IdUtil.next()))
                 .build();
         Role role = getEntity(testContext);
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                testContext.getScope().getId().toString());
+        String url = getUrlForSubresourceId(role.getId(),
+                testContext.getScope().getId());
 
         // Execute the request.
         Response r = target(url)
@@ -462,7 +476,7 @@ public final class RoleServiceCRUDTest
         // Create a scope attached to a role in the secondary context.
         ApplicationScope newScope = new ApplicationScope();
         newScope.setApplication(app);
-        newScope.setName(UUID.randomUUID().toString());
+        newScope.setName(IdUtil.toString(IdUtil.next()));
         editedRole.getScopes().put(newScope.getName(), newScope);
 
         Session s = getSession();
@@ -482,8 +496,8 @@ public final class RoleServiceCRUDTest
                 .getToken();
 
         // Build our request URI for an existing role and a new scope.
-        String url = getUrlForSubresourceId(editedRole.getId().toString(),
-                newScope.getId().toString());
+        String url = getUrlForSubresourceId(editedRole.getId(),
+                newScope.getId());
 
         // Execute the request.
         Response r = target(url)
@@ -522,8 +536,7 @@ public final class RoleServiceCRUDTest
         // Build our request URI for an existing role and a new scope.
         ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                UUID.randomUUID().toString());
+        String url = getUrlForSubresourceId(role.getId(), IdUtil.next());
 
         // Execute the request.
         Response r = target(url)
@@ -559,7 +572,7 @@ public final class RoleServiceCRUDTest
         // Build our request URI for an existing role and a new scope.
         ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
-        String url = getUrlForSubresourceId(role.getId().toString(),
+        String url = getUrlForSubresourceId(IdUtil.toString(role.getId()),
                 "malformed");
 
         // Execute the request.
@@ -593,14 +606,14 @@ public final class RoleServiceCRUDTest
                 .bearerToken(getAdminClient(),
                         getTokenScope(),
                         Scope.SCOPE_ADMIN)
-                .scope(UUID.randomUUID().toString())
+                .scope(IdUtil.toString(IdUtil.next()))
                 .build();
 
         // Build our request URI for an existing role and a new scope.
         ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                testContext.getScope().getId().toString());
+        String url = getUrlForSubresourceId(role.getId(),
+                testContext.getScope().getId());
 
         // Execute the request.
         Response r = target(url)
@@ -638,11 +651,11 @@ public final class RoleServiceCRUDTest
         // Build our request URI for an existing role and a new scope.
         ApplicationContext testContext = getSecondaryContext()
                 .getBuilder()
-                .scope(UUID.randomUUID().toString())
+                .scope(IdUtil.toString(IdUtil.next()))
                 .build();
         Role role = getEntity(testContext);
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                testContext.getScope().getId().toString());
+        String url = getUrlForSubresourceId(role.getId(),
+                testContext.getScope().getId());
 
         // Execute the request.
         Response r = target(url)
@@ -678,11 +691,11 @@ public final class RoleServiceCRUDTest
         ApplicationContext context = getSecondaryContext();
         Role role = getEntity(context);
         ApplicationScope scope = context.getBuilder()
-                .scope(UUID.randomUUID().toString())
+                .scope(IdUtil.toString(IdUtil.next()))
                 .build()
                 .getScope();
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(role.getId(),
+                scope.getId());
 
         Boolean shouldSucceed = shouldSucceed()
                 && isAccessible(scope, token, Scope.SCOPE_ADMIN);
@@ -732,11 +745,10 @@ public final class RoleServiceCRUDTest
         Role role = getEntity(context);
         ApplicationScope scope = context
                 .getBuilder()
-                .scope(UUID.randomUUID().toString())
+                .scope(IdUtil.toString(IdUtil.next()))
                 .build()
                 .getScope();
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(role.getId(), scope.getId());
 
         // Execute the request.
         Response r = target(url)
@@ -766,7 +778,7 @@ public final class RoleServiceCRUDTest
         // Create a scope attached to a role in the secondary context.
         ApplicationScope newScope = new ApplicationScope();
         newScope.setApplication(app);
-        newScope.setName(UUID.randomUUID().toString());
+        newScope.setName(IdUtil.toString(IdUtil.next()));
         editedRole.getScopes().put(newScope.getName(), newScope);
 
         Session s = getSession();
@@ -786,8 +798,8 @@ public final class RoleServiceCRUDTest
                 .getToken();
 
         // Build our request URI for existing linked roles and scopes.
-        String url = getUrlForSubresourceId(editedRole.getId().toString(),
-                newScope.getId().toString());
+        String url = getUrlForSubresourceId(editedRole.getId(),
+                newScope.getId());
 
         // Execute the request.
         Response r = target(url)
@@ -833,8 +845,8 @@ public final class RoleServiceCRUDTest
         // Build our request URI for existing linked roles and scopes.
         ApplicationContext context = getSecondaryContext();
         Role role = context.getRole();
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                UUID.randomUUID().toString());
+        String url = getUrlForSubresourceId(role.getId(),
+                IdUtil.next());
 
         // Execute the request.
         Response r = target(url)
@@ -872,14 +884,13 @@ public final class RoleServiceCRUDTest
         // Build our request URI for existing linked roles and scopes.
         ApplicationContext context = getSecondaryContext()
                 .getBuilder()
-                .scope(UUID.randomUUID().toString())
+                .scope(IdUtil.toString(IdUtil.next()))
                 .build();
         Role role = getAttached(context.getRole());
         ApplicationScope scope = getAttached(context.getScope());
 
         Assert.assertFalse(role.getScopes().values().contains(scope));
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(role.getId(), scope.getId());
 
         // Execute the request.
         Response r = target(url)
@@ -917,7 +928,7 @@ public final class RoleServiceCRUDTest
         // Build our request URI for existing linked roles and scopes.
         ApplicationContext context = getSecondaryContext();
         Role role = context.getRole();
-        String url = getUrlForSubresourceId(role.getId().toString(),
+        String url = getUrlForSubresourceId(IdUtil.toString(role.getId()),
                 "malformed");
 
         // Execute the request.
@@ -960,8 +971,7 @@ public final class RoleServiceCRUDTest
                 .get(0);
         ApplicationScope scope = role.getScopes().values().iterator().next();
         Assert.assertTrue(role.getScopes().values().contains(scope));
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(role.getId(), scope.getId());
 
         // Execute the request.
         Response r = target(url)
@@ -991,7 +1001,7 @@ public final class RoleServiceCRUDTest
         // Create a scope attached to a role in the secondary context.
         ApplicationScope newScope = new ApplicationScope();
         newScope.setApplication(app);
-        newScope.setName(UUID.randomUUID().toString());
+        newScope.setName(IdUtil.toString(IdUtil.next()));
         editedRole.getScopes().put(newScope.getName(), newScope);
 
         Session s = getSession();
@@ -1012,8 +1022,8 @@ public final class RoleServiceCRUDTest
 
         // Build our request URI for existing linked roles and scopes.
         ApplicationContext context = getSecondaryContext();
-        String url = getUrlForSubresourceId(editedRole.getId().toString(),
-                newScope.getId().toString());
+        String url = getUrlForSubresourceId(editedRole.getId(),
+                newScope.getId());
 
         Boolean shouldSucceed = shouldSucceed()
                 && isAccessible(newScope, token, Scope.SCOPE_ADMIN);
@@ -1062,8 +1072,8 @@ public final class RoleServiceCRUDTest
         Role role = context.getRole();
         ApplicationScope scope = role.getScopes().values().iterator().next();
         Assert.assertTrue(role.getScopes().values().contains(scope));
-        String url = getUrlForSubresourceId(role.getId().toString(),
-                scope.getId().toString());
+        String url = getUrlForSubresourceId(role.getId(),
+                scope.getId());
 
         // Execute the request.
         Response r = target(url)

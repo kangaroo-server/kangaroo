@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.InjectionManager;
@@ -120,7 +121,8 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
         // Generate the redirection url.
         URI callback = uriInfo.getAbsolutePathBuilder()
                 .path("/callback")
-                .queryParam("state", callbackState.getId())
+                .queryParam("state",
+                        IdUtil.toString(callbackState.getId()))
                 .build();
 
         // Run the authenticator.
@@ -163,7 +165,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
 
         // Build our redirect URL.
         UriBuilder responseBuilder = UriBuilder.fromUri(s.getClientRedirect());
-        responseBuilder.queryParam("code", t.getId().toString());
+        responseBuilder.queryParam("code", IdUtil.toString(t.getId()));
         if (!StringUtils.isEmpty(s.getClientState())) {
             responseBuilder.queryParam("state", s.getClientState());
         }

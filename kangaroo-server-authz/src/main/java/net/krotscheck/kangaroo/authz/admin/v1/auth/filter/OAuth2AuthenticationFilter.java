@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
@@ -38,7 +39,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
-import java.util.UUID;
+import java.math.BigInteger;
 
 /**
  * A request filter that validates a bearer token before permitting the
@@ -103,7 +104,7 @@ public final class OAuth2AuthenticationFilter
         }
 
         String header = request.getHeaderString(HttpHeaders.AUTHORIZATION);
-        UUID tokenId = getTokenIdFromHeader(header);
+        BigInteger tokenId = getTokenIdFromHeader(header);
         Application a = loadAdminApplication();
 
         Session session = sessionProvider.get();
@@ -138,7 +139,7 @@ public final class OAuth2AuthenticationFilter
      * @param header The header string.
      * @return An OAuth token, or null.
      */
-    private UUID getTokenIdFromHeader(final String header) {
+    private BigInteger getTokenIdFromHeader(final String header) {
 
         if (StringUtils.isEmpty(header)) {
             return null;
@@ -154,7 +155,7 @@ public final class OAuth2AuthenticationFilter
         }
 
         try {
-            return UUID.fromString(token[1]);
+            return IdUtil.fromString(token[1]);
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }
@@ -167,8 +168,8 @@ public final class OAuth2AuthenticationFilter
      */
     private Application loadAdminApplication() {
         Configuration servletConfig = configProvider.get();
-        String uuidString = servletConfig.getString(Config.APPLICATION_ID);
-        UUID appId = UUID.fromString(uuidString);
+        String idString = servletConfig.getString(Config.APPLICATION_ID);
+        BigInteger appId = IdUtil.fromString(idString);
 
         Session s = sessionProvider.get();
         return s.get(Application.class, appId);

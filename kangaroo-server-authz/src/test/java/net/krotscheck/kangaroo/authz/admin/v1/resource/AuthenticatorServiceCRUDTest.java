@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -38,7 +39,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
+
 
 /**
  * Test the CRUD methods of the Authenticator service.
@@ -51,10 +52,10 @@ public final class AuthenticatorServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<Authenticator>> LIST_TYPE =
-            new GenericType<ListResponseEntity<Authenticator>>() {
+    private static final GenericType<ListResponseEntity<Authenticator>>
+            LIST_TYPE = new GenericType<ListResponseEntity<Authenticator>>() {
 
-            };
+    };
 
     /**
      * Create a new instance of this parameterized test.
@@ -155,7 +156,7 @@ public final class AuthenticatorServiceCRUDTest
         if (entity == null || entity.getId() == null) {
             return getUrlForId((String) null);
         }
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -240,7 +241,7 @@ public final class AuthenticatorServiceCRUDTest
     public void testPostInvalidParent() throws Exception {
         Authenticator testEntity = createValidEntity(getAdminContext());
         Client wrongParent = new Client();
-        wrongParent.setId(UUID.randomUUID());
+        wrongParent.setId(IdUtil.next());
         testEntity.setClient(wrongParent);
 
         // Issue the request.

@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
@@ -42,7 +43,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
+
 
 /**
  * Unit tests for the /application endpoint's CRUD methods.
@@ -56,10 +57,10 @@ public final class ApplicationServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<Application>> LIST_TYPE =
-            new GenericType<ListResponseEntity<Application>>() {
+    private static final GenericType<ListResponseEntity<Application>>
+            LIST_TYPE = new GenericType<ListResponseEntity<Application>>() {
 
-            };
+    };
 
     /**
      * Create a new instance of this parameterized test.
@@ -163,7 +164,7 @@ public final class ApplicationServiceCRUDTest
     @Override
     protected Application createValidEntity(final ApplicationContext context) {
         Application a = new Application();
-        a.setName(UUID.randomUUID().toString());
+        a.setName(IdUtil.toString(IdUtil.next()));
         a.setOwner(context.getOwner());
         return a;
     }
@@ -214,7 +215,7 @@ public final class ApplicationServiceCRUDTest
         if (entity == null || entity.getId() == null) {
             return getUrlForId(null);
         }
-        return getUrlForId(entity.getId().toString());
+        return getUrlForId(IdUtil.toString(entity.getId()));
     }
 
     /**
@@ -285,7 +286,7 @@ public final class ApplicationServiceCRUDTest
         ApplicationContext context = getAdminContext();
 
         Role defaultRole = new Role();
-        defaultRole.setId(UUID.randomUUID());
+        defaultRole.setId(IdUtil.next());
 
         Application newApp = new Application();
         newApp.setName(RandomStringUtils.randomAlphanumeric(257));
@@ -372,7 +373,7 @@ public final class ApplicationServiceCRUDTest
     @Test
     public void testPutAdminApp() throws Exception {
         Application app = getAdminContext().getApplication();
-        app.setName(UUID.randomUUID().toString());
+        app.setName(IdUtil.toString(IdUtil.next()));
 
         Response r = putEntity(app, getAdminToken());
 
@@ -392,7 +393,7 @@ public final class ApplicationServiceCRUDTest
     @Test
     public void testPutRegularApp() throws Exception {
         Application a = getSecondaryContext().getApplication();
-        a.setName(UUID.randomUUID().toString());
+        a.setName(IdUtil.toString(IdUtil.next()));
         Response r = putEntity(a, getAdminToken());
 
         if (isAccessible(a, getAdminToken())) {
@@ -526,7 +527,7 @@ public final class ApplicationServiceCRUDTest
     public void testPutInvalidDefaultRole() throws Exception {
         Application a = getSecondaryContext().getApplication();
         Role role = new Role();
-        role.setId(UUID.randomUUID());
+        role.setId(IdUtil.next());
 
         Application testEntity = new Application();
         testEntity.setDefaultRole(role);
