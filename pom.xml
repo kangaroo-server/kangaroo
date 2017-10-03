@@ -149,6 +149,7 @@
   <properties>
     <target-directory>target</target-directory>
     <jdk.version>1.8</jdk.version>
+    <jackson.version>2.9.1</jackson.version>
     <hibernate.version>5.2.10.Final</hibernate.version>
     <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
     <hibernate-search.version>5.8.0.Final</hibernate-search.version>
@@ -533,40 +534,6 @@
   </reporting>
 
   <dependencies>
-    <!-- Logging Framework -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-
-    <!-- special dependency to fix liquibase's logging fetish -->
-    <dependency>
-      <groupId>com.mattbertolini</groupId>
-      <artifactId>liquibase-slf4j</artifactId>
-      <version>2.0.0</version>
-    </dependency>
-
     <!-- JUnit -->
     <dependency>
       <groupId>org.powermock</groupId>
@@ -608,11 +575,6 @@
 
     <!-- Jersey -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.glassfish.jersey.test-framework</groupId>
       <artifactId>jersey-test-framework-core</artifactId>
       <version>${jersey.version}</version>
@@ -648,6 +610,39 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Servlet API -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.0</version>
+      </dependency>
+
+      <!-- Logging -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
 
       <!-- Jersey (JAX-RS) -->
       <dependency>
@@ -669,6 +664,38 @@
         <groupId>org.glassfish.jersey.media</groupId>
         <artifactId>jersey-media-json-jackson</artifactId>
         <version>${jersey.version}</version>
+        <exclusions>
+          <!-- Exclude jackson, included below -->
+          <exclusion>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- Jackson serialization -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
 
       <!-- Apache HTTP -->
@@ -787,20 +814,12 @@
       <dependency>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-core</artifactId>
-        <version>3.5.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.liquibase.ext</groupId>
-        <artifactId>liquibase-hibernate4</artifactId>
-        <version>3.5</version>
+        <version>3.5.3</version>
         <exclusions>
+          <!-- We don't use spring -->
           <exclusion>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <groupId>org.hibernate.javax.persistence</groupId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-envers</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -808,6 +827,12 @@
         <groupId>com.mattbertolini</groupId>
         <artifactId>liquibase-slf4j</artifactId>
         <version>2.0.0</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Database drivers. -->
