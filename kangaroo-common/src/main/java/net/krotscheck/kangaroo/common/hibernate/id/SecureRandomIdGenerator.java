@@ -23,12 +23,15 @@ import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.boot.model.naming.ObjectNameNormalizer;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
+import org.hibernate.engine.jdbc.spi.JdbcCoordinator;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerationException;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.PersistentIdentifierGenerator;
+import org.hibernate.resource.jdbc.ResourceRegistry;
+import org.hibernate.resource.jdbc.spi.LogicalConnectionImplementor;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.CustomType;
 import org.hibernate.type.Type;
@@ -137,33 +140,35 @@ public final class SecureRandomIdGenerator
     protected boolean hasDuplicate(
             final SharedSessionContractImplementor session,
             final BigInteger id) {
+        JdbcCoordinator coordinator = session.getJdbcCoordinator();
+        LogicalConnectionImplementor logicalConnection =
+                coordinator.getLogicalConnection();
+        ResourceRegistry resourceRegistry =
+                logicalConnection.getResourceRegistry();
 
-        PreparedStatement st = session
-                .getJdbcCoordinator()
+        ResultSet resultSet = null;
+        PreparedStatement st = coordinator
                 .getStatementPreparer()
                 .prepareStatement(sql);
 
         try {
             type.nullSafeSet(st, id, 1, session);
 
-            ResultSet rs = session.getJdbcCoordinator()
+            resultSet = coordinator
                     .getResultSetReturn()
                     .extract(st);
-            try {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-                return false;
-            } finally {
-                session.getJdbcCoordinator().getLogicalConnection()
-                        .getResourceRegistry().release(rs, st);
+            int count = 0;
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
             }
+            resourceRegistry.release(resultSet, st);
+
+            return count > 0;
         } catch (SQLException | GenericJDBCException sle) {
             throw new IdentifierGenerationException("Cannot scan for id", sle);
         } finally {
-            session.getJdbcCoordinator().getLogicalConnection()
-                    .getResourceRegistry().release(st);
-            session.getJdbcCoordinator().afterStatementExecution();
+            resourceRegistry.release(st);
+            coordinator.afterStatementExecution();
         }
     }
 }

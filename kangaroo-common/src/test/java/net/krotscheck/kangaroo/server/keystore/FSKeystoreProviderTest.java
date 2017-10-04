@@ -20,11 +20,7 @@ package net.krotscheck.kangaroo.server.keystore;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,12 +29,14 @@ import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+
 /**
  * Unit test for the filesystem keystore loader.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public class FSKeystoreProviderTest {
 
     /**
@@ -158,11 +156,11 @@ public class FSKeystoreProviderTest {
      * @throws Exception Thrown because RSA is not available.
      */
     @Test(expected = RuntimeException.class)
-    @PrepareOnlyThisForTest({FSKeystoreProvider.class, KeyStore.class})
     public void testRecastExceptionWriteTo() throws Exception {
-        FSKeystoreProvider provider = PowerMockito
+        FSKeystoreProvider provider = Mockito
                 .spy(new FSKeystoreProvider(KS_PATH, KS_PASS, KS_TYPE));
         KeyStore mockStore = Mockito.mock(KeyStore.class);
+        doThrow(Exception.class).when(mockStore).store(any(), any());
 
         Mockito.when(provider.getKeyStore()).thenReturn(mockStore);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
