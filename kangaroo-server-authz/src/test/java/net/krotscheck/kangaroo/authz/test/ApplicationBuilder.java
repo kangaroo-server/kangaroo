@@ -27,6 +27,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
+import net.krotscheck.kangaroo.authz.common.database.entity.HttpSession;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
@@ -51,7 +52,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
-
 import java.util.stream.Collectors;
 
 /**
@@ -717,6 +717,21 @@ public final class ApplicationBuilder {
     }
 
     /**
+     * Create a new http session.
+     *
+     * @param expired Whether this session is expired.
+     * @return This builder.
+     */
+    public ApplicationBuilder httpSession(final Boolean expired) {
+
+        context.httpSession = new HttpSession();
+        context.httpSession.setSessionTimeout(expired ? -100 : 100);
+        persist(context.httpSession);
+
+        return this;
+    }
+
+    /**
      * Track the entity for later flushing to the database.
      *
      * @param e The entity to persist.
@@ -765,6 +780,63 @@ public final class ApplicationBuilder {
     public static final class ApplicationContext {
 
         /**
+         * The session used to persist this data.
+         */
+        private final Session session;
+        /**
+         * The HTTP session.
+         */
+        private HttpSession httpSession;
+        /**
+         * The current application context.
+         */
+        private Application application;
+        /**
+         * The most recent created scope.
+         */
+        private ApplicationScope scope;
+        /**
+         * The current application scopes.
+         */
+        private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+        /**
+         * An authenticator state.
+         */
+        private AuthenticatorState authenticatorState;
+        /**
+         * The current role context.
+         */
+        private Role role;
+        /**
+         * The current client context.
+         */
+        private Client client;
+        /**
+         * The current authenticator context.
+         */
+        private Authenticator authenticator;
+        /**
+         * The user context.
+         */
+        private User user;
+        /**
+         * The user identity context.
+         */
+        private UserIdentity userIdentity;
+        /**
+         * The oauth token context.
+         */
+        private OAuthToken token;
+        /**
+         * The last redirect created.
+         */
+        private ClientRedirect redirect;
+        /**
+         * The last referrer created.
+         */
+        private ClientReferrer referrer;
+
+        /**
          * Create a new context instance.
          *
          * @param session The session used to persist these entities.
@@ -783,69 +855,13 @@ public final class ApplicationBuilder {
         }
 
         /**
-         * The session used to persist this data.
+         * Get the current http session.
+         *
+         * @return The current session.
          */
-        private final Session session;
-
-        /**
-         * The current application context.
-         */
-        private Application application;
-
-        /**
-         * The most recent created scope.
-         */
-        private ApplicationScope scope;
-
-        /**
-         * The current application scopes.
-         */
-        private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
-
-        /**
-         * An authenticator state.
-         */
-        private AuthenticatorState authenticatorState;
-
-        /**
-         * The current role context.
-         */
-        private Role role;
-
-        /**
-         * The current client context.
-         */
-        private Client client;
-
-        /**
-         * The current authenticator context.
-         */
-        private Authenticator authenticator;
-
-        /**
-         * The user context.
-         */
-        private User user;
-
-        /**
-         * The user identity context.
-         */
-        private UserIdentity userIdentity;
-
-        /**
-         * The oauth token context.
-         */
-        private OAuthToken token;
-
-        /**
-         * The last redirect created.
-         */
-        private ClientRedirect redirect;
-
-        /**
-         * The last referrer created.
-         */
-        private ClientReferrer referrer;
+        public HttpSession getHttpSession() {
+            return httpSession;
+        }
 
         /**
          * Get the current application.

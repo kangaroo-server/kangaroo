@@ -19,9 +19,13 @@
 package net.krotscheck.kangaroo.test.rule;
 
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
+import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
 import net.krotscheck.kangaroo.test.rule.hibernate.TestDirectoryProvider;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -142,5 +146,15 @@ public class HibernateResource implements TestRule {
         sessionFactory = new MetadataSources(registry)
                 .buildMetadata()
                 .buildSessionFactory();
+
+        logger.debug("Injecting event listeners");
+        EventListenerRegistry eventRegistry =
+                ((SessionFactoryImpl) sessionFactory)
+                        .getServiceRegistry()
+                        .getService(EventListenerRegistry.class);
+        eventRegistry.appendListeners(EventType.PRE_INSERT,
+                new CreatedUpdatedListener());
+        eventRegistry.appendListeners(EventType.PRE_UPDATE,
+                new CreatedUpdatedListener());
     }
 }
