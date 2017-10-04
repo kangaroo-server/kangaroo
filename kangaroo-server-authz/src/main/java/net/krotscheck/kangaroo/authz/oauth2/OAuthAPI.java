@@ -30,6 +30,7 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.token.AuthorizationCodeGran
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.ClientCredentialsGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.OwnerCredentialsGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.RefreshTokenGrantHandler;
+import net.krotscheck.kangaroo.authz.oauth2.session.SessionFeature;
 import net.krotscheck.kangaroo.authz.oauth2.tasks.TokenCleanupTask;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
@@ -70,6 +71,7 @@ public class OAuthAPI extends ResourceConfig {
 
         // Authorization context
         register(OAuthServerAuthnFeature.class);
+        register(SessionFeature.class);
 
         // Authorization handlers
         register(new AuthCodeHandler.Binder());

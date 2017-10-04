@@ -154,6 +154,7 @@
     <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
     <hibernate-search.version>5.8.0.Final</hibernate-search.version>
     <jersey.version>2.26</jersey.version>
+    <grizzly.version>2.4.2</grizzly.version>
     <slf4j.version>1.7.25</slf4j.version>
     <powermock.version>2.0.0-beta.5</powermock.version>
     <jacoco.version>0.7.9</jacoco.version>
@@ -649,6 +650,18 @@
         <groupId>org.slf4j</groupId>
         <artifactId>log4j-over-slf4j</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+
+      <!-- Grizzly -->
+      <dependency>
+        <groupId>org.glassfish.grizzly</groupId>
+        <artifactId>grizzly-http-servlet</artifactId>
+        <version>${grizzly.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.grizzly</groupId>
+        <artifactId>grizzly-http-servlet-extras</artifactId>
+        <version>${grizzly.version}</version>
       </dependency>
 
       <!-- Jersey (JAX-RS) -->
