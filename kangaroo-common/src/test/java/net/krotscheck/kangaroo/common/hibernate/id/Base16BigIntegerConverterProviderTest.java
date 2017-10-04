@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 
 import org.junit.Test;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.ext.ParamConverter;
@@ -144,8 +145,21 @@ public final class Base16BigIntegerConverterProviderTest {
     /**
      * The string-to-biginteger converter.
      */
-    @Test
+    @Test(expected = NotFoundException.class)
     public void testConvertString() {
+        Annotation[] annotations = new Annotation[]{pathAnnotation};
+
+        ParamConverter converter = converterProvider
+                .getConverter(BigInteger.class, null, annotations);
+
+        converter.fromString("not_a_valid_string");
+    }
+
+    /**
+     * Test convert with an error.
+     */
+    @Test
+    public void testConvertFromStringError() {
         Annotation[] annotations = new Annotation[]{pathAnnotation};
 
         ParamConverter converter = converterProvider
@@ -154,6 +168,5 @@ public final class Base16BigIntegerConverterProviderTest {
         BigInteger id = IdUtil.next();
         BigInteger converted = (BigInteger)
                 converter.fromString(IdUtil.toString(id));
-        assertEquals(id, converted);
     }
 }

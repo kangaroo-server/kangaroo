@@ -26,12 +26,19 @@ import org.hibernate.dialect.H2Dialect;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerationException;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.math.BigInteger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * This hibernate ID id, uses the SecureRandom class to generate
@@ -56,6 +63,36 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
 
         assertNotNull(e);
         assertNotNull(e.getId());
+    }
+
+    /**
+     * Assert that we can generate a new id.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void assertGenerateSimple() throws Exception {
+    }
+
+    /**
+     * Assert that we can generate a new id if the first (or second, or
+     * third) conflicts.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void assertGenerateSimpleNoConflict() throws Exception {
+        SecureRandomIdGenerator generator = spy(new SecureRandomIdGenerator());
+        doReturn(true, true, false)
+                .when(generator)
+                .hasDuplicate(any(), any());
+
+        BigInteger id = (BigInteger) generator.generate(
+                (SharedSessionContractImplementor) getSession(), null);
+
+        assertNotNull(id);
+        Mockito.verify(generator, times(3))
+                .hasDuplicate(any(), any());
     }
 
     /**
@@ -135,38 +172,5 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
                 (SharedSessionContractImplementor) getSession(),
                 null);
         assertFalse(result);
-    }
-
-    /**
-     * Quick helper class to simulate a lot of id duplicates.
-     */
-    public class DuplicateIdAnswer implements Answer<Integer> {
-
-        /**
-         * The remaining count of "Duplicate" id hits.
-         */
-        private Integer remainingCount = 10;
-
-        /**
-         * Get the current remaining count.
-         *
-         * @return The remaining count.
-         */
-        public int getRemainingCount() {
-            return remainingCount;
-        }
-
-        /**
-         * Return the current value - 1;.
-         *
-         * @param invocation Parameters (not used).
-         * @return A countdown of integers.
-         * @throws Throwable Should not be thrown.
-         */
-        @Override
-        public Integer answer(final InvocationOnMock invocation)
-                throws Throwable {
-            return --remainingCount;
-        }
     }
 }
