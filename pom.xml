@@ -155,7 +155,7 @@
     <hibernate-search.version>5.8.0.Final</hibernate-search.version>
     <jersey.version>2.26</jersey.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <powermock.version>1.6.6</powermock.version>
+    <powermock.version>2.0.0-beta.5</powermock.version>
     <jacoco.version>0.7.9</jacoco.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -284,6 +284,7 @@
             <argLine>-Xmx1024m</argLine>
 
             <systemPropertyVariables>
+              <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
               <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
@@ -537,7 +538,7 @@
     <!-- JUnit -->
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4-rule-agent</artifactId>
+      <artifactId>powermock-module-junit4-rule</artifactId>
       <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
@@ -549,7 +550,7 @@
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
+      <artifactId>powermock-api-mockito2</artifactId>
       <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
@@ -568,8 +569,14 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
+      <artifactId>mockito-core</artifactId>
+      <version>2.10.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>2.10.0</version>
       <scope>test</scope>
     </dependency>
 

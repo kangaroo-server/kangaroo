@@ -62,11 +62,14 @@ public final class Base16BigIntegerConverterProvider
         }
 
         // We only respond to path params and query params...
-        long count = Arrays.stream(annotations)
-                .filter(a -> a instanceof PathParam
-                        || a instanceof QueryParam)
-                .count();
-        if (count == 0) {
+        Boolean isPathParam = Arrays.stream(annotations)
+                .filter(a -> a instanceof PathParam)
+                .count() > 0;
+        Boolean isQueryParam = Arrays.stream(annotations)
+                .filter(a -> a instanceof QueryParam)
+                .count() > 0;
+
+        if (!isPathParam && !isQueryParam) {
             return null;
         }
 
