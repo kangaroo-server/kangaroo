@@ -30,11 +30,7 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
 import java.net.URI;
@@ -45,13 +41,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 /**
  * Test the client redirect entity.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public final class ClientRedirectTest {
 
     /**
@@ -84,10 +80,9 @@ public final class ClientRedirectTest {
      * Assert that we retrieve the owner from the parent client.
      */
     @Test
-    @PrepareForTest(Client.class)
     public void testGetOwner() {
         ClientRedirect redirect = new ClientRedirect();
-        Client spy = PowerMockito.spy(new Client());
+        Client spy = spy(new Client());
 
         // Null check
         Assert.assertNull(redirect.getOwner());

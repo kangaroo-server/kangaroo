@@ -30,11 +30,7 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
 import java.net.URI;
@@ -48,13 +44,13 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 /**
  * Unit test for the OAuth Token Entity.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public final class OAuthTokenTest {
 
     /**
@@ -266,10 +262,9 @@ public final class OAuthTokenTest {
      * Assert that we retrieve the owner from the parent client.
      */
     @Test
-    @PrepareForTest(Client.class)
     public void testGetOwner() {
         OAuthToken token = new OAuthToken();
-        Client spy = PowerMockito.spy(new Client());
+        Client spy = spy(new Client());
 
         // Null check
         Assert.assertNull(token.getOwner());

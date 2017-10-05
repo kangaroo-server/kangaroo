@@ -23,9 +23,7 @@ import org.glassfish.jersey.server.spi.Container;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,6 @@ import java.util.TimerTask;
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public class TimedTasksLifecycleListenerTest {
 
     /**
