@@ -29,7 +29,6 @@ import org.glassfish.grizzly.http.server.Session;
 import org.glassfish.grizzly.http.server.SessionManager;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -51,13 +50,6 @@ import java.util.TimeZone;
  * @author Michael Krotscheck
  */
 public final class GrizzlySessionManager implements SessionManager {
-
-    /**
-     * The date HQL.
-     */
-    private static final String DATE_HQL = "update HttpSession set"
-            + " createdDate=?,"
-            + " modifiedDate=? where id=?";
 
     /**
      * Max age, in seconds, of the session.
@@ -184,21 +176,11 @@ public final class GrizzlySessionManager implements SessionManager {
                 List<OAuthToken> refreshTokens =
                         new ArrayList<>(oldEntity.getRefreshTokens());
                 HttpSession newSession = new HttpSession();
-                newSession.setCreatedDate(oldEntity.getCreatedDate());
-                newSession.setModifiedDate(oldEntity.getModifiedDate());
                 newSession.setSessionTimeout(session.getSessionTimeout());
                 newSession.setRefreshTokens(refreshTokens);
 
                 hibernateSession.delete(oldEntity);
                 hibernateSession.save(newSession);
-
-                // Modify the dates, because the entity persister will use
-                // the default listeners...
-                Query setDates = hibernateSession.createQuery(DATE_HQL);
-                setDates.setParameter(0, oldEntity.getCreatedDate());
-                setDates.setParameter(1, oldEntity.getModifiedDate());
-                setDates.setParameter(2, newSession.getId());
-                setDates.executeUpdate();
 
                 hibernateSession.getTransaction().commit();
 
@@ -256,6 +238,7 @@ public final class GrizzlySessionManager implements SessionManager {
         cookie.setSecure(true);
         cookie.setName(sessionCookieName);
         cookie.setMaxAge(sessionMaxAge);
+        cookie.setVersion(1);
     }
 
     /**
