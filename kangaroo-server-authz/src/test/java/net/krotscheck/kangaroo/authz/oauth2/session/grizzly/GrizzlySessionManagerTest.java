@@ -174,8 +174,8 @@ public final class GrizzlySessionManagerTest extends DatabaseTest {
         assertNotNull(newSession);
 
         assertEquals(s.getSessionTimeout(), newSession.getSessionTimeout());
-        assertEquals(s.getCreatedDate(), newSession.getCreatedDate());
-        assertEquals(s.getModifiedDate(), newSession.getModifiedDate());
+        assertNotEquals(s.getCreatedDate(), newSession.getCreatedDate());
+        assertNotEquals(s.getModifiedDate(), newSession.getModifiedDate());
     }
 
     /**
@@ -275,6 +275,7 @@ public final class GrizzlySessionManagerTest extends DatabaseTest {
         manager.configureSessionCookie(r, c);
 
         assertEquals("example.com", c.getDomain());
+        assertEquals(1, c.getVersion());
         assertTrue(c.isHttpOnly());
         assertTrue(c.isSecure());
         assertEquals(AuthzServerConfig.SESSION_NAME.getValue(),
