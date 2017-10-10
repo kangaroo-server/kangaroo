@@ -93,6 +93,15 @@ public final class ApplicationBuilder {
     }
 
     /**
+     * Get the builder that was used to create this context.
+     *
+     * @return The builder.
+     */
+    public ApplicationContext getContext() {
+        return context.copy();
+    }
+
+    /**
      * Private constructor.
      *
      * @param session     The session which this builder should use to persist
@@ -593,9 +602,11 @@ public final class ApplicationBuilder {
      * @return This builder.
      */
     public ApplicationBuilder refreshToken() {
-        String scopes = String.join(" ", context.token.getScopes().keySet());
-        return token(OAuthTokenType.Refresh, false, scopes,
-                null, context.token);
+        String scopes = "";
+        if (context.token != null) {
+            scopes = String.join(" ", context.token.getScopes().keySet());
+        }
+        return token(OAuthTokenType.Refresh, false, scopes, null, context.token);
     }
 
     /**
@@ -726,7 +737,18 @@ public final class ApplicationBuilder {
 
         context.httpSession = new HttpSession();
         context.httpSession.setSessionTimeout(expired ? -100 : 100);
+
+        if (context.token != null
+                && context.token.getTokenType().equals(OAuthTokenType.Refresh)) {
+            context.token.setHttpSession(context.httpSession);
+        }
+
         persist(context.httpSession);
+
+        if (context.token != null
+                && context.httpSession.equals(context.token.getHttpSession())) {
+            persist(context.token);
+        }
 
         return this;
     }
@@ -736,7 +758,7 @@ public final class ApplicationBuilder {
      *
      * @param e The entity to persist.
      */
-    private void persist(final AbstractEntity e) {
+    public void persist(final AbstractEntity e) {
         // Set created/updated dates for all entities.
         if (e.getCreatedDate() == null) {
             e.setCreatedDate(Calendar.getInstance(UTC));
@@ -861,6 +883,18 @@ public final class ApplicationBuilder {
          */
         public HttpSession getHttpSession() {
             return httpSession;
+        }
+
+        /**
+         * Get the current http session.
+         *
+         * @return The current session.
+         */
+        public String getHttpSessionId() {
+            if (httpSession != null) {
+                return IdUtil.toString(httpSession.getId());
+            }
+            return "";
         }
 
         /**
@@ -999,6 +1033,7 @@ public final class ApplicationBuilder {
             snapshot.token = token;
             snapshot.redirect = redirect;
             snapshot.referrer = referrer;
+            snapshot.httpSession = httpSession;
 
             return snapshot;
         }
