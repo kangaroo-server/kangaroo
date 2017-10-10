@@ -106,12 +106,8 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
      * The HTTP session that contains this token, usually only used for
      * refresh tokens.
      */
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.REMOVE, CascadeType.MERGE}
-    )
-    @JoinColumn(name = "httpSession", nullable = true, updatable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "httpSession")
     @JsonIgnore
     private HttpSession httpSession;
 

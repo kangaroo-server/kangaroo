@@ -35,6 +35,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -85,20 +86,24 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
         return injector.getInstance(IAuthenticator.class, a.getType().name());
     }
 
-
     /**
      * Handle an authorization request using the Auth Code flow.
      *
-     * @param uriInfo  The original request, in case additional data is needed.
-     * @param auth     The authenticator to use to process this request.
-     * @param redirect The redirect (already validated) to which the response
-     *                 should be returned.
-     * @param scopes   The (validated) list of scopes requested by the user.
-     * @param state    The client's requested state ID.
+     * @param uriInfo        The original request, in case additional data
+     *                       is needed.
+     * @param browserSession The browser session, maintained via cookies.
+     * @param auth           The authenticator to use to process this
+     *                       request.
+     * @param redirect       The redirect (already validated) to which
+     *                       the response  should be returned.
+     * @param scopes         The (validated) list of scopes requested by
+     *                       the user.
+     * @param state          The client's requested state ID.
      * @return The response from the handler.
      */
     @Override
     public Response handle(final UriInfo uriInfo,
+                           final HttpSession browserSession,
                            final Authenticator auth,
                            final URI redirect,
                            final SortedMap<String, ApplicationScope> scopes,
@@ -135,12 +140,14 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
      * the previously stored state, this method should return to the client
      * either a valid token, or an appropriate error response.
      *
-     * @param s       The request state previously saved by the client.
-     * @param uriInfo The URI response from the third party IdP.
+     * @param s              The request state previously saved by the client.
+     * @param browserSession The browser session, maintained via cookies.
+     * @param uriInfo        The URI response from the third party IdP.
      * @return A response entity indicating success or failure.
      */
     @Override
     public Response callback(final AuthenticatorState s,
+                             final HttpSession browserSession,
                              final UriInfo uriInfo) {
 
         IAuthenticator a = getAuthenticator(s);
