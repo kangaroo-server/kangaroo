@@ -20,11 +20,8 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,14 +44,8 @@ public final class HttpSession extends AbstractEntity {
     /**
      * OAuth tokens attached to this session.
      */
-    @OneToMany(
-            fetch = FetchType.LAZY,
-            mappedBy = "httpSession",
-            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
-            orphanRemoval = true
-    )
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "httpSession")
     @JsonIgnore
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<OAuthToken> refreshTokens = new ArrayList<>();
 
     /**

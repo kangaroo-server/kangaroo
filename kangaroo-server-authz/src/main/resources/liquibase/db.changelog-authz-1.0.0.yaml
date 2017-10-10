@@ -829,7 +829,7 @@ databaseChangeLog:
                   nullable: true
             - column:
                 name: httpSession
-                type: BINARY(64)
+                type: BINARY(16)
                 constraints:
                   nullable: true
             - column:
