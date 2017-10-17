@@ -149,7 +149,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
 
         IAuthenticator a = getAuthenticator(s);
         UserIdentity i = a.authenticate(s.getAuthenticator(),
-                uriInfo.getPathParameters(), callback);
+                uriInfo.getQueryParameters(), callback);
 
         // Build the token.
         OAuthToken t = new OAuthToken();
