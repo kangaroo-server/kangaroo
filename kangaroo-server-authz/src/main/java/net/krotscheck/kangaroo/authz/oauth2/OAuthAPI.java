@@ -34,6 +34,7 @@ import net.krotscheck.kangaroo.authz.oauth2.session.SessionFeature;
 import net.krotscheck.kangaroo.authz.oauth2.tasks.TokenCleanupTask;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
+import net.krotscheck.kangaroo.common.httpClient.HttpClientFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.logging.LoggingFeature;
 import net.krotscheck.kangaroo.common.security.SecurityFeature;
@@ -68,6 +69,7 @@ public class OAuthAPI extends ResourceConfig {
         register(TimedTasksFeature.class);       // Timed tasks service.
         register(AuthenticatorFeature.class);    // OAuth2 Authenticators
         register(AuthzCORSFeature.class);        // CORS feature.
+        register(HttpClientFeature.class);       // Make Http requests.
 
         // Authorization context
         register(OAuthServerAuthnFeature.class);
