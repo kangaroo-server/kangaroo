@@ -19,7 +19,7 @@ package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
-import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.junit.Assert;
 import org.junit.Test;
