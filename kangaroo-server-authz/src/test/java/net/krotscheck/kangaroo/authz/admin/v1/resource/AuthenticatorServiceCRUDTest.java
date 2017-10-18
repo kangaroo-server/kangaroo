@@ -218,6 +218,24 @@ public final class AuthenticatorServiceCRUDTest
     }
 
     /**
+     * Test that we cannot create an entity with an invalid configuration.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPostInvalidConfig() throws Exception {
+        Authenticator testEntity = createValidEntity(getAdminContext());
+        testEntity.getConfiguration().put("invalid", "bar");
+
+        Response r = postEntity(testEntity, getAdminToken());
+        if (shouldSucceed()) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "misconfigured");
+        } else {
+            assertErrorResponse(r, Status.BAD_REQUEST);
+        }
+    }
+
+    /**
      * Assert that you cannot create an authenticator without a client
      * reference.
      *
@@ -289,6 +307,38 @@ public final class AuthenticatorServiceCRUDTest
             Authenticator response = r.readEntity(Authenticator.class);
             Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Assert.assertEquals(a, response);
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+
+        // Cleanup the authenticator
+        s.getTransaction().begin();
+        s.delete(a);
+        s.getTransaction().commit();
+    }
+
+    /**
+     * Assert that a regular entity will error on validation if the
+     * configuration is wrong.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutInvalidConfig() throws Exception {
+        // Create an entity to update
+        Authenticator a = createValidEntity(getSecondaryContext());
+        Session s = getSession();
+        s.getTransaction().begin();
+        s.save(a);
+        s.getTransaction().commit();
+
+        // Update the entity
+        a.getConfiguration().put("invalid", "config");
+
+        Response r = putEntity(a, getAdminToken());
+
+        if (isAccessible(a, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "misconfigured");
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
