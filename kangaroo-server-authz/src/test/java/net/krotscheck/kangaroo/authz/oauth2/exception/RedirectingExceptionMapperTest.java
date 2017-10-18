@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidClientException;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.common.exception.mapper.KangarooExceptionMapper;
-import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.internal.ExceptionMapperFactory;
 import org.glassfish.jersey.internal.inject.Bindings;
 import org.glassfish.jersey.internal.inject.InjectionManager;

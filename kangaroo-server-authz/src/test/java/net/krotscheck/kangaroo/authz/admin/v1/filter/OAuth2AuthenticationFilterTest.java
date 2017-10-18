@@ -28,7 +28,7 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
-import net.krotscheck.kangaroo.test.HttpUtil;
+import net.krotscheck.kangaroo.util.HttpUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
