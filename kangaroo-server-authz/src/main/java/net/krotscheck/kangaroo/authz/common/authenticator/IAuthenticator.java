@@ -18,12 +18,15 @@
 
 package net.krotscheck.kangaroo.authz.common.authenticator;
 
+import net.krotscheck.kangaroo.authz.common.authenticator.exception.MisconfiguredAuthenticatorException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 
-import java.net.URI;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.Map;
 
 /**
  * This interface describes the methods used during user authentication,
@@ -45,6 +48,27 @@ public interface IAuthenticator {
      */
     Response delegate(Authenticator configuration,
                       URI callback);
+
+    /**
+     * Validate that a particular authentication configuration is valid for
+     * this IdP.
+     *
+     * @param authenticator The authenticator configuration.
+     * @throws KangarooException Thrown if the internal parameters
+     *                           are invalid.
+     */
+    default void validate(Authenticator authenticator)
+            throws KangarooException {
+
+        // If we have any configuration values, throw an exception.
+        Map<String, String> config = authenticator.getConfiguration();
+        if (config == null) {
+            return;
+        }
+        if (config.size() > 0) {
+            throw new MisconfiguredAuthenticatorException();
+        }
+    }
 
     /**
      * Authenticate and/or create a user identity for a specific client, given

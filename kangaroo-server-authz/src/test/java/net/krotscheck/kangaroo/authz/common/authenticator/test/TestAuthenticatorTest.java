@@ -25,6 +25,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -39,8 +40,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.security.InvalidParameterException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test the test authenticator.
@@ -53,6 +58,7 @@ public final class TestAuthenticatorTest extends DatabaseTest {
      * DB Context, constructed for testing.
      */
     private static ApplicationContext context;
+
     /**
      * Test data loading for this test.
      */
@@ -86,6 +92,43 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         Assert.assertEquals(testUri, r.getLocation());
         Mockito.verifyNoMoreInteractions(session);
+    }
+
+    /**
+     * Assert that validate passes with no, or null, or random parameters.
+     */
+    @Test
+    public void validateNoParams() {
+        try {
+            Session session = Mockito.mock(Session.class);
+            IAuthenticator a = new TestAuthenticator(session);
+            Authenticator config = new Authenticator();
+            a.validate(config); // This should NOT throw an exception.
+
+            config.setConfiguration(new HashMap<>());
+            a.validate(config); // This should NOT throw an exception.
+
+            config.getConfiguration().put("foo", "bar");
+            a.validate(config); // This should NOT throw an exception.
+        } catch (Exception e) {
+            assertNull(e);
+        }
+    }
+
+    /**
+     * Assert that validate fails with the invalid parameter.
+     */
+    @Test(expected = KangarooException.class)
+    public void validateThrowsWithParams() {
+        Map<String, String> hashMap = new HashMap<>();
+        hashMap.put("invalid", "unimportant_value");
+
+        Session session = Mockito.mock(Session.class);
+        IAuthenticator a = new TestAuthenticator(session);
+        Authenticator config = new Authenticator();
+        config.setConfiguration(hashMap);
+
+        a.validate(config);
     }
 
     /**

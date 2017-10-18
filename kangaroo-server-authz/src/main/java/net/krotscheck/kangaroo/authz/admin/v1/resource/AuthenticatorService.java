@@ -22,6 +22,7 @@ package net.krotscheck.kangaroo.authz.admin.v1.resource;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
+import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -268,6 +269,13 @@ public final class AuthenticatorService extends AbstractService {
             }
         }
 
+        // Assert that the configuration values are correct for this
+        // authenticator type.
+        IAuthenticator handler = getInjector()
+                .getInstance(IAuthenticator.class,
+                        authenticator.getType().toString());
+        handler.validate(authenticator);
+
         // Save it all.
         Session s = getSession();
         s.save(authenticator);
@@ -314,6 +322,13 @@ public final class AuthenticatorService extends AbstractService {
         if (authenticator.getType() == null) {
             throw new BadRequestException();
         }
+
+        // Assert that the configuration values are correct for this
+        // authenticator type.
+        IAuthenticator handler = getInjector()
+                .getInstance(IAuthenticator.class,
+                        authenticator.getType().toString());
+        handler.validate(authenticator);
 
         // Transfer all the values we're allowed to edit.
         current.setType(authenticator.getType());
