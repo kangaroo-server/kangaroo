@@ -18,10 +18,15 @@
 
 package net.krotscheck.kangaroo.common.httpClient;
 
+import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.test.jersey.ContainerTest;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
+
+import java.net.URI;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -34,7 +39,19 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class HttpClientFactoryTest {
+public class HttpClientFactoryTest extends ContainerTest {
+
+    /**
+     * Create a blank application.
+     *
+     * @return
+     */
+    @Override
+    protected ResourceConfig createApplication() {
+        ResourceConfig a = new ResourceConfig();
+        a.register(StatusFeature.class);
+        return a;
+    }
 
     /**
      * Assert that the client builder can be created.
@@ -63,11 +80,13 @@ public class HttpClientFactoryTest {
      */
     @Test
     public void assertCanUseClient() {
+        URI uri = target("/status").getUri();
+
         JerseyClientBuilderFactory builder = new JerseyClientBuilderFactory();
         HttpClientFactory factory = new HttpClientFactory(builder.get());
         Client client = factory.get();
 
-        Response r = client.target("https://www.example.com/")
+        Response r = client.target(uri.toString())
                 .request()
                 .get();
 
