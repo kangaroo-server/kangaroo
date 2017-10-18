@@ -93,9 +93,7 @@ public class HttpClientFeatureTest extends ContainerTest {
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         public Response test() {
-            return client.target("https://www.example.com/")
-                    .request()
-                    .get();
+            return Response.ok().build();
         }
     }
 }
