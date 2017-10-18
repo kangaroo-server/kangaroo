@@ -11,12 +11,8 @@ pipeline {
         label 'worker'
     }
 
-    environment {
-        DB_ROOT = credentials('mysql')
-    }
-
     options {
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 45, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
 
@@ -55,7 +51,6 @@ pipeline {
                             sh """
                                 mvn install \
                                     -Pmariadb \
-                                    -Dhibernate.root.password=${DB_ROOT_PSW} \
                                     -Dtarget-directory=target-mariadb \
                                     -Dhibernate.connection.url=${jdbc_mariadb}
                             """
