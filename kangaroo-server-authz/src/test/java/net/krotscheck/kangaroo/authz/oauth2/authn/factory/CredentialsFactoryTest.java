@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.util.HttpUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.function.Supplier;
 
 import static org.mockito.Mockito.doReturn;
@@ -42,6 +44,11 @@ import static org.mockito.Mockito.mock;
  * @author Michael Krotscheck
  */
 public final class CredentialsFactoryTest {
+
+    /**
+     * The character set we're using.
+     */
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * Build a test context for this unit test.
@@ -158,9 +165,14 @@ public final class CredentialsFactoryTest {
     @Test
     public void testAuthHeaderNoPassword() {
         BigInteger clientId = IdUtil.next();
+        String clientString = IdUtil.toString(clientId);
+
+        byte[] bytesEncoded =
+                Base64.encodeBase64((clientString + ":").getBytes(UTF8));
+        String partial = "Basic " + new String(bytesEncoded, UTF8);
+
         Provider<ContainerRequest> provider =
-                buildTestContext(
-                        HttpUtil.authHeaderBasic(clientId, ""),
+                buildTestContext(partial,
                         HttpMethod.GET,
                         IdUtil.toString(clientId),
                         null);
@@ -195,14 +207,16 @@ public final class CredentialsFactoryTest {
     }
 
     /**
-     * Assert that an auth header that does not conform to the BigInteger spec fails.
+     * Assert that an auth header that does not conform to the BigInteger
+     * spec fails.
      */
     @Test
     public void testAuthHeaderNoByte() {
         BigInteger clientId = IdUtil.next();
         Provider<ContainerRequest> provider =
                 buildTestContext(
-                        HttpUtil.authHeaderBasic("not_a_BigInteger", "password"),
+                        HttpUtil.authHeaderBasic("not_a_BigInteger",
+                                "password"),
                         HttpMethod.GET,
                         IdUtil.toString(clientId),
                         null);
@@ -474,7 +488,7 @@ public final class CredentialsFactoryTest {
                         HttpUtil.authHeaderBasic(clientId,
                                 "password"),
                         HttpMethod.POST,
-                        IdUtil.toString(IdUtil.next()),
+                        IdUtil.toString(clientId),
                         "password");
 
         CredentialsFactory factory = new CredentialsFactory(provider);
