@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2017 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -16,13 +16,15 @@
  *
  */
 
-package net.krotscheck.kangaroo.test;
+package net.krotscheck.kangaroo.util;
 
+import com.google.common.base.Strings;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +40,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * Utility class for quick HTTP variable generation.
+ * Utility class for common http body and header actions.
  *
  * @author Michael Krotscheck
  */
@@ -48,6 +50,7 @@ public final class HttpUtil {
      * The character set we're using.
      */
     private static final Charset UTF8 = Charset.forName("UTF-8");
+
     /**
      * Logger instance.
      */
@@ -69,6 +72,9 @@ public final class HttpUtil {
      */
     public static String authHeaderBasic(final String login,
                                          final String password) {
+        if (Strings.isNullOrEmpty(login) || Strings.isNullOrEmpty(password)) {
+            return "";
+        }
         byte[] bytesEncoded =
                 Base64.encodeBase64((login + ":" + password).getBytes(UTF8));
         return "Basic " + new String(bytesEncoded, UTF8);
@@ -103,6 +109,9 @@ public final class HttpUtil {
      * @return 'Bearer (token)'
      */
     public static String authHeaderBearer(final String token) {
+        if (Strings.isNullOrEmpty(token)) {
+            return "";
+        }
         return String.format("Bearer %s", token);
     }
 
@@ -114,6 +123,9 @@ public final class HttpUtil {
      */
     public static MultivaluedMap<String, String> parseQueryParams(
             final URI uri) {
+        if (uri == null) {
+            return new MultivaluedStringMap();
+        }
         return parseQueryParams(uri.getRawQuery());
     }
 
@@ -126,10 +138,9 @@ public final class HttpUtil {
     public static MultivaluedMap<String, String> parseQueryParams(
             final String query) {
         MultivaluedMap<String, String> results =
-                new MultivaluedHashMap<>();
+                new MultivaluedStringMap();
         List<NameValuePair> params = URLEncodedUtils
                 .parse(query, Charset.forName("ISO-8859-1"));
-
         for (NameValuePair pair : params) {
             results.add(pair.getName(), pair.getValue());
         }
