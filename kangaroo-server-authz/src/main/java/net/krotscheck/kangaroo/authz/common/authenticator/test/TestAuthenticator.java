@@ -20,11 +20,12 @@ package net.krotscheck.kangaroo.authz.common.authenticator.test;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.authz.common.authenticator.exception.MisconfiguredAuthenticatorException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
-
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Criteria;
@@ -130,6 +131,21 @@ public final class TestAuthenticator
         }
 
         return identity;
+    }
+
+    /**
+     * Validate the test authenticator.
+     *
+     * @param authenticator The authenticator configuration.
+     * @throws KangarooException Thrown if the "invalid" property is sent.
+     */
+    @Override
+    public void validate(final Authenticator authenticator)
+            throws KangarooException {
+        // The test authenticator will fail if a "invalid" property is set.
+        if (authenticator.getConfiguration().containsKey("invalid")) {
+            throw new MisconfiguredAuthenticatorException();
+        }
     }
 
     /**
