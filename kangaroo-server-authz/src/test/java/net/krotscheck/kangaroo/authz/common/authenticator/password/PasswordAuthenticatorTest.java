@@ -20,12 +20,14 @@ package net.krotscheck.kangaroo.authz.common.authenticator.password;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
+import net.krotscheck.kangaroo.authz.common.authenticator.test.TestAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -33,12 +35,17 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertNull;
 
 /**
  * Unit tests for the password authenticator.
@@ -85,6 +92,41 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
 
         Response r = a.delegate(config, callback);
         Assert.assertNull(r);
+    }
+
+    /**
+     * Assert that validate passes with no or null parameters.
+     */
+    @Test
+    public void validateNoParams() {
+        try {
+            Session session = Mockito.mock(Session.class);
+            IAuthenticator a = new TestAuthenticator(session);
+            Authenticator config = new Authenticator();
+            a.validate(config); // This should NOT throw an exception.
+
+            config.setConfiguration(new HashMap<>());
+            a.validate(config); // This should NOT throw an exception.
+        } catch (Exception e) {
+            assertNull(e);
+        }
+    }
+
+    /**
+     * Assert that validate passes with no or null parameters.
+     */
+    @Test(expected = KangarooException.class)
+    public void validateThrowsWithParams() {
+        Map<String, String> hashMap = new HashMap<>();
+        hashMap.put("foo", "bar");
+
+        Session session = Mockito.mock(Session.class);
+        IAuthenticator a = new PasswordAuthenticator(session);
+        Authenticator config = new Authenticator();
+        config.setConfiguration(hashMap);
+
+        a.validate(config);
+        a.validate(null);
     }
 
     /**
