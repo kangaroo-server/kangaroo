@@ -69,6 +69,7 @@ public final class SeleniumRule implements TestRule {
                 try {
                     final ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.setHeadless(true);
+                    chromeOptions.addArguments("--disable-notifications");
                     driver = new ChromeDriver(chromeOptions);
 
                     base.evaluate();
