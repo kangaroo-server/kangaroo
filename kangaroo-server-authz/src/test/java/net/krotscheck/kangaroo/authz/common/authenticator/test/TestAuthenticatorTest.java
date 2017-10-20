@@ -40,7 +40,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -140,7 +139,7 @@ public final class TestAuthenticatorTest extends DatabaseTest {
         Authenticator config = context.getAuthenticator();
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
 
-        UserIdentity i = a.authenticate(config, params);
+        UserIdentity i = a.authenticate(config, params, null);
 
         assertNotNull(i);
         assertNotNull(i.getId());
@@ -159,7 +158,7 @@ public final class TestAuthenticatorTest extends DatabaseTest {
         Authenticator config = context.getAuthenticator();
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
 
-        UserIdentity i = a.authenticate(config, params);
+        UserIdentity i = a.authenticate(config, params, null);
 
         assertNotNull(i);
         assertNotNull(i.getId());
@@ -185,7 +184,7 @@ public final class TestAuthenticatorTest extends DatabaseTest {
         Authenticator config = testContext.getAuthenticator();
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
 
-        UserIdentity i = a.authenticate(config, params);
+        UserIdentity i = a.authenticate(config, params, null);
 
         Assert.assertEquals(persistedIdentity, i);
     }

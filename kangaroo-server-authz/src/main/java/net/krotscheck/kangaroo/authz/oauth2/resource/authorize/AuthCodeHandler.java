@@ -124,16 +124,11 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
         session.save(callbackState);
 
         // Generate the redirection url.
-        URI callback = uriInfo.getAbsolutePathBuilder()
-                .path("/callback")
-                .queryParam("state",
-                        IdUtil.toString(callbackState.getId()))
-                .build();
+        URI callback = buildCallback(uriInfo, callbackState);
 
         // Run the authenticator.
         return authImpl.delegate(auth, callback);
     }
-
 
     /**
      * Handle a callback response from the IdP (Authenticator). Provided with
@@ -150,9 +145,11 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
                              final HttpSession browserSession,
                              final UriInfo uriInfo) {
 
+        URI callback = buildCallback(uriInfo, s);
+
         IAuthenticator a = getAuthenticator(s);
         UserIdentity i = a.authenticate(s.getAuthenticator(),
-                uriInfo.getPathParameters());
+                uriInfo.getPathParameters(), callback);
 
         // Build the token.
         OAuthToken t = new OAuthToken();

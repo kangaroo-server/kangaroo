@@ -140,7 +140,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
         Assert.assertEquals("login", i.getRemoteId());
     }
 
@@ -153,7 +153,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
     public void testAuthenticateNullConfig() throws Exception {
         IAuthenticator a = new PasswordAuthenticator(getSession());
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-        a.authenticate(null, params);
+        a.authenticate(null, params, null);
     }
 
     /**
@@ -165,7 +165,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
     public void testAuthenticateNullParams() throws Exception {
         IAuthenticator a = new PasswordAuthenticator(getSession());
         Authenticator config = new Authenticator();
-        a.authenticate(config, null);
+        a.authenticate(config, null, null);
     }
 
     /**
@@ -179,7 +179,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "wrongIdentity");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
         Assert.assertNull(i);
     }
 
@@ -194,7 +194,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "wrongpassword");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
         Assert.assertNull(i);
     }
 }

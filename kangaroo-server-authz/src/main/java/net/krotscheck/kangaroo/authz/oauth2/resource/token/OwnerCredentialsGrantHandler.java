@@ -101,8 +101,8 @@ public final class OwnerCredentialsGrantHandler
                         client.getAuthenticators());
 
         UserIdentity identity;
-        // Try to resolve a user identity.
-        identity = authenticator.authenticate(authConfig, formData);
+        // Try to resolve a user identity. No callback.
+        identity = authenticator.authenticate(authConfig, formData, null);
         if (identity == null) {
             throw new NotAuthorizedException(Response.status(Status
                     .UNAUTHORIZED).build());
