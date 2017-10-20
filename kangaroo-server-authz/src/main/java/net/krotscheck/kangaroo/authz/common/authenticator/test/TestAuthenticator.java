@@ -93,11 +93,14 @@ public final class TestAuthenticator
      * @param authenticator The authenticator configuration.
      * @param parameters    Parameters for the authenticator, retrieved from
      *                      an appropriate source.
+     * @param callback      The redirect that was provided to the original
+     *                      authorize call.
      */
     @Override
     public UserIdentity authenticate(final Authenticator authenticator,
                                      final MultivaluedMap<String, String>
-                                             parameters) {
+                                             parameters,
+                                     final URI callback) {
         Criteria searchCriteria = session.createCriteria(UserIdentity.class);
 
         searchCriteria.add(Restrictions.eq("type", authenticator.getType()));
