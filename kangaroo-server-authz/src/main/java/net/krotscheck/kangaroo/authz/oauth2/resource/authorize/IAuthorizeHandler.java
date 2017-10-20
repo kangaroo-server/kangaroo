@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
+import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
@@ -81,4 +82,20 @@ public interface IAuthorizeHandler {
      * @return An authenticator Impl, available from the injection context.
      */
     IAuthenticator getAuthenticator(AuthenticatorState state);
+
+
+    /**
+     * Build the callback.
+     *
+     * @param info  URI/Request info, used to get the host context.
+     * @param state The authenticator state.
+     * @return The callback.
+     */
+    default URI buildCallback(final UriInfo info,
+                              final AuthenticatorState state) {
+        return info.getAbsolutePathBuilder()
+                .path("/callback")
+                .queryParam("state", IdUtil.toString(state.getId()))
+                .build();
+    }
 }

@@ -188,11 +188,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
         session.save(callbackState);
 
         // Generate the redirection url.
-        URI callback = uriInfo.getAbsolutePathBuilder()
-                .path("/callback")
-                .queryParam("state",
-                        IdUtil.toString(callbackState.getId()))
-                .build();
+        URI callback = buildCallback(uriInfo, callbackState);
 
         // Run the authenticator.
         return authImpl.delegate(auth, callback);
@@ -268,9 +264,11 @@ public final class ImplicitHandler implements IAuthorizeHandler {
                                      browserSession,
                              final UriInfo uriInfo) {
 
+        URI callback = buildCallback(uriInfo, s);
+
         IAuthenticator a = getAuthenticator(s);
         UserIdentity identity = a.authenticate(s.getAuthenticator(),
-                uriInfo.getPathParameters());
+                uriInfo.getPathParameters(), callback);
         Client client = s.getAuthenticator().getClient();
         SortedMap<String, ApplicationScope> issuedScopes = ValidationUtil
                 .validateScope(s.getClientScopes(),

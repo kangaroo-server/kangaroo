@@ -84,12 +84,15 @@ public final class PasswordAuthenticator
      * @param authenticator The authenticator configuration.
      * @param parameters    Parameters for the authenticator, retrieved from
      *                      an appropriate source.
+     * @param callback      The redirect that was provided to the original
+     *                      authorize call.
      * @return A user identity.
      */
     @Override
     public UserIdentity authenticate(final Authenticator authenticator,
                                      final MultivaluedMap<String, String>
-                                             parameters) {
+                                             parameters,
+                                     final URI callback) {
         // Validate the input
         if (authenticator == null || parameters == null) {
             throw new InvalidRequestException();

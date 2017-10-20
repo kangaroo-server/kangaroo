@@ -60,6 +60,11 @@ public interface IAuthenticator {
     default void validate(Authenticator authenticator)
             throws KangarooException {
 
+        // If there's no authenticator...
+        if (authenticator == null) {
+            return;
+        }
+
         // If we have any configuration values, throw an exception.
         Map<String, String> config = authenticator.getConfiguration();
         if (config == null) {
@@ -74,11 +79,14 @@ public interface IAuthenticator {
      * Authenticate and/or create a user identity for a specific client, given
      * the URI from an authentication delegate.
      *
-     * @param configuration The authenticator configuration.
+     * @param authenticator The authenticator configuration.
      * @param parameters    Parameters for the authenticator, retrieved from
      *                      an appropriate source.
-     * @return A user identity.
+     * @param callback      The redirect that was provided to the original
+     *                      authorize call.
+     * @return A user identity, or a runtime error that will be sent back.
      */
-    UserIdentity authenticate(Authenticator configuration,
-                              MultivaluedMap<String, String> parameters);
+    UserIdentity authenticate(Authenticator authenticator,
+                              MultivaluedMap<String, String> parameters,
+                              URI callback);
 }
