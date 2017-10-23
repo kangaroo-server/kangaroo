@@ -16,6 +16,10 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
 
+    environment {
+        KANGAROO_FB_APP = credentials('jenkins_facebook_app')
+    }
+
     stages {
 
         /**
