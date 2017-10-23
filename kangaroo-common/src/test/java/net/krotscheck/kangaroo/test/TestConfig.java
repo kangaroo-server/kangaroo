@@ -32,11 +32,6 @@ import org.slf4j.LoggerFactory;
 public final class TestConfig {
 
     /**
-     * Logger instance.
-     */
-    private static Logger logger = LoggerFactory.getLogger(TestConfig.class);
-
-    /**
      * Utility class, private constructor.
      */
     private TestConfig() {
@@ -117,5 +112,23 @@ public final class TestConfig {
     public static String getDbChangelog() {
         return System.getProperty("test.db.changelog",
                 "liquibase/db.changelog-master.yaml");
+    }
+
+    /**
+     * Evaluate the facebook test app id. Must be set.
+     *
+     * @return The facebook app id.
+     */
+    public static String getFacebookAppId() {
+        return System.getenv("KANGAROO_FB_APP_USR");
+    }
+
+    /**
+     * Evaluate the facebook test app secret. Must be set.
+     *
+     * @return The facebook app secret.
+     */
+    public static String getFacebookAppSecret() {
+        return System.getenv("KANGAROO_FB_APP_PSW");
     }
 }

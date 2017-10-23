@@ -26,15 +26,33 @@ deployment models, and upgrade patterns, please see our project website at
 
 ## Developer Quickstart
 
-This is a Java8 maven project, with no divergences from the standard maven 
+### Prerequisites
+
+The following items are required. Note that developing on windows is not 
+supported.
+
+- Java 8 and Maven 3.5+
+- Google Chrome v62 or greater
+- The google `chromedriver` available on your `$PATH`
+- A facebook application (unpublished is ok)
+- MySQL, exposed at `mysql://localhost:3306/`, with the root password blank.
+
+The following environment variables should be set.
+
+```bash
+export KANGAROO_FB_APP_USR=<your_facebook_app_id>
+export KANGAROO_FB_APP_PSW=<your_facebook_app_secret>
+```
+
+### Build and test the project.
+
+This is a maven project, with no divergences from the standard maven 
 lifecycle. The following maven profiles are supported:
 
 - `mvn clean install -p h2` (default) <br/>
   Tests are run against an in-memory h2 database.
 - `mvn clean install -p mariadb` <br/>
-  Tests are run against a MariaDB instance at `mysql://localhost:3306/`. The 
-  root password is expected to be empty, so please secure your system 
-  appropriately.
+  Tests are run against a MariaDB instance at `mysql://localhost:3306/`.
 
 ### Community
 

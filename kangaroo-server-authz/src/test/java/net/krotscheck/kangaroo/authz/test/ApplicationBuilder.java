@@ -444,6 +444,27 @@ public final class ApplicationBuilder {
     }
 
     /**
+     * Enable an authenticator for the current client context, with provided
+     * configuration.
+     *
+     * @param type The authenticator type to use.
+     * @param config The configuration properties.
+     * @return This builder.
+     */
+    public ApplicationBuilder authenticator(final AuthenticatorType type,
+                                            final Map<String, String> config) {
+
+        context.authenticator = new Authenticator();
+        context.authenticator.setType(type);
+        context.authenticator.setClient(context.client);
+        context.authenticator.setConfiguration(config);
+
+        persist(context.authenticator);
+
+        return this;
+    }
+
+    /**
      * Create a new user for this application.
      *
      * @return This builder.

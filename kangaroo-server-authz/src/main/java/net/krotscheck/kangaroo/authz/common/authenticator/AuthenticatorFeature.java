@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.common.authenticator;
 
+import net.krotscheck.kangaroo.authz.common.authenticator.facebook.FacebookAuthenticator;
 import net.krotscheck.kangaroo.authz.common.authenticator.password.PasswordAuthenticator;
 import net.krotscheck.kangaroo.authz.common.authenticator.test.TestAuthenticator;
 
@@ -40,6 +41,7 @@ public final class AuthenticatorFeature implements Feature {
         // Authenticators.
         context.register(new TestAuthenticator.Binder());
         context.register(new PasswordAuthenticator.Binder());
+        context.register(new FacebookAuthenticator.Binder());
 
         return true;
     }
