@@ -18,6 +18,9 @@
 
 package net.krotscheck.kangaroo.test.rule.database;
 
+import net.krotscheck.kangaroo.test.TestConfig;
+import org.apache.lucene.util.TestUtil;
+
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
@@ -39,20 +42,6 @@ import java.sql.Statement;
  */
 public final class MariaDBTestDatabase extends AbstractTestDatabase
         implements ITestDatabase {
-
-    /**
-     * The root password for this database.
-     */
-    private final String rootPassword;
-
-    /**
-     * Create a new DB reference.
-     *
-     * @param rootPassword The root password for the database.
-     */
-    public MariaDBTestDatabase(final String rootPassword) {
-        this.rootPassword = rootPassword;
-    }
 
     /**
      * The name for the created database.
@@ -145,6 +134,9 @@ public final class MariaDBTestDatabase extends AbstractTestDatabase
     private Connection createRootConnection() {
         loadDriver();
         try {
+            String rootUser = TestConfig.getMariaDBRootUser();
+            String rootPassword = TestConfig.getMariaDBRootPassword();
+
             // Build a connection string without the database.
             String dbUrl = getJdbcConnectionString();
             dbUrl = dbUrl.substring("jdbc:".length());
@@ -154,7 +146,7 @@ public final class MariaDBTestDatabase extends AbstractTestDatabase
                     dbpath.getHost(),
                     dbpath.getPort());
 
-            return DriverManager.getConnection(rootJdbc, "root",
+            return DriverManager.getConnection(rootJdbc, rootUser,
                     rootPassword);
         } catch (SQLException e) {
             throw new RuntimeException("cannot connect to maria database",

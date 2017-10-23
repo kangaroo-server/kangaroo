@@ -19,9 +19,11 @@
 package net.krotscheck.kangaroo.test;
 
 import net.krotscheck.kangaroo.test.rule.database.TestDB;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.hibernate.dialect.H2Dialect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  * This class exposes all runtime parameters that may be used to configure
@@ -86,12 +88,49 @@ public final class TestConfig {
     }
 
     /**
-     * Evaluate the Root Database Password (Where appropriate).
+     * Evaluate the MariaDB Root Database User (Where appropriate).
+     *
+     * @return The root database user.
+     */
+    public static String getMariaDBRootUser() {
+        // The root password can exist in several locations.
+        String home = System.getProperty("user.home");
+        File f = new File(home + "/.my.cnf");
+
+        // If there's a .my.cnf to access, use that.
+        try {
+            HierarchicalINIConfiguration configuration =
+                    new HierarchicalINIConfiguration(f);
+            return configuration
+                    .getSection("client")
+                    .getString("user");
+        } catch (ConfigurationException e) {
+            // Fallback to system properties.
+            return System.getProperty("hibernate.root.user", "root");
+        }
+    }
+
+    /**
+     * Evaluate the MariaDB Root Database Password (Where appropriate).
      *
      * @return The root database password.
      */
-    public static String getRootPassword() {
-        return System.getProperty("hibernate.root.password", "");
+    public static String getMariaDBRootPassword() {
+        // The root password can exist in several locations.
+        String home = System.getProperty("user.home");
+        File f = new File(home + "/.my.cnf");
+
+        // If there's a .my.cnf to access, use that.
+        try {
+            HierarchicalINIConfiguration configuration =
+                    new HierarchicalINIConfiguration(f);
+            return configuration
+                    .getSection("client")
+                    .getString("password");
+        } catch (ConfigurationException e) {
+            // Fallback to system properties.
+            return System.getProperty("hibernate.root.password", "");
+        }
     }
 
     /**

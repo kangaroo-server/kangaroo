@@ -63,7 +63,7 @@ public final class DatabaseResource implements TestRule {
     public ITestDatabase createDatabase() {
         switch (TestConfig.getDatabase()) {
             case MARIADB:
-                database = new MariaDBTestDatabase("");
+                database = new MariaDBTestDatabase();
                 break;
             case H2:
             default:
