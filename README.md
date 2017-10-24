@@ -35,7 +35,8 @@ supported.
 - Google Chrome v62 or greater
 - The google `chromedriver` available on your `$PATH`
 - A facebook application (unpublished is ok)
-- MySQL, exposed at `mysql://localhost:3306/`, with the root password blank.
+- MySQL, exposed at `mysql://localhost:3306/`, with the root password blank, 
+  or a `~/.my.cnf` client configuration with database creation credentials.
 
 The following environment variables should be set.
 
