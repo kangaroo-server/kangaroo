@@ -18,10 +18,9 @@
 
 package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
 
+import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.OAuth2User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -116,8 +115,7 @@ public final class FacebookUserEntityTest {
      * Assert that we can convert an entity to claims.
      */
     @Test
-    public void toClaims() {
-        String randomValue = RandomStringUtils.randomAlphabetic(30);
+    public void testAsGenericUser() {
         FacebookUserEntity token = new FacebookUserEntity();
 
         token.setId(RandomStringUtils.randomAlphabetic(30));
@@ -126,12 +124,13 @@ public final class FacebookUserEntityTest {
         token.setLastName(RandomStringUtils.randomAlphabetic(30));
         token.setMiddleName(RandomStringUtils.randomAlphabetic(30));
 
-        Map<String, String> claims = token.toClaims();
+        OAuth2User user = token.asGenericUser();
 
-        assertEquals(token.getName(), claims.get("name"));
-        assertEquals(token.getFirstName(), claims.get("firstName"));
-        assertEquals(token.getMiddleName(), claims.get("middleName"));
-        assertEquals(token.getLastName(), claims.get("lastName"));
-        assertEquals(token.getEmail(), claims.get("email"));
+        assertEquals(token.getId(), user.getId());
+        assertEquals(token.getName(), user.getClaims().get("name"));
+        assertEquals(token.getFirstName(), user.getClaims().get("firstName"));
+        assertEquals(token.getMiddleName(), user.getClaims().get("middleName"));
+        assertEquals(token.getLastName(), user.getClaims().get("lastName"));
+        assertEquals(token.getEmail(), user.getClaims().get("email"));
     }
 }

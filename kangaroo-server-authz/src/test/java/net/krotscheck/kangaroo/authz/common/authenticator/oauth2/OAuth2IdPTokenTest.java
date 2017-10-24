@@ -16,19 +16,20 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
+package net.krotscheck.kangaroo.authz.common.authenticator.oauth2;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+
 /**
  * Unit test for the pojo used to map the authtoken to that we get from
- * facebook.
+ * an OAuth2 provider.
  *
  * @author Michael Krotscheck
  */
-public class FacebookIdPTokenTest {
+public class OAuth2IdPTokenTest {
 
     /**
      * Test get/set of the access token.
@@ -36,7 +37,7 @@ public class FacebookIdPTokenTest {
     @Test
     public void getSetAccessToken() {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
-        FacebookIdPToken token = new FacebookIdPToken();
+        OAuth2IdPToken token = new OAuth2IdPToken();
 
         Assert.assertNull(token.getAccessToken());
         token.setAccessToken(randomValue);
@@ -49,7 +50,7 @@ public class FacebookIdPTokenTest {
     @Test
     public void getSetTokenType() {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
-        FacebookIdPToken token = new FacebookIdPToken();
+        OAuth2IdPToken token = new OAuth2IdPToken();
 
         Assert.assertNull(token.getTokenType());
         token.setTokenType(randomValue);
@@ -61,7 +62,7 @@ public class FacebookIdPTokenTest {
      */
     @Test
     public void getSetExpiresIn() {
-        FacebookIdPToken token = new FacebookIdPToken();
+        OAuth2IdPToken token = new OAuth2IdPToken();
 
         Assert.assertNull(token.getExpiresIn());
         token.setExpiresIn(Long.valueOf(100));
@@ -74,7 +75,7 @@ public class FacebookIdPTokenTest {
     @Test
     public void getSetRefreshToken() {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
-        FacebookIdPToken token = new FacebookIdPToken();
+        OAuth2IdPToken token = new OAuth2IdPToken();
 
         Assert.assertNull(token.getRefreshToken());
         token.setRefreshToken(randomValue);
@@ -87,7 +88,7 @@ public class FacebookIdPTokenTest {
     @Test
     public void getSetScope() {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
-        FacebookIdPToken token = new FacebookIdPToken();
+        OAuth2IdPToken token = new OAuth2IdPToken();
 
         Assert.assertNull(token.getScope());
         token.setScope(randomValue);
@@ -100,7 +101,7 @@ public class FacebookIdPTokenTest {
     @Test
     public void getSetState() {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
-        FacebookIdPToken token = new FacebookIdPToken();
+        OAuth2IdPToken token = new OAuth2IdPToken();
 
         Assert.assertNull(token.getState());
         token.setState(randomValue);

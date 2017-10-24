@@ -170,4 +170,57 @@ public final class TestConfig {
     public static String getFacebookAppSecret() {
         return System.getenv("KANGAROO_FB_APP_PSW");
     }
+
+    /**
+     * Evaluate the google test app id. Must be set.
+     *
+     * @return The google app id.
+     */
+    public static String getGoogleAppId() {
+        return System.getenv("KANGAROO_GOOGLE_APP_USR");
+    }
+
+    /**
+     * Evaluate the google test app secret. Must be set.
+     *
+     * @return The google app secret.
+     */
+    public static String getGoogleAppSecret() {
+        return System.getenv("KANGAROO_GOOGLE_APP_PSW");
+    }
+
+    /**
+     * Evaluate the google test app id. Must be set.
+     *
+     * @return The google app id.
+     */
+    public static String getGoogleAccountId() {
+        return System.getenv("KANGAROO_GOOGLE_ACCOUNT_USR");
+    }
+
+    /**
+     * Evaluate the google test app secret. Must be set.
+     *
+     * @return The google app secret.
+     */
+    public static String getGoogleAccountSecret() {
+        return System.getenv("KANGAROO_GOOGLE_ACCOUNT_PSW");
+    }
+
+    /**
+     * Get a static testing port. This is used to spin up a jersey test
+     * instance for tests that require a remotely registered address; such as
+     * an OAuth2 registered redirect.
+     *
+     * @return A port which should be unique _per test run_.
+     */
+    public static String getTestingPort() {
+        switch (getDatabase()) {
+            case H2:
+                return "7778";
+            case MARIADB:
+            default:
+                return "7777";
+        }
+    }
 }

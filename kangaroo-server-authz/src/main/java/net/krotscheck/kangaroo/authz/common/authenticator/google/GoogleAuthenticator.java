@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
+package net.krotscheck.kangaroo.authz.common.authenticator.google;
 
 import com.google.common.base.Strings;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2A
 import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.OAuth2IdPToken;
 import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.OAuth2User;
 import net.krotscheck.kangaroo.util.HttpUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
@@ -36,77 +37,73 @@ import javax.ws.rs.core.Response.Status.Family;
 import java.util.Map;
 
 /**
- * This authentication helper permits using facebook as an IdP. It's not a
- * true facebook app: it immediately discards any issued token, and
+ * This authentication helper permits using google as an IdP. It's not a
+ * true google api client; it immediately discards any issued token, and
  * does no subsequent lookups on the user. In other words, this will not
- * provide you with fancy amazing facebook features, though we may choose to
+ * provide you with fancy amazing google features, though we may choose to
  * enable this in the future.
  *
  * @author Michael Krotscheck
  */
-public final class FacebookAuthenticator
+public final class GoogleAuthenticator
         extends AbstractOAuth2Authenticator {
 
     /**
-     * Facebook's base user endpoint.
-     */
-    private static final String USER_ENDPOINT =
-            "https://graph.facebook.com/v2.10/me";
-
-    /**
-     * Facebook's auth endpoint.
+     * Google's auth endpoint.
      *
-     * @return The absolute URL to facebook's auth endpoint.
+     * @return The absolute URL to google's auth endpoint.
      */
     @Override
     protected String getAuthEndpoint() {
-        return "https://www.facebook.com/v2.10/dialog/oauth";
+        return "https://accounts.google.com/o/oauth2/v2/auth";
     }
 
     /**
-     * The token endpoint.
+     * Google's token endpoint.
      *
-     * @return Facebook's token endpoint.
+     * @return The absolute URL to google's token endpoint.
      */
     @Override
     protected String getTokenEndpoint() {
-        return "https://graph.facebook.com/v2.10/oauth/access_token";
+        return "https://www.googleapis.com/oauth2/v4/token";
     }
 
     /**
-     * List of scopes that we need from facebook.
+     * List of scopes that we need from google.
      *
      * @return A static list of scopes.
      */
     @Override
     protected String getScopes() {
-        return "public_profile,email";
+        return StringUtils.join(new String[]{
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/userinfo.profile"
+        }, " ");
     }
 
     /**
-     * Load the user's identity from facebook, and wrap it into a common format.
+     * Retrieve the user info from Google.
      *
      * @param token The OAuth token.
-     * @return The user identity.
+     * @return The remote user data from Google.
      */
     @Override
     protected OAuth2User loadUserIdentity(final OAuth2IdPToken token) {
         Response r = getClient()
-                .target(USER_ENDPOINT)
+                .target("https://www.googleapis.com/oauth2/v1/userinfo")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(token.getAccessToken()))
                 .get();
-
         try {
             // If this is an error...
             if (r.getStatusInfo().getFamily().equals(Family.SUCCESSFUL)) {
-                FacebookUserEntity fbUser =
-                        r.readEntity(FacebookUserEntity.class);
-                if (Strings.isNullOrEmpty(fbUser.getId())) {
+                GoogleUserEntity gUser =
+                        r.readEntity(GoogleUserEntity.class);
+                if (Strings.isNullOrEmpty(gUser.getId())) {
                     throw new ThirdPartyErrorException();
                 }
-                return fbUser.asGenericUser();
+                return gUser.asGenericUser();
             } else {
                 Map<String, String> params = r.readEntity(MAP_TYPE);
                 throw new ThirdPartyErrorException(params);
@@ -125,9 +122,9 @@ public final class FacebookAuthenticator
 
         @Override
         protected void configure() {
-            bind(FacebookAuthenticator.class)
+            bind(GoogleAuthenticator.class)
                     .to(IAuthenticator.class)
-                    .named(AuthenticatorType.Facebook.name())
+                    .named(AuthenticatorType.Google.name())
                     .in(RequestScoped.class);
         }
     }
