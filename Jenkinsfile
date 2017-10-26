@@ -3,6 +3,7 @@
  */
 
 def gitCommit = ''
+def mavenVersion = ''
 def jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes"
 
 pipeline {
@@ -30,12 +31,29 @@ pipeline {
         stage('Stat') {
             steps {
                 script {
+                    mavenVersion = sh (
+                            script: 'printf \'VER\\t${project.version}\' | mvn help:evaluate 2> /dev/null | grep \'^VER\' | cut -f2',
+                            returnStdout: true
+                    ).trim()
                     sh 'env'
                     sh 'mvn --version'
                     gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/" +
                             "test_${gitCommit.substring(0, 16)}" +
                             "?useUnicode=yes"
+                    echo mavenVersion
+                    echo gitCommit
+                }
+            }
+        }
+
+        /**
+         * Run an install, to share maven packages.
+         */
+        stage('Install') {
+            steps {
+                script {
+                    sh 'mvn clean install -DskipTests=true -B'
                 }
             }
         }
@@ -49,6 +67,7 @@ pipeline {
                         "h2": {
                             sh """
                                 mvn install \
+                                    -B \
                                     -Ph2 \
                                     -Dtarget-directory=target-h2
                             """
@@ -56,6 +75,7 @@ pipeline {
                         "mariadb": {
                             sh """
                                 mvn install \
+                                    -B 
                                     -Pmariadb \
                                     -Dtarget-directory=target-mariadb \
                                     -Dhibernate.connection.url=${jdbc_mariadb}
