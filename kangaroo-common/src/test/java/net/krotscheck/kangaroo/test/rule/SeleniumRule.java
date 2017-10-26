@@ -87,6 +87,7 @@ public final class SeleniumRule implements TestRule {
                     final ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.setHeadless(true);
                     chromeOptions.addArguments("--disable-notifications");
+                    chromeOptions.addArguments("--window-size=1920,1080");
                     driver = new ChromeDriver(chromeOptions);
 
                     base.evaluate();
