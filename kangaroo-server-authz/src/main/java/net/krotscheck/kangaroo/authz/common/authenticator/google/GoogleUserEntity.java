@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
+package net.krotscheck.kangaroo.authz.common.authenticator.google;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,26 +25,27 @@ import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.OAuth2User;
 import java.util.HashMap;
 
 /**
- * A reduced-size POJO of data we're expecting back from facebook. As we do
- * not care about any of the more detailed values of a user (we're only here
- * for Authz right now), we discard everything else.
+ * A reduced-size POJO of data we're expecting back from google.
  *
  * @author Michael Krotscheck
  */
-final class FacebookUserEntity {
+final class GoogleUserEntity {
 
     /**
-     * The id of this person's user account. This ID is unique to each app
-     * and cannot be used across different apps. Our upgrade guide provides
-     * more information about app-specific IDs
+     * The id of this person's user account.
      */
     private String id;
 
     /**
-     * The person's primary email address listed on their profile. This
-     * field will not be returned if no valid email address is available
+     * The person's primary email address listed on their profile.
      */
     private String email;
+
+    /**
+     * Is this email address verified?
+     */
+    @JsonProperty("verified_email")
+    private Boolean verifiedEmail = false;
 
     /**
      * The person's generic name.
@@ -52,22 +53,25 @@ final class FacebookUserEntity {
     private String name;
 
     /**
-     * The person's first name.
+     * The person's family name.
      */
-    @JsonProperty("first_name")
-    private String firstName;
+    @JsonProperty("family_name")
+    private String familyName;
 
     /**
-     * This person's last name.
+     * The person's google plus link.
      */
-    @JsonProperty("last_name")
-    private String lastName;
+    private String link;
 
     /**
-     * This person's middle name.
+     * The person's profile image.
      */
-    @JsonProperty("middle_name")
-    private String middleName;
+    private String picture;
+
+    /**
+     * The person's locale.
+     */
+    private String locale;
 
     /**
      * Get the user's name.
@@ -124,57 +128,93 @@ final class FacebookUserEntity {
     }
 
     /**
-     * Get the first name for this user.
+     * Is this email verified?
      *
-     * @return The user's first name.
+     * @return True if verified, otherwise false.
      */
-    public String getFirstName() {
-        return firstName;
+    public Boolean isVerifiedEmail() {
+        return verifiedEmail;
     }
 
     /**
-     * Set the first name for this user.
+     * Set the user's verified email state.
      *
-     * @param firstName The new first name.
+     * @param verifiedEmail True if it's verified, otherwise false.
      */
-    public void setFirstName(final String firstName) {
-        this.firstName = firstName;
+    public void setVerifiedEmail(final Boolean verifiedEmail) {
+        this.verifiedEmail = verifiedEmail;
     }
 
     /**
-     * Get the last name for this user.
+     * Get the family name.
      *
-     * @return The user's last name.
+     * @return The family name.
      */
-    public String getLastName() {
-        return lastName;
+    public String getFamilyName() {
+        return familyName;
     }
 
     /**
-     * Set the last name for this user.
+     * Set the family name.
      *
-     * @param lastName The user's last name.
+     * @param familyName New family name.
      */
-    public void setLastName(final String lastName) {
-        this.lastName = lastName;
+    public void setFamilyName(final String familyName) {
+        this.familyName = familyName;
     }
 
     /**
-     * Get the middle name for this user.
+     * Get the google plus link.
      *
-     * @return The user's middle name.
+     * @return Google plus link.
      */
-    public String getMiddleName() {
-        return middleName;
+    public String getLink() {
+        return link;
     }
 
     /**
-     * Set the user's middle name.
+     * Set the google plus link.
      *
-     * @param middleName The new middle name.
+     * @param link Google plus link.
      */
-    public void setMiddleName(final String middleName) {
-        this.middleName = middleName;
+    public void setLink(final String link) {
+        this.link = link;
+    }
+
+    /**
+     * Get the link to the user's profile picture.
+     *
+     * @return The user's profile picture.
+     */
+    public String getPicture() {
+        return picture;
+    }
+
+    /**
+     * Set a link to the user's profile picture.
+     *
+     * @param picture The profile picture.
+     */
+    public void setPicture(final String picture) {
+        this.picture = picture;
+    }
+
+    /**
+     * Get the user's locale.
+     *
+     * @return The user's locale.
+     */
+    public String getLocale() {
+        return locale;
+    }
+
+    /**
+     * Set the locale.
+     *
+     * @param locale The locale.
+     */
+    public void setLocale(final String locale) {
+        this.locale = locale;
     }
 
     /**
@@ -187,9 +227,11 @@ final class FacebookUserEntity {
         HashMap<String, String> outputMap = new HashMap<>();
         outputMap.put("email", email);
         outputMap.put("name", name);
-        outputMap.put("firstName", firstName);
-        outputMap.put("middleName", middleName);
-        outputMap.put("lastName", lastName);
+        outputMap.put("verified_email", String.valueOf(verifiedEmail));
+        outputMap.put("family_name", familyName);
+        outputMap.put("link", link);
+        outputMap.put("picture", picture);
+        outputMap.put("locale", locale);
 
         OAuth2User user = new OAuth2User();
         user.setId(getId());

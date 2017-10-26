@@ -18,11 +18,15 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.io.File;
 
 /**
  * This JUnit4 rule catpures and harnesses a chrome browser for direct testing.
@@ -49,6 +53,19 @@ public final class SeleniumRule implements TestRule {
      */
     public ChromeDriver getDriver() {
         return driver;
+    }
+
+    /**
+     * Test helper, permits ad-hoc creation of screenshots.
+     */
+    public void screenshot() {
+        File scrFile = driver.getScreenshotAs(OutputType.FILE);
+
+        try {
+            FileUtils.copyFile(scrFile,
+                    new File("target/screenshots/" + scrFile.getName()));
+        } catch (Exception e) {
+        }
     }
 
     /**
