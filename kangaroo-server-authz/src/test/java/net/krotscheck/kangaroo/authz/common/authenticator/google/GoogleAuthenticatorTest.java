@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
+package net.krotscheck.kangaroo.authz.common.authenticator.google;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.exception.ThirdPartyErrorException;
@@ -55,11 +55,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for the facebook authenticator.
+ * Tests for the google authenticator.
  *
  * @author Michael Krotscheck
  */
-public final class FacebookAuthenticatorTest
+public final class GoogleAuthenticatorTest
         extends DatabaseTest {
 
     /**
@@ -87,7 +87,7 @@ public final class FacebookAuthenticatorTest
                     context = ApplicationBuilder.newApplication(session)
                             .client(ClientType.AuthorizationGrant)
                             .role("some_role")
-                            .authenticator(AuthenticatorType.Facebook, fbConfig)
+                            .authenticator(AuthenticatorType.Google, fbConfig)
                             .build();
                 }
             };
@@ -115,7 +115,7 @@ public final class FacebookAuthenticatorTest
     /**
      * A mock client.
      */
-    private FacebookAuthenticator fbAuth;
+    private GoogleAuthenticator googleAuth;
 
     /**
      * Set up our mocks.
@@ -135,9 +135,9 @@ public final class FacebookAuthenticatorTest
         doReturn(getResponse).when(builder).get();
         doReturn(Status.OK).when(getResponse).getStatusInfo();
 
-        this.fbAuth = new FacebookAuthenticator();
-        this.fbAuth.setClient(client);
-        this.fbAuth.setSession(getSession());
+        this.googleAuth = new GoogleAuthenticator();
+        this.googleAuth.setClient(client);
+        this.googleAuth.setSession(getSession());
     }
 
     /**
@@ -156,11 +156,13 @@ public final class FacebookAuthenticatorTest
      */
     @Test
     public void testStaticAccessors() {
-        assertEquals("https://www.facebook.com/v2.10/dialog/oauth",
-                fbAuth.getAuthEndpoint());
-        assertEquals("https://graph.facebook.com/v2.10/oauth/access_token",
-                fbAuth.getTokenEndpoint());
-        assertEquals("public_profile,email", fbAuth.getScopes());
+        assertEquals("https://accounts.google.com/o/oauth2/v2/auth",
+                googleAuth.getAuthEndpoint());
+        assertEquals("https://www.googleapis.com/oauth2/v4/token",
+                googleAuth.getTokenEndpoint());
+        assertEquals("https://www.googleapis.com/auth/userinfo.email"
+                        + " https://www.googleapis.com/auth/userinfo.profile",
+                googleAuth.getScopes());
     }
 
     /**
@@ -169,15 +171,15 @@ public final class FacebookAuthenticatorTest
     @Test
     public void testLoadUser() {
         OAuth2IdPToken result = new OAuth2IdPToken();
-        result.setAccessToken("facebook_access_token");
+        result.setAccessToken("google_access_token");
 
-        FacebookUserEntity user = new FacebookUserEntity();
+        GoogleUserEntity user = new GoogleUserEntity();
         user.setId("test_id");
         user.setName("test name");
 
-        doReturn(user).when(getResponse).readEntity(FacebookUserEntity.class);
+        doReturn(user).when(getResponse).readEntity(GoogleUserEntity.class);
 
-        OAuth2User returnedUser = fbAuth.loadUserIdentity(result);
+        OAuth2User returnedUser = googleAuth.loadUserIdentity(result);
         assertEquals(returnedUser.getId(), user.getId());
         assertEquals("test name", returnedUser.getClaims().get("name"));
     }
@@ -189,7 +191,7 @@ public final class FacebookAuthenticatorTest
     @Test(expected = ThirdPartyErrorException.class)
     public void testLoadUserWithRemoteError() {
         OAuth2IdPToken result = new OAuth2IdPToken();
-        result.setAccessToken("facebook_access_token");
+        result.setAccessToken("google_access_token");
 
         Map<String, String> response = new HashMap<>();
         response.put("error", "test");
@@ -197,9 +199,9 @@ public final class FacebookAuthenticatorTest
 
         doReturn(Status.BAD_REQUEST).when(getResponse).getStatusInfo();
         doReturn(response).when(getResponse)
-                .readEntity(FacebookAuthenticator.MAP_TYPE);
+                .readEntity(GoogleAuthenticator.MAP_TYPE);
 
-        fbAuth.loadUserIdentity(result);
+        googleAuth.loadUserIdentity(result);
     }
 
     /**
@@ -209,12 +211,12 @@ public final class FacebookAuthenticatorTest
     @Test(expected = ThirdPartyErrorException.class)
     public void testLoadUserUnparseable() {
         OAuth2IdPToken result = new OAuth2IdPToken();
-        result.setAccessToken("facebook_access_token");
+        result.setAccessToken("google_access_token");
 
         doThrow(ProcessingException.class)
-                .when(getResponse).readEntity(FacebookUserEntity.class);
+                .when(getResponse).readEntity(GoogleUserEntity.class);
 
-        fbAuth.loadUserIdentity(result);
+        googleAuth.loadUserIdentity(result);
     }
 
     /**
@@ -224,12 +226,12 @@ public final class FacebookAuthenticatorTest
     @Test(expected = ThirdPartyErrorException.class)
     public void testLoadUserNoResponse() {
         OAuth2IdPToken idPToken = new OAuth2IdPToken();
-        idPToken.setAccessToken("facebook_access_token");
+        idPToken.setAccessToken("google_access_token");
 
-        FacebookUserEntity result = new FacebookUserEntity(); // no id
-        doReturn(result).when(getResponse).readEntity(FacebookUserEntity.class);
+        GoogleUserEntity result = new GoogleUserEntity(); // no id
+        doReturn(result).when(getResponse).readEntity(GoogleUserEntity.class);
 
-        fbAuth.loadUserIdentity(idPToken);
+        googleAuth.loadUserIdentity(idPToken);
     }
 
     /**
@@ -239,19 +241,19 @@ public final class FacebookAuthenticatorTest
     @Test(expected = Exception.class)
     public void testLoadUserErrorOnClose() {
         OAuth2IdPToken idPToken = new OAuth2IdPToken();
-        idPToken.setAccessToken("facebook_access_token");
+        idPToken.setAccessToken("google_access_token");
 
-        FacebookUserEntity testUser = new FacebookUserEntity();
+        GoogleUserEntity testUser = new GoogleUserEntity();
         testUser.setId(RandomStringUtils.randomAlphanumeric(10));
         testUser.setName("Some Random Name");
         testUser.setEmail("lol@example.com");
         doReturn(testUser).when(getResponse)
-                .readEntity(FacebookUserEntity.class);
+                .readEntity(GoogleUserEntity.class);
 
         doThrow(Exception.class).when(getResponse).close();
 
         MultivaluedStringMap params = new MultivaluedStringMap();
         params.putSingle("code", "valid_code");
-        fbAuth.loadUserIdentity(idPToken);
+        googleAuth.loadUserIdentity(idPToken);
     }
 }

@@ -18,11 +18,15 @@
 
 package net.krotscheck.kangaroo.test.rule;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.io.File;
 
 /**
  * This JUnit4 rule catpures and harnesses a chrome browser for direct testing.
@@ -52,6 +56,19 @@ public final class SeleniumRule implements TestRule {
     }
 
     /**
+     * Test helper, permits ad-hoc creation of screenshots.
+     */
+    public void screenshot() {
+        File scrFile = driver.getScreenshotAs(OutputType.FILE);
+
+        try {
+            FileUtils.copyFile(scrFile,
+                    new File("target/screenshots/" + scrFile.getName()));
+        } catch (Exception e) {
+        }
+    }
+
+    /**
      * Start the rule
      *
      * @param base
@@ -70,6 +87,7 @@ public final class SeleniumRule implements TestRule {
                     final ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.setHeadless(true);
                     chromeOptions.addArguments("--disable-notifications");
+                    chromeOptions.addArguments("--window-size=1920,1080");
                     driver = new ChromeDriver(chromeOptions);
 
                     base.evaluate();

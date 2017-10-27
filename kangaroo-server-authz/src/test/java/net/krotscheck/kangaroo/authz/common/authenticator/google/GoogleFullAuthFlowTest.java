@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
+package net.krotscheck.kangaroo.authz.common.authenticator.google;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator;
@@ -70,19 +70,13 @@ import static org.junit.Assert.assertEquals;
  * @author Michael Krotscheck
  */
 @RunWith(SingleInstanceTestRunner.class)
-public final class FacebookFullAuthFlowTest extends ContainerTest {
+public final class GoogleFullAuthFlowTest extends ContainerTest {
 
     /**
      * The selenium rule.
      */
     @ClassRule
     public static final SeleniumRule SELENIUM = new SeleniumRule();
-
-    /**
-     * A facebook test user.
-     */
-    @ClassRule
-    public static final FacebookTestUser FB_USER = new FacebookTestUser();
 
     /**
      * The test context for a regular application.
@@ -100,11 +94,11 @@ public final class FacebookFullAuthFlowTest extends ContainerTest {
                  */
                 @Override
                 protected void loadTestData(final Session session) {
-                    Map<String, String> fbConfig = new HashMap<>();
-                    fbConfig.put(AbstractOAuth2Authenticator.CLIENT_ID_KEY,
-                            TestConfig.getFacebookAppId());
-                    fbConfig.put(AbstractOAuth2Authenticator.CLIENT_SECRET_KEY,
-                            TestConfig.getFacebookAppSecret());
+                    Map<String, String> config = new HashMap<>();
+                    config.put(AbstractOAuth2Authenticator.CLIENT_ID_KEY,
+                            TestConfig.getGoogleAppId());
+                    config.put(AbstractOAuth2Authenticator.CLIENT_SECRET_KEY,
+                            TestConfig.getGoogleAppSecret());
 
                     context = ApplicationBuilder
                             .newApplication(session)
@@ -112,7 +106,7 @@ public final class FacebookFullAuthFlowTest extends ContainerTest {
                             .scope("debug1")
                             .role("test", new String[]{"debug", "debug1"})
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator(AuthenticatorType.Facebook, fbConfig)
+                            .authenticator(AuthenticatorType.Google, config)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                 }
@@ -131,45 +125,43 @@ public final class FacebookFullAuthFlowTest extends ContainerTest {
      * Reset the facebook account before every test.
      */
     @Before
-    public void facebookLogin() {
+    public void googleLogin() {
         WebDriver d = SELENIUM.getDriver();
 
-        // Login to facebook.
-        d.get("https://www.facebook.com/");
-        new WebDriverWait(d, 10)
-                .until(ExpectedConditions.presenceOfElementLocated(
-                        By.id("loginbutton")));
+        By emailInput = By.id("identifierId");
+        By nextButton = By.id("identifierNext");
+        By passInput = By.cssSelector("div#password input[type='password']");
+        By passNext = By.id("passwordNext");
 
-        d.findElement(By.id("email")).clear();
-        d.findElement(By.id("email")).sendKeys(FB_USER.getEmail());
-        d.findElement(By.id("pass")).clear();
-        d.findElement(By.id("pass")).sendKeys(FB_USER.getPassword());
-        d.findElement(By.id("loginbutton")).click();
+        // Login to facebook.
+        d.get("https://accounts.google.com/ServiceLogin");
         new WebDriverWait(d, 10)
-                .until(ExpectedConditions.presenceOfElementLocated(
-                        By.id("pagelet_welcome")));
+                .until(ExpectedConditions.presenceOfElementLocated(emailInput));
+
+        // Enter the login
+        d.findElement(emailInput).clear();
+        d.findElement(emailInput).sendKeys(TestConfig.getGoogleAccountId());
+        d.findElement(nextButton).click();
+        new WebDriverWait(d, 10)
+                .until(ExpectedConditions.presenceOfElementLocated(passInput));
+
+        // Enter the password
+        d.findElement(passInput).clear();
+        d.findElement(passInput).sendKeys(TestConfig.getGoogleAccountSecret());
+        d.findElement(passNext).click();
+        new WebDriverWait(d, 10)
+                .until(ExpectedConditions.urlContains("https://myaccount.google.com"));
     }
 
     /**
-     * Reset the facebook account before every test.
+     * Reset the google account before every test.
      */
     @After
-    public void facebookLogout() {
+    public void googleLogout() {
         WebDriver d = SELENIUM.getDriver();
-
-        d.get("https://www.facebook.com/");
+        d.get("https://accounts.google.com/Logout");
         new WebDriverWait(d, 10)
-                .until(ExpectedConditions.presenceOfElementLocated(
-                        By.cssSelector("a#pageLoginAnchor")))
-                .click();
-        new WebDriverWait(d, 10)
-                .until(ExpectedConditions.presenceOfElementLocated(
-                        By.partialLinkText("Log Out")))
-                .click();
-        new WebDriverWait(d, 10)
-                .until(ExpectedConditions.presenceOfElementLocated(
-                        By.id("loginbutton")))
-                .click();
+                .until(ExpectedConditions.urlContains("https://accounts.google.com/ServiceLogin/signinchooser"));
     }
 
     /**
@@ -247,8 +239,10 @@ public final class FacebookFullAuthFlowTest extends ContainerTest {
 
         WebDriver d = SELENIUM.getDriver();
         d.get(requestUri.toString());
+        (new WebDriverWait(d, 10))
+                .until(ExpectedConditions.elementToBeClickable(By.id("submit_approve_access")));
+        d.findElement(By.id("submit_approve_access")).click();
 
-        // We should go to the "redirect" at this point.
         (new WebDriverWait(d, 10))
                 .until(ExpectedConditions.urlContains("valid.example.com"));
 
@@ -261,7 +255,7 @@ public final class FacebookFullAuthFlowTest extends ContainerTest {
         OAuthToken authToken = getSession().get(OAuthToken.class, code);
         assertEquals(authToken.getClient().getId(),
                 context.getClient().getId());
-        assertEquals(AuthenticatorType.Facebook,
+        assertEquals(AuthenticatorType.Google,
                 authToken.getIdentity().getType());
         assertEquals(OAuthTokenType.Authorization,
                 authToken.getTokenType());

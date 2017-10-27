@@ -36,6 +36,7 @@ public final class AuthenticatorTypeTest {
         for (AuthenticatorType type : AuthenticatorType.values()) {
             if (type.in(AuthenticatorType.Password,
                     AuthenticatorType.Test,
+                    AuthenticatorType.Google,
                     AuthenticatorType.Facebook)) {
                 Assert.assertTrue(type.isPrivate());
             } else {
@@ -84,6 +85,10 @@ public final class AuthenticatorTypeTest {
         Assert.assertEquals(
                 AuthenticatorType.Facebook,
                 AuthenticatorType.valueOf("Facebook")
+        );
+        Assert.assertEquals(
+                AuthenticatorType.Google,
+                AuthenticatorType.valueOf("Google")
         );
     }
 }

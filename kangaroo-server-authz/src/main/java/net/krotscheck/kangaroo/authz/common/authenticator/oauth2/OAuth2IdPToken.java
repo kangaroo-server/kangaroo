@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.facebook;
+package net.krotscheck.kangaroo.authz.common.authenticator.oauth2;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Michael Krotscheck
  */
-final class FacebookIdPToken {
+public final class OAuth2IdPToken {
 
     /**
      * The access token.
