@@ -188,6 +188,9 @@
           </dependencies>
           <configuration>
             <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
+            <releaseProfiles>h2</releaseProfiles>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
           </configuration>
         </plugin>
 
@@ -457,6 +460,14 @@
             <failsOnError>true</failsOnError>
             <encoding>UTF-8</encoding>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>net.krotscheck</groupId>
+              <artifactId>kangaroo-common</artifactId>
+              <version>${project.version}</version>
+              <type>test-jar</type>
+            </dependency>
+          </dependencies>
           <executions>
             <execution>
               <id>default-check</id>
@@ -491,49 +502,6 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <configuration>
-          <dependencyLocationsEnabled>false
-          </dependencyLocationsEnabled>
-          <anonymousConnection>
-            scm:git:git@github.com:kangaroo-server/kangaroo.git
-          </anonymousConnection>
-          <developerConnection>
-            scm:git:git@github.com:kangaroo-server/kangaroo.git
-          </developerConnection>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <configuration>
-          <xmlOutput>true</xmlOutput>
-          <xmlOutputDirectory>target/site</xmlOutputDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <dependencies>
     <!-- JUnit -->
