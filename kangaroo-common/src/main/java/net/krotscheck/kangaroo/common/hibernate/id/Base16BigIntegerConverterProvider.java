@@ -33,7 +33,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 /**
- * Jersey2 Context parameter converter for base16->bigInteger conversion.
+ * Jersey2 Context parameter converter for base16 to bigInteger conversion.
  * Restricted to PathParams and QueryParams.
  *
  * @author Michael Krotscheck
