@@ -88,6 +88,19 @@ public final class ApplicationTest {
     }
 
     /**
+     * Test get/set description.
+     */
+    @Test
+    public void testGetSetDescription() {
+        Application a = new Application();
+
+        Assert.assertNull(a.getDescription());
+        a.setDescription("The application description");
+        Assert.assertEquals("The application description",
+                a.getDescription());
+    }
+
+    /**
      * Test get/set user list.
      */
     @Test
@@ -184,6 +197,7 @@ public final class ApplicationTest {
         a.setModifiedDate(Calendar.getInstance());
         a.setOwner(owner);
         a.setName("name");
+        a.setDescription("description");
 
         // These four should not show up in the deserialized version.
         a.setDefaultRole(defaultRole);
@@ -215,6 +229,9 @@ public final class ApplicationTest {
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                a.getDescription(),
+                node.get("description").asText());
         Assert.assertFalse(node.has("clients"));
         Assert.assertFalse(node.has("roles"));
         Assert.assertFalse(node.has("users"));
@@ -225,7 +242,7 @@ public final class ApplicationTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(6, names.size());
+        Assert.assertEquals(7, names.size());
     }
 
     /**
@@ -244,6 +261,7 @@ public final class ApplicationTest {
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
+        node.put("description", "description");
 
         String output = m.writeValueAsString(node);
         Application a = m.readValue(output, Application.class);
@@ -260,6 +278,9 @@ public final class ApplicationTest {
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                a.getDescription(),
+                node.get("description").asText());
     }
 
     /**

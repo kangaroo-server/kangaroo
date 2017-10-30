@@ -150,6 +150,16 @@ public final class Application extends AbstractAuthzEntity {
     private String name;
 
     /**
+     * The description for this application.
+     */
+    @Basic(optional = false)
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Column(name = "description", nullable = true)
+    @Size(max = 255, message = "Application description cannot exceed 255 "
+            + "characters.")
+    private String description;
+
+    /**
      * Get the name for this application.
      *
      * @return The application's name.
@@ -165,6 +175,24 @@ public final class Application extends AbstractAuthzEntity {
      */
     public void setName(final String name) {
         this.name = name;
+    }
+
+    /**
+     * Get the current application description.
+     *
+     * @return The current app description.
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Set the new description.
+     *
+     * @param description A new description.
+     */
+    public void setDescription(final String description) {
+        this.description = description;
     }
 
     /**
