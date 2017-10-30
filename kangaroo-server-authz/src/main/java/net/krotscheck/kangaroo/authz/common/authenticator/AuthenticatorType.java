@@ -39,6 +39,12 @@ public enum AuthenticatorType {
     Google(true),
 
     /**
+     * This authenticator uses LinkedIn's OAuth2 protocol as a simple IdP,
+     * discarding the received tokens after use.
+     */
+    LinkedIn(true),
+
+    /**
      * This type describes the password authenticator, which drives our Owner
      * Credentials flow. It is considered a private authenticator type, and
      * should not be permitted to be manually set via the admin API.

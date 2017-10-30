@@ -16,7 +16,7 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.common.authenticator.google;
+package net.krotscheck.kangaroo.authz.common.authenticator.linkedin;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator;
@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
-import net.krotscheck.kangaroo.test.rule.FacebookTestUser;
 import net.krotscheck.kangaroo.test.rule.SeleniumRule;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
@@ -65,12 +64,12 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 /**
- * This test performs a series of full login flows against google.
+ * This test performs a series of full login flows against facebook.
  *
  * @author Michael Krotscheck
  */
 @RunWith(SingleInstanceTestRunner.class)
-public final class GoogleFullAuthFlowTest extends ContainerTest {
+public final class LinkedInFullAuthFlowTest extends ContainerTest {
 
     /**
      * The selenium rule.
@@ -96,9 +95,9 @@ public final class GoogleFullAuthFlowTest extends ContainerTest {
                 protected void loadTestData(final Session session) {
                     Map<String, String> config = new HashMap<>();
                     config.put(AbstractOAuth2Authenticator.CLIENT_ID_KEY,
-                            TestConfig.getGoogleAppId());
+                            TestConfig.getLinkedInAppId());
                     config.put(AbstractOAuth2Authenticator.CLIENT_SECRET_KEY,
-                            TestConfig.getGoogleAppSecret());
+                            TestConfig.getLinkedInAppSecret());
 
                     context = ApplicationBuilder
                             .newApplication(session)
@@ -106,7 +105,7 @@ public final class GoogleFullAuthFlowTest extends ContainerTest {
                             .scope("debug1")
                             .role("test", new String[]{"debug", "debug1"})
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator(AuthenticatorType.Google, config)
+                            .authenticator(AuthenticatorType.LinkedIn, config)
                             .redirect("http://valid.example.com/redirect")
                             .build();
                 }
@@ -122,46 +121,39 @@ public final class GoogleFullAuthFlowTest extends ContainerTest {
     private ResourceConfig testApplication;
 
     /**
-     * Reset the google account before every test.
+     * Reset the facebook account before every test.
      */
     @Before
-    public void googleLogin() {
+    public void linkedinLogin() {
         WebDriver d = SELENIUM.getDriver();
 
-        By emailInput = By.id("identifierId");
-        By nextButton = By.id("identifierNext");
-        By passInput = By.cssSelector("div#password input[type='password']");
-        By passNext = By.id("passwordNext");
+        By emailInput = By.id("login-email");
+        By passInput = By.id("login-password");
 
         // Login to facebook.
-        d.get("https://accounts.google.com/ServiceLogin");
+        d.get("https://www.linkedin.com/");
         new WebDriverWait(d, 10)
                 .until(ExpectedConditions.presenceOfElementLocated(emailInput));
 
         // Enter the login
         d.findElement(emailInput).clear();
         d.findElement(emailInput).sendKeys(TestConfig.getGoogleAccountId());
-        d.findElement(nextButton).click();
-        new WebDriverWait(d, 10)
-                .until(ExpectedConditions.presenceOfElementLocated(passInput));
-
-        // Enter the password
         d.findElement(passInput).clear();
         d.findElement(passInput).sendKeys(TestConfig.getGoogleAccountSecret());
-        d.findElement(passNext).click();
-        new WebDriverWait(d, 10)
-                .until(ExpectedConditions.urlContains("https://myaccount.google.com"));
+        d.findElement(By.id("login-submit")).click();
+        new WebDriverWait(d, 10000000)
+                .until(ExpectedConditions.elementToBeClickable(By.id("nav-settings__dropdown-trigger")));
     }
 
     /**
-     * Reset the google account before every test.
+     * Reset the linkedin account before every test.
      */
     @After
-    public void googleLogout() {
+    public void linkedinLogout() {
         WebDriver d = SELENIUM.getDriver();
-        d.get("https://accounts.google.com/Logout");
+        d.get("https://www.linkedin.com/m/logout/");
         new WebDriverWait(d, 10)
-                .until(ExpectedConditions.urlContains("https://accounts.google.com/ServiceLogin/signinchooser"));
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("login-email")));
     }
 
     /**
@@ -239,9 +231,6 @@ public final class GoogleFullAuthFlowTest extends ContainerTest {
 
         WebDriver d = SELENIUM.getDriver();
         d.get(requestUri.toString());
-        (new WebDriverWait(d, 10))
-                .until(ExpectedConditions.elementToBeClickable(By.id("submit_approve_access")));
-        d.findElement(By.id("submit_approve_access")).click();
 
         (new WebDriverWait(d, 10))
                 .until(ExpectedConditions.urlContains("valid.example.com"));
@@ -255,7 +244,7 @@ public final class GoogleFullAuthFlowTest extends ContainerTest {
         OAuthToken authToken = getSession().get(OAuthToken.class, code);
         assertEquals(authToken.getClient().getId(),
                 context.getClient().getId());
-        assertEquals(AuthenticatorType.Google,
+        assertEquals(AuthenticatorType.LinkedIn,
                 authToken.getIdentity().getType());
         assertEquals(OAuthTokenType.Authorization,
                 authToken.getTokenType());

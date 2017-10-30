@@ -19,6 +19,7 @@ pipeline {
     environment {
         KANGAROO_FB_APP = credentials('jenkins_facebook_app')
         KANGAROO_GOOGLE_APP = credentials('jenkins_google_app')
+        KANGAROO_LINKEDIN_APP = credentials('jenkins_linkedin_app')
         KANGAROO_GOOGLE_ACCOUNT = credentials('jenkins_google_account')
     }
 

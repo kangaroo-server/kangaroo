@@ -36,6 +36,8 @@ supported.
 - The google `chromedriver` available on your `$PATH`
 - A facebook application (unpublished is ok)
 - A testing google email account and oauth2 application.
+- A testing linkedin account (use the google credentials)
+- A testing linkedin application.
 - MySQL, exposed at `mysql://localhost:3306/`, with the root password blank, 
   or a `~/.my.cnf` client configuration with database creation credentials.
 
@@ -44,6 +46,9 @@ The following environment variables should be set.
 ```bash
 export KANGAROO_FB_APP_USR=<your_facebook_app_id>
 export KANGAROO_FB_APP_PSW=<your_facebook_app_secret>
+
+export KANGAROO_LINKEDIN_APP_USR=<your_google_login>
+export KANGAROO_LINKEDIN_APP_PSW=<your_google_password>
 
 export KANGAROO_GOOGLE_ACCOUNT_USR=<your_google_login>
 export KANGAROO_GOOGLE_ACCOUNT_PSW=<your_google_password>

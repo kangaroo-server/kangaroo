@@ -350,6 +350,7 @@ public abstract class AbstractOAuth2Authenticator implements IAuthenticator {
         // Build the request payload
         Form f = new Form();
         f.param("client_id", clientId);
+        f.param("client_secret", clientSecret);
         f.param("code", authorizationCode);
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", redirectUrl.toString());
