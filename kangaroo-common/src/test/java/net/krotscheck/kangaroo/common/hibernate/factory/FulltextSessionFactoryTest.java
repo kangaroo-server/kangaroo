@@ -19,8 +19,8 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
-import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.Session;
@@ -31,6 +31,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
@@ -48,6 +49,12 @@ public final class FulltextSessionFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
+     * Ensure that we have a working directory.
+     */
+    @Rule
+    public final TestRule workingDirectory = new WorkingDirectoryRule();
+
+    /**
      * The jersey application injector.
      */
     private InjectionManager injector;
@@ -57,8 +64,6 @@ public final class FulltextSessionFactoryTest {
      */
     @Before
     public void setup() {
-        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
-
         injector = Injections.createInjectionManager();
         injector.register(new SystemConfiguration.Binder());
         injector.register(new HibernateServiceRegistryFactory.Binder());
@@ -75,8 +80,6 @@ public final class FulltextSessionFactoryTest {
     public void teardown() {
         injector.shutdown();
         injector = null;
-
-        System.clearProperty(Config.WORKING_DIR.getKey());
     }
 
     /**

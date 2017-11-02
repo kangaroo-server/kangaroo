@@ -20,9 +20,9 @@ package net.krotscheck.kangaroo.common.hibernate.factory;
 
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
-import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.boot.MetadataSources;
@@ -30,10 +30,9 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MariaDBDialect;
 import org.hibernate.service.ServiceRegistry;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
@@ -55,20 +54,10 @@ public final class HibernateServiceRegistryFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
-     * Setup the test.
+     * Ensure that we have a working directory.
      */
-    @Before
-    public void setupTest() {
-        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
-    }
-
-    /**
-     * Teardown the test.
-     */
-    @After
-    public void teardownTest() {
-        System.clearProperty(Config.WORKING_DIR.getKey());
-    }
+    @Rule
+    public final TestRule workingDirectory = new WorkingDirectoryRule();
 
     /**
      * Test provide and dispose.

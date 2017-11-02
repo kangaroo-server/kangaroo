@@ -64,16 +64,8 @@ public class HibernateResource implements TestRule {
     /**
      * Override system configuration.
      */
-    private Configuration systemConfiguration;
-
-    /**
-     * Constructor.
-     */
-    public HibernateResource() {
-        systemConfiguration = new PropertiesConfiguration();
-        systemConfiguration.setProperty(Config.WORKING_DIR.getKey(),
-                "./target");
-    }
+    private final Configuration systemConfiguration
+            = new PropertiesConfiguration();
 
     /**
      * Create and return a hibernate session factory the test database.

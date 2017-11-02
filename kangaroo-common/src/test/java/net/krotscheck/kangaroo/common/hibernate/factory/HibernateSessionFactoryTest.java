@@ -19,23 +19,19 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
-import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
 
 /**
  * The hibernate session factory test.
@@ -51,6 +47,12 @@ public final class HibernateSessionFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
+     * Ensure that we have a working directory.
+     */
+    @Rule
+    public final TestRule workingDirectory = new WorkingDirectoryRule();
+
+    /**
      * The jersey application injector.
      */
     private InjectionManager injector;
@@ -60,8 +62,6 @@ public final class HibernateSessionFactoryTest {
      */
     @Before
     public void setup() {
-        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
-
         injector = Injections.createInjectionManager();
         injector.register(new SystemConfiguration.Binder());
         injector.register(new HibernateServiceRegistryFactory.Binder());
@@ -77,8 +77,6 @@ public final class HibernateSessionFactoryTest {
     public void teardown() {
         injector.shutdown();
         injector = null;
-
-        System.clearProperty(Config.WORKING_DIR.getKey());
     }
 
     /**

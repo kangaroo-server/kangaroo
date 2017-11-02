@@ -18,8 +18,10 @@
 
 package net.krotscheck.kangaroo.server;
 
+import com.google.common.io.Files;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.test.NetworkUtil;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -31,11 +33,16 @@ import org.apache.http.util.EntityUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the server factory.
@@ -43,6 +50,13 @@ import java.nio.file.Paths;
  * @author Michael Krotscheck
  */
 public class ServerFactoryTest {
+
+    /**
+     * Ensure that we have a working directory.
+     */
+    @Rule
+    public final WorkingDirectoryRule workingDirectory =
+            new WorkingDirectoryRule();
 
     /**
      * Construct an HTTP client.
@@ -132,6 +146,35 @@ public class ServerFactoryTest {
      */
     @Test
     public void testBuildAllConfigOptions() throws Exception {
+        URL filePath = this.getClass()
+                .getResource("/config/test.properties");
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
+
+        File tempDir = workingDirectory.getWorkingDir();
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "-p=" + openPort,
+                        "-h=localhost",
+                        "--kangaroo.working_dir=" + tempDir.toString()
+                });
+
+        HttpServer s = f.build();
+        s.start();
+
+        File keystore = new File(tempDir, "generated.p12");
+        assertTrue(keystore.exists());
+
+        s.shutdownNow();
+    }
+
+    /**
+     * Assert that the server generates a keystore.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testBuildGeneratesKeystore() throws Exception {
         URL filePath = this.getClass()
                 .getResource("/config/test.properties");
         String openPort = String.valueOf(NetworkUtil.findFreePort());
