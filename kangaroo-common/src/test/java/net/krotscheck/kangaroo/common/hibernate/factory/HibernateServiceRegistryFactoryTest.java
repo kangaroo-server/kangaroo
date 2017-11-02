@@ -19,22 +19,27 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
+import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MariaDBDialect;
 import org.hibernate.service.ServiceRegistry;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
+import java.util.ArrayList;
 
 /**
  * Unit test for the hibernate configuration and its binder.
@@ -50,12 +55,30 @@ public final class HibernateServiceRegistryFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
+     * Setup the test.
+     */
+    @Before
+    public void setupTest() {
+        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
+    }
+
+    /**
+     * Teardown the test.
+     */
+    @After
+    public void teardownTest() {
+        System.clearProperty(Config.WORKING_DIR.getKey());
+    }
+
+    /**
      * Test provide and dispose.
      */
     @Test
     public void testProvideDispose() {
+        SystemConfiguration testConfig =
+                new SystemConfiguration(new ArrayList<>());
         HibernateServiceRegistryFactory factory = new
-                HibernateServiceRegistryFactory();
+                HibernateServiceRegistryFactory(testConfig);
 
         ServiceRegistry serviceRegistry = factory.get();
 
@@ -88,16 +111,14 @@ public final class HibernateServiceRegistryFactoryTest {
     @Test
     public void testBinder() throws ClassNotFoundException {
 
-        ResourceConfig config = new ResourceConfig();
-        config.register(TestFeature.class);
+        // Create a fake injector.
+        InjectionManager injector = Injections.createInjectionManager();
+        injector.register(new SystemConfiguration.Binder());
+        injector.register(new HibernateServiceRegistryFactory.Binder());
+        injector.completeRegistration();
 
-        // Make sure it's registered
-        Assert.assertTrue(config.isRegistered(TestFeature.class));
-
-        // Create a fake application.
-        ApplicationHandler handler = new ApplicationHandler(config);
-        ServiceRegistry serviceRegistry = handler
-                .getInjectionManager().getInstance(ServiceRegistry.class);
+        ServiceRegistry serviceRegistry =
+                injector.getInstance(ServiceRegistry.class);
         Assert.assertNotNull(serviceRegistry);
 
         // Make sure it's reading from the same place.
@@ -117,10 +138,11 @@ public final class HibernateServiceRegistryFactoryTest {
         }
 
         // Make sure it's a singleton...
-        ServiceRegistry serviceRegistry2 = handler
-                .getInjectionManager()
-                .getInstance(ServiceRegistry.class);
+        ServiceRegistry serviceRegistry2 =
+                injector.getInstance(ServiceRegistry.class);
         Assert.assertSame(serviceRegistry, serviceRegistry2);
+
+        injector.shutdown();
     }
 
     /**

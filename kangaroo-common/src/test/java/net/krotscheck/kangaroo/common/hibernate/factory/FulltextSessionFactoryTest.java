@@ -18,10 +18,11 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
+import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.internal.SessionImpl;
@@ -32,9 +33,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
 
 /**
  * Unit test for our fulltext search factory.
@@ -50,24 +48,24 @@ public final class FulltextSessionFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
-     * The jersey application handler.
-     */
-    private ApplicationHandler handler;
-
-    /**
      * The jersey application injector.
      */
-    private InjectionManager injectionManager;
+    private InjectionManager injector;
 
     /**
      * Setup the application handler for this test.
      */
     @Before
     public void setup() {
-        ResourceConfig config = new ResourceConfig();
-        config.register(TestFeature.class);
-        handler = new ApplicationHandler(config);
-        injectionManager = handler.getInjectionManager();
+        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
+
+        injector = Injections.createInjectionManager();
+        injector.register(new SystemConfiguration.Binder());
+        injector.register(new HibernateServiceRegistryFactory.Binder());
+        injector.register(new HibernateSessionFactoryFactory.Binder());
+        injector.register(new HibernateSessionFactory.Binder());
+        injector.register(new FulltextSessionFactory.Binder());
+        injector.completeRegistration();
     }
 
     /**
@@ -75,9 +73,10 @@ public final class FulltextSessionFactoryTest {
      */
     @After
     public void teardown() {
-        injectionManager.shutdown();
-        injectionManager = null;
-        handler = null;
+        injector.shutdown();
+        injector = null;
+
+        System.clearProperty(Config.WORKING_DIR.getKey());
     }
 
     /**
@@ -86,7 +85,7 @@ public final class FulltextSessionFactoryTest {
     @Test
     public void testProvideDispose() {
         SessionFactory sessionFactory =
-                injectionManager.getInstance(SessionFactory.class);
+                injector.getInstance(SessionFactory.class);
         Session hibernateSession = sessionFactory.openSession();
 
         FulltextSessionFactory factory =
@@ -110,21 +109,6 @@ public final class FulltextSessionFactoryTest {
 
         if (hibernateSession.isOpen()) {
             hibernateSession.close();
-        }
-    }
-
-    /**
-     * A private class to test our feature injection.
-     */
-    private static class TestFeature implements Feature {
-
-        @Override
-        public boolean configure(final FeatureContext context) {
-            context.register(new HibernateServiceRegistryFactory.Binder());
-            context.register(new HibernateSessionFactoryFactory.Binder());
-            context.register(new HibernateSessionFactory.Binder());
-            context.register(new FulltextSessionFactory.Binder());
-            return true;
         }
     }
 }

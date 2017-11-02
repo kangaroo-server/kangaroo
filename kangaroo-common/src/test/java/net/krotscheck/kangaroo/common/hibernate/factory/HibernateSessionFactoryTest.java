@@ -18,6 +18,8 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
+import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
@@ -49,11 +51,6 @@ public final class HibernateSessionFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
-     * The jersey application handler.
-     */
-    private ApplicationHandler handler;
-
-    /**
      * The jersey application injector.
      */
     private InjectionManager injector;
@@ -63,13 +60,14 @@ public final class HibernateSessionFactoryTest {
      */
     @Before
     public void setup() {
-        ResourceConfig config = new ResourceConfig();
-        config.register(TestFeature.class);
-        handler = new ApplicationHandler(config);
+        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
+
         injector = Injections.createInjectionManager();
+        injector.register(new SystemConfiguration.Binder());
         injector.register(new HibernateServiceRegistryFactory.Binder());
-        injector.register(new HibernateSessionFactory.Binder());
         injector.register(new HibernateSessionFactoryFactory.Binder());
+        injector.register(new HibernateSessionFactory.Binder());
+        injector.completeRegistration();
     }
 
     /**
@@ -79,7 +77,8 @@ public final class HibernateSessionFactoryTest {
     public void teardown() {
         injector.shutdown();
         injector = null;
-        handler = null;
+
+        System.clearProperty(Config.WORKING_DIR.getKey());
     }
 
     /**
@@ -108,19 +107,5 @@ public final class HibernateSessionFactoryTest {
 
         // Make sure accidentally passing null doesn't blow up.
         factory.dispose(null);
-    }
-
-    /**
-     * A private class to test our feature injection.
-     */
-    private static class TestFeature implements Feature {
-
-        @Override
-        public boolean configure(final FeatureContext context) {
-            context.register(new HibernateServiceRegistryFactory.Binder());
-            context.register(new HibernateSessionFactoryFactory.Binder());
-            context.register(new HibernateSessionFactory.Binder());
-            return true;
-        }
     }
 }

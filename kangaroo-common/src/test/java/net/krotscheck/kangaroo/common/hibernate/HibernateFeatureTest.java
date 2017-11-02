@@ -18,6 +18,8 @@
 
 package net.krotscheck.kangaroo.common.hibernate;
 
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
+import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -26,7 +28,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.service.ServiceRegistry;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -52,13 +56,19 @@ public final class HibernateFeatureTest extends KangarooJerseyTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
-     * Run a service request.
+     * Setup the test.
      */
-    @Test
-    public void testService() {
-        target("/test")
-                .request(MediaType.APPLICATION_JSON)
-                .get();
+    @Before
+    public void setupTest() {
+        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
+    }
+
+    /**
+     * Teardown the test.
+     */
+    @After
+    public void teardownTest() {
+        System.clearProperty(Config.WORKING_DIR.getKey());
     }
 
     /**
@@ -69,10 +79,21 @@ public final class HibernateFeatureTest extends KangarooJerseyTest {
     @Override
     protected ResourceConfig createApplication() {
         ResourceConfig config = new ResourceConfig();
+        config.register(ConfigurationFeature.class);
         config.register(HibernateFeature.class);
         config.register(TestService.class);
 
         return config;
+    }
+
+    /**
+     * Run a service request.
+     */
+    @Test
+    public void testService() {
+        target("/test")
+                .request(MediaType.APPLICATION_JSON)
+                .get();
     }
 
     /**

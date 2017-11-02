@@ -20,7 +20,10 @@ package net.krotscheck.kangaroo.test.rule;
 
 import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
 import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
+import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.hibernate.TestDirectoryProvider;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -57,6 +60,20 @@ public class HibernateResource implements TestRule {
      * Internal session factory, reconstructed for every test run.
      */
     private SessionFactory sessionFactory;
+
+    /**
+     * Override system configuration.
+     */
+    private Configuration systemConfiguration;
+
+    /**
+     * Constructor.
+     */
+    public HibernateResource() {
+        systemConfiguration = new PropertiesConfiguration();
+        systemConfiguration.setProperty(Config.WORKING_DIR.getKey(),
+                "./target");
+    }
 
     /**
      * Create and return a hibernate session factory the test database.
@@ -131,7 +148,8 @@ public class HibernateResource implements TestRule {
         sessionFactory = null;
 
         logger.debug("Disposing ServiceRegistry");
-        new HibernateServiceRegistryFactory().dispose(registry);
+        new HibernateServiceRegistryFactory(systemConfiguration)
+                .dispose(registry);
     }
 
     /**
@@ -140,7 +158,8 @@ public class HibernateResource implements TestRule {
     private void createHibernateConnection() {
         // Create the session factory.
         logger.debug("Creating ServiceRegistry");
-        registry = new HibernateServiceRegistryFactory().get();
+        registry = new HibernateServiceRegistryFactory(systemConfiguration)
+                .get();
 
         logger.debug("Creating SessionFactory");
         sessionFactory = new MetadataSources(registry)

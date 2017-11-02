@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.common.database;
 
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.internal.inject.InjectionManager;
@@ -51,6 +52,7 @@ public final class DatabaseFeatureTest extends ContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
+        a.register(ConfigurationFeature.class);
         a.register(DatabaseFeature.class);
         a.register(MockService.class);
         return a;

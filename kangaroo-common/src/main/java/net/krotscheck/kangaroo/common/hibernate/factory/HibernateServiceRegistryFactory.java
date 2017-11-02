@@ -18,6 +18,8 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
+import net.krotscheck.kangaroo.server.Config;
+import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.DisposableSupplier;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -25,7 +27,11 @@ import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This factory creates a singleton hibernate service registry object, using
@@ -46,6 +52,35 @@ public final class HibernateServiceRegistryFactory
             LoggerFactory.getLogger(HibernateServiceRegistryFactory.class);
 
     /**
+     * The default configuration values.
+     */
+    private final Map<String, String> defaultSettings;
+
+    /**
+     * Constructor. Initializes the configuration.
+     *
+     * @param config Injected system configuration.
+     */
+    @Inject
+    public HibernateServiceRegistryFactory(@Named("system")
+                                               final Configuration config) {
+
+        // Get the working directory.
+        String workingDir = config.getString(Config.WORKING_DIR.getKey(),
+                Config.WORKING_DIR.getValue());
+
+        defaultSettings = new HashMap<>();
+        defaultSettings.put("hibernate.connection.url",
+                String.format("jdbc:h2:file:%s/h2.db", workingDir));
+        defaultSettings.put("hibernate.connection.username", "oid");
+        defaultSettings.put("hibernate.connection.password", "oid");
+        defaultSettings.put("hibernate.connection.driver_class",
+                "org.h2.Driver");
+        defaultSettings.put("hibernate.dialect",
+                "org.hibernate.dialect.H2Dialect");
+    }
+
+    /**
      * Provide a Hibernate Service Registry object.
      *
      * @return The hibernate serfice registry.
@@ -56,8 +91,9 @@ public final class HibernateServiceRegistryFactory
 
         return new StandardServiceRegistryBuilder()
                 .configure() // configures settings from hibernate.cfg.xml
-                .applySettings(System.getenv())
-                .applySettings(System.getProperties())
+                .applySettings(defaultSettings) // Apply defaults
+                .applySettings(System.getenv()) // Override from the env.
+                .applySettings(System.getProperties()) // Override from JVM.
                 .build();
     }
 

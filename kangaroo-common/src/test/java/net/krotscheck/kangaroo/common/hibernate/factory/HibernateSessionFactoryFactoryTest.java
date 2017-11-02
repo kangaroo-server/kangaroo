@@ -18,9 +18,12 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
+import net.krotscheck.kangaroo.common.config.SystemConfiguration;
+import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.internal.inject.PerThread;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -71,9 +74,20 @@ public final class HibernateSessionFactoryFactoryTest {
     public static final TestRule DATABASE = new DatabaseResource();
 
     /**
-     * The jersey application handler.
+     * Setup the test.
      */
-    private ApplicationHandler handler;
+    @Before
+    public void setupTest() {
+        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
+    }
+
+    /**
+     * Teardown the test.
+     */
+    @After
+    public void teardownTest() {
+        System.clearProperty(Config.WORKING_DIR.getKey());
+    }
 
     /**
      * The jersey application injector.
@@ -85,10 +99,14 @@ public final class HibernateSessionFactoryFactoryTest {
      */
     @Before
     public void setup() {
-        ResourceConfig config = new ResourceConfig();
-        config.register(TestFeature.class);
-        handler = new ApplicationHandler(config);
-        injector = handler.getInjectionManager();
+        System.setProperty(Config.WORKING_DIR.getKey(), "./target");
+
+        injector = Injections.createInjectionManager();
+        injector.register(new SystemConfiguration.Binder());
+        injector.register(new HibernateServiceRegistryFactory.Binder());
+        injector.register(new HibernateSessionFactoryFactory.Binder());
+        injector.register(new TestEventListener.Binder());
+        injector.completeRegistration();
     }
 
     /**
@@ -98,7 +116,8 @@ public final class HibernateSessionFactoryFactoryTest {
     public void teardown() {
         injector.shutdown();
         injector = null;
-        handler = null;
+
+        System.clearProperty(Config.WORKING_DIR.getKey());
     }
 
     /**
@@ -147,8 +166,8 @@ public final class HibernateSessionFactoryFactoryTest {
         Assert.assertFalse(factoryFactory.isClosed());
 
         // Make sure it's a singleton...
-        SessionFactory factoryFactory2 = handler
-                .getInjectionManager().getInstance(SessionFactory.class);
+        SessionFactory factoryFactory2 =
+                injector.getInstance(SessionFactory.class);
         Assert.assertSame(factoryFactory, factoryFactory2);
     }
 
@@ -221,20 +240,6 @@ public final class HibernateSessionFactoryFactoryTest {
         }
 
         Assert.assertFalse(true);
-    }
-
-    /**
-     * A private class to test our feature injection.
-     */
-    private static class TestFeature implements Feature {
-
-        @Override
-        public boolean configure(final FeatureContext context) {
-            context.register(new HibernateServiceRegistryFactory.Binder());
-            context.register(new HibernateSessionFactoryFactory.Binder());
-            context.register(new TestEventListener.Binder());
-            return true;
-        }
     }
 
     /**
