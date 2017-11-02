@@ -56,6 +56,7 @@ public final class HibernateServiceRegistryFactory
 
         return new StandardServiceRegistryBuilder()
                 .configure() // configures settings from hibernate.cfg.xml
+                .applySettings(System.getenv())
                 .applySettings(System.getProperties())
                 .build();
     }
