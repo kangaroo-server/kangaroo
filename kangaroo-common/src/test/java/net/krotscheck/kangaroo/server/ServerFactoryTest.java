@@ -256,8 +256,6 @@ public class ServerFactoryTest {
      */
     @Test
     public void testConfigureServer() throws Exception {
-        Path appRoot = Paths.get("src/test/resources/html/index");
-
         ServerFactory f = new ServerFactory()
                 .configureServer(s -> {
                     s.getServerConfiguration().setSessionTimeoutSeconds(1000);

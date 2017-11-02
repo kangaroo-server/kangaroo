@@ -80,6 +80,13 @@ public final class ServerFactory {
                 .desc("The port on which this port should listen.")
                 .build();
 
+        Option workingDir = Option.builder()
+                .longOpt(Config.WORKING_DIR.getKey())
+                .argName(Config.WORKING_DIR.getKey())
+                .hasArg()
+                .desc("The server's working directory.")
+                .build();
+
         Option keystorePath = Option.builder()
                 .longOpt(Config.KEYSTORE_PATH.getKey())
                 .argName(Config.KEYSTORE_PATH.getKey())
@@ -126,6 +133,7 @@ public final class ServerFactory {
 
         CLI_OPTIONS.addOption(bindHost);
         CLI_OPTIONS.addOption(bindPort);
+        CLI_OPTIONS.addOption(workingDir);
         CLI_OPTIONS.addOption(keystorePath);
         CLI_OPTIONS.addOption(keystorePass);
         CLI_OPTIONS.addOption(keystoreType);

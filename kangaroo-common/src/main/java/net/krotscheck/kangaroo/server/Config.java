@@ -44,6 +44,13 @@ public final class Config {
             SimpleImmutableEntry<>("kangaroo.port", 8080);
 
     /**
+     * The filesystem path used for the server's working directory. Used
+     * throughout the application.
+     */
+    public static final Entry<String, String> WORKING_DIR = new
+            SimpleImmutableEntry<>("kangaroo.working_dir", "/var/lib/kangaroo");
+
+    /**
      * Configuration property for an externally provided keystore.
      */
     public static final Entry<String, String> KEYSTORE_PATH = new

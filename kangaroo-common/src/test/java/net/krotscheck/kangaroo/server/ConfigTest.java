@@ -57,6 +57,11 @@ public class ConfigTest {
         Assert.assertEquals("kangaroo.port", Config.PORT.getKey());
         Assert.assertEquals((Integer) 8080, Config.PORT.getValue());
 
+        Assert.assertEquals("kangaroo.working_dir",
+                Config.WORKING_DIR.getKey());
+        Assert.assertEquals("/var/lib/kangaroo",
+                Config.WORKING_DIR.getValue());
+
         Assert.assertEquals("kangaroo.keystore_path",
                 Config.KEYSTORE_PATH.getKey());
         Assert.assertNull(Config.KEYSTORE_PATH.getValue());
