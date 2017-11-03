@@ -45,24 +45,21 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 public abstract class KangarooJerseyTest extends JerseyTest {
 
     /**
-     * Rules applicable to each test.
-     */
-    @Rule
-    public final TestRule instanceRules = Timeout.seconds(10);
-
-    /**
      * Install the JUL-to-SLF4J logging bridge, before any application is
-     * bootstrapped. This explicitly pre-empts the same code in the logging
-     * feature, to catch test-initialization related log messages from
-     * jerseytest.
+     * bootstrapped.
      */
-    @BeforeClass
-    public static void installLogging() {
+    static {
         if (!SLF4JBridgeHandler.isInstalled()) {
             SLF4JBridgeHandler.removeHandlersForRootLogger();
             SLF4JBridgeHandler.install();
         }
     }
+
+    /**
+     * Rules applicable to each test.
+     */
+    @Rule
+    public final TestRule instanceRules = Timeout.seconds(10);
 
     /**
      * Override system properties necessary for testing.
