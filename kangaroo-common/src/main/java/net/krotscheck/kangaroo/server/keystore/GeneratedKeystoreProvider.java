@@ -33,18 +33,19 @@ import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
@@ -53,15 +54,20 @@ import java.util.Date;
  * BouncyCastle library to generate a certificate at runtime. This class is
  * provided to enforce a "Secure by default" implementation for our services.
  *
+ * In order to persist certificates between runs, the generated certificate
+ * will be stored on the filesystem in a predictable location, and reused
+ * if found. If found, and inaccessible (different password, for example), the
+ * process will terminate, as we don't accidentally want to delete something
+ * that may have been put there intentionally.
+ *
  * @author Michael Krotscheck
  */
 public final class GeneratedKeystoreProvider implements IKeystoreProvider {
 
     /**
-     * Logger instance.
+     * The keystore type.
      */
-    private static Logger logger =
-            LoggerFactory.getLogger(GeneratedKeystoreProvider.class);
+    private static final String KEYSTORE_TYPE = "PKCS12";
 
     /**
      * Certificate name for our self-generated cert.
@@ -92,6 +98,23 @@ public final class GeneratedKeystoreProvider implements IKeystoreProvider {
             + (1000L * 60 * 60 * 24 * 365 * 10)); // Ten years from now.
 
     /**
+     * Logger instance.
+     */
+    private static Logger logger =
+            LoggerFactory.getLogger(GeneratedKeystoreProvider.class);
+
+    /**
+     * The Filesystem keystore provider, which actually backs our external
+     * contract.
+     */
+    private final FSKeystoreProvider generatedProvider;
+
+    /**
+     * The default keystore path, to which this keystore will be saved.
+     */
+    private final String keystorePath;
+
+    /**
      * Password used to create the keystore.
      */
     private final String keystorePass;
@@ -107,93 +130,70 @@ public final class GeneratedKeystoreProvider implements IKeystoreProvider {
     private final String alias;
 
     /**
-     * The keypair used for signing certificates.
-     */
-    private KeyPair keyPair;
-
-    /**
-     * Certificate builder.
-     */
-    private X509v3CertificateBuilder certificateBuilder;
-
-    /**
-     * Certificate signer.
-     */
-    private ContentSigner certificateSigner;
-
-    /**
-     * The generated certificate chain.
-     */
-    private Certificate[] chain;
-
-    /**
-     * The generated keystore.
-     */
-    private KeyStore keyStore;
-
-    /**
      * Create a new instance of the keystore provider.
+     *
+     * @param workingDirectory The working directory for the server.
      */
-    public GeneratedKeystoreProvider() {
-        this("kangaroo", "kangaroo", "kangaroo");
+    public GeneratedKeystoreProvider(final String workingDirectory) {
+        this(workingDirectory, "kangaroo", "kangaroo", "kangaroo");
     }
 
     /**
      * Create a new instance of the keystore provider.
      *
-     * @param keystorePass    A password for the keystore.
-     * @param certificatePass A password for the cert private key.
-     * @param alias           A certificate alias.
+     * @param workingDirectory The working directory for the server.
+     * @param keystorePass     A password for the keystore.
+     * @param certificatePass  A password for the cert private key.
+     * @param alias            A certificate alias.
      */
-    public GeneratedKeystoreProvider(final String keystorePass,
+    public GeneratedKeystoreProvider(final String workingDirectory,
+                                     final String keystorePass,
                                      final String certificatePass,
                                      final String alias) {
+        keystorePath = Paths.get(workingDirectory, "generated.p12")
+                .toAbsolutePath().toString();
+
+        this.generatedProvider = new FSKeystoreProvider(
+                keystorePath, keystorePass, KEYSTORE_TYPE);
+
         this.keystorePass = keystorePass;
         this.certificatePass = certificatePass;
         this.alias = alias;
     }
 
     /**
-     * Retrieve the keypair.
+     * Check to see if the generated keystore exists.
      *
-     * @return The keypair for this generator.
-     * @throws NoSuchAlgorithmException Thrown if the RSA keygen alg is not
-     *                                  available.
+     * @return True if the file exists. Makes no assumption about passwords.
      */
-    public KeyPair getKeyPair() throws NoSuchAlgorithmException {
-        if (keyPair == null) {
-            logger.info("Generating Keypair");
-            KeyPairGenerator keyPairGenerator =
-                    KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(1024 * 2);
-            keyPair = keyPairGenerator.generateKeyPair();
-        }
-        return keyPair;
+    private boolean doesKeystoreExist() {
+        File ks = new File(keystorePath);
+        return ks.exists();
     }
 
     /**
      * Get the certificate builder for this generator.
      *
+     * @param keyPair The keypair to use for generating certificates.
      * @return A certificate builder, using the public key.
      * @throws NoSuchAlgorithmException Thrown if the RSA keygen alg is not
      *                                  available.
      */
-    public X509v3CertificateBuilder getCertificateBuilder()
+    protected X509v3CertificateBuilder getCertificateBuilder(
+            final KeyPair keyPair)
             throws NoSuchAlgorithmException {
-        if (certificateBuilder == null) {
-            logger.info("Generating Certificate Builder");
-            byte[] publicKey = getKeyPair().getPublic().getEncoded();
-            SubjectPublicKeyInfo pki =
-                    SubjectPublicKeyInfo.getInstance(publicKey);
-            certificateBuilder = new X509v3CertificateBuilder(
-                    X_500_NAME, SERIAL, NOT_BEFORE, NOT_AFTER, X_500_NAME, pki);
-        }
-        return certificateBuilder;
+        logger.info("Generating Certificate Builder");
+        byte[] publicKey = keyPair.getPublic().getEncoded();
+        SubjectPublicKeyInfo pki =
+                SubjectPublicKeyInfo.getInstance(publicKey);
+        return new X509v3CertificateBuilder(
+                X_500_NAME, SERIAL, NOT_BEFORE, NOT_AFTER, X_500_NAME, pki);
     }
 
     /**
      * Get the certificate builder for this generator.
      *
+     * @param keyPair The keypair to use for signing.
      * @return A certificate builder, using the public key.
      * @throws NoSuchAlgorithmException  Thrown if the RSA keygen alg is not
      *                                   available.
@@ -202,63 +202,21 @@ public final class GeneratedKeystoreProvider implements IKeystoreProvider {
      * @throws OperatorCreationException Thrown if we cannot create a content
      *                                   signer.
      */
-    public ContentSigner getCertificateSigner() throws NoSuchAlgorithmException,
+    protected ContentSigner getCertificateSigner(final KeyPair keyPair)
+            throws NoSuchAlgorithmException,
             IOException, OperatorCreationException {
-        if (certificateSigner == null) {
-            logger.info("Generating Certificate Signer");
+        logger.info("Generating Certificate Signer");
 
-            // Create the certificate signer.
-            byte[] privateKey = getKeyPair().getPrivate().getEncoded();
-            AlgorithmIdentifier sigAlgId =
-                    new DefaultSignatureAlgorithmIdentifierFinder()
-                            .find("SHA256WithRSAEncryption");
-            AlgorithmIdentifier digAlgId =
-                    new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
+        // Create the certificate signer.
+        byte[] privateKey = keyPair.getPrivate().getEncoded();
+        AlgorithmIdentifier sigAlgId =
+                new DefaultSignatureAlgorithmIdentifierFinder()
+                        .find("SHA256WithRSAEncryption");
+        AlgorithmIdentifier digAlgId =
+                new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
 
-            certificateSigner =
-                    new BcRSAContentSignerBuilder(sigAlgId, digAlgId)
-                            .build(PrivateKeyFactory.createKey(privateKey));
-        }
-        return certificateSigner;
-    }
-
-    /**
-     * Retrieve (and/or create) the certificate and its chain.
-     *
-     * @return The full certificate chain.
-     * @throws IOException               Thrown if the keypair cannot be
-     *                                   read.
-     * @throws OperatorCreationException Thrown if the signer cannot be created.
-     * @throws NoSuchAlgorithmException  Thrown if the keypair cannot be
-     *                                   generated.
-     * @throws CertificateException      Thrown if the certificate cannot be
-     *                                   read.
-     */
-    public Certificate[] getCertificates() throws IOException,
-            NoSuchAlgorithmException, OperatorCreationException,
-            CertificateException {
-        if (chain == null) {
-            logger.info("Generating x509 Certificate");
-            ContentSigner signer = getCertificateSigner();
-            X509v3CertificateBuilder builder = getCertificateBuilder();
-
-            X509CertificateHolder holder = builder.build(signer);
-            X509Certificate cert = new JcaX509CertificateConverter()
-                    .getCertificate(holder);
-            chain = new Certificate[]{cert};
-        }
-        return chain;
-    }
-
-    /**
-     * Retrieve the key from this provider.
-     *
-     * @return The private key.
-     * @throws NoSuchAlgorithmException Thrown if the keypair cannot be
-     *                                  generated.
-     */
-    public PrivateKey getKey() throws NoSuchAlgorithmException {
-        return getKeyPair().getPrivate();
+        return new BcRSAContentSignerBuilder(sigAlgId, digAlgId)
+                .build(PrivateKeyFactory.createKey(privateKey));
     }
 
     /**
@@ -267,25 +225,49 @@ public final class GeneratedKeystoreProvider implements IKeystoreProvider {
      * @return The private key.
      */
     public KeyStore getKeyStore() {
-        if (keyStore == null) {
-            try {
-                // Build a new keystore.
-                keyStore = KeyStore.getInstance("PKCS12");
-                keyStore.load(null, this.keystorePass.toCharArray());
-
-                Key key = getKey();
-                Certificate[] chain = getCertificates();
-
-                // Add the certificate and the key
-                keyStore.setKeyEntry(alias,
-                        key,
-                        this.certificatePass.toCharArray(),
-                        chain);
-            } catch (Exception kse) {
-                throw new RuntimeException(kse);
-            }
+        if (!doesKeystoreExist()) {
+            generateKeystore();
         }
-        return keyStore;
+        return generatedProvider.getKeyStore();
+    }
+
+    /**
+     * Generate a new keystore at the provided file path.
+     */
+    protected void generateKeystore() {
+        try {
+            // Build a new keystore.
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            keyStore.load(null, this.keystorePass.toCharArray());
+
+            logger.info("Generating Keypair");
+            KeyPairGenerator keyPairGenerator =
+                    KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(1024 * 2);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            Key key = keyPair.getPrivate();
+
+            logger.info("Generating x509 Certificate");
+            ContentSigner signer = getCertificateSigner(keyPair);
+            X509v3CertificateBuilder builder = getCertificateBuilder(keyPair);
+            X509CertificateHolder holder = builder.build(signer);
+            X509Certificate cert = new JcaX509CertificateConverter()
+                    .getCertificate(holder);
+            Certificate[] chain = new Certificate[]{cert};
+
+            // Add the certificate and the key
+            keyStore.setKeyEntry(alias,
+                    key,
+                    this.certificatePass.toCharArray(),
+                    chain);
+
+            // Write it to the filesystem
+            File targetFile = new File(keystorePath);
+            FileOutputStream os = new FileOutputStream(targetFile);
+            keyStore.store(os, this.keystorePass.toCharArray());
+        } catch (Exception kse) {
+            throw new RuntimeException(kse);
+        }
     }
 
     /**
@@ -295,10 +277,7 @@ public final class GeneratedKeystoreProvider implements IKeystoreProvider {
      */
     @Override
     public void writeTo(final OutputStream outputStream) {
-        try {
-            getKeyStore().store(outputStream, keystorePass.toCharArray());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        getKeyStore(); // Make sure the keystore exists.
+        generatedProvider.writeTo(outputStream);
     }
 }

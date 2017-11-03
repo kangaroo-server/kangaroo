@@ -48,6 +48,7 @@ public final class ConfigurationBuilderTest {
                 .addCommandlineArgs(new String[]{
                         "-h=example.com",
                         "-p=9000",
+                        "--kangaroo.working_dir=/opt/kangaroo",
                         "--kangaroo.keystore_path=/foo/bar",
                         "--kangaroo.keystore_password=keystore_password",
                         "--kangaroo.keystore_type=JKS",
@@ -61,6 +62,8 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "example.com");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 9000);
+        Assert.assertEquals(config.getString(
+                Config.WORKING_DIR.getKey()), "/opt/kangaroo");
         Assert.assertEquals(config.getString(
                 Config.KEYSTORE_PATH.getKey()), "/foo/bar");
         Assert.assertEquals(config.getString(
@@ -101,6 +104,7 @@ public final class ConfigurationBuilderTest {
 
         Assert.assertNull(config.getString(Config.HOST.getKey()));
         Assert.assertNull(config.getString(Config.PORT.getKey()));
+        Assert.assertNull(config.getString(Config.WORKING_DIR.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
@@ -117,6 +121,7 @@ public final class ConfigurationBuilderTest {
         Map<String, Object> defaults = new HashMap<>();
         defaults.put(Config.HOST.getKey(), "example.com");
         defaults.put(Config.PORT.getKey(), "1000");
+        defaults.put(Config.WORKING_DIR.getKey(), "/foo/bar");
 
         Configuration config = new ConfigurationBuilder()
                 .withDefaults(defaults)
@@ -129,6 +134,8 @@ public final class ConfigurationBuilderTest {
                 config.getString(Config.HOST.getKey()));
         Assert.assertEquals(1000,
                 config.getInt(Config.PORT.getKey()));
+        Assert.assertEquals("/foo/bar",
+                config.getString(Config.WORKING_DIR.getKey()));
     }
 
     /**
@@ -148,6 +155,8 @@ public final class ConfigurationBuilderTest {
                 Config.HOST.getKey()), "example.com");
         Assert.assertEquals(config.getInt(
                 Config.PORT.getKey()), 9000);
+        Assert.assertEquals(config.getString(
+                Config.WORKING_DIR.getKey()), "/opt/kangaroo");
         Assert.assertEquals(config.getString(
                 Config.KEYSTORE_PATH.getKey()), "/foo/bar");
         Assert.assertEquals(config.getString(
@@ -174,6 +183,7 @@ public final class ConfigurationBuilderTest {
 
         Assert.assertNull(config.getString(Config.HOST.getKey()));
         Assert.assertNull(config.getString(Config.PORT.getKey()));
+        Assert.assertNull(config.getString(Config.WORKING_DIR.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
@@ -199,6 +209,7 @@ public final class ConfigurationBuilderTest {
 
         Assert.assertNull(config.getString(Config.HOST.getKey()));
         Assert.assertNull(config.getString(Config.PORT.getKey()));
+        Assert.assertNull(config.getString(Config.WORKING_DIR.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
         Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));

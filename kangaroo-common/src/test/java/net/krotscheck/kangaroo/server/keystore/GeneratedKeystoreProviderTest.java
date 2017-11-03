@@ -18,19 +18,16 @@
 
 package net.krotscheck.kangaroo.server.keystore;
 
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.operator.ContentSigner;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.security.KeyPair;
+import java.io.File;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -39,14 +36,103 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+
 /**
  * Unit test for our internal keystore provider, used when an external
  * keystore has not been configured.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public class GeneratedKeystoreProviderTest {
+
+    /**
+     * Ensure that we have a working directory.
+     */
+    @Rule
+    public final WorkingDirectoryRule workingDirectory =
+            new WorkingDirectoryRule();
+
+    /**
+     * Generate the keystore.
+     */
+    private GeneratedKeystoreProvider provider;
+
+    /**
+     * Setup the tests.
+     */
+    @Before
+    public void setup() {
+        File tempDir = workingDirectory.getWorkingDir();
+        provider = Mockito.spy(new GeneratedKeystoreProvider(tempDir
+                .getAbsolutePath()));
+    }
+
+    /**
+     * Assert that a new keystore is generated in the working directory if
+     * it doesn't exist yet.
+     */
+    @Test
+    public void testGeneratedFile() {
+        File tempDir = workingDirectory.getWorkingDir();
+        provider.getKeyStore(); // Build the keystore.
+
+        File generatedKeystore = new File(tempDir, "generated.p12");
+        assertTrue(generatedKeystore.exists());
+        assertTrue(generatedKeystore.isFile());
+    }
+
+    /**
+     * Assert that an existing keystore is used if found in the working
+     * directory.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testReuseKeystore() throws Exception {
+        File tempDir = workingDirectory.getWorkingDir();
+        provider.getKeyStore(); // Build the keystore.
+
+        // Create a new keystore impl.
+        GeneratedKeystoreProvider provider2
+                = new GeneratedKeystoreProvider(tempDir.getAbsolutePath());
+
+        RSAPrivateKey key1 = (RSAPrivateKey) provider.getKeyStore()
+                .getKey("kangaroo", "kangaroo".toCharArray());
+
+        RSAPrivateKey key2 = (RSAPrivateKey) provider2.getKeyStore()
+                .getKey("kangaroo", "kangaroo".toCharArray());
+
+        assertEquals(key1.getModulus(), key2.getModulus());
+    }
+
+    /**
+     * Assert that failing to access the keystore in the working directory
+     * will cause a runtime error.
+     */
+
+    /**
+     * Assert that an existing keystore is used if found in the working
+     * directory.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testCannotReuseKeystore() throws Exception {
+        File tempDir = workingDirectory.getWorkingDir();
+        // Create a new keystore impl.
+        GeneratedKeystoreProvider provider2
+                = new GeneratedKeystoreProvider(tempDir.getAbsolutePath(),
+                "otherpassword", "otherpassword", "otheralias");
+        provider2.getKeyStore();
+
+        // This should throw.
+        provider.getKeyStore();
+    }
+
 
     /**
      * Assert that the chain contains the certificates we're expecting.
@@ -54,9 +140,9 @@ public class GeneratedKeystoreProviderTest {
      * @throws Exception Should not be thrown.
      */
     @Test
-    public void getChain() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        Certificate[] chain = provider.getCertificates();
+    public void validateCertificates() throws Exception {
+        Certificate[] chain =
+                provider.getKeyStore().getCertificateChain("kangaroo");
         Assert.assertEquals(1, chain.length);
 
         X509Certificate cert = (X509Certificate) chain[0];
@@ -71,62 +157,6 @@ public class GeneratedKeystoreProviderTest {
         Assert.assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
                         + "L=Seattle, ST=Washington, C=US",
                 sub.getName());
-    }
-
-    /**
-     * Assert that the chain is a singleton constructor.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void getChainSingleton() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        Certificate[] chain1 = provider.getCertificates();
-        Certificate[] chain2 = provider.getCertificates();
-
-        Assert.assertSame(chain1, chain2);
-    }
-
-    /**
-     * Assert that the keypair method returns a singleton.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void getKeyPairSingleton() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        KeyPair keyPair1 = provider.getKeyPair();
-        KeyPair keyPair2 = provider.getKeyPair();
-
-        Assert.assertSame(keyPair1, keyPair2);
-    }
-
-    /**
-     * Assert that the signer method returns a singleton.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void getSignerSingleton() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        ContentSigner signer1 = provider.getCertificateSigner();
-        ContentSigner signer2 = provider.getCertificateSigner();
-
-        Assert.assertSame(signer1, signer2);
-    }
-
-    /**
-     * Assert that the buidler method returns a singleton.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void getBuilderSingleton() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        X509v3CertificateBuilder builder1 = provider.getCertificateBuilder();
-        X509v3CertificateBuilder builder2 = provider.getCertificateBuilder();
-
-        Assert.assertSame(builder1, builder2);
     }
 
     /**
@@ -136,40 +166,15 @@ public class GeneratedKeystoreProviderTest {
      */
     @Test
     public void getKey() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        RSAPrivateKey key = (RSAPrivateKey) provider.getKey();
-        RSAPublicKey pubKey = (RSAPublicKey) provider
-                .getCertificates()[0].getPublicKey();
+        KeyStore ks = provider.getKeyStore();
+        RSAPrivateKey key = (RSAPrivateKey)
+                ks.getKey("kangaroo", "kangaroo".toCharArray());
+        Certificate[] chain =
+                provider.getKeyStore().getCertificateChain("kangaroo");
+        Assert.assertEquals(1, chain.length);
+        RSAPublicKey pubKey = (RSAPublicKey) chain[0].getPublicKey();
 
         Assert.assertEquals(key.getModulus(), pubKey.getModulus());
-    }
-
-    /**
-     * Assert that the keystore can be created.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    public void getKeystore() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
-        KeyStore ks = provider.getKeyStore();
-        Assert.assertEquals("kangaroo", ks.aliases().nextElement());
-
-        Certificate[] chain = ks.getCertificateChain("kangaroo");
-        Assert.assertEquals(1, chain.length);
-
-        X509Certificate cert = (X509Certificate) chain[0];
-        Assert.assertNotNull(cert);
-
-        Principal iss = cert.getIssuerDN();
-        Principal sub = cert.getSubjectDN();
-
-        Assert.assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
-                        + "L=Seattle, ST=Washington, C=US",
-                iss.getName());
-        Assert.assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
-                        + "L=Seattle, ST=Washington, C=US",
-                sub.getName());
     }
 
     /**
@@ -179,21 +184,20 @@ public class GeneratedKeystoreProviderTest {
      */
     @Test
     public void getKeystoreSingleton() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
         KeyStore ks1 = provider.getKeyStore();
         KeyStore ks2 = provider.getKeyStore();
         Assert.assertSame(ks1, ks2);
     }
 
     /**
-     * Assert that the keystore is a singleton.
+     * Test that we can write to an output stream.
      *
      * @throws Exception Should not be thrown.
      */
     @Test
     public void testWriteTo() throws Exception {
-        GeneratedKeystoreProvider provider = new GeneratedKeystoreProvider();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        provider.getKeyStore(); // Build the keystore.
         provider.writeTo(baos);
         ByteArrayInputStream bais =
                 new ByteArrayInputStream(baos.toByteArray());
@@ -210,33 +214,10 @@ public class GeneratedKeystoreProviderTest {
      * @throws Exception Thrown because RSA is not available.
      */
     @Test(expected = RuntimeException.class)
-    @PrepareOnlyThisForTest(GeneratedKeystoreProvider.class)
-    public void testRecastExceptionGetKeyStore() throws Exception {
-        GeneratedKeystoreProvider provider =
-                PowerMockito.spy(new GeneratedKeystoreProvider());
-
-        Mockito.when(provider.getKey())
-                .thenThrow(new NoSuchAlgorithmException());
-
-        provider.getKeyStore();
-    }
-
-    /**
-     * Assert that, should an exception be thrown during key generation, it
-     * is recast as a runtime exception.
-     *
-     * @throws Exception Thrown because RSA is not available.
-     */
-    @Test(expected = RuntimeException.class)
-    @PrepareOnlyThisForTest(GeneratedKeystoreProvider.class)
     public void testRecastExceptionWriteTo() throws Exception {
-        GeneratedKeystoreProvider provider =
-                PowerMockito.spy(new GeneratedKeystoreProvider());
-
-        Mockito.when(provider.getKey())
-                .thenThrow(new NoSuchAlgorithmException());
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        provider.writeTo(baos);
+        doThrow(new NoSuchAlgorithmException())
+                .when(provider)
+                .getCertificateBuilder(any());
+        provider.getKeyStore();
     }
 }

@@ -22,12 +22,6 @@
 
 <hibernate-configuration>
   <session-factory>
-    <property name="hibernate.connection.url">jdbc:h2:file:/var/lib/kangaroo-authz/h2.db</property>
-    <property name="hibernate.connection.username">oid</property>
-    <property name="hibernate.connection.password">oid</property>
-    <property name="hibernate.connection.driver_class">org.h2.Driver</property>
-    <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
-
     <!-- Generic hibernate configuration -->
     <property name="current_session_context_class">
       org.hibernate.context.internal.ThreadLocalSessionContext
