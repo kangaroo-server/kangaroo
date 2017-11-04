@@ -20,12 +20,12 @@ package net.krotscheck.kangaroo.authz.common.util;
 
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.crypto.digests.SHA3Digest;
+import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
+import static org.bouncycastle.crypto.PBEParametersGenerator.PKCS5PasswordToBytes;
 
 /**
  * Password hashing and comparison utilities.
@@ -33,6 +33,12 @@ import java.security.spec.InvalidKeySpecException;
  * @author Michael Krotscheck
  */
 public final class PasswordUtil {
+
+    /**
+     * Random generator.
+     */
+    private static final DigestRandomGenerator GENERATOR =
+            new DigestRandomGenerator(new SHA3Digest(512));
 
     /**
      * Private constructor for a utility class.
@@ -47,9 +53,8 @@ public final class PasswordUtil {
      * @return A 32-byte-sized salt.
      */
     public static String createSalt() {
-        SecureRandom srand = new SecureRandom();
         byte[] salt = new byte[32];
-        srand.nextBytes(salt);
+        GENERATOR.nextBytes(salt);
         return Base64.encodeBase64String(salt);
     }
 
@@ -60,22 +65,20 @@ public final class PasswordUtil {
      * @param salt     The salt.
      * @return The hash.
      */
-    public static String hash(final String password,
-                              final String salt) {
-        char[] chars = password.toCharArray();
+    public static String hash(final String password, final String salt) {
+        Integer keyLength = 512;
+        Integer iterations = 101501;
         byte[] saltBytes = Base64.decodeBase64(salt);
-        int iterations = 1000;
-        PBEKeySpec spec = new PBEKeySpec(chars, saltBytes, iterations, 64 * 8);
+        byte[] passBytes = PKCS5PasswordToBytes(password.toCharArray());
 
-        try {
-            SecretKeyFactory skf =
-                    SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] encodedPassword = skf.generateSecret(spec).getEncoded();
-            return Base64.encodeBase64String(encodedPassword);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            // If you don't have encryption, you don't get to play.
-            throw new RuntimeException(e);
-        }
+        PKCS5S2ParametersGenerator generator = new PKCS5S2ParametersGenerator();
+        generator.init(passBytes, saltBytes, iterations);
+
+        KeyParameter keys = (KeyParameter)
+                generator.generateDerivedParameters(keyLength);
+
+        byte[] encodedPassword = keys.getKey();
+        return Base64.encodeBase64String(encodedPassword);
     }
 
     /**
@@ -89,10 +92,6 @@ public final class PasswordUtil {
     public static Boolean isValid(final String password,
                                   final String salt,
                                   final String hashed) {
-        try {
-            return hash(password, salt).equals(hashed);
-        } catch (Exception e) {
-            return false;
-        }
+        return hash(password, salt).equals(hashed);
     }
 }

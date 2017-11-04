@@ -21,27 +21,15 @@ package net.krotscheck.kangaroo.authz.common.util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.crypto.SecretKeyFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.security.NoSuchAlgorithmException;
-
-import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for the password utilities.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.*", "com.sun.*", "org.xml.*"})
 public final class PasswordUtilTest {
 
     /**
@@ -85,49 +73,5 @@ public final class PasswordUtilTest {
 
         Assert.assertTrue(PasswordUtil.isValid(password, salt1, hash1));
         Assert.assertFalse(PasswordUtil.isValid(password, salt2, hash1));
-    }
-
-    /**
-     * Test a nonexistent algorithm cannot validate a hash.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test(expected = RuntimeException.class)
-    @PrepareForTest(SecretKeyFactory.class)
-    public void testCannotFindAlgoritm() throws Exception {
-        PowerMockito.mockStatic(SecretKeyFactory.class);
-
-        when(SecretKeyFactory.getInstance(Matchers.anyString()))
-                .thenThrow(NoSuchAlgorithmException.class);
-
-        String password = RandomStringUtils.random(40);
-        String salt1 = PasswordUtil.createSalt();
-
-        PasswordUtil.hash(password, salt1);
-    }
-
-    /**
-     * Test a nonexistent algorithm cannot validate a hash.
-     *
-     * @throws Exception Should not be thrown.
-     */
-    @Test
-    @PrepareForTest(PasswordUtil.class)
-    public void testCannotValidateNoAlgorithm() throws Exception {
-        String password = RandomStringUtils.random(40);
-        String salt1 = PasswordUtil.createSalt();
-        String hash1 = PasswordUtil.hash(password, salt1);
-
-        PowerMockito.mockStatic(PasswordUtil.class);
-        when(PasswordUtil.isValid(
-                Matchers.anyString(),
-                Matchers.any(String.class),
-                Matchers.any(String.class)))
-                .thenCallRealMethod();
-        when(PasswordUtil.hash(Matchers.anyString(),
-                Matchers.any(String.class)))
-                .thenThrow(NoSuchAlgorithmException.class);
-
-        Assert.assertFalse(PasswordUtil.isValid(password, salt1, hash1));
     }
 }
