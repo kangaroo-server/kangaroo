@@ -30,11 +30,7 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -44,13 +40,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 /**
  * Test the user entity.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public final class UserTest {
 
     /**
@@ -115,10 +111,9 @@ public final class UserTest {
      * Assert that we retrieve the owner from the parent client.
      */
     @Test
-    @PrepareForTest(Application.class)
     public void testGetOwner() {
         User user = new User();
-        Application spy = PowerMockito.spy(new Application());
+        Application spy = spy(new Application());
 
         // Null check
         Assert.assertNull(user.getOwner());

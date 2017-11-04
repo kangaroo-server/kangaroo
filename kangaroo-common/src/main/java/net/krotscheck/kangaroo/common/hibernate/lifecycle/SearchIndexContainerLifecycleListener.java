@@ -25,7 +25,7 @@ import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
-import org.hibernate.search.Search;
+import org.hibernate.search.impl.ImplementationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public final class SearchIndexContainerLifecycleListener
         Session s = sessionFactory.openSession();
         try {
             // Create the fulltext session.
-            FullTextSession fullTextSession = Search.getFullTextSession(s);
+            FullTextSession fullTextSession = getFulltextSession(s);
 
             fullTextSession
                     .createIndexer()
@@ -118,6 +118,16 @@ public final class SearchIndexContainerLifecycleListener
     @Override
     public void onShutdown(final Container container) {
         // Do nothing
+    }
+
+    /**
+     * Build a full text session.
+     *
+     * @param s The session to wrap.
+     * @return A new FullTextSession
+     */
+    public FullTextSession getFulltextSession(final Session s) {
+        return ImplementationFactory.createFullTextSession(s);
     }
 
     /**

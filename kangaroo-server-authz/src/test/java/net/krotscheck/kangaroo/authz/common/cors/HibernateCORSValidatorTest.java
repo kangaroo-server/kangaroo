@@ -20,11 +20,8 @@ package net.krotscheck.kangaroo.authz.common.cors;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
@@ -34,7 +31,6 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public class HibernateCORSValidatorTest {
 
     /**
@@ -43,7 +39,6 @@ public class HibernateCORSValidatorTest {
      * @throws Exception Should not be thrown.
      */
     @Test
-    @PrepareOnlyThisForTest(HibernateCORSCacheLoader.class)
     public void loadValid() throws Exception {
         HibernateCORSCacheLoader loader =
                 Mockito.mock(HibernateCORSCacheLoader.class);
@@ -70,7 +65,6 @@ public class HibernateCORSValidatorTest {
      * @throws Exception Should not be thrown.
      */
     @Test
-    @PrepareOnlyThisForTest(HibernateCORSCacheLoader.class)
     public void loadValidWithException() throws Exception {
         HibernateCORSCacheLoader loader =
                 Mockito.mock(HibernateCORSCacheLoader.class);
