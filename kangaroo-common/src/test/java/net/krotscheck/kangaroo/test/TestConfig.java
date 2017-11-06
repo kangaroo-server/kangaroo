@@ -190,6 +190,24 @@ public final class TestConfig {
     }
 
     /**
+     * Evaluate the linkedin test app id. Must be set.
+     *
+     * @return The linkedin app id.
+     */
+    public static String getLinkedInAppId() {
+        return System.getenv("KANGAROO_LINKEDIN_APP_USR");
+    }
+
+    /**
+     * Evaluate the linkedin test app secret. Must be set.
+     *
+     * @return The linkedin app secret.
+     */
+    public static String getLinkedInAppSecret() {
+        return System.getenv("KANGAROO_LINKEDIN_APP_PSW");
+    }
+
+    /**
      * Evaluate the google test app id. Must be set.
      *
      * @return The google app id.
