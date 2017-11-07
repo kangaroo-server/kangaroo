@@ -76,14 +76,19 @@ public final class SearchIndexContainerLifecycleListener
     }
 
     /**
-     * On startup, ensure that the search index has been built.
+     * On startup, ensure that the search index has been built, but only if
+     * the schema changes.
      *
      * @param container The container that is starting.
      */
     @Override
     public void onStartup(final Container container) {
-        logger.debug("Rebuilding Search Index...");
+        if (!migrationState.isSchemaChanged()) {
+            logger.debug("Schema did not change, aborting rebuild...");
+            return;
+        }
 
+        logger.debug("Rebuilding Search Index...");
         Session s = sessionFactory.openSession();
         try {
             // Create the fulltext session.

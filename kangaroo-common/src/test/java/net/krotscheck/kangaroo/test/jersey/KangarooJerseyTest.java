@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.test.jersey;
 
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
-import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -55,12 +54,6 @@ public abstract class KangarooJerseyTest extends JerseyTest {
             SLF4JBridgeHandler.install();
         }
     }
-
-    /**
-     * Ensure that we have a working directory.
-     */
-    @Rule
-    public final TestRule workingDirectory = new WorkingDirectoryRule();
 
     /**
      * Rules applicable to each test.

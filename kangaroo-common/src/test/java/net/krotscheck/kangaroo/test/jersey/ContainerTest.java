@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import net.krotscheck.kangaroo.test.rule.HibernateTestResource;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.hibernate.Session;
@@ -77,6 +78,12 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             new DatabaseResource();
 
     /**
+     * Ensure that we have a STATIC working directory.
+     */
+    public static final WorkingDirectoryRule WORKING_DIRECTORY =
+            new WorkingDirectoryRule();
+
+    /**
      * The hibernate rule, explicitly created so we can reference it later.
      */
     public static final HibernateResource HIBERNATE_RESOURCE =
@@ -88,6 +95,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     @ClassRule
     public static final TestRule CLASS_RULES = RuleChain
             .outerRule(DATABASE_RESOURCE)
+            .around(WORKING_DIRECTORY)
             .around(HIBERNATE_RESOURCE);
 
     /**

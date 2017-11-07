@@ -61,9 +61,11 @@ public final class HibernateServiceRegistryFactoryTest {
 
     /**
      * Test provide and dispose.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Test
-    public void testProvideDispose() {
+    public void testProvideDispose() throws Exception {
         SystemConfiguration testConfig =
                 new SystemConfiguration(new ArrayList<>());
         HibernateServiceRegistryFactory factory = new
