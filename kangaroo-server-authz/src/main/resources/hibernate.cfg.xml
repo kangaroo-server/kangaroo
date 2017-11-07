@@ -42,7 +42,8 @@
     <property name="hibernate.c3p0.idle_test_period">3000</property>
 
     <!-- Hibernate Search Configuration -->
-    <property name="search.default.directory_provider">local-heap</property>
+    <property name="search.default.locking_strategy">native</property>
+    <property name="search.default.filesystem_access_type">auto</property>
     <property name="search.default.optimizer.operation_limit">1000</property>
     <property name="search.default.optimizer.transaction_limit">100</property>
     <property name="search.lucene_version">LUCENE_CURRENT</property>

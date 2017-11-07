@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,10 +63,13 @@ public final class HibernateServiceRegistryFactory
      * Constructor. Initializes the configuration.
      *
      * @param config Injected system configuration.
+     * @throws IOException Thrown if the index directory cannot
+     *                     be created.
      */
     @Inject
     public HibernateServiceRegistryFactory(@Named("system")
-                                               final Configuration config) {
+                                               final Configuration config)
+            throws IOException {
 
         // Get the working directory.
         String workingDir = config.getString(Config.WORKING_DIR.getKey(),
@@ -78,6 +84,18 @@ public final class HibernateServiceRegistryFactory
                 "org.h2.Driver");
         defaultSettings.put("hibernate.dialect",
                 "org.hibernate.dialect.H2Dialect");
+
+
+        // Configure default values for the search index.
+        File indexDir = new File(workingDir, "lucene_indexes");
+        if (!Files.exists(indexDir.toPath())) {
+            Files.createDirectory(indexDir.toPath());
+        }
+
+        defaultSettings.put("hibernate.search.default.directory_provider",
+                "filesystem");
+        defaultSettings.put("hibernate.search.default.indexBase",
+                indexDir.getAbsolutePath());
     }
 
     /**

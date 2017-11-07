@@ -26,11 +26,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
-import org.hibernate.search.impl.ImplementationFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -57,6 +57,11 @@ public final class SearchIndexContainerLifecycleListenerTest
      * The mock session factory, from setup.
      */
     private SessionFactory mockFactory;
+
+    /**
+     * Simulated migration state.
+     */
+    private DatabaseMigrationState mockMigrationState;
 
     /**
      * The test session, from setup.
@@ -86,13 +91,15 @@ public final class SearchIndexContainerLifecycleListenerTest
 
         // Set up a fake indexer
         mockIndexer = mock(MassIndexer.class);
+        mockMigrationState = mock(DatabaseMigrationState.class);
+        doReturn(true).when(mockMigrationState).isSchemaChanged();
 
         // Set up our fulltext session.
         FullTextSession mockFtSession = mock(FullTextSession.class);
         when(mockFtSession.createIndexer()).thenReturn(mockIndexer);
 
         listener = spy(new SearchIndexContainerLifecycleListener(mockFactory,
-                new DatabaseMigrationState()));
+                mockMigrationState));
         container = mock(Container.class);
 
         doReturn(mockFtSession).when(listener).getFulltextSession(any());
@@ -111,6 +118,23 @@ public final class SearchIndexContainerLifecycleListenerTest
 
         // Verify that the session was closed.
         verify(testSession).close();
+    }
+
+    /**
+     * Assert that the index is created on startup.
+     *
+     * @throws Exception Any unexpected exceptions.
+     */
+    @Test
+    public void testNoReindex() throws Exception {
+        doReturn(false).when(mockMigrationState).isSchemaChanged();
+
+        listener.onStartup(container);
+
+        verifyZeroInteractions(container);
+        verifyZeroInteractions(mockIndexer);
+        verifyZeroInteractions(mockFactory);
+        verifyZeroInteractions(testSession);
     }
 
     /**
@@ -146,7 +170,7 @@ public final class SearchIndexContainerLifecycleListenerTest
             listener.onStartup(container);
             Assert.fail();
         } catch (RuntimeException e) {
-            Assert.assertNotNull(e);
+            assertNotNull(e);
         }
 
         // Verify that the session was closed.
@@ -173,5 +197,19 @@ public final class SearchIndexContainerLifecycleListenerTest
     public void testShutdown() throws Exception {
         listener.onShutdown(container);
         verifyZeroInteractions(container);
+    }
+
+    /**
+     * Coverage concession- since we're mocking the getFactory method above,
+     * this actually calls it.
+     *
+     * @throws Exception An exception that might be thrown.
+     */
+    @Test
+    public void testBuildIndexerPassthrough() throws Exception {
+        listener = new SearchIndexContainerLifecycleListener(mockFactory,
+                mockMigrationState);
+        FullTextSession f = listener.getFulltextSession(testSession);
+        assertNotNull(f);
     }
 }
