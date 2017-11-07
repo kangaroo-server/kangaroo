@@ -25,7 +25,7 @@ import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
-import org.hibernate.search.Search;
+import org.hibernate.search.impl.ImplementationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,18 +76,23 @@ public final class SearchIndexContainerLifecycleListener
     }
 
     /**
-     * On startup, ensure that the search index has been built.
+     * On startup, ensure that the search index has been built, but only if
+     * the schema changes.
      *
      * @param container The container that is starting.
      */
     @Override
     public void onStartup(final Container container) {
-        logger.debug("Rebuilding Search Index...");
+        if (!migrationState.isSchemaChanged()) {
+            logger.debug("Schema did not change, aborting rebuild...");
+            return;
+        }
 
+        logger.debug("Rebuilding Search Index...");
         Session s = sessionFactory.openSession();
         try {
             // Create the fulltext session.
-            FullTextSession fullTextSession = Search.getFullTextSession(s);
+            FullTextSession fullTextSession = getFulltextSession(s);
 
             fullTextSession
                     .createIndexer()
@@ -118,6 +123,16 @@ public final class SearchIndexContainerLifecycleListener
     @Override
     public void onShutdown(final Container container) {
         // Do nothing
+    }
+
+    /**
+     * Build a full text session.
+     *
+     * @param s The session to wrap.
+     * @return A new FullTextSession
+     */
+    public FullTextSession getFulltextSession(final Session s) {
+        return ImplementationFactory.createFullTextSession(s);
     }
 
     /**

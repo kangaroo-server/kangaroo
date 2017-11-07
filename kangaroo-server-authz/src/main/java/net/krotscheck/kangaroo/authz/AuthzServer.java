@@ -27,6 +27,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.IOException;
 
@@ -41,6 +42,11 @@ public final class AuthzServer {
      * Our commandline options.
      */
     private static final Options CLI_OPTIONS;
+
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+    }
 
     static {
         // Initialize the CLI Options.

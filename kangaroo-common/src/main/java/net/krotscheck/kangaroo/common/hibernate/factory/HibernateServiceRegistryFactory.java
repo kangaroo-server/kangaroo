@@ -18,6 +18,8 @@
 
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
+import net.krotscheck.kangaroo.server.Config;
+import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.DisposableSupplier;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -25,7 +27,14 @@ import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This factory creates a singleton hibernate service registry object, using
@@ -46,6 +55,50 @@ public final class HibernateServiceRegistryFactory
             LoggerFactory.getLogger(HibernateServiceRegistryFactory.class);
 
     /**
+     * The default configuration values.
+     */
+    private final Map<String, String> defaultSettings;
+
+    /**
+     * Constructor. Initializes the configuration.
+     *
+     * @param config Injected system configuration.
+     * @throws IOException Thrown if the index directory cannot
+     *                     be created.
+     */
+    @Inject
+    public HibernateServiceRegistryFactory(@Named("system")
+                                               final Configuration config)
+            throws IOException {
+
+        // Get the working directory.
+        String workingDir = config.getString(Config.WORKING_DIR.getKey(),
+                Config.WORKING_DIR.getValue());
+
+        defaultSettings = new HashMap<>();
+        defaultSettings.put("hibernate.connection.url",
+                String.format("jdbc:h2:file:%s/h2.db", workingDir));
+        defaultSettings.put("hibernate.connection.username", "oid");
+        defaultSettings.put("hibernate.connection.password", "oid");
+        defaultSettings.put("hibernate.connection.driver_class",
+                "org.h2.Driver");
+        defaultSettings.put("hibernate.dialect",
+                "org.hibernate.dialect.H2Dialect");
+
+
+        // Configure default values for the search index.
+        File indexDir = new File(workingDir, "lucene_indexes");
+        if (!Files.exists(indexDir.toPath())) {
+            Files.createDirectory(indexDir.toPath());
+        }
+
+        defaultSettings.put("hibernate.search.default.directory_provider",
+                "filesystem");
+        defaultSettings.put("hibernate.search.default.indexBase",
+                indexDir.getAbsolutePath());
+    }
+
+    /**
      * Provide a Hibernate Service Registry object.
      *
      * @return The hibernate serfice registry.
@@ -56,7 +109,9 @@ public final class HibernateServiceRegistryFactory
 
         return new StandardServiceRegistryBuilder()
                 .configure() // configures settings from hibernate.cfg.xml
-                .applySettings(System.getProperties())
+                .applySettings(defaultSettings) // Apply defaults
+                .applySettings(System.getenv()) // Override from the env.
+                .applySettings(System.getProperties()) // Override from JVM.
                 .build();
     }
 

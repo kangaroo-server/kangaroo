@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.authenticator;
 
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
+import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
 import net.krotscheck.kangaroo.common.hibernate.HibernateFeature;
 import net.krotscheck.kangaroo.common.httpClient.HttpClientFeature;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
@@ -52,6 +53,7 @@ public final class AuthenticatorFeatureTest extends ContainerTest {
     protected ResourceConfig createApplication() {
         ResourceConfig a = new ResourceConfig();
         a.register(HttpClientFeature.class);
+        a.register(ConfigurationFeature.class);
         a.register(DatabaseFeature.class);
         a.register(HibernateFeature.class);
         a.register(AuthenticatorFeature.class);

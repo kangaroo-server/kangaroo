@@ -257,6 +257,25 @@ public final class ApplicationServiceCRUDTest
     }
 
     /**
+     * Test a really long description.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPostTooLongDescription() throws Exception {
+        ApplicationContext context = getAdminContext();
+
+        Application newApp = new Application();
+        newApp.setName(RandomStringUtils.randomAlphanumeric(32));
+        newApp.setDescription(RandomStringUtils.randomAlphanumeric(257));
+        newApp.setOwner(context.getUser());
+
+        // Issue the request.
+        Response r = postEntity(newApp, getAdminToken());
+        assertErrorResponse(r, Status.BAD_REQUEST);
+    }
+
+    /**
      * Test creating an application with a default role from another
      * application.
      *

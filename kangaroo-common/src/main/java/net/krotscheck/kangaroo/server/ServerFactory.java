@@ -80,6 +80,13 @@ public final class ServerFactory {
                 .desc("The port on which this port should listen.")
                 .build();
 
+        Option workingDir = Option.builder()
+                .longOpt(Config.WORKING_DIR.getKey())
+                .argName(Config.WORKING_DIR.getKey())
+                .hasArg()
+                .desc("The server's working directory.")
+                .build();
+
         Option keystorePath = Option.builder()
                 .longOpt(Config.KEYSTORE_PATH.getKey())
                 .argName(Config.KEYSTORE_PATH.getKey())
@@ -126,6 +133,7 @@ public final class ServerFactory {
 
         CLI_OPTIONS.addOption(bindHost);
         CLI_OPTIONS.addOption(bindPort);
+        CLI_OPTIONS.addOption(workingDir);
         CLI_OPTIONS.addOption(keystorePath);
         CLI_OPTIONS.addOption(keystorePass);
         CLI_OPTIONS.addOption(keystoreType);
@@ -292,22 +300,26 @@ public final class ServerFactory {
      * Attempt to load the configured keystore for this running instance, and
      * return it.
      *
-     * @param ksPath    Path to the keystore. If not provided, a key will be
-     *                  generated.
-     * @param ksPass    Keystore Password.
-     * @param ksType    Keystore Type.
-     * @param certAlias Certificate alias.
-     * @param certPass  Certificate key password.
+     * @param workingDir Server working directory.
+     * @param ksPath     Path to the keystore. If not provided, a key will be
+     *                   generated.
+     * @param ksPass     Keystore Password.
+     * @param ksType     Keystore Type.
+     * @param certAlias  Certificate alias.
+     * @param certPass   Certificate key password.
      * @return A KeystoreProvider, unless an error occurs.
      */
-    private IKeystoreProvider getKeystore(final String ksPath,
+    private IKeystoreProvider getKeystore(final String workingDir,
+                                          final String ksPath,
                                           final String ksPass,
                                           final String ksType,
                                           final String certAlias,
                                           final String certPass) {
 
         if (StringUtils.isEmpty(ksPath)) {
-            return new GeneratedKeystoreProvider(ksPass, certPass, certAlias);
+
+            return new GeneratedKeystoreProvider(workingDir, ksPass, certPass,
+                    certAlias);
         }
         return new FSKeystoreProvider(ksPath, ksPass, ksType);
     }
@@ -330,10 +342,12 @@ public final class ServerFactory {
                 Config.CERT_ALIAS.getValue());
         String certPass = config.getString(Config.CERT_KEY_PASS.getKey(),
                 Config.CERT_KEY_PASS.getValue());
+        String workingDir = config.getString(Config.WORKING_DIR.getKey(),
+                Config.WORKING_DIR.getValue());
 
         // Build and store the keystore.
-        IKeystoreProvider ksProvider = getKeystore(ksPath, ksPass, ksType,
-                certAlias, certPass);
+        IKeystoreProvider ksProvider = getKeystore(workingDir, ksPath, ksPass,
+                ksType, certAlias, certPass);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ksProvider.writeTo(baos);
 

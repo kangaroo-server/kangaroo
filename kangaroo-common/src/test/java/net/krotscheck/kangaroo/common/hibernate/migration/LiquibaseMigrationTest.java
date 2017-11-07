@@ -23,13 +23,10 @@ import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.database.ITestDatabase;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.BadRequestException;
 import java.sql.Connection;
@@ -40,13 +37,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+
 /**
  * Unit test for the liquibase migration listener.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
 public final class LiquibaseMigrationTest {
+
+    /**
+     * Reset the database factory (if necessary).
+     */
+    @After
+    public void reset() {
+        DatabaseFactory.reset();
+    }
 
     /**
      * Check to make sure the applications table does not exist. Since some
@@ -93,7 +101,7 @@ public final class LiquibaseMigrationTest {
             Assert.assertFalse(hasTestTable(c));
 
             // Run the migration
-            PooledDataSource ps = Mockito.mock(PooledDataSource.class);
+            PooledDataSource ps = mock(PooledDataSource.class);
             Connection testConnection = db.getConnection();
             Mockito.doReturn(testConnection).when(ps).getConnection();
 
@@ -117,8 +125,8 @@ public final class LiquibaseMigrationTest {
     public void testExitOnMigrationFailureLiquibaseException()
             throws Exception {
         // Throw an exception via a fake pooled datasource
-        PooledDataSource ps = Mockito.mock(PooledDataSource.class);
-        Mockito.doThrow(LiquibaseException.class).when(ps).getConnection();
+        PooledDataSource ps = mock(PooledDataSource.class);
+        doThrow(LiquibaseException.class).when(ps).getConnection();
 
         LiquibaseMigration listener = new LiquibaseMigration(ps);
 
@@ -138,8 +146,8 @@ public final class LiquibaseMigrationTest {
     @Test
     public void testExitOnMigrationFailureSQLException() throws Exception {
         // Throw an exception via a fake pooled datasource
-        PooledDataSource ps = Mockito.mock(PooledDataSource.class);
-        Mockito.doThrow(SQLException.class).when(ps).getConnection();
+        PooledDataSource ps = mock(PooledDataSource.class);
+        doThrow(SQLException.class).when(ps).getConnection();
 
         LiquibaseMigration listener = new LiquibaseMigration(ps);
 
@@ -159,7 +167,7 @@ public final class LiquibaseMigrationTest {
     @Test
     public void testExitOnMigrationFailureNullConnection() throws Exception {
         // Throw an exception via a fake pooled datasource
-        PooledDataSource ps = Mockito.mock(PooledDataSource.class);
+        PooledDataSource ps = mock(PooledDataSource.class);
         Mockito.doReturn(null).when(ps).getConnection();
 
         LiquibaseMigration listener = new LiquibaseMigration(ps);
@@ -178,11 +186,7 @@ public final class LiquibaseMigrationTest {
      * @throws Exception Should not be thrown.
      */
     @Test
-    @PrepareOnlyThisForTest(DatabaseFactory.class)
     public void testExitAndCloseOnInternalException() throws Exception {
-        // mock all the static methods in a class called "Static"
-        PowerMockito.mockStatic(DatabaseFactory.class);
-
         // Create a database
         DatabaseResource resource = new DatabaseResource();
         try (ITestDatabase db = resource.createDatabase();
@@ -190,12 +194,16 @@ public final class LiquibaseMigrationTest {
             Assert.assertFalse(hasTestTable(c));
 
             // Run the migration
-            PooledDataSource ps = Mockito.mock(PooledDataSource.class);
+            PooledDataSource ps = mock(PooledDataSource.class);
             Connection testConnection = db.getConnection();
             Mockito.doReturn(testConnection).when(ps).getConnection();
 
-            Mockito.when(DatabaseFactory.getInstance())
-                    .thenThrow(SQLException.class);
+            DatabaseFactory mockFactory = mock(DatabaseFactory.class);
+            doThrow(SQLException.class)
+                    .when(mockFactory)
+                    .findCorrectDatabaseImplementation(any());
+
+            DatabaseFactory.setInstance(mockFactory);
 
             try {
                 LiquibaseMigration listener = new LiquibaseMigration(ps);
@@ -219,11 +227,7 @@ public final class LiquibaseMigrationTest {
      * @throws Exception Should not be thrown.
      */
     @Test
-    @PrepareOnlyThisForTest(DatabaseFactory.class)
     public void testExitAndCloseOnUnexpectedException() throws Exception {
-        // mock all the static methods in a class called "Static"
-        PowerMockito.mockStatic(DatabaseFactory.class);
-
         // Create a database
         DatabaseResource resource = new DatabaseResource();
         try (ITestDatabase db = resource.createDatabase();
@@ -231,12 +235,16 @@ public final class LiquibaseMigrationTest {
             Assert.assertFalse(hasTestTable(c));
 
             // Run the migration
-            PooledDataSource ps = Mockito.mock(PooledDataSource.class);
+            PooledDataSource ps = mock(PooledDataSource.class);
             Connection testConnection = db.getConnection();
             Mockito.doReturn(testConnection).when(ps).getConnection();
 
-            Mockito.when(DatabaseFactory.getInstance())
-                    .thenThrow(BadRequestException.class);
+            DatabaseFactory mockFactory = mock(DatabaseFactory.class);
+            doThrow(BadRequestException.class)
+                    .when(mockFactory)
+                    .findCorrectDatabaseImplementation(any());
+
+            DatabaseFactory.setInstance(mockFactory);
 
             try {
                 LiquibaseMigration listener = new LiquibaseMigration(ps);

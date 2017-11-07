@@ -112,6 +112,7 @@ public final class FirstRunContainerLifecycleListener
         // Create the application.
         Application servletApp = new Application();
         servletApp.setName("Kangaroo");
+        servletApp.setDescription("The kangaroo administration application.");
 
         // Create the application's client.
         Client servletClient = new Client();

@@ -22,6 +22,7 @@ import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
 import net.krotscheck.kangaroo.test.rule.HibernateTestResource;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.ClassRule;
@@ -45,6 +46,12 @@ public abstract class DatabaseTest {
             new DatabaseResource();
 
     /**
+     * Ensure that we have a STATIC working directory.
+     */
+    public static final WorkingDirectoryRule WORKING_DIRECTORY =
+            new WorkingDirectoryRule();
+
+    /**
      * The hibernate test rule. Private, so it can be wrapped below.
      */
     public static final HibernateResource HIBERNATE_RESOURCE =
@@ -56,6 +63,7 @@ public abstract class DatabaseTest {
     @ClassRule
     public static final TestRule CLASS_RULES = RuleChain
             .outerRule(DATABASE_RESOURCE)
+            .around(WORKING_DIRECTORY)
             .around(HIBERNATE_RESOURCE);
 
     /**

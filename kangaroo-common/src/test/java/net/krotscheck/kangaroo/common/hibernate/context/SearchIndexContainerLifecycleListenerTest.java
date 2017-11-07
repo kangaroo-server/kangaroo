@@ -20,34 +20,33 @@ package net.krotscheck.kangaroo.common.hibernate.context;
 
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
+import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.glassfish.jersey.server.spi.Container;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
-import org.hibernate.search.Search;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * Unit test for our lucene indexer.
  *
  * @author Michael Krotscheck
  */
-@RunWith(PowerMockRunner.class)
-@PrepareOnlyThisForTest({Search.class})
-public final class SearchIndexContainerLifecycleListenerTest {
+public final class SearchIndexContainerLifecycleListenerTest
+        extends DatabaseTest {
 
     /**
      * The mass indexer, from setup.
@@ -60,9 +59,14 @@ public final class SearchIndexContainerLifecycleListenerTest {
     private SessionFactory mockFactory;
 
     /**
-     * The mock session, from setup.
+     * Simulated migration state.
      */
-    private Session mockSession;
+    private DatabaseMigrationState mockMigrationState;
+
+    /**
+     * The test session, from setup.
+     */
+    private Session testSession;
 
     /**
      * Listener under test.
@@ -79,27 +83,26 @@ public final class SearchIndexContainerLifecycleListenerTest {
      */
     @Before
     public void setupTest() {
+
         // Set up a fake session factory
         mockFactory = mock(SessionFactory.class);
-        mockSession = mock(Session.class);
-        when(mockFactory.openSession()).thenReturn(mockSession);
+        testSession = spy(getSession());
+        when(mockFactory.openSession()).thenReturn(testSession);
 
         // Set up a fake indexer
         mockIndexer = mock(MassIndexer.class);
+        mockMigrationState = mock(DatabaseMigrationState.class);
+        doReturn(true).when(mockMigrationState).isSchemaChanged();
 
         // Set up our fulltext session.
         FullTextSession mockFtSession = mock(FullTextSession.class);
         when(mockFtSession.createIndexer()).thenReturn(mockIndexer);
 
-        // This is the way to tell PowerMock to mock all static methods of a
-        // given class
-        mockStatic(Search.class);
-        when(Search.getFullTextSession(mockSession))
-                .thenReturn(mockFtSession);
-
-        listener = new SearchIndexContainerLifecycleListener(mockFactory,
-                new DatabaseMigrationState());
+        listener = spy(new SearchIndexContainerLifecycleListener(mockFactory,
+                mockMigrationState));
         container = mock(Container.class);
+
+        doReturn(mockFtSession).when(listener).getFulltextSession(any());
     }
 
     /**
@@ -109,13 +112,29 @@ public final class SearchIndexContainerLifecycleListenerTest {
      */
     @Test
     public void testOnStartup() throws Exception {
-
         listener.onStartup(container);
 
         verify(mockIndexer).startAndWait();
 
         // Verify that the session was closed.
-        verify(mockSession).close();
+        verify(testSession).close();
+    }
+
+    /**
+     * Assert that the index is created on startup.
+     *
+     * @throws Exception Any unexpected exceptions.
+     */
+    @Test
+    public void testNoReindex() throws Exception {
+        doReturn(false).when(mockMigrationState).isSchemaChanged();
+
+        listener.onStartup(container);
+
+        verifyZeroInteractions(container);
+        verifyZeroInteractions(mockIndexer);
+        verifyZeroInteractions(mockFactory);
+        verifyZeroInteractions(testSession);
     }
 
     /**
@@ -133,7 +152,7 @@ public final class SearchIndexContainerLifecycleListenerTest {
         listener.onStartup(container);
 
         // Verify that the session was closed.
-        verify(mockSession).close();
+        verify(testSession).close();
     }
 
     /**
@@ -151,11 +170,11 @@ public final class SearchIndexContainerLifecycleListenerTest {
             listener.onStartup(container);
             Assert.fail();
         } catch (RuntimeException e) {
-            Assert.assertNotNull(e);
+            assertNotNull(e);
         }
 
         // Verify that the session was closed.
-        verify(mockSession).close();
+        verify(testSession).close();
     }
 
     /**
@@ -178,5 +197,19 @@ public final class SearchIndexContainerLifecycleListenerTest {
     public void testShutdown() throws Exception {
         listener.onShutdown(container);
         verifyZeroInteractions(container);
+    }
+
+    /**
+     * Coverage concession- since we're mocking the getFactory method above,
+     * this actually calls it.
+     *
+     * @throws Exception An exception that might be thrown.
+     */
+    @Test
+    public void testBuildIndexerPassthrough() throws Exception {
+        listener = new SearchIndexContainerLifecycleListener(mockFactory,
+                mockMigrationState);
+        FullTextSession f = listener.getFulltextSession(testSession);
+        assertNotNull(f);
     }
 }
