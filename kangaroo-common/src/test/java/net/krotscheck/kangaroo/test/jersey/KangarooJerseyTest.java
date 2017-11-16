@@ -22,7 +22,6 @@ import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.test.DeploymentContext;
