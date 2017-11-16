@@ -37,6 +37,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -309,7 +310,8 @@ public final class ValidationUtil {
         if (StringUtils.isEmpty(requestedScopes)) {
             return new TreeMap<>();
         }
-        return validateScope(requestedScopes.split(" "), validScopes);
+        String decodedScopes = URLDecoder.decode(requestedScopes);
+        return validateScope(decodedScopes.split(" "), validScopes);
     }
 
     /**
