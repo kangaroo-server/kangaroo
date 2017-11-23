@@ -289,6 +289,9 @@ public final class ServerFactory {
         // Map the path to the processor.
         final ServerConfiguration serverConfiguration =
                 server.getServerConfiguration();
+        serverConfiguration.setHttpServerName("Kangaroo");
+        serverConfiguration.setHttpServerVersion("");
+
         serverConfiguration.setPassTraceRequest(true);
         serverConfiguration.setDefaultQueryEncoding(Charsets.UTF8_CHARSET);
         serverLambdas.forEach(s -> s.operation(server));
