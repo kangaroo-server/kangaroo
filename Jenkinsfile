@@ -108,6 +108,10 @@ pipeline {
          * Actions always to run at the end of a pipeline.
          */
         always {
+            /**
+             * Screenshots
+             */
+            archive '**/target/screenshots/*.png'
 
             /**
              * Code coverage reports.
