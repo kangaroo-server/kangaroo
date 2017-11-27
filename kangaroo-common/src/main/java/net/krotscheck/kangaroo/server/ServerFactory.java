@@ -289,6 +289,11 @@ public final class ServerFactory {
         // Map the path to the processor.
         final ServerConfiguration serverConfiguration =
                 server.getServerConfiguration();
+
+        // Remove the `Server: Grizzly <version>` header.
+        serverConfiguration.setHttpServerName(null);
+        serverConfiguration.setHttpServerVersion(null);
+
         serverConfiguration.setPassTraceRequest(true);
         serverConfiguration.setDefaultQueryEncoding(Charsets.UTF8_CHARSET);
         serverLambdas.forEach(s -> s.operation(server));

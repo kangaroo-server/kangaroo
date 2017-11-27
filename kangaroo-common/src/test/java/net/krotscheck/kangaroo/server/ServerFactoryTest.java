@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.server;
 
-import com.google.common.io.Files;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.test.NetworkUtil;
 import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
@@ -31,11 +30,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.util.Header;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.io.File;
 import java.net.URL;
@@ -308,6 +307,39 @@ public class ServerFactoryTest {
 
         Assert.assertEquals(1000,
                 s.getServerConfiguration().getSessionTimeoutSeconds());
+    }
+
+    /**
+     * Ensure that grizzly doesn't expose itself.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testNoGrizzlyServer() throws Exception {
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
+        ResourceConfig one = new ResourceConfig();
+        one.register(StatusFeature.class);
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.port=" + openPort
+                })
+                .withResource("/one", one);
+
+        HttpServer s = f.build();
+        s.start();
+
+        CloseableHttpClient httpclient = getHttpClient();
+        HttpGet httpGet1 = new HttpGet(
+                "https://localhost:" + openPort + "/one/status");
+        CloseableHttpResponse response1 = httpclient.execute(httpGet1);
+        Assert.assertEquals(response1.getStatusLine().getStatusCode(),
+                200);
+        Assert.assertFalse(response1.containsHeader("Server"));
+        response1.close();
+
+        httpclient.close();
+        s.shutdownNow();
     }
 
     /**
