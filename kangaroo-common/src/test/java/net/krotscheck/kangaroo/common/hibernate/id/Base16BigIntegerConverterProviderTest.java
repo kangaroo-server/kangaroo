@@ -20,6 +20,8 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 
 import org.junit.Test;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -59,6 +61,23 @@ public final class Base16BigIntegerConverterProviderTest {
             return null;
         }
     };
+
+    /**
+     * Form param annotation for testing.
+     */
+    private Annotation formAnnotation = new FormParam() {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return FormParam.class;
+        }
+
+        @Override
+        public String value() {
+            return null;
+        }
+    };
+
     /**
      * Query param annotation for testing.
      */
@@ -67,6 +86,22 @@ public final class Base16BigIntegerConverterProviderTest {
         @Override
         public Class<? extends Annotation> annotationType() {
             return QueryParam.class;
+        }
+
+        @Override
+        public String value() {
+            return null;
+        }
+    };
+
+    /**
+     * Query param annotation for testing.
+     */
+    private Annotation otherAnnotation = new DefaultValue() {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return DefaultValue.class;
         }
 
         @Override
@@ -118,12 +153,32 @@ public final class Base16BigIntegerConverterProviderTest {
     }
 
     /**
+     * Assert that they work for FormParam.
+     */
+    @Test
+    public void testOnlyFormParam() {
+        Annotation[] annotations = new Annotation[]{formAnnotation};
+        assertNotNull(converterProvider
+                .getConverter(BigInteger.class, null, annotations));
+    }
+
+    /**
      * Assert that they work for PathParam.
      */
     @Test
     public void testOnlyPathParam() {
         Annotation[] annotations = new Annotation[]{pathAnnotation};
         assertNotNull(converterProvider
+                .getConverter(BigInteger.class, null, annotations));
+    }
+
+    /**
+     * Assert that they do not work for other parameters.
+     */
+    @Test
+    public void testNonSupportedAnnotation() {
+        Annotation[] annotations = new Annotation[]{otherAnnotation};
+        assertNull(converterProvider
                 .getConverter(BigInteger.class, null, annotations));
     }
 
