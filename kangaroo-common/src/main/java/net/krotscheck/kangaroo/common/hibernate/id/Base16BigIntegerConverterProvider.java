@@ -21,6 +21,7 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 import org.glassfish.jersey.internal.inject.Custom;
 
 import javax.inject.Singleton;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -61,49 +62,54 @@ public final class Base16BigIntegerConverterProvider
             return null;
         }
 
-        // We only respond to path params and query params...
-        Boolean isPathParam = Arrays.stream(annotations)
-                .filter(a -> a instanceof PathParam)
-                .count() > 0;
-        Boolean isQueryParam = Arrays.stream(annotations)
-                .filter(a -> a instanceof QueryParam)
-                .count() > 0;
-
-        if (!isPathParam && !isQueryParam) {
-            return null;
+        for (Annotation a : Arrays.asList(annotations)) {
+            if (a instanceof PathParam) {
+                return new BigIntConverter<>();
+            }
+            if (a instanceof QueryParam) {
+                return new BigIntConverter<>();
+            }
+            if (a instanceof FormParam) {
+                return new BigIntConverter<>();
+            }
         }
 
-        /*
-         * The parameter converter.
+        return null;
+    }
+
+    /**
+     * The parameter converter class.
+     *
+     * @param <T> Raw type, required for converters.
+     */
+    private static final class BigIntConverter<T>
+            implements ParamConverter<T> {
+
+        /**
+         * Convert from an int to a value.
+         *
+         * @param value The string value.
+         * @return The BigInteger result.
          */
-        return new ParamConverter<T>() {
-
-            /**
-             * Convert from an int to a value.
-             *
-             * @param value The string value.
-             * @return The BigInteger result.
-             */
-            @SuppressWarnings("unchecked")
-            @Override
-            public T fromString(final String value) {
-                try {
-                    return (T) IdUtil.fromString(value);
-                } catch (Exception e) {
-                    throw new NotFoundException();
-                }
+        @SuppressWarnings("unchecked")
+        @Override
+        public T fromString(final String value) {
+            try {
+                return (T) IdUtil.fromString(value);
+            } catch (Exception e) {
+                throw new NotFoundException();
             }
+        }
 
-            /**
-             * Convert it to a string.
-             *
-             * @param value The value to convert.
-             * @return The value, converted to a String.
-             */
-            @Override
-            public String toString(final T value) {
-                return IdUtil.toString((BigInteger) value);
-            }
-        };
+        /**
+         * Convert it to a string.
+         *
+         * @param value The value to convert.
+         * @return The value, converted to a String.
+         */
+        @Override
+        public String toString(final T value) {
+            return IdUtil.toString((BigInteger) value);
+        }
     }
 }
