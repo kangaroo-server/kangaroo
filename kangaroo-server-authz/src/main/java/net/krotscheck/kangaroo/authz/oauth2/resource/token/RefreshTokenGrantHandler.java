@@ -25,13 +25,11 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedMap;
 import java.math.BigInteger;
 import java.util.SortedMap;
 
@@ -43,7 +41,7 @@ import java.util.SortedMap;
  *
  * @author Michael Krotscheck
  */
-public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
+public final class RefreshTokenGrantHandler {
 
     /**
      * Hibernate session, injected.
@@ -63,14 +61,16 @@ public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
     /**
      * Handle a specific token type request.
      *
-     * @param client   The client.
-     * @param formData Additional form data.
+     * @param client    The client.
+     * @param scope     The requested scopes.
+     * @param state     The state.
+     * @param refreshId ID of the refresh token.
      * @return A token response entity with the new token.
      */
-    @Override
     public TokenResponseEntity handle(final Client client,
-                                      final MultivaluedMap<String, String>
-                                              formData) {
+                                      final String scope,
+                                      final String state,
+                                      final BigInteger refreshId) {
         // Make sure the client is the correct type.
         ClientType type = client.getType();
         if (!type.equals(ClientType.OwnerCredentials)
@@ -78,14 +78,8 @@ public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
             throw new InvalidGrantException();
         }
 
-        // Cast the token to a BigInteger.
-        BigInteger refreshId;
-        try {
-            refreshId = IdUtil.fromString(formData.getFirst("refresh_token"));
-            if (refreshId == null) {
-                throw new NullPointerException();
-            }
-        } catch (IllegalArgumentException | NullPointerException e) {
+        // If we have no refresh ID, throw an error.
+        if (refreshId == null) {
             throw new InvalidGrantException();
         }
 
@@ -104,13 +98,10 @@ public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
         // Make sure the requested scopes are valid for the refresh token.
         SortedMap<String, ApplicationScope> requestedScopes =
                 ValidationUtil.revalidateScope(
-                        formData.getFirst("scope"),
+                        scope,
                         refreshToken.getScopes(),
                         refreshToken.getIdentity().getUser().getRole()
                 );
-
-        // Ensure that we retrieve a state, if it exists.
-        String state = formData.getFirst("state");
 
         // Go ahead and create the tokens.
         OAuthToken newAuthToken = new OAuthToken();
@@ -147,8 +138,7 @@ public final class RefreshTokenGrantHandler implements ITokenRequestHandler {
         @Override
         protected void configure() {
             bind(RefreshTokenGrantHandler.class)
-                    .to(ITokenRequestHandler.class)
-                    .named("refresh_token")
+                    .to(RefreshTokenGrantHandler.class)
                     .in(RequestScoped.class);
         }
     }

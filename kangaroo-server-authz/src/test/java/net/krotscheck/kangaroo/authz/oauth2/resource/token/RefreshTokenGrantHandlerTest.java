@@ -38,8 +38,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import java.util.TimeZone;
 
 
@@ -131,16 +129,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        TokenResponseEntity token = handler.handle(authClient, testData);
+        TokenResponseEntity token = handler.handle(authClient, "debug",
+                null, refreshToken.getId());
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
@@ -176,16 +166,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        TokenResponseEntity token = handler.handle(authClient, testData);
+        TokenResponseEntity token = handler.handle(authClient, "debug",
+                null, refreshToken.getId());
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
@@ -221,34 +203,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        handler.handle(authClient, testData);
-    }
-
-    /**
-     * Assert that passing a non-conforming refresh token fails.
-     */
-    @Test(expected = InvalidGrantException.class)
-    public void testMalformedRefreshToken() {
-        Client authClient = authGrantContext.getClient();
-
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token", "not_a_BigInteger");
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug",
+                null, refreshToken.getId());
     }
 
     /**
@@ -258,16 +214,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     public void testInvalidRefreshToken() {
         Client authClient = authGrantContext.getClient();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(IdUtil.next()));
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug",
+                null, IdUtil.next());
     }
 
     /**
@@ -277,14 +225,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
     public void testNullRefreshToken() {
         Client authClient = authGrantContext.getClient();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug",
+                null, null);
     }
 
     /**
@@ -298,16 +240,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(authToken.getId()));
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug",
+                null, authToken.getId());
     }
 
     /**
@@ -322,16 +256,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug",
+                null, refreshToken.getId());
     }
 
     /**
@@ -346,16 +272,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug invalid");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug invalid",
+                null, refreshToken.getId());
     }
 
     /**
@@ -370,16 +288,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "debug debug1");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        handler.handle(authClient, testData);
+        handler.handle(authClient, "debug debug1",
+                null, refreshToken.getId());
     }
 
     /**
@@ -394,16 +304,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        TokenResponseEntity token = handler.handle(authClient, testData);
+        TokenResponseEntity token = handler.handle(authClient, "",
+                null, refreshToken.getId());
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
@@ -439,16 +341,8 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
                 .build()
                 .getToken();
 
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(authClient.getId()));
-        testData.putSingle("client_secret", authClient.getClientSecret());
-        testData.putSingle("scope", "");
-        testData.putSingle("grant_type", "refresh_token");
-        testData.putSingle("refresh_token",
-                IdUtil.toString(refreshToken.getId()));
-
-        TokenResponseEntity token = handler.handle(authClient, testData);
+        TokenResponseEntity token = handler.handle(authClient, "",
+                null, refreshToken.getId());
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());

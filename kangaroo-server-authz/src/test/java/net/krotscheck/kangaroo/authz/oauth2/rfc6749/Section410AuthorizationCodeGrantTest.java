@@ -1006,41 +1006,6 @@ public final class Section410AuthorizationCodeGrantTest
     }
 
     /**
-     * Assert that trying to send more than one code errors.
-     */
-    @Test
-    public void testTokenMultiCode() {
-        OAuthToken one = context.getBuilder()
-                .authToken()
-                .build()
-                .getToken();
-        OAuthToken two = context.getBuilder()
-                .authToken()
-                .build()
-                .getToken();
-
-        // Build the entity.
-        Form f = new Form();
-        f.param("client_id", IdUtil.toString(context.getClient().getId()));
-        f.param("code", IdUtil.toString(one.getId()));
-        f.param("code", IdUtil.toString(two.getId()));
-        f.param("grant_type", "authorization_code");
-        f.param("redirect_uri", "http://valid.example.com/redirect");
-        Entity postEntity = Entity.entity(f,
-                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
-
-        // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
-
-        // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
-    }
-
-    /**
      * Assert that missing a token type errors.
      */
     @Test
@@ -1486,12 +1451,12 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertEquals("not_found", entity.getError());
         Assert.assertNotNull(entity.getErrorDescription());
     }
 

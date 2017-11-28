@@ -25,7 +25,6 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
-import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
@@ -35,9 +34,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
 /**
  * These tests ensure coverage on the Client Credentials token token type
  * handler, covered in RFC6749.
@@ -46,6 +42,26 @@ import javax.ws.rs.core.MultivaluedMap;
  */
 public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
 
+    /**
+     * The harness under test.
+     */
+    private static ClientCredentialsGrantHandler handler;
+    /**
+     * A simple, scoped context.
+     */
+    private static ApplicationContext context;
+    /**
+     * A non-client-credentials context.
+     */
+    private static ApplicationContext implicitContext;
+    /**
+     * A context with no configured scopes.
+     */
+    private static ApplicationContext noScopeContext;
+    /**
+     * A no-secret Context.
+     */
+    private static ApplicationContext noSecretContext;
     /**
      * Test data loading for this test.
      */
@@ -76,31 +92,6 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
             };
 
     /**
-     * The harness under test.
-     */
-    private static ClientCredentialsGrantHandler handler;
-
-    /**
-     * A simple, scoped context.
-     */
-    private static ApplicationContext context;
-
-    /**
-     * A non-client-credentials context.
-     */
-    private static ApplicationContext implicitContext;
-
-    /**
-     * A context with no configured scopes.
-     */
-    private static ApplicationContext noScopeContext;
-
-    /**
-     * A no-secret Context.
-     */
-    private static ApplicationContext noSecretContext;
-
-    /**
      * Setup the test.
      */
     @Before
@@ -113,20 +104,12 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      */
     @Test
     public void testValidRequest() {
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(context.getClient().getId()));
-        testData.putSingle("client_secret",
-                context.getClient().getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "client_credentials");
-
         // Hydrate the client from the test session.
         Client testClient = getSession()
                 .get(Client.class, context.getClient().getId());
 
         TokenResponseEntity token = handler.handle(testClient,
-                testData);
+                "debug", null);
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
@@ -141,15 +124,8 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      */
     @Test(expected = KangarooException.class)
     public void testInvalidClientType() {
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(implicitContext.getClient().getId()));
-        testData.putSingle("client_secret",
-                implicitContext.getClient().getClientSecret());
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "client_credentials");
-
-        handler.handle(implicitContext.getClient(), testData);
+        handler.handle(implicitContext.getClient(),
+                "debug", null);
     }
 
     /**
@@ -158,13 +134,8 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      */
     @Test(expected = KangarooException.class)
     public void testNoClientSecret() {
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(noSecretContext.getClient().getId()));
-        testData.putSingle("scope", "debug");
-        testData.putSingle("grant_type", "client_credentials");
-
-        handler.handle(noSecretContext.getClient(), testData);
+        handler.handle(noSecretContext.getClient(),
+                "debug", null);
     }
 
     /**
@@ -172,20 +143,12 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
      */
     @Test
     public void testInvalidScope() {
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id",
-                IdUtil.toString(context.getClient().getId()));
-        testData.putSingle("client_secret",
-                context.getClient().getClientSecret());
-        testData.putSingle("scope", "debug invalid");
-        testData.putSingle("grant_type", "client_credentials");
-
         // Hydrate the client from the test session.
         Client testClient = getSession()
                 .get(Client.class, context.getClient().getId());
 
         TokenResponseEntity token = handler.handle(testClient,
-                testData);
+                "debug", null);
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
@@ -201,13 +164,8 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
     @Test
     public void testNoScope() {
         Client c = noScopeContext.getClient();
-        MultivaluedMap<String, String> testData = new MultivaluedHashMap<>();
-        testData.putSingle("client_id", IdUtil.toString(c.getId()));
-        testData.putSingle("client_secret", c.getClientSecret());
-        testData.putSingle("scope", "");
-        testData.putSingle("grant_type", "client_credentials");
-
-        TokenResponseEntity token = handler.handle(c, testData);
+        TokenResponseEntity token = handler.handle(c,
+                "debug", null);
         Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
         Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
