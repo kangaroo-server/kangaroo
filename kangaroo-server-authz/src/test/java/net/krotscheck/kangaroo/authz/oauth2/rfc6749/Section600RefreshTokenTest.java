@@ -394,12 +394,12 @@ public final class Section600RefreshTokenTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_grant", entity.getError());
+        assertEquals("not_found", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 

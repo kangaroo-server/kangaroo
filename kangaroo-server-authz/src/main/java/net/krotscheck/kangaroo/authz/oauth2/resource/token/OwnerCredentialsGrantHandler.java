@@ -32,12 +32,12 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantExcept
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.SortedMap;
@@ -49,8 +49,7 @@ import java.util.SortedMap;
  *
  * @author Michael Krotscheck
  */
-public final class OwnerCredentialsGrantHandler
-        implements ITokenRequestHandler {
+public final class OwnerCredentialsGrantHandler {
 
     /**
      * Hibernate session, injected.
@@ -79,13 +78,17 @@ public final class OwnerCredentialsGrantHandler
      * Apply the client credentials flow to this request.
      *
      * @param client   The Client to use.
-     * @param formData Raw form data for the request.
+     * @param scope    The requested scopes.
+     * @param state    The state.
+     * @param username The user name.
+     * @param password The password.
      * @return A response indicating the result of the request.
      */
-    @Override
     public TokenResponseEntity handle(final Client client,
-                                      final MultivaluedMap<String, String>
-                                              formData) {
+                                      final String scope,
+                                      final String state,
+                                      final String username,
+                                      final String password) {
         // Make sure the client is the correct type.
         if (!client.getType().equals(ClientType.OwnerCredentials)) {
             throw new InvalidGrantException();
@@ -101,6 +104,9 @@ public final class OwnerCredentialsGrantHandler
                         client.getAuthenticators());
 
         UserIdentity identity;
+        MultivaluedStringMap formData = new MultivaluedStringMap();
+        formData.putSingle("username", username);
+        formData.putSingle("password", password);
         // Try to resolve a user identity. No callback.
         identity = authenticator.authenticate(authConfig, formData, null);
         if (identity == null) {
@@ -110,11 +116,8 @@ public final class OwnerCredentialsGrantHandler
 
         // Make sure all requested scopes are permitted for this user.
         SortedMap<String, ApplicationScope> requestedScopes =
-                ValidationUtil.validateScope(formData.getFirst("scope"),
+                ValidationUtil.validateScope(scope,
                         identity.getUser().getRole());
-
-        // Ensure that we retrieve a state, if it exists.
-        String state = formData.getFirst("state");
 
         // Go ahead and create the token.
         OAuthToken token = new OAuthToken();
@@ -146,8 +149,7 @@ public final class OwnerCredentialsGrantHandler
         @Override
         protected void configure() {
             bind(OwnerCredentialsGrantHandler.class)
-                    .to(ITokenRequestHandler.class)
-                    .named("password")
+                    .to(OwnerCredentialsGrantHandler.class)
                     .in(RequestScoped.class);
         }
     }

@@ -24,17 +24,13 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
-import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.List;
 
 
 /**
@@ -44,8 +40,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public final class AuthorizationCodeGrantHandler
-        implements ITokenRequestHandler {
+public final class AuthorizationCodeGrantHandler {
 
     /**
      * Hibernate session, injected.
@@ -65,27 +60,24 @@ public final class AuthorizationCodeGrantHandler
     /**
      * Apply the client credentials flow to this request.
      *
-     * @param client   The Client to use.
-     * @param formData Raw form data for the request.
+     * @param client     The Client to use.
+     * @param authCodeId The authorization code.
+     * @param redirect   The redirect URI.
+     * @param state      The state.
      * @return A response indicating the result of the request.
      */
-    @Override
     public TokenResponseEntity handle(final Client client,
-                                      final MultivaluedMap<String, String>
-                                              formData) {
+                                      final BigInteger authCodeId,
+                                      final URI redirect,
+                                      final String state) {
+
         // Make sure the client is the correct type.
         if (!client.getType().equals(ClientType.AuthorizationGrant)) {
             throw new InvalidGrantException();
         }
 
-        BigInteger authCodeId;
-        URI redirect;
-        try {
-            authCodeId = IdUtil.fromString(getOne(formData, "code"));
-            redirect = UriBuilder.fromUri(getOne(formData, "redirect_uri"))
-                    .build();
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidGrantException();
+        if (authCodeId == null || redirect == null) {
+            throw new InvalidRequestException();
         }
 
         // Retrieve the authorization code
@@ -108,9 +100,6 @@ public final class AuthorizationCodeGrantHandler
         if (!redirect.equals(authCode.getRedirect())) {
             throw new InvalidGrantException();
         }
-
-        // Ensure that we retrieve a state, if it exists.
-        String state = formData.getFirst("state");
 
         // Go ahead and create the token.
         OAuthToken newAuthToken = new OAuthToken();
@@ -137,25 +126,6 @@ public final class AuthorizationCodeGrantHandler
     }
 
     /**
-     * Helper method, extracts one (and only one) value from a multivaluedmap.
-     *
-     * @param values The map of values.
-     * @param key    The key to get.
-     * @return The value retrieved, but only if only one exists for this key.
-     */
-    private String getOne(final MultivaluedMap<String, String> values,
-                          final String key) {
-        List<String> listValues = values.get(key);
-        if (listValues == null) {
-            throw new InvalidRequestException();
-        }
-        if (listValues.size() != 1) {
-            throw new InvalidRequestException();
-        }
-        return listValues.get(0);
-    }
-
-    /**
      * HK2 Binder for our injector context.
      */
     public static final class Binder extends AbstractBinder {
@@ -163,8 +133,7 @@ public final class AuthorizationCodeGrantHandler
         @Override
         protected void configure() {
             bind(AuthorizationCodeGrantHandler.class)
-                    .to(ITokenRequestHandler.class)
-                    .named("authorization_code")
+                    .to(AuthorizationCodeGrantHandler.class)
                     .in(RequestScoped.class);
         }
     }
