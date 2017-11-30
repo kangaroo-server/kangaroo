@@ -200,6 +200,7 @@ public final class RoleTest {
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
+        node.put("application", IdUtil.toString(IdUtil.next()));
 
         String output = m.writeValueAsString(node);
         Role c = m.readValue(output, Role.class);
@@ -217,6 +218,9 @@ public final class RoleTest {
         Assert.assertEquals(
                 c.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                IdUtil.toString(c.getApplication().getId()),
+                node.get("application").asText());
     }
 
     /**

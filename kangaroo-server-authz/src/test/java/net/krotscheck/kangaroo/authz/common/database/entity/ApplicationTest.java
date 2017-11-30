@@ -262,6 +262,7 @@ public final class ApplicationTest {
                 format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
         node.put("description", "description");
+        node.put("owner", IdUtil.toString(IdUtil.next()));
 
         String output = m.writeValueAsString(node);
         Application a = m.readValue(output, Application.class);
@@ -281,6 +282,9 @@ public final class ApplicationTest {
         Assert.assertEquals(
                 a.getDescription(),
                 node.get("description").asText());
+        Assert.assertEquals(
+                IdUtil.toString(a.getOwner().getId()),
+                node.get("owner").asText());
     }
 
     /**

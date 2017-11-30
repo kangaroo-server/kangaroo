@@ -17,7 +17,6 @@
 
 package net.krotscheck.kangaroo.authz.oauth2;
 
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
@@ -48,16 +47,11 @@ public final class OAuthAPITest extends ContainerTest {
      */
     @Test
     public void smokeTest() {
-        Response response = target("/")
+        Response response = target("/status")
                 .request()
                 .get();
 
-        ErrorResponse e = response.readEntity(ErrorResponse.class);
-        Assert.assertEquals("not_found", e.getError());
-        Assert.assertEquals("HTTP 404 Not Found", e.getErrorDescription());
-
-        // Root should be 404
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+        Assert.assertEquals(Status.OK.getStatusCode(),
                 response.getStatus());
     }
 }

@@ -17,6 +17,9 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
 import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
@@ -54,6 +57,7 @@ import java.net.URI;
 @PermitAll
 @OAuthFilterChain
 @Transactional
+@Api(tags = "OAuth2")
 public final class TokenService {
 
     /**
@@ -105,15 +109,21 @@ public final class TokenService {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "OAuth2 Token endpoint.")
+    @ApiParam(name = "token")
     public Response tokenRequest(
             @Context final UriInfo uriInfo,
+            @ApiParam(type = "string")
             @Optional @FormParam("code") final BigInteger code,
             @Optional @FormParam("redirect_uri") final URI redirect,
             @Optional @FormParam("state") final String state,
             @Optional @FormParam("scope") final String scope,
             @Optional @FormParam("username") final String username,
             @Optional @FormParam("password") final String password,
+            @ApiParam(type = "string")
             @Optional @FormParam("refresh_token") final BigInteger refreshToken,
+            @ApiParam(required = true, allowableValues = "authorization_code,"
+                    + "client_credentials,password,refresh_token")
             @FormParam("grant_type") final GrantType grantType) {
 
         // Resolve the client - validation is handled by the filters.

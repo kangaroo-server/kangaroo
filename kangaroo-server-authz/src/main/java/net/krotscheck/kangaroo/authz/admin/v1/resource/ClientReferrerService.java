@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractClientUri;
@@ -63,6 +67,19 @@ import java.net.URI;
  */
 @ScopesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
 @Transactional
+@Api(tags = "Client",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.CLIENT,
+                                description = "Modify referrers in"
+                                        + " one application."),
+                        @AuthorizationScope(
+                                scope = Scope.CLIENT_ADMIN,
+                                description = "Modify referrers in"
+                                        + " all applications.")
+                })
+        })
 public final class ClientReferrerService extends AbstractService {
 
     /**
@@ -77,6 +94,7 @@ public final class ClientReferrerService extends AbstractService {
      */
     @Inject
     public ClientReferrerService(
+            @io.swagger.annotations.ApiParam(type = "string")
             @PathParam("clientId") final BigInteger clientId) {
         this.clientId = clientId;
     }
@@ -92,6 +110,7 @@ public final class ClientReferrerService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse client referrers")
     @SuppressWarnings("CPD-START")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
@@ -148,7 +167,10 @@ public final class ClientReferrerService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read client referrer")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         Client client = s.get(Client.class, clientId);
         assertCanAccess(client, getAdminScope());
@@ -171,6 +193,7 @@ public final class ClientReferrerService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create client referrer")
     public Response createResource(final ClientReferrer referrer) {
         Session s = getSession();
 
@@ -223,8 +246,11 @@ public final class ClientReferrerService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final ClientReferrer referrer) {
+    @ApiOperation(value = "Update client referrer")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final ClientReferrer referrer) {
         Session s = getSession();
 
         // Make sure we're allowed to access the client.
@@ -275,6 +301,7 @@ public final class ClientReferrerService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
+    @ApiOperation(value = "Delete client referrer")
     public Response deleteResource(
             @PathParam("id") final BigInteger referrerId) {
         Session s = getSession();

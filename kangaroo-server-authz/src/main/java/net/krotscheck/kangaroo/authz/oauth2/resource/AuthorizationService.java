@@ -17,6 +17,9 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
@@ -61,6 +64,7 @@ import java.util.SortedMap;
 @Path("/authorize")
 @PermitAll
 @Transactional
+@Api(tags = "OAuth2")
 public final class AuthorizationService {
 
     /**
@@ -111,19 +115,18 @@ public final class AuthorizationService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @OAuthFilterChain
+    @ApiOperation(value = "OAuth2 Authorization endpoint.")
     public Response authorizationRequest(
             @Context final UriInfo uriInfo,
             @Context final HttpServletRequest request,
             @Optional @QueryParam("authenticator")
             final AuthenticatorType authenticator,
-            @Optional @QueryParam("response_type")
-            final String responseType,
-            @Optional @QueryParam("redirect_uri")
-            final String redirectUrl,
-            @Optional @QueryParam("scope")
-            final String scope,
-            @Optional @QueryParam("state")
-            final String state) {
+            @ApiParam(required = true, allowableValues = "code,token")
+            @Optional @QueryParam("response_type") final String responseType,
+            @Optional @QueryParam("redirect_uri") final String redirectUrl,
+            @ApiParam(example = "scope1 scope2")
+            @Optional @QueryParam("scope") final String scope,
+            @Optional @QueryParam("state") final String state) {
 
         // With a valid request, we need to make sure a browser session is
         // established. Even though we only use it for the implicit flow, the
@@ -183,6 +186,7 @@ public final class AuthorizationService {
     @GET
     @Path("/callback")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "3rd Party IdP Callback", hidden = true)
     public Response authorizationCallback(
             @Context final UriInfo uriInfo,
             @Context final HttpServletRequest request,

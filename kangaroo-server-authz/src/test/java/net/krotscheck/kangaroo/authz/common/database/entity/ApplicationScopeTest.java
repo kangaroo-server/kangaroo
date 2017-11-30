@@ -189,6 +189,7 @@ public final class ApplicationScopeTest {
         node.put("modifiedDate",
                 format.format(Calendar.getInstance().getTime()));
         node.put("name", "name");
+        node.put("application", IdUtil.toString(IdUtil.next()));
 
         String output = m.writeValueAsString(node);
         ApplicationScope a = m.readValue(output, ApplicationScope.class);
@@ -205,6 +206,9 @@ public final class ApplicationScopeTest {
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                IdUtil.toString(a.getApplication().getId()),
+                node.get("application").asText());
     }
 
     /**

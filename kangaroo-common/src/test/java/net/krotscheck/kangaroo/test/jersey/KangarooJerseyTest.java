@@ -109,6 +109,7 @@ public abstract class KangarooJerseyTest extends JerseyTest {
 
         return ServletDeploymentContext.forServlet(
                 new ServletContainer(createApplication()))
+                .initParam("swagger.context.id", "TestContext")
                 .build();
     }
 

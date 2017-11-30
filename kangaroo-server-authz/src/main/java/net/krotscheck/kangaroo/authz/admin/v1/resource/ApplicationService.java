@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -66,6 +70,17 @@ import java.util.Objects;
 @Path("/application")
 @ScopesAllowed({Scope.APPLICATION, Scope.APPLICATION_ADMIN})
 @Transactional
+@Api(tags = "Application",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.APPLICATION,
+                                description = "Modify one application."),
+                        @AuthorizationScope(
+                                scope = Scope.APPLICATION_ADMIN,
+                                description = "Modify all applications.")
+                })
+        })
 public final class ApplicationService extends AbstractService {
 
     /**
@@ -80,11 +95,13 @@ public final class ApplicationService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Search applications")
     @SuppressWarnings({"CPD-START"})
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId) {
 
         // Start a query builder...
@@ -132,6 +149,7 @@ public final class ApplicationService extends AbstractService {
     @SuppressWarnings({"CPD-END"})
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse applications")
     public Response browseApplications(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
@@ -141,6 +159,7 @@ public final class ApplicationService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId) {
         // Validate the incoming owner id.
         User owner = resolveOwnershipFilter(ownerId);
@@ -180,7 +199,10 @@ public final class ApplicationService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read application")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Application application = getSession().get(Application.class, id);
         assertCanAccess(application, getAdminScope());
         return Response.ok(application).build();
@@ -194,6 +216,7 @@ public final class ApplicationService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create application")
     public Response createResource(final Application application) {
         // Validate that the ID is empty.
         if (application == null) {
@@ -238,8 +261,11 @@ public final class ApplicationService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final Application application) {
+    @ApiOperation(value = "Update application")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final Application application) {
         Session s = getSession();
 
         // Load the old instance.
@@ -296,7 +322,10 @@ public final class ApplicationService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
-    public Response deleteResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Delete application")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         Application a = s.get(Application.class, id);
 

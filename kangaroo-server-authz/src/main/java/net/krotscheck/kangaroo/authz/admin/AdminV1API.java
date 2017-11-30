@@ -19,6 +19,11 @@
 package net.krotscheck.kangaroo.authz.admin;
 
 
+import io.swagger.annotations.Info;
+import io.swagger.annotations.OAuth2Definition;
+import io.swagger.annotations.OAuth2Definition.Flow;
+import io.swagger.annotations.SecurityDefinition;
+import io.swagger.annotations.SwaggerDefinition;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.OAuth2AuthFeature;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.ApplicationService;
 import net.krotscheck.kangaroo.authz.admin.v1.resource.AuthenticatorService;
@@ -41,6 +46,7 @@ import net.krotscheck.kangaroo.common.httpClient.HttpClientFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.security.SecurityFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.common.swagger.SwaggerFeature;
 import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -53,6 +59,105 @@ import org.glassfish.jersey.server.ServerProperties;
  *
  * @author Michael Krotscheck
  */
+@SwaggerDefinition(
+        info = @Info(
+                title = "Authz Administration API",
+                description = "",
+                version = "v1"
+        ),
+        consumes = {"application/json"},
+        produces = {"application/json"},
+
+        schemes = {SwaggerDefinition.Scheme.HTTPS},
+        securityDefinition = @SecurityDefinition(
+                oAuth2Definitions = @OAuth2Definition(
+                        key = "Kangaroo",
+                        flow = Flow.PASSWORD,
+                        authorizationUrl = "/oauth2/authorization",
+                        tokenUrl = "/oauth2/token",
+                        scopes = {
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.APPLICATION,
+                                        description = "Edit your applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.APPLICATION_ADMIN,
+                                        description = "Edit all applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.IDENTITY,
+                                        description = "Edit user identities"
+                                                + " in your application."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.IDENTITY_ADMIN,
+                                        description = "Edit user identities"
+                                                + " in all applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.USER,
+                                        description = "Edit users in your"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.USER_ADMIN,
+                                        description = "Edit users in all"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.SCOPE,
+                                        description = "Edit scopes in your"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.SCOPE_ADMIN,
+                                        description = "Edit scopes in all"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.ROLE,
+                                        description = "Edit roles in your"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.ROLE_ADMIN,
+                                        description = "Edit roles in all"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.TOKEN,
+                                        description = "Edit tokens in your"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.TOKEN_ADMIN,
+                                        description = "Edit tokens in all"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.CLIENT,
+                                        description = "Edit clients in your"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.CLIENT_ADMIN,
+                                        description = "Edit clients in all"
+                                                + " applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.AUTHENTICATOR,
+                                        description = "Edit authenticators in"
+                                                + " your applications."
+                                ),
+                                @io.swagger.annotations.Scope(
+                                        name = Scope.AUTHENTICATOR_ADMIN,
+                                        description = "Edit authenticators in"
+                                                + " all applications."
+                                )
+                        }
+                )
+        )
+)
 public final class AdminV1API extends ResourceConfig {
 
     /**
@@ -75,6 +180,9 @@ public final class AdminV1API extends ResourceConfig {
         register(AuthenticatorFeature.class);    // OAuth2 Authenticators
         register(AuthzCORSFeature.class);        // CORS feature.
         register(HttpClientFeature.class);       // Make Http requests.
+
+        // Swagger UI & API Documentation.
+        register(new SwaggerFeature("net.krotscheck.kangaroo.authz.admin"));
 
         // Internal components
         register(new ServletConfigFactory.Binder());

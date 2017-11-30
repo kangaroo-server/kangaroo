@@ -38,6 +38,7 @@ import net.krotscheck.kangaroo.common.httpClient.HttpClientFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.common.security.SecurityFeature;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.common.swagger.SwaggerFeature;
 import net.krotscheck.kangaroo.common.timedtasks.TimedTasksFeature;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -70,6 +71,9 @@ public class OAuthAPI extends ResourceConfig {
         register(AuthenticatorFeature.class);    // OAuth2 Authenticators
         register(AuthzCORSFeature.class);        // CORS feature.
         register(HttpClientFeature.class);       // Make Http requests.
+
+        // Swagger UI & API Documentation.
+        register(new SwaggerFeature("net.krotscheck.kangaroo.authz.oauth2"));
 
         // Authorization context
         register(OAuthServerAuthnFeature.class);
