@@ -210,6 +210,19 @@ public final class ErrorResponseBuilderTest {
     }
 
     /**
+     * Test building only an entity.
+     */
+    @Test
+    public void testEntityOnly() {
+        Exception e = new Exception();
+
+        ErrorResponse r = ErrorResponseBuilder.from(e).buildEntity();
+
+        Assert.assertEquals("Internal Server Error", r.getErrorDescription());
+        Assert.assertEquals("internal_server_error", r.getError());
+    }
+
+    /**
      * Test building from a generic exception.
      */
     @Test

@@ -297,6 +297,9 @@ public final class ServerFactory {
 
         serverConfiguration.setPassTraceRequest(true);
         serverConfiguration.setDefaultQueryEncoding(Charsets.UTF8_CHARSET);
+        serverConfiguration.setDefaultErrorPageGenerator(
+                new KangarooErrorPageGenerator()
+        );
         serverLambdas.forEach(s -> s.operation(server));
 
         return server;
