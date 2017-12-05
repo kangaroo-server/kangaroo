@@ -56,6 +56,8 @@ public final class CreatedUpdatedListener
         Object entity = event.getEntity();
         Object[] state = event.getState();
         Calendar now = Calendar.getInstance(timeZone);
+        // Some databases don't support milliseconds.
+        now.set(Calendar.MILLISECOND, 0);
 
         if (entity instanceof ICreatedDateEntity) {
             String[] propertyNames = event.getPersister().getEntityMetamodel()
