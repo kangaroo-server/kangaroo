@@ -29,6 +29,8 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import java.math.BigInteger;
 import java.net.URI;
 
@@ -48,13 +50,21 @@ public final class AuthorizationCodeGrantHandler {
     private final Session session;
 
     /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
+
+    /**
      * Create a new instance of this token handler.
      *
      * @param session Injected hibernate session.
+     * @param uriInfo The URI info for the current request.
      */
     @Inject
-    public AuthorizationCodeGrantHandler(final Session session) {
+    public AuthorizationCodeGrantHandler(final Session session,
+                                         @Context final UriInfo uriInfo) {
         this.session = session;
+        this.uriInfo = uriInfo;
     }
 
     /**
@@ -108,6 +118,7 @@ public final class AuthorizationCodeGrantHandler {
         newAuthToken.setExpiresIn(client.getAccessTokenExpireIn());
         newAuthToken.setScopes(authCode.getScopes());
         newAuthToken.setIdentity(authCode.getIdentity());
+        newAuthToken.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         OAuthToken newRefreshToken = new OAuthToken();
         newRefreshToken.setClient(client);
@@ -116,6 +127,7 @@ public final class AuthorizationCodeGrantHandler {
         newRefreshToken.setScopes(authCode.getScopes());
         newRefreshToken.setAuthToken(newAuthToken);
         newRefreshToken.setIdentity(authCode.getIdentity());
+        newRefreshToken.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         session.save(newAuthToken);
         session.save(newRefreshToken);

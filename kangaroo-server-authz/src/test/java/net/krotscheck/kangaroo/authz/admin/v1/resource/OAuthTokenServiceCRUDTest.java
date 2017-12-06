@@ -362,6 +362,7 @@ public final class OAuthTokenServiceCRUDTest
         t.setTokenType(OAuthTokenType.Authorization);
         t.setRedirect(redirect);
         t.setExpiresIn(client.getAuthorizationCodeExpiresIn());
+        t.setIssuer("localhost");
 
         if (identities.size() > 0) {
             t.setIdentity(identities.get(0));
@@ -386,6 +387,7 @@ public final class OAuthTokenServiceCRUDTest
         token.setExpiresIn(bearerToken.getClient().getRefreshTokenExpireIn());
         token.setScopes(context.getScopes());
         token.setIdentity(bearerToken.getIdentity());
+        token.setIssuer("localhost");
 
         return token;
     }
@@ -423,6 +425,7 @@ public final class OAuthTokenServiceCRUDTest
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(client.getAccessTokenExpireIn());
         token.setScopes(context.getScopes());
+        token.setIssuer("localhost");
 
         // Identities should only be added if the type calls for it.
         if (identities.size() > 0

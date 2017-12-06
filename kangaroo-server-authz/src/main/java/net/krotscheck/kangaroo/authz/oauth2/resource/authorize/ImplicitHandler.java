@@ -40,6 +40,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -74,20 +75,28 @@ public final class ImplicitHandler implements IAuthorizeHandler {
     private final Credentials credentials;
 
     /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
+
+    /**
      * Create a new handler.
      *
-     * @param injector    The system injection manager..
+     * @param injector    The system injection manager.
      * @param session     The hibernate session.
      * @param credentials The request credentials.
+     * @param uriInfo     The URI info for the current request.
      */
     @Inject
     @SuppressWarnings({"CPD-START"})
     public ImplicitHandler(final InjectionManager injector,
                            final Session session,
-                           final Credentials credentials) {
+                           final Credentials credentials,
+                           @Context final UriInfo uriInfo) {
         this.injector = injector;
         this.session = session;
         this.credentials = credentials;
+        this.uriInfo = uriInfo;
     }
 
     /**
@@ -110,8 +119,6 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      * domain-specific refresh token read from the session), in which case
      * the user is immediately issued a token.
      *
-     * @param uriInfo        The original request, in case additional data
-     *                       is needed.
      * @param browserSession The browser session, maintained via cookies.
      * @param auth           The authenticator to use to process this
      *                       request.
@@ -123,8 +130,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      * @return The response, indicating success or failure.
      */
     @Override
-    public Response handle(final UriInfo uriInfo,
-                           final javax.servlet.http.HttpSession browserSession,
+    public Response handle(final javax.servlet.http.HttpSession browserSession,
                            final Authenticator auth,
                            final URI redirect,
                            final SortedMap<String, ApplicationScope> scopes,
@@ -148,15 +154,13 @@ public final class ImplicitHandler implements IAuthorizeHandler {
         }
 
         // If there's zero refresh tokens, issue a new one.
-        return handleIssue(uriInfo, auth, redirect, scopes, state);
+        return handleIssue(auth, redirect, scopes, state);
     }
 
     /**
      * This private handler presumes that we are trying to issue a brand new
      * token, and responds accordingly.
      *
-     * @param uriInfo  The original request, in case additional data
-     *                 is needed.
      * @param auth     The authenticator to use to process this
      *                 request.
      * @param redirect The redirect (already validated) to which
@@ -166,8 +170,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      * @param state    The client's requested state ID.
      * @return A response indicating the success.
      */
-    private Response handleIssue(final UriInfo uriInfo,
-                                 final Authenticator auth,
+    private Response handleIssue(final Authenticator auth,
                                  final URI redirect,
                                  final SortedMap<String, ApplicationScope>
                                          scopes,
@@ -255,14 +258,12 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      *
      * @param s              The request state previously saved by the client.
      * @param browserSession The browser session, maintained via cookies.
-     * @param uriInfo        The URI response from the third party IdP.
      * @return A response entity indicating success or failure.
      */
     @Override
     public Response callback(final AuthenticatorState s,
                              final javax.servlet.http.HttpSession
-                                     browserSession,
-                             final UriInfo uriInfo) {
+                                     browserSession) {
 
         URI callback = buildCallback(uriInfo, s);
 

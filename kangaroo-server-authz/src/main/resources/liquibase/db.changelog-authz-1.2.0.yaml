@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: krotscheck
+      changes:
+      - addColumn:
+          tableName: oauth_tokens
+          column:
+            name: issuer
+            type: varchar(255)
+      rollback:
+      - dropColumn:
+          tableName: oauth_tokens
+          columnName: issuer

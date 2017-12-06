@@ -41,8 +41,6 @@ public interface IAuthorizeHandler {
     /**
      * Handle a specific authorization grant request.
      *
-     * @param uriInfo        The original request, in case additional data
-     *                       is needed.
      * @param browserSession The browser session, maintained via cookies.
      * @param auth           The authenticator to use to process this
      *                       request.
@@ -53,8 +51,7 @@ public interface IAuthorizeHandler {
      * @param state          The client's requested state ID.
      * @return A response entity with the appropriate response.
      */
-    Response handle(UriInfo uriInfo,
-                    HttpSession browserSession,
+    Response handle(HttpSession browserSession,
                     Authenticator auth,
                     URI redirect,
                     SortedMap<String, ApplicationScope> scopes,
@@ -67,12 +64,10 @@ public interface IAuthorizeHandler {
      *
      * @param s              The request state previously saved by the client.
      * @param browserSession The browser session, maintained via cookies.
-     * @param uriInfo        The URI response from the third party IdP.
      * @return A response entity indicating success or failure.
      */
     Response callback(AuthenticatorState s,
-                      HttpSession browserSession,
-                      UriInfo uriInfo);
+                      HttpSession browserSession);
 
     /**
      * Provided a stored intermediate authenticator state, attempt to resolve

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
@@ -34,7 +33,6 @@ import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.net.URI;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -156,6 +154,20 @@ public final class OAuthTokenTest {
         Assert.assertNull(token.getRedirect());
         token.setRedirect(test);
         Assert.assertEquals(test, token.getRedirect());
+    }
+
+    /**
+     * Test setting the issuer.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testGetSetIssuer() throws Exception {
+        OAuthToken token = new OAuthToken();
+
+        Assert.assertNull(token.getIssuer());
+        token.setIssuer("test");
+        Assert.assertEquals("test", token.getIssuer());
     }
 
     /**
@@ -300,6 +312,7 @@ public final class OAuthTokenTest {
         token.setRedirect(new URI("http://example.com/"));
         token.setTokenType(OAuthTokenType.Authorization);
         token.setExpiresIn(100);
+        token.setIssuer("localhost");
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapperFactory().get();
@@ -331,6 +344,8 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 IdUtil.toString(token.getIdentity().getId()),
                 node.get("identity").asText());
+        Assert.assertEquals(token.getIssuer(),
+                node.get("issuer").asText());
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -338,7 +353,7 @@ public final class OAuthTokenTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(8, names.size());
+        Assert.assertEquals(9, names.size());
     }
 
     /**
@@ -358,6 +373,7 @@ public final class OAuthTokenTest {
         node.put("tokenType", "Authorization");
         node.put("expiresIn", 300);
         node.put("redirect", "http://example.com");
+        node.put("issuer", "localhost");
         node.put("identity", IdUtil.toString(IdUtil.next()));
         node.put("client", IdUtil.toString(IdUtil.next()));
         node.put("authToken", IdUtil.toString(IdUtil.next()));
@@ -381,6 +397,9 @@ public final class OAuthTokenTest {
         Assert.assertEquals(
                 c.getExpiresIn().longValue(),
                 node.get("expiresIn").asLong());
+        Assert.assertEquals(
+                c.getIssuer(),
+                node.get("issuer").asText());
         Assert.assertEquals(
                 c.getRedirect().toString(),
                 node.get("redirect").asText());

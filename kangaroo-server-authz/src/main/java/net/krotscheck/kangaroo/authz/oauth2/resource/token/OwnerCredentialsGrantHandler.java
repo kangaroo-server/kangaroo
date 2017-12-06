@@ -38,8 +38,10 @@ import org.hibernate.Session;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 import java.util.SortedMap;
 
 /**
@@ -57,6 +59,11 @@ public final class OwnerCredentialsGrantHandler {
     private final Session session;
 
     /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
+
+    /**
      * injection manager, injected.
      */
     private final InjectionManager injector;
@@ -65,12 +72,15 @@ public final class OwnerCredentialsGrantHandler {
      * Create a new instance of this token handler.
      *
      * @param session  Injected hibernate session.
+     * @param uriInfo  The URI info for the current request.
      * @param injector The injection manager.
      */
     @Inject
     public OwnerCredentialsGrantHandler(final Session session,
+                                        @Context final UriInfo uriInfo,
                                         final InjectionManager injector) {
         this.session = session;
+        this.uriInfo = uriInfo;
         this.injector = injector;
     }
 
@@ -126,6 +136,7 @@ public final class OwnerCredentialsGrantHandler {
         token.setExpiresIn(client.getAccessTokenExpireIn());
         token.setScopes(requestedScopes);
         token.setIdentity(identity);
+        token.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         OAuthToken refreshToken = new OAuthToken();
         refreshToken.setClient(client);
@@ -134,6 +145,7 @@ public final class OwnerCredentialsGrantHandler {
         refreshToken.setScopes(token.getScopes());
         refreshToken.setAuthToken(token);
         refreshToken.setIdentity(identity);
+        refreshToken.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         session.save(token);
         session.save(refreshToken);
