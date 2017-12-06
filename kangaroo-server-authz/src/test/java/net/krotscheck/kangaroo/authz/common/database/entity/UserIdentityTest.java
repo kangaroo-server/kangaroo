@@ -199,7 +199,6 @@ public final class UserIdentityTest {
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(identity);
         JsonNode node = m.readTree(output);
 
@@ -207,11 +206,11 @@ public final class UserIdentityTest {
                 IdUtil.toString(identity.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(identity.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                identity.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(identity.getCreatedDate().getTime()),
-                node.get("modifiedDate").asText());
+                identity.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 identity.getType().toString(),
@@ -255,13 +254,11 @@ public final class UserIdentityTest {
     @Test
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
+        long timestamp = Calendar.getInstance().getTimeInMillis() / 1000;
         ObjectNode node = m.createObjectNode();
         node.put("id", IdUtil.toString(IdUtil.next()));
-        node.put("createdDate",
-                format.format(Calendar.getInstance().getTime()));
-        node.put("modifiedDate",
-                format.format(Calendar.getInstance().getTime()));
+        node.put("createdDate", timestamp);
+        node.put("modifiedDate", timestamp);
         node.put("remoteId", "remoteId");
         node.put("authenticator", IdUtil.toString(IdUtil.next()));
         node.put("user", IdUtil.toString(IdUtil.next()));
@@ -278,11 +275,11 @@ public final class UserIdentityTest {
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(a.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                a.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(a.getModifiedDate().getTime()),
-                node.get("modifiedDate").asText());
+                a.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 a.getRemoteId(),

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
@@ -34,7 +33,6 @@ import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.net.URI;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -346,7 +344,6 @@ public final class ClientTest {
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(c);
         JsonNode node = m.readTree(output);
 
@@ -354,11 +351,11 @@ public final class ClientTest {
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(c.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                c.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(c.getCreatedDate().getTime()),
-                node.get("modifiedDate").asText());
+                c.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 IdUtil.toString(c.getApplication().getId()),
@@ -405,13 +402,11 @@ public final class ClientTest {
     @Test
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
+        long timestamp = Calendar.getInstance().getTimeInMillis() / 1000;
         ObjectNode node = m.createObjectNode();
         node.put("id", IdUtil.toString(IdUtil.next()));
-        node.put("createdDate",
-                format.format(Calendar.getInstance().getTime()));
-        node.put("modifiedDate",
-                format.format(Calendar.getInstance().getTime()));
+        node.put("createdDate", timestamp);
+        node.put("modifiedDate", timestamp);
         node.put("name", "name");
         node.put("type", "Implicit");
         node.put("clientSecret", "clientSecret");
@@ -429,11 +424,11 @@ public final class ClientTest {
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(c.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                c.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(c.getModifiedDate().getTime()),
-                node.get("modifiedDate").asText());
+                c.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 c.getName(),

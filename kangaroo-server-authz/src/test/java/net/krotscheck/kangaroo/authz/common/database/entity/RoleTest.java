@@ -151,7 +151,6 @@ public final class RoleTest {
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(role);
         JsonNode node = m.readTree(output);
 
@@ -159,11 +158,11 @@ public final class RoleTest {
                 IdUtil.toString(role.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(role.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                role.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(role.getCreatedDate().getTime()),
-                node.get("modifiedDate").asText());
+                role.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 IdUtil.toString(role.getApplication().getId()),
@@ -192,13 +191,11 @@ public final class RoleTest {
     @Test
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
+        long timestamp = Calendar.getInstance().getTimeInMillis() / 1000;
         ObjectNode node = m.createObjectNode();
         node.put("id", IdUtil.toString(IdUtil.next()));
-        node.put("createdDate",
-                format.format(Calendar.getInstance().getTime()));
-        node.put("modifiedDate",
-                format.format(Calendar.getInstance().getTime()));
+        node.put("createdDate", timestamp);
+        node.put("modifiedDate", timestamp);
         node.put("name", "name");
         node.put("application", IdUtil.toString(IdUtil.next()));
 
@@ -209,11 +206,11 @@ public final class RoleTest {
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(c.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                c.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(c.getModifiedDate().getTime()),
-                node.get("modifiedDate").asText());
+                c.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 c.getName(),
