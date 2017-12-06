@@ -111,8 +111,7 @@ public abstract class AbstractEntity implements Cloneable,
             + ".CalendarTimestampType")
     @ApiModelProperty(
             readOnly = true,
-            example = "2017-11-16T02:39:27Z"
-    )
+            example = "2017-11-16T02:39:27Z")
     private Calendar createdDate;
 
     /**
@@ -123,8 +122,7 @@ public abstract class AbstractEntity implements Cloneable,
             + ".CalendarTimestampType")
     @ApiModelProperty(
             readOnly = true,
-            example = "2017-11-16T02:39:27Z"
-    )
+            example = "2017-11-16T02:39:27Z")
     private Calendar modifiedDate;
 
     /**

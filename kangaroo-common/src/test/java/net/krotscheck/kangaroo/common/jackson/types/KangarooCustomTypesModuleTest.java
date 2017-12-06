@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.math.BigInteger;
+import java.util.Calendar;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -85,15 +86,22 @@ public final class KangarooCustomTypesModuleTest {
 
         TypeFactory t = TypeFactory.defaultInstance();
         JavaType bigIntegerType = t.constructType(BigInteger.class);
+        JavaType calendarType = t.constructType(Calendar.class);
 
         SimpleSerializers s = (SimpleSerializers) serializers.getValue();
         JsonSerializer byteSerializer =
                 s.findSerializer(null, bigIntegerType, null);
         assertTrue(byteSerializer instanceof Base16BigIntegerSerializer);
+        JsonSerializer calSerializer =
+                s.findSerializer(null, calendarType, null);
+        assertTrue(calSerializer instanceof UnixTimestampSerializer);
 
         SimpleDeserializers d = (SimpleDeserializers) deserializers.getValue();
         JsonDeserializer byteDeserializer =
                 d.findBeanDeserializer(bigIntegerType, null, null);
         assertTrue(byteDeserializer instanceof Base16BigIntegerDeserializer);
+        JsonDeserializer calDeserializer =
+                d.findBeanDeserializer(calendarType, null, null);
+        assertTrue(calDeserializer instanceof UnixTimestampDeserializer);
     }
 }

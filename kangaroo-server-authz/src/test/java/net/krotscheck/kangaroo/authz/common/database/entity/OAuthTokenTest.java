@@ -303,7 +303,6 @@ public final class OAuthTokenTest {
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(token);
         JsonNode node = m.readTree(output);
 
@@ -311,11 +310,11 @@ public final class OAuthTokenTest {
                 IdUtil.toString(token.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(token.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                token.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(token.getCreatedDate().getTime()),
-                node.get("modifiedDate").asText());
+                token.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 token.getTokenType().toString(),
@@ -350,13 +349,11 @@ public final class OAuthTokenTest {
     @Test
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
+        long timestamp = Calendar.getInstance().getTimeInMillis() / 1000;
         ObjectNode node = m.createObjectNode();
         node.put("id", IdUtil.toString(IdUtil.next()));
-        node.put("createdDate",
-                format.format(Calendar.getInstance().getTime()));
-        node.put("modifiedDate",
-                format.format(Calendar.getInstance().getTime()));
+        node.put("createdDate", timestamp);
+        node.put("modifiedDate", timestamp);
         node.put("accessToken", "accessToken");
         node.put("tokenType", "Authorization");
         node.put("expiresIn", 300);
@@ -372,11 +369,11 @@ public final class OAuthTokenTest {
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(c.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                c.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(c.getModifiedDate().getTime()),
-                node.get("modifiedDate").asText());
+                c.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 c.getTokenType().toString(),
