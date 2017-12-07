@@ -34,6 +34,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 /**
  * These tests ensure coverage on the Client Credentials token token type
  * handler, covered in RFC6749.
@@ -93,10 +99,15 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
 
     /**
      * Setup the test.
+     *
+     * @throws Exception Should not be thrown.
      */
     @Before
-    public void initializeEnvironment() {
-        handler = new ClientCredentialsGrantHandler(getSession());
+    public void initializeEnvironment() throws Exception {
+        UriInfo info = mock(UriInfo.class);
+        URI absolutePath = new URI("http://example.com");
+        doReturn(absolutePath).when(info).getAbsolutePath();
+        handler = new ClientCredentialsGrantHandler(getSession(), info);
     }
 
     /**

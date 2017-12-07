@@ -160,7 +160,7 @@ public final class AuthorizationService {
                     injector.getInstance(IAuthorizeHandler.class,
                             c.getType().toString());
 
-            Response response = handler.handle(uriInfo, httpSession, auth,
+            Response response = handler.handle(httpSession, auth,
                     redirect, scopes, state);
 
             // On success, rotate the session id.
@@ -213,7 +213,7 @@ public final class AuthorizationService {
                 throw new InvalidRequestException();
             }
 
-            Response response = handler.callback(s, httpSession, uriInfo);
+            Response response = handler.callback(s, httpSession);
 
             // On success, rotate the session id.
             request.changeSessionId();

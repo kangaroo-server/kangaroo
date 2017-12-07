@@ -32,6 +32,8 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import java.util.SortedMap;
 
 /**
@@ -49,13 +51,21 @@ public final class ClientCredentialsGrantHandler {
     private final Session session;
 
     /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
+
+    /**
      * Create a new instance of this token handler.
      *
      * @param session Injected hibernate session.
+     * @param uriInfo The URI info for the current request.
      */
     @Inject
-    public ClientCredentialsGrantHandler(final Session session) {
+    public ClientCredentialsGrantHandler(final Session session,
+                                         @Context final UriInfo uriInfo) {
         this.session = session;
+        this.uriInfo = uriInfo;
     }
 
     /**
@@ -94,6 +104,7 @@ public final class ClientCredentialsGrantHandler {
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(client.getAccessTokenExpireIn());
         token.setScopes(requestedScopes);
+        token.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         session.save(token);
 

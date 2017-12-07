@@ -36,6 +36,7 @@ import org.hibernate.Session;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -61,17 +62,25 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
     private final Session session;
 
     /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
+
+    /**
      * Create a new handler.
      *
      * @param injector The injection manager.
      * @param session  The hibernate session.
+     * @param uriInfo  The URI info for the current request.
      */
     @Inject
     @SuppressWarnings({"CPD-START"})
     public AuthCodeHandler(final InjectionManager injector,
-                           final Session session) {
+                           final Session session,
+                           @Context final UriInfo uriInfo) {
         this.injector = injector;
         this.session = session;
+        this.uriInfo = uriInfo;
     }
 
     /**
@@ -89,8 +98,6 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
     /**
      * Handle an authorization request using the Auth Code flow.
      *
-     * @param uriInfo        The original request, in case additional data
-     *                       is needed.
      * @param browserSession The browser session, maintained via cookies.
      * @param auth           The authenticator to use to process this
      *                       request.
@@ -102,8 +109,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
      * @return The response from the handler.
      */
     @Override
-    public Response handle(final UriInfo uriInfo,
-                           final HttpSession browserSession,
+    public Response handle(final HttpSession browserSession,
                            final Authenticator auth,
                            final URI redirect,
                            final SortedMap<String, ApplicationScope> scopes,
@@ -137,13 +143,11 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
      *
      * @param s              The request state previously saved by the client.
      * @param browserSession The browser session, maintained via cookies.
-     * @param uriInfo        The URI response from the third party IdP.
      * @return A response entity indicating success or failure.
      */
     @Override
     public Response callback(final AuthenticatorState s,
-                             final HttpSession browserSession,
-                             final UriInfo uriInfo) {
+                             final HttpSession browserSession) {
 
         URI callback = buildCallback(uriInfo, s);
 
@@ -162,6 +166,7 @@ public final class AuthCodeHandler implements IAuthorizeHandler {
                 .getAuthorizationCodeExpiresIn());
         t.setRedirect(s.getClientRedirect());
         t.setIdentity(i);
+        t.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         // Persist and get an ID.
         session.save(t);

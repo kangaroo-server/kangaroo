@@ -671,6 +671,7 @@ public final class ApplicationBuilder {
         context.token = new OAuthToken();
         context.token.setTokenType(type);
         context.token.setClient(client);
+        context.token.setIssuer("localhost");
 
         // Link to auth token
         if (authToken != null) {

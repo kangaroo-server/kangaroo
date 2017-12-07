@@ -110,6 +110,7 @@ public final class RefreshTokenGrantHandler {
         newAuthToken.setExpiresIn(client.getAccessTokenExpireIn());
         newAuthToken.setScopes(requestedScopes);
         newAuthToken.setIdentity(refreshToken.getIdentity());
+        newAuthToken.setIssuer(refreshToken.getIssuer());
 
         OAuthToken newRefreshToken = new OAuthToken();
         newRefreshToken.setClient(client);
@@ -118,6 +119,7 @@ public final class RefreshTokenGrantHandler {
         newRefreshToken.setScopes(requestedScopes);
         newRefreshToken.setIdentity(refreshToken.getIdentity());
         newRefreshToken.setAuthToken(newAuthToken);
+        newRefreshToken.setIssuer(refreshToken.getIssuer());
 
         session.save(newAuthToken);
         session.save(newRefreshToken);

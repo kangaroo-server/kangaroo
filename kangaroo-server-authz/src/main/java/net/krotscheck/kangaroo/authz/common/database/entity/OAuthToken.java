@@ -165,6 +165,14 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     private URI redirect;
 
     /**
+     * The host that issued this token, extracted from the servlet context.
+     * It's stored as the host name only, as the protocol may vary.
+     */
+    @Basic
+    @Column(name = "issuer")
+    private String issuer;
+
+    /**
      * List of the application's scopes.
      */
     @ManyToMany(fetch = FetchType.LAZY)
@@ -178,6 +186,24 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
     @MapKey(name = "name")
     @SortNatural
     private SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
+
+    /**
+     * Get the issuer.
+     *
+     * @return The URL of the server that issued this token.
+     */
+    public String getIssuer() {
+        return issuer;
+    }
+
+    /**
+     * Set the URL of the server that issued this token.
+     *
+     * @param issuer The new issuer.
+     */
+    public void setIssuer(final String issuer) {
+        this.issuer = issuer;
+    }
 
     /**
      * Get the attached HTTP Session.
@@ -283,6 +309,15 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
      *
      * @param expiresIn The time, in seconds.
      */
+    public void setExpiresIn(final int expiresIn) {
+        this.expiresIn = (long) expiresIn;
+    }
+
+    /**
+     * Set the expiration time, in seconds, from the creation date.
+     *
+     * @param expiresIn The time, in seconds.
+     */
     @JsonSetter
     public void setExpiresIn(final long expiresIn) {
         this.expiresIn = expiresIn;
@@ -299,15 +334,6 @@ public final class OAuthToken extends AbstractAuthzEntity implements Principal {
         } else {
             this.expiresIn = expiresIn.longValue();
         }
-    }
-
-    /**
-     * Set the expiration time, in seconds, from the creation date.
-     *
-     * @param expiresIn The time, in seconds.
-     */
-    public void setExpiresIn(final int expiresIn) {
-        this.expiresIn = (long) expiresIn;
     }
 
     /**
