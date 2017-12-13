@@ -26,19 +26,20 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AuthenticatorState;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
-import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
-import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2Client;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2Principal;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.IAuthorizeHandler;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.util.ObjectUtil;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
 import org.jvnet.hk2.annotations.Optional;
 
-import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -50,6 +51,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigInteger;
 import java.net.URI;
@@ -62,7 +64,6 @@ import java.util.SortedMap;
  * @author Michael Krotscheck
  */
 @Path("/authorize")
-@PermitAll
 @Transactional
 @Api(tags = "OAuth2")
 public final class AuthorizationService {
@@ -73,9 +74,9 @@ public final class AuthorizationService {
     private final Session session;
 
     /**
-     * Client credentials.
+     * Security Context for this request..
      */
-    private final Credentials credentials;
+    private final SecurityContext securityContext;
 
     /**
      * The injection manager.
@@ -85,16 +86,16 @@ public final class AuthorizationService {
     /**
      * Create a new authorization service.
      *
-     * @param session     Injected hibernate session.
-     * @param credentials Injected, resolved client credentials.
-     * @param injector    Injected injection manager
+     * @param session         Injected hibernate session.
+     * @param securityContext The security context for the current request.
+     * @param injector        Injected injection manager
      */
     @Inject
     public AuthorizationService(final Session session,
-                                final Credentials credentials,
+                                final SecurityContext securityContext,
                                 final InjectionManager injector) {
         this.session = session;
-        this.credentials = credentials;
+        this.securityContext = securityContext;
         this.injector = injector;
     }
 
@@ -114,19 +115,23 @@ public final class AuthorizationService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @OAuthFilterChain
+    @O2Client
     @ApiOperation(value = "OAuth2 Authorization endpoint.")
     public Response authorizationRequest(
             @Context final UriInfo uriInfo,
             @Context final HttpServletRequest request,
-            @Optional @QueryParam("authenticator")
-            final AuthenticatorType authenticator,
+            @Optional
+            @QueryParam("authenticator") final AuthenticatorType authenticator,
+            @Optional
             @ApiParam(required = true, allowableValues = "code,token")
-            @Optional @QueryParam("response_type") final String responseType,
-            @Optional @QueryParam("redirect_uri") final String redirectUrl,
+            @QueryParam("response_type") final String responseType,
+            @Optional
+            @QueryParam("redirect_uri") final String redirectUrl,
+            @Optional
             @ApiParam(example = "scope1 scope2")
-            @Optional @QueryParam("scope") final String scope,
-            @Optional @QueryParam("state") final String state) {
+            @QueryParam("scope") final String scope,
+            @Optional
+            @QueryParam("state") final String state) {
 
         // With a valid request, we need to make sure a browser session is
         // established. Even though we only use it for the implicit flow, the
@@ -134,7 +139,11 @@ public final class AuthorizationService {
         HttpSession httpSession = request.getSession(true);
 
         // Make sure the kind of request we have is permitted for this client.
-        Client client = session.get(Client.class, credentials.getLogin());
+        O2Principal principal = ObjectUtil
+                .safeCast(securityContext.getUserPrincipal(), O2Principal.class)
+                .orElseThrow(AccessDeniedException::new);
+
+        Client client = principal.getContext();
 
         // Validate the redirect.
         URI redirect = ValidationUtil.requireValidRedirect(redirectUrl,
