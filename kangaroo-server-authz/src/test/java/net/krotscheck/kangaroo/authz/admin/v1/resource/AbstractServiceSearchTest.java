@@ -548,7 +548,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
     /**
      * Test that searches by an invalid owner.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
     public final void testSearchByInvalidOwner() {
         OAuthToken token = getAdminToken();
@@ -569,7 +568,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
     /**
      * Test that searches by malformed owners returns a 404.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
     public final void testSearchByMalformedOwner() {
         Map<String, String> params = new HashMap<>();
@@ -577,7 +575,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         params.put("owner", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
+        assertErrorResponse(r, Status.BAD_REQUEST);
     }
 
     /**

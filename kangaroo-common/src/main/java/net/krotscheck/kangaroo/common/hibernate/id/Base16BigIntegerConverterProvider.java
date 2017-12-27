@@ -21,10 +21,12 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 import org.glassfish.jersey.internal.inject.Custom;
 
 import javax.inject.Singleton;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
@@ -32,6 +34,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Jersey2 Context parameter converter for base16 to bigInteger conversion.
@@ -64,13 +67,13 @@ public final class Base16BigIntegerConverterProvider
 
         for (Annotation a : Arrays.asList(annotations)) {
             if (a instanceof PathParam) {
-                return new BigIntConverter<>();
+                return new BigIntConverter<>(NotFoundException::new);
             }
             if (a instanceof QueryParam) {
-                return new BigIntConverter<>();
+                return new BigIntConverter<>(BadRequestException::new);
             }
             if (a instanceof FormParam) {
-                return new BigIntConverter<>();
+                return new BigIntConverter<>(BadRequestException::new);
             }
         }
 
@@ -86,6 +89,21 @@ public final class Base16BigIntegerConverterProvider
             implements ParamConverter<T> {
 
         /**
+         * The exception provider.
+         */
+        private final Supplier<? extends WebApplicationException> supplier;
+
+        /**
+         * Create a new instance of the converter.
+         *
+         * @param supplier An exception supplier.
+         */
+        BigIntConverter(
+                final Supplier<? extends WebApplicationException> supplier) {
+            this.supplier = supplier;
+        }
+
+        /**
          * Convert from an int to a value.
          *
          * @param value The string value.
@@ -97,7 +115,7 @@ public final class Base16BigIntegerConverterProvider
             try {
                 return (T) IdUtil.fromString(value);
             } catch (Exception e) {
-                throw new NotFoundException();
+                throw supplier.get();
             }
         }
 

@@ -268,7 +268,6 @@ public final class UserIdentityServiceSearchTest
     /**
      * Test that an malformed application throws an error.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
     public void testSearchByMalformedUser() {
         Map<String, String> params = new HashMap<>();
@@ -276,7 +275,7 @@ public final class UserIdentityServiceSearchTest
         params.put("user", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
+        assertErrorResponse(r, Status.BAD_REQUEST);
     }
 
     /**

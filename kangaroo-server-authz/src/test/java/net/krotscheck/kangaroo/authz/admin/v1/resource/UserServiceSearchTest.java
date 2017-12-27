@@ -262,7 +262,6 @@ public final class UserServiceSearchTest
     /**
      * Test that an malformed application throws an error.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
     public void testSearchByMalformedApplication() {
         Map<String, String> params = new HashMap<>();
@@ -270,7 +269,7 @@ public final class UserServiceSearchTest
         params.put("application", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
+        assertErrorResponse(r, Status.BAD_REQUEST);
     }
 
     /**
@@ -348,7 +347,6 @@ public final class UserServiceSearchTest
     /**
      * Test that an malformed role throws an error.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
     public void testSearchByMalformedRole() {
         Map<String, String> params = new HashMap<>();
@@ -356,6 +354,6 @@ public final class UserServiceSearchTest
         params.put("role", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
+        assertErrorResponse(r, Status.BAD_REQUEST);
     }
 }

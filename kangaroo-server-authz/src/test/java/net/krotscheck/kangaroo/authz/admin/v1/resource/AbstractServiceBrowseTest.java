@@ -485,7 +485,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                         HttpUtil.authHeaderBearer(adminAppToken.getId()))
                 .get();
 
-        assertErrorResponse(response, Status.NOT_FOUND);
+        assertErrorResponse(response, Status.BAD_REQUEST);
     }
 
     /**

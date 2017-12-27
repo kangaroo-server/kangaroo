@@ -1451,12 +1451,12 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("not_found", entity.getError());
+        Assert.assertEquals("bad_request", entity.getError());
         Assert.assertNotNull(entity.getErrorDescription());
     }
 
