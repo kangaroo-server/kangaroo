@@ -25,41 +25,109 @@ pipeline {
     stages {
 
         /**
-         * Get environment statistics.
+         * Build all the binaries, make sure it all compiles.
          */
-        stage('Stat') {
+        stage('init') {
             steps {
-                script {
-                    sh 'env'
-                    sh 'mvn --version'
-                    gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                    jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/" +
-                            "test_${gitCommit.substring(0, 16)}" +
-                            "?useUnicode=yes"
-                }
+                parallel(
+                        "install": {
+                            sh '''
+                                mvn clean install \
+                                    -DskipTests=true \
+                                    -Dcheckstyle.skip=true \
+                                    -Dpmd.skip=true \
+                                    -Dcpdskip=true
+                            '''
+                        },
+                        "stat": {
+                            script {
+                                sh 'env'
+                                sh 'mvn --version'
+                            }
+                        },
+                        "vars": {
+                            script {
+                                gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                                jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/" +
+                                        "test_${gitCommit.substring(0, 16)}" +
+                                        "?useUnicode=yes"
+                            }
+                        })
             }
         }
 
         /**
-         * Test.
+         * Kangaroo-common.
          */
-        stage('Test') {
+        stage('kangaroo-common') {
             steps {
                 parallel(
-                        "h2": {
-                            sh """
-                                mvn install \
-                                    -Ph2 \
-                                    -Dtarget-directory=target-h2
-                            """
+                        "pmd": {
+                            sh "mvn pmd:check -pl kangaroo-common "
                         },
-                        "mariadb": {
+                        "checkstyle": {
+                            sh "mvn checkstyle:check -pl kangaroo-common"
+                        },
+                        "unit-h2": {
                             sh """
-                                mvn install \
-                                    -Pmariadb \
-                                    -Dtarget-directory=target-mariadb \
-                                    -Dhibernate.connection.url=${jdbc_mariadb}
-                            """
+                            mvn test \
+                                -Dcheckstyle.skip=true \
+                                -Dpmd.skip=true \
+                                -Dcpdskip=true \
+                                -pl kangaroo-common \
+                                -Ph2 \
+                                -Dtarget-directory=target-h2
+                        """
+                        },
+                        "unit-mariadb": {
+                            sh """
+                            mvn test \
+                                -Dcheckstyle.skip=true \
+                                -Dpmd.skip=true \
+                                -Dcpdskip=true \
+                                -pl kangaroo-common \
+                                -Pmariadb \
+                                -Dtarget-directory=target-mariadb \
+                                -Dhibernate.connection.url=${jdbc_mariadb}
+                        """
+                        })
+            }
+        }
+
+        /**
+         * Kangaroo-server-authz.
+         */
+        stage('kangaroo-server-authz') {
+            steps {
+                parallel(
+                        "pmd": {
+                            sh "mvn pmd:check -pl kangaroo-server-authz "
+                        },
+                        "checkstyle": {
+                            sh "mvn checkstyle:check -pl kangaroo-server-authz"
+                        },
+                        "unit-h2": {
+                            sh """
+                            mvn test \
+                                -Dcheckstyle.skip=true \
+                                -Dpmd.skip=true \
+                                -Dcpdskip=true \
+                                -pl kangaroo-server-authz \
+                                -Ph2 \
+                                -Dtarget-directory=target-h2
+                        """
+                        },
+                        "unit-mariadb": {
+                            sh """
+                            mvn test \
+                                -Dcheckstyle.skip=true \
+                                -Dpmd.skip=true \
+                                -Dcpdskip=true \
+                                -pl kangaroo-server-authz \
+                                -Pmariadb \
+                                -Dtarget-directory=target-mariadb \
+                                -Dhibernate.connection.url=${jdbc_mariadb}
+                        """
                         })
             }
         }
