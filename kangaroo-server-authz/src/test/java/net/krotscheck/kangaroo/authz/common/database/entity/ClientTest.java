@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -297,6 +299,18 @@ public final class ClientTest {
     }
 
     /**
+     * Assert that a client reports that it is private.
+     */
+    @Test
+    public void testIsPrivate() {
+        Client c = new Client();
+
+        assertFalse(c.isPrivate());
+        c.setClientSecret("new secret");
+        assertTrue(c.isPrivate());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.
@@ -369,7 +383,7 @@ public final class ClientTest {
         Assert.assertEquals(
                 c.getType().toString(),
                 node.get("type").asText());
-        Assert.assertFalse(node.has("tokens"));
+        assertFalse(node.has("tokens"));
 
         // Get the configuration node.
         JsonNode configurationNode = node.get("configuration");
@@ -381,9 +395,9 @@ public final class ClientTest {
                 configurationNode.get("two").asText());
 
         // These should not exist.
-        Assert.assertFalse(node.has("referrers"));
-        Assert.assertFalse(node.has("redirects"));
-        Assert.assertFalse(node.has("tokens"));
+        assertFalse(node.has("referrers"));
+        assertFalse(node.has("redirects"));
+        assertFalse(node.has("tokens"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
