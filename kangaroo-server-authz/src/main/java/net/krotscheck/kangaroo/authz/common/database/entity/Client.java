@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.OnDelete;
@@ -413,6 +414,17 @@ public final class Client extends AbstractAuthzEntity {
             return application.getOwner();
         }
         return null;
+    }
+
+    /**
+     * The owner of this entity.
+     *
+     * @return This entity's owner, if it exists.
+     */
+    @Transient
+    @JsonIgnore
+    public Boolean isPrivate() {
+        return !Strings.isNullOrEmpty(clientSecret);
     }
 
     /**
