@@ -311,6 +311,18 @@ public final class ClientTest {
     }
 
     /**
+     * Assert that a client reports that it is public.
+     */
+    @Test
+    public void testIsPublic() {
+        Client c = new Client();
+
+        assertTrue(c.isPublic());
+        c.setClientSecret("new secret");
+        assertFalse(c.isPublic());
+    }
+
+    /**
      * Assert that this entity can be serialized into a JSON object, and
      * doesn't
      * carry an unexpected payload.
