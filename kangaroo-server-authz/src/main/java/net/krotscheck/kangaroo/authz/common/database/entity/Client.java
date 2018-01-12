@@ -179,7 +179,7 @@ public final class Client extends AbstractAuthzEntity {
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "client_configs",
-            joinColumns = @JoinColumn(name = "client"))
+                     joinColumns = @JoinColumn(name = "client"))
     @MapKeyColumn(name = "configKey")
     @Column(name = "configValue")
     private Map<String, String> configuration = new TreeMap<>();
@@ -417,14 +417,25 @@ public final class Client extends AbstractAuthzEntity {
     }
 
     /**
-     * The owner of this entity.
+     * Whether this client is private.
      *
-     * @return This entity's owner, if it exists.
+     * @return true, if this is a private client, otherwise false.
      */
     @Transient
     @JsonIgnore
     public Boolean isPrivate() {
         return !Strings.isNullOrEmpty(clientSecret);
+    }
+
+    /**
+     * Whether this client is public.
+     *
+     * @return true, if this is a public client, otherwise false.
+     */
+    @Transient
+    @JsonIgnore
+    public Boolean isPublic() {
+        return !isPrivate();
     }
 
     /**
