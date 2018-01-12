@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -223,6 +224,20 @@ public final class ErrorResponseBuilder {
                 .entity(response);
         response.headers.forEach(b::header);
         return b.build();
+    }
+
+    /**
+     * Build the entity from this builder.
+     *
+     * @return Error response entity, not wrapped in a Response.
+     */
+    public ErrorResponse buildEntity() {
+        ErrorResponse clone = new ErrorResponse();
+        clone.error = response.error;
+        clone.errorDescription = response.errorDescription;
+        clone.httpStatus = response.httpStatus;
+        clone.headers = Collections.unmodifiableMap(response.headers);
+        return clone;
     }
 
     /**

@@ -239,6 +239,7 @@ public final class ServerFactory {
             WebappContext context = new WebappContext(name, path);
             ServletRegistration registration =
                     context.addServlet(name, new ServletContainer(rc));
+            registration.setInitParameter("swagger.context.id", name);
             registration.addMapping(String.format("%s/*", path));
 
             context.deploy(server);
@@ -289,8 +290,16 @@ public final class ServerFactory {
         // Map the path to the processor.
         final ServerConfiguration serverConfiguration =
                 server.getServerConfiguration();
+
+        // Remove the `Server: Grizzly <version>` header.
+        serverConfiguration.setHttpServerName(null);
+        serverConfiguration.setHttpServerVersion(null);
+
         serverConfiguration.setPassTraceRequest(true);
         serverConfiguration.setDefaultQueryEncoding(Charsets.UTF8_CHARSET);
+        serverConfiguration.setDefaultErrorPageGenerator(
+                new KangarooErrorPageGenerator()
+        );
         serverLambdas.forEach(s -> s.operation(server));
 
         return server;

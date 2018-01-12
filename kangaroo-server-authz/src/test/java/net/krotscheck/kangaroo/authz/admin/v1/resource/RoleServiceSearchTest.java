@@ -262,7 +262,6 @@ public final class RoleServiceSearchTest
     /**
      * Test that an malformed application throws an error.
      */
-    // TODO(krotscheck): This should return a 400.
     @Test
     public void testSearchByMalformedApplication() {
         Map<String, String> params = new HashMap<>();
@@ -270,6 +269,6 @@ public final class RoleServiceSearchTest
         params.put("application", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.NOT_FOUND);
+        assertErrorResponse(r, Status.BAD_REQUEST);
     }
 }

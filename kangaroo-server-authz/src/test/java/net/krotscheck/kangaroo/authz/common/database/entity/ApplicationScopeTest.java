@@ -146,17 +146,15 @@ public final class ApplicationScopeTest {
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
-        DateFormat format = new ISO8601DateFormat();
-
         Assert.assertEquals(
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(a.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                a.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(a.getCreatedDate().getTime()),
-                node.get("modifiedDate").asText());
+                a.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
         Assert.assertEquals(
                 IdUtil.toString(a.getApplication().getId()),
                 node.get("application").asText());
@@ -181,14 +179,13 @@ public final class ApplicationScopeTest {
     @Test
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
+        long timestamp = Calendar.getInstance().getTimeInMillis() / 1000;
         ObjectNode node = m.createObjectNode();
         node.put("id", IdUtil.toString(IdUtil.next()));
-        node.put("createdDate",
-                format.format(Calendar.getInstance().getTime()));
-        node.put("modifiedDate",
-                format.format(Calendar.getInstance().getTime()));
+        node.put("createdDate", timestamp);
+        node.put("modifiedDate", timestamp);
         node.put("name", "name");
+        node.put("application", IdUtil.toString(IdUtil.next()));
 
         String output = m.writeValueAsString(node);
         ApplicationScope a = m.readValue(output, ApplicationScope.class);
@@ -197,14 +194,17 @@ public final class ApplicationScopeTest {
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(a.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                a.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(a.getModifiedDate().getTime()),
-                node.get("modifiedDate").asText());
+                a.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
         Assert.assertEquals(
                 a.getName(),
                 node.get("name").asText());
+        Assert.assertEquals(
+                IdUtil.toString(a.getApplication().getId()),
+                node.get("application").asText());
     }
 
     /**

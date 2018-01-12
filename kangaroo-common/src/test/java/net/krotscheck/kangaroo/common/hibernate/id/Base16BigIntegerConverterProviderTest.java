@@ -20,6 +20,9 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 
 import org.junit.Test;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -32,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- * Tests for the data provider.
+ * Test for the base 16 data conversion handler.
  *
  * @author Michael Krotscheck
  */
@@ -59,6 +62,23 @@ public final class Base16BigIntegerConverterProviderTest {
             return null;
         }
     };
+
+    /**
+     * Form param annotation for testing.
+     */
+    private Annotation formAnnotation = new FormParam() {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return FormParam.class;
+        }
+
+        @Override
+        public String value() {
+            return null;
+        }
+    };
+
     /**
      * Query param annotation for testing.
      */
@@ -67,6 +87,22 @@ public final class Base16BigIntegerConverterProviderTest {
         @Override
         public Class<? extends Annotation> annotationType() {
             return QueryParam.class;
+        }
+
+        @Override
+        public String value() {
+            return null;
+        }
+    };
+
+    /**
+     * Query param annotation for testing.
+     */
+    private Annotation otherAnnotation = new DefaultValue() {
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return DefaultValue.class;
         }
 
         @Override
@@ -118,12 +154,32 @@ public final class Base16BigIntegerConverterProviderTest {
     }
 
     /**
+     * Assert that they work for FormParam.
+     */
+    @Test
+    public void testOnlyFormParam() {
+        Annotation[] annotations = new Annotation[]{formAnnotation};
+        assertNotNull(converterProvider
+                .getConverter(BigInteger.class, null, annotations));
+    }
+
+    /**
      * Assert that they work for PathParam.
      */
     @Test
     public void testOnlyPathParam() {
         Annotation[] annotations = new Annotation[]{pathAnnotation};
         assertNotNull(converterProvider
+                .getConverter(BigInteger.class, null, annotations));
+    }
+
+    /**
+     * Assert that they do not work for other parameters.
+     */
+    @Test
+    public void testNonSupportedAnnotation() {
+        Annotation[] annotations = new Annotation[]{otherAnnotation};
+        assertNull(converterProvider
                 .getConverter(BigInteger.class, null, annotations));
     }
 
@@ -143,10 +199,10 @@ public final class Base16BigIntegerConverterProviderTest {
     }
 
     /**
-     * The string-to-biginteger converter.
+     * Fail a conversion using a path annotation.
      */
     @Test(expected = NotFoundException.class)
-    public void testConvertString() {
+    public void testFailConvertPath() {
         Annotation[] annotations = new Annotation[]{pathAnnotation};
 
         ParamConverter converter = converterProvider
@@ -156,10 +212,36 @@ public final class Base16BigIntegerConverterProviderTest {
     }
 
     /**
-     * Test convert with an error.
+     * Fail a conversion using a form annotation.
+     */
+    @Test(expected = BadRequestException.class)
+    public void testFailConvertForm() {
+        Annotation[] annotations = new Annotation[]{formAnnotation};
+
+        ParamConverter converter = converterProvider
+                .getConverter(BigInteger.class, null, annotations);
+
+        converter.fromString("not_a_valid_string");
+    }
+
+    /**
+     * Fail a conversion using a query annotation.
+     */
+    @Test(expected = BadRequestException.class)
+    public void testFailConvertQuery() {
+        Annotation[] annotations = new Annotation[]{queryAnnotation};
+
+        ParamConverter converter = converterProvider
+                .getConverter(BigInteger.class, null, annotations);
+
+        converter.fromString("not_a_valid_string");
+    }
+
+    /**
+     * Test a valid conversion.
      */
     @Test
-    public void testConvertFromStringError() {
+    public void testValidConversion() {
         Annotation[] annotations = new Annotation[]{pathAnnotation};
 
         ParamConverter converter = converterProvider
@@ -168,5 +250,6 @@ public final class Base16BigIntegerConverterProviderTest {
         BigInteger id = IdUtil.next();
         BigInteger converted = (BigInteger)
                 converter.fromString(IdUtil.toString(id));
+        assertEquals(id, converted);
     }
 }

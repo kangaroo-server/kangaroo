@@ -21,9 +21,12 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 import org.glassfish.jersey.internal.inject.Custom;
 
 import javax.inject.Singleton;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
@@ -31,6 +34,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Jersey2 Context parameter converter for base16 to bigInteger conversion.
@@ -61,49 +65,69 @@ public final class Base16BigIntegerConverterProvider
             return null;
         }
 
-        // We only respond to path params and query params...
-        Boolean isPathParam = Arrays.stream(annotations)
-                .filter(a -> a instanceof PathParam)
-                .count() > 0;
-        Boolean isQueryParam = Arrays.stream(annotations)
-                .filter(a -> a instanceof QueryParam)
-                .count() > 0;
-
-        if (!isPathParam && !isQueryParam) {
-            return null;
+        for (Annotation a : Arrays.asList(annotations)) {
+            if (a instanceof PathParam) {
+                return new BigIntConverter<>(NotFoundException::new);
+            }
+            if (a instanceof QueryParam) {
+                return new BigIntConverter<>(BadRequestException::new);
+            }
+            if (a instanceof FormParam) {
+                return new BigIntConverter<>(BadRequestException::new);
+            }
         }
 
-        /*
-         * The parameter converter.
+        return null;
+    }
+
+    /**
+     * The parameter converter class.
+     *
+     * @param <T> Raw type, required for converters.
+     */
+    private static final class BigIntConverter<T>
+            implements ParamConverter<T> {
+
+        /**
+         * The exception provider.
          */
-        return new ParamConverter<T>() {
+        private final Supplier<? extends WebApplicationException> supplier;
 
-            /**
-             * Convert from an int to a value.
-             *
-             * @param value The string value.
-             * @return The BigInteger result.
-             */
-            @SuppressWarnings("unchecked")
-            @Override
-            public T fromString(final String value) {
-                try {
-                    return (T) IdUtil.fromString(value);
-                } catch (Exception e) {
-                    throw new NotFoundException();
-                }
-            }
+        /**
+         * Create a new instance of the converter.
+         *
+         * @param supplier An exception supplier.
+         */
+        BigIntConverter(
+                final Supplier<? extends WebApplicationException> supplier) {
+            this.supplier = supplier;
+        }
 
-            /**
-             * Convert it to a string.
-             *
-             * @param value The value to convert.
-             * @return The value, converted to a String.
-             */
-            @Override
-            public String toString(final T value) {
-                return IdUtil.toString((BigInteger) value);
+        /**
+         * Convert from an int to a value.
+         *
+         * @param value The string value.
+         * @return The BigInteger result.
+         */
+        @SuppressWarnings("unchecked")
+        @Override
+        public T fromString(final String value) {
+            try {
+                return (T) IdUtil.fromString(value);
+            } catch (Exception e) {
+                throw supplier.get();
             }
-        };
+        }
+
+        /**
+         * Convert it to a string.
+         *
+         * @param value The value to convert.
+         * @return The value, converted to a String.
+         */
+        @Override
+        public String toString(final T value) {
+            return IdUtil.toString((BigInteger) value);
+        }
     }
 }

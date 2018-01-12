@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import io.swagger.annotations.ApiModelProperty;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
@@ -95,6 +96,11 @@ public abstract class AbstractEntity implements Cloneable,
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
             + ".BigIntegerType")
+    @ApiModelProperty(
+            readOnly = true,
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private BigInteger id = null;
 
     /**
@@ -103,6 +109,9 @@ public abstract class AbstractEntity implements Cloneable,
     @Column(name = "createdDate")
     @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
             + ".CalendarTimestampType")
+    @ApiModelProperty(
+            readOnly = true,
+            example = "2017-11-16T02:39:27Z")
     private Calendar createdDate;
 
     /**
@@ -111,6 +120,9 @@ public abstract class AbstractEntity implements Cloneable,
     @Column(name = "modifiedDate")
     @Type(type = "net.krotscheck.kangaroo.common.hibernate.type"
             + ".CalendarTimestampType")
+    @ApiModelProperty(
+            readOnly = true,
+            example = "2017-11-16T02:39:27Z")
     private Calendar modifiedDate;
 
     /**

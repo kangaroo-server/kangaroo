@@ -263,6 +263,12 @@
       <artifactId>bcpkix-jdk15on</artifactId>
       <version>1.51</version>
     </dependency>
+
+    <!-- Swagger -->
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-jersey2-jaxrs</artifactId>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

@@ -18,9 +18,12 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.annotations.ApiModelProperty;
 import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -125,8 +128,14 @@ public final class Application extends AbstractAuthzEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner", nullable = true, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = User.Deserializer.class)
     @IndexedEmbedded(includePaths = "id")
+    @ApiModelProperty(
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7")
     private User owner;
 
     /**
@@ -135,8 +144,14 @@ public final class Application extends AbstractAuthzEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "defaultRole", nullable = true, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = Role.Deserializer.class)
     @IndexedEmbedded(includePaths = "id")
+    @ApiModelProperty(
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7")
     private Role defaultRole;
 
     /**
@@ -147,6 +162,7 @@ public final class Application extends AbstractAuthzEntity {
     @Column(name = "name", nullable = false)
     @Size(min = 3, max = 255, message = "Application name must be between 3 "
             + "and 255 characters.")
+    @ApiModelProperty(required = true)
     private String name;
 
     /**

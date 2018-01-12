@@ -392,12 +392,6 @@
                 <goal>check</goal>
               </goals>
             </execution>
-            <execution>
-              <id>default-cpd-check</id>
-              <goals>
-                <goal>cpd-check</goal>
-              </goals>
-            </execution>
           </executions>
         </plugin>
 
@@ -832,6 +826,23 @@
         <groupId>org.mariadb.jdbc</groupId>
         <artifactId>mariadb-java-client</artifactId>
         <version>1.5.9</version>
+      </dependency>
+
+      <!-- Swagger -->
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-jersey2-jaxrs</artifactId>
+        <version>1.5.16</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>

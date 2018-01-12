@@ -113,7 +113,6 @@ public final class ClientReferrerTest {
 
         // De/serialize to json.
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
         String output = m.writeValueAsString(r);
         JsonNode node = m.readTree(output);
 
@@ -121,11 +120,11 @@ public final class ClientReferrerTest {
                 IdUtil.toString(r.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(r.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                r.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(r.getCreatedDate().getTime()),
-                node.get("modifiedDate").asText());
+                r.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 r.getUri().toString(),
@@ -148,13 +147,11 @@ public final class ClientReferrerTest {
     @Test
     public void testJacksonDeserializable() throws Exception {
         ObjectMapper m = new ObjectMapperFactory().get();
-        DateFormat format = new ISO8601DateFormat();
+        long timestamp = Calendar.getInstance().getTimeInMillis() / 1000;
         ObjectNode node = m.createObjectNode();
         node.put("id", IdUtil.toString(IdUtil.next()));
-        node.put("createdDate",
-                format.format(Calendar.getInstance().getTime()));
-        node.put("modifiedDate",
-                format.format(Calendar.getInstance().getTime()));
+        node.put("createdDate", timestamp);
+        node.put("modifiedDate", timestamp);
         node.put("client", IdUtil.toString(IdUtil.next()));
         node.put("uri", "http://example.com/");
 
@@ -165,11 +162,11 @@ public final class ClientReferrerTest {
                 IdUtil.toString(r.getId()),
                 node.get("id").asText());
         Assert.assertEquals(
-                format.format(r.getCreatedDate().getTime()),
-                node.get("createdDate").asText());
+                r.getCreatedDate().getTimeInMillis() / 1000,
+                node.get("createdDate").asLong());
         Assert.assertEquals(
-                format.format(r.getModifiedDate().getTime()),
-                node.get("modifiedDate").asText());
+                r.getModifiedDate().getTimeInMillis() / 1000,
+                node.get("modifiedDate").asLong());
 
         Assert.assertEquals(
                 r.getUri().toString(),

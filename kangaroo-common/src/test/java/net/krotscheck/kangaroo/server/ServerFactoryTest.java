@@ -18,7 +18,9 @@
 
 package net.krotscheck.kangaroo.server;
 
-import com.google.common.io.Files;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.test.NetworkUtil;
 import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
@@ -35,13 +37,14 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -193,7 +196,7 @@ public class ServerFactoryTest {
         HttpGet httpGet = new HttpGet("https://localhost:" + openPort + "/");
         CloseableHttpResponse response = httpclient.execute(httpGet);
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 404);
         response.close();
 
@@ -234,14 +237,14 @@ public class ServerFactoryTest {
         HttpGet httpGet1 = new HttpGet(
                 "https://localhost:" + openPort + "/one/status");
         CloseableHttpResponse response1 = httpclient.execute(httpGet1);
-        Assert.assertEquals(response1.getStatusLine().getStatusCode(),
+        assertEquals(response1.getStatusLine().getStatusCode(),
                 200);
         response1.close();
 
         HttpGet httpGet2 = new HttpGet(
                 "https://localhost:" + openPort + "/two/status");
         CloseableHttpResponse response2 = httpclient.execute(httpGet2);
-        Assert.assertEquals(response2.getStatusLine().getStatusCode(),
+        assertEquals(response2.getStatusLine().getStatusCode(),
                 200);
         response2.close();
 
@@ -249,9 +252,9 @@ public class ServerFactoryTest {
         CloseableHttpResponse response3 = httpclient.execute(httpGet3);
         String responseBody3 = EntityUtils.toString(response3.getEntity());
 
-        Assert.assertEquals(response3.getStatusLine().getStatusCode(),
+        assertEquals(response3.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Hello world", responseBody3);
+        assertEquals("Hello world", responseBody3);
         response3.close();
 
         httpclient.close();
@@ -283,9 +286,9 @@ public class ServerFactoryTest {
         CloseableHttpResponse response1 = httpclient.execute(httpGet1);
         String responseBody1 = EntityUtils.toString(response1.getEntity());
 
-        Assert.assertEquals(response1.getStatusLine().getStatusCode(),
+        assertEquals(response1.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Hello world", responseBody1);
+        assertEquals("Hello world", responseBody1);
         response1.close();
 
         httpclient.close();
@@ -306,8 +309,41 @@ public class ServerFactoryTest {
 
         HttpServer s = f.build();
 
-        Assert.assertEquals(1000,
+        assertEquals(1000,
                 s.getServerConfiguration().getSessionTimeoutSeconds());
+    }
+
+    /**
+     * Ensure that grizzly doesn't expose itself.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testNoGrizzlyServer() throws Exception {
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
+        ResourceConfig one = new ResourceConfig();
+        one.register(StatusFeature.class);
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.port=" + openPort
+                })
+                .withResource("/one", one);
+
+        HttpServer s = f.build();
+        s.start();
+
+        CloseableHttpClient httpclient = getHttpClient();
+        HttpGet httpGet1 = new HttpGet(
+                "https://localhost:" + openPort + "/one/status");
+        CloseableHttpResponse response1 = httpclient.execute(httpGet1);
+        assertEquals(response1.getStatusLine().getStatusCode(),
+                200);
+        assertFalse(response1.containsHeader("Server"));
+        response1.close();
+
+        httpclient.close();
+        s.shutdownNow();
     }
 
     /**
@@ -326,5 +362,45 @@ public class ServerFactoryTest {
                 });
 
         f.build();
+    }
+
+    /**
+     * Assert that errors are thrown using the ErrorResponseBuilder format.
+     *
+     * @throws Exception Should not be thrown.
+     */
+    @Test
+    public void testCorrectErrorFormat() throws Exception {
+        String openPort = String.valueOf(NetworkUtil.findFreePort());
+        ResourceConfig one = new ResourceConfig();
+
+        ServerFactory f = new ServerFactory()
+                .withCommandlineArgs(new String[]{
+                        "--kangaroo.port=" + openPort
+                })
+                .withResource("/one", one);
+
+        // Get an object mapper
+        ObjectMapper mapper = new ObjectMapperFactory().get();
+
+        HttpServer s = f.build();
+        s.start();
+
+        CloseableHttpClient httpclient = getHttpClient();
+        HttpGet httpGet1 = new HttpGet(
+                "https://localhost:" + openPort + "/does/not/exist");
+        CloseableHttpResponse response1 = httpclient.execute(httpGet1);
+        assertEquals(response1.getStatusLine().getStatusCode(), 404);
+
+        ErrorResponse r = mapper.readValue(response1.getEntity().getContent(),
+                ErrorResponse.class);
+
+        assertEquals("not_found", r.getError());
+        assertEquals("Not Found", r.getErrorDescription());
+
+        response1.close();
+
+        httpclient.close();
+        s.shutdownNow();
     }
 }

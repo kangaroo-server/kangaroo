@@ -9,3 +9,5 @@ databaseChangeLog:
       file: liquibase/db.changelog-authz-1.0.0.yaml
   - include:
       file: liquibase/db.changelog-authz-1.1.0.yaml
+  - include:
+      file: liquibase/db.changelog-authz-1.2.0.yaml

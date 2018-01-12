@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -70,6 +74,19 @@ import java.net.URI;
 @Path("/token")
 @ScopesAllowed({Scope.TOKEN_ADMIN, Scope.TOKEN})
 @Transactional
+@Api(tags = "Token",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.TOKEN,
+                                description = "Modify tokens in one"
+                                        + " application."),
+                        @AuthorizationScope(
+                                scope = Scope.TOKEN_ADMIN,
+                                description = "Modify tokens in all"
+                                        + " applications.")
+                })
+        })
 public final class OAuthTokenService extends AbstractService {
 
     /**
@@ -88,14 +105,19 @@ public final class OAuthTokenService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Search tokens")
     @SuppressWarnings("CPD-START")
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("user") final BigInteger userId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("identity") final BigInteger userIdentityId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("client") final BigInteger clientId,
             @Optional @QueryParam("type") final OAuthTokenType type) {
 
@@ -192,6 +214,7 @@ public final class OAuthTokenService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse tokens")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
@@ -201,8 +224,11 @@ public final class OAuthTokenService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("identity") final BigInteger userIdentityId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("client") final BigInteger clientId) {
 
         // Validate the incoming filters.
@@ -273,7 +299,10 @@ public final class OAuthTokenService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read token")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         OAuthToken token = getSession().get(OAuthToken.class, id);
         assertCanAccess(token, getAdminScope());
         return Response.ok(token).build();
@@ -287,6 +316,7 @@ public final class OAuthTokenService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create token")
     public Response createResource(final OAuthToken token) {
 
         OAuthToken validToken = validateInputData(token);
@@ -331,8 +361,11 @@ public final class OAuthTokenService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final OAuthToken token) {
+    @ApiOperation(value = "Update token")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final OAuthToken token) {
         Session s = getSession();
 
         // Load the old instance.
@@ -381,7 +414,10 @@ public final class OAuthTokenService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
-    public Response deleteResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Delete token")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         OAuthToken token = s.get(OAuthToken.class, id);
 

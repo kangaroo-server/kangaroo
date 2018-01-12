@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -48,6 +49,10 @@ public abstract class AbstractClientUri extends AbstractAuthzEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client", nullable = false, updatable = false)
     @JsonIgnore
+    @ApiModelProperty(
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private Client client;
 
     /**

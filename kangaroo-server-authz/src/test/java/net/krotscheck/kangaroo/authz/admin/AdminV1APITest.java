@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Test for the admin API.
@@ -45,9 +46,11 @@ public final class AdminV1APITest extends ContainerTest {
      */
     @Test
     public void smokeTest() {
-        Response response = target("/")
+        // Should find the swagger feature.
+        Response response = target("/status")
                 .request()
                 .get();
-        Assert.assertEquals(404, response.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(),
+                response.getStatus());
     }
 }

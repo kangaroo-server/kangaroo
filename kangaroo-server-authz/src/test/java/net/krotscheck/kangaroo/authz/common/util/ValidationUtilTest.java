@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnsupportedResponseTypeException;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -67,6 +69,7 @@ public final class ValidationUtilTest {
         validScopes = new TreeMap<>();
         validScopes.put("debug", new ApplicationScope());
         validScopes.put("debug1", new ApplicationScope());
+        validScopes.put("encodable:scope", new ApplicationScope());
     }
 
     /**
@@ -467,6 +470,20 @@ public final class ValidationUtilTest {
     public void testValidScopeString() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope("debug1", validScopes);
+        Assert.assertEquals(1, scopes.size());
+    }
+
+    /**
+     * Assert that a url encoded scope validation request works.
+     *
+     * @throws Exception Should be thrown when the validation fails.
+     */
+    @Test
+    public void testEncodedValidScopeString() throws Exception {
+        String scope = "encodable:scope";
+        String encoded = URLEncoder.encode(scope, "UTF-8");
+        SortedMap<String, ApplicationScope> scopes =
+                ValidationUtil.validateScope(encoded, validScopes);
         Assert.assertEquals(1, scopes.size());
     }
 

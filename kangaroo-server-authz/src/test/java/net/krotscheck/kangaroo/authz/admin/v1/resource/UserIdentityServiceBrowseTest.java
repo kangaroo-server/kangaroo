@@ -281,7 +281,7 @@ public final class UserIdentityServiceBrowseTest
         params.put("user", "malformed");
         Response r = browse(params, getAdminToken());
 
-        assertErrorResponse(r, Status.NOT_FOUND);
+        assertErrorResponse(r, Status.BAD_REQUEST);
     }
 
     /**

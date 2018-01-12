@@ -568,50 +568,6 @@ public abstract class AbstractResourceTest<T extends AbstractEntity>
     }
 
     /**
-     * Test for a specific error response.
-     *
-     * @param r                  The error response.
-     * @param expectedHttpStatus The expected http status.
-     */
-    protected final void assertErrorResponse(final Response r,
-                                             final Status expectedHttpStatus) {
-        String expectedMessage = expectedHttpStatus.getReasonPhrase()
-                .toLowerCase().replace(" ", "_");
-        assertErrorResponse(r, expectedHttpStatus, expectedMessage);
-    }
-
-    /**
-     * Test for a specific error response.
-     *
-     * @param r                  The error response.
-     * @param expectedHttpStatus The expected http status.
-     * @param message            The expected message.
-     */
-    protected final void assertErrorResponse(final Response r,
-                                             final Status expectedHttpStatus,
-                                             final String message) {
-        assertErrorResponse(r, expectedHttpStatus.getStatusCode(), message);
-    }
-
-    /**
-     * Test for a specific error response, code, and message.
-     *
-     * @param r               THe response to test.
-     * @param statusCode      The expected status code.
-     * @param expectedMessage The expected message.
-     */
-    protected final void assertErrorResponse(final Response r,
-                                             final int statusCode,
-                                             final String expectedMessage) {
-        Assert.assertFalse(
-                String.format("%s must not be a success code", r.getStatus()),
-                r.getStatus() < 400);
-        ErrorResponse response = r.readEntity(ErrorResponse.class);
-        assertEquals(statusCode, r.getStatus());
-        assertEquals(expectedMessage, response.getError());
-    }
-
-    /**
      * Test a list response for a specific size, and return the entities.
      *
      * @param r                   The response to test.

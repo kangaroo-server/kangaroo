@@ -29,8 +29,10 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
-import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2Principal;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.util.ObjectUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -40,8 +42,10 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigInteger;
@@ -69,25 +73,33 @@ public final class ImplicitHandler implements IAuthorizeHandler {
     private final Session session;
 
     /**
-     * Request credentials.
+     * The request's security context..
      */
-    private final Credentials credentials;
+    private final SecurityContext securityContext;
+
+    /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
 
     /**
      * Create a new handler.
      *
-     * @param injector    The system injection manager..
-     * @param session     The hibernate session.
-     * @param credentials The request credentials.
+     * @param injector        The system injection manager.
+     * @param session         The hibernate session.
+     * @param securityContext The request's security context.
+     * @param uriInfo         The URI info for the current request.
      */
     @Inject
     @SuppressWarnings({"CPD-START"})
     public ImplicitHandler(final InjectionManager injector,
                            final Session session,
-                           final Credentials credentials) {
+                           final SecurityContext securityContext,
+                           @Context final UriInfo uriInfo) {
         this.injector = injector;
         this.session = session;
-        this.credentials = credentials;
+        this.securityContext = securityContext;
+        this.uriInfo = uriInfo;
     }
 
     /**
@@ -110,8 +122,6 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      * domain-specific refresh token read from the session), in which case
      * the user is immediately issued a token.
      *
-     * @param uriInfo        The original request, in case additional data
-     *                       is needed.
      * @param browserSession The browser session, maintained via cookies.
      * @param auth           The authenticator to use to process this
      *                       request.
@@ -123,8 +133,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      * @return The response, indicating success or failure.
      */
     @Override
-    public Response handle(final UriInfo uriInfo,
-                           final javax.servlet.http.HttpSession browserSession,
+    public Response handle(final javax.servlet.http.HttpSession browserSession,
                            final Authenticator auth,
                            final URI redirect,
                            final SortedMap<String, ApplicationScope> scopes,
@@ -148,15 +157,13 @@ public final class ImplicitHandler implements IAuthorizeHandler {
         }
 
         // If there's zero refresh tokens, issue a new one.
-        return handleIssue(uriInfo, auth, redirect, scopes, state);
+        return handleIssue(auth, redirect, scopes, state);
     }
 
     /**
      * This private handler presumes that we are trying to issue a brand new
      * token, and responds accordingly.
      *
-     * @param uriInfo  The original request, in case additional data
-     *                 is needed.
      * @param auth     The authenticator to use to process this
      *                 request.
      * @param redirect The redirect (already validated) to which
@@ -166,8 +173,7 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      * @param state    The client's requested state ID.
      * @return A response indicating the success.
      */
-    private Response handleIssue(final UriInfo uriInfo,
-                                 final Authenticator auth,
+    private Response handleIssue(final Authenticator auth,
                                  final URI redirect,
                                  final SortedMap<String, ApplicationScope>
                                          scopes,
@@ -255,14 +261,12 @@ public final class ImplicitHandler implements IAuthorizeHandler {
      *
      * @param s              The request state previously saved by the client.
      * @param browserSession The browser session, maintained via cookies.
-     * @param uriInfo        The URI response from the third party IdP.
      * @return A response entity indicating success or failure.
      */
     @Override
     public Response callback(final AuthenticatorState s,
                              final javax.servlet.http.HttpSession
-                                     browserSession,
-                             final UriInfo uriInfo) {
+                                     browserSession) {
 
         URI callback = buildCallback(uriInfo, s);
 
@@ -409,9 +413,11 @@ public final class ImplicitHandler implements IAuthorizeHandler {
         // Get the DB session entity.
         HttpSession httpSession = getDbSession(browserSession);
 
-        // Get the client ID.
-        BigInteger clientId = credentials.getLogin();
-        Client c = session.get(Client.class, clientId);
+        O2Principal principal = ObjectUtil
+                .safeCast(securityContext.getUserPrincipal(), O2Principal.class)
+                .orElseThrow(AccessDeniedException::new);
+
+        Client c = principal.getContext();
 
         // We have a session and we have a client...
         return httpSession.getRefreshTokens().stream()

@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.test.jersey;
 
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
@@ -29,6 +30,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -48,6 +50,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -227,5 +230,49 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             b.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
         return b.get();
+    }
+
+    /**
+     * Test for a specific error response.
+     *
+     * @param r                  The error response.
+     * @param expectedHttpStatus The expected http status.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final Status expectedHttpStatus) {
+        String expectedMessage = expectedHttpStatus.getReasonPhrase()
+                .toLowerCase().replace(" ", "_");
+        assertErrorResponse(r, expectedHttpStatus, expectedMessage);
+    }
+
+    /**
+     * Test for a specific error response.
+     *
+     * @param r                  The error response.
+     * @param expectedHttpStatus The expected http status.
+     * @param message            The expected message.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final Status expectedHttpStatus,
+                                             final String message) {
+        assertErrorResponse(r, expectedHttpStatus.getStatusCode(), message);
+    }
+
+    /**
+     * Test for a specific error response, code, and message.
+     *
+     * @param r               THe response to test.
+     * @param statusCode      The expected status code.
+     * @param expectedMessage The expected message.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final int statusCode,
+                                             final String expectedMessage) {
+        Assert.assertFalse(
+                String.format("%s must not be a success code", r.getStatus()),
+                r.getStatus() < 400);
+        ErrorResponse response = r.readEntity(ErrorResponse.class);
+        assertEquals(statusCode, r.getStatus());
+        assertEquals(expectedMessage, response.getError());
     }
 }

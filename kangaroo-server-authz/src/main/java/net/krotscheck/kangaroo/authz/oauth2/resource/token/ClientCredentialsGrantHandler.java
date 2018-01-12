@@ -27,13 +27,13 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantExcept
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnauthorizedClientException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import org.apache.commons.lang3.StringUtils;
-
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import java.util.SortedMap;
 
 /**
@@ -43,8 +43,7 @@ import java.util.SortedMap;
  *
  * @author Michael Krotscheck
  */
-public final class ClientCredentialsGrantHandler
-        implements ITokenRequestHandler {
+public final class ClientCredentialsGrantHandler {
 
     /**
      * Hibernate session, injected.
@@ -52,26 +51,34 @@ public final class ClientCredentialsGrantHandler
     private final Session session;
 
     /**
+     * Current request URI.
+     */
+    private final UriInfo uriInfo;
+
+    /**
      * Create a new instance of this token handler.
      *
      * @param session Injected hibernate session.
+     * @param uriInfo The URI info for the current request.
      */
     @Inject
-    public ClientCredentialsGrantHandler(final Session session) {
+    public ClientCredentialsGrantHandler(final Session session,
+                                         @Context final UriInfo uriInfo) {
         this.session = session;
+        this.uriInfo = uriInfo;
     }
 
     /**
      * Apply the client credentials flow to this request.
      *
-     * @param client   The Client to use.
-     * @param formData Raw form data for the request.
+     * @param client The Client to use.
+     * @param scope  The requested scopes.
+     * @param state  The state.
      * @return A response indicating the result of the request.
      */
-    @Override
     public TokenResponseEntity handle(final Client client,
-                                      final MultivaluedMap<String, String>
-                                              formData) {
+                                      final String scope,
+                                      final String state) {
 
         // Make sure the client is the correct type.
         if (!client.getType().equals(ClientType.ClientCredentials)) {
@@ -79,7 +86,7 @@ public final class ClientCredentialsGrantHandler
         }
 
         // Ensure that the client is authorized. This is actually handled in
-        // the ClientAuthorizationFilter; here we check the edge case of a
+        // the O2AuthorizationFilter; here we check the edge case of a
         // ClientCredentials type with no set client_secret.
         if (StringUtils.isEmpty(client.getClientSecret())) {
             throw new UnauthorizedClientException();
@@ -88,11 +95,8 @@ public final class ClientCredentialsGrantHandler
         // This flow permits requesting any of the available scopes from the
         // application, without filtering by Roles.
         SortedMap<String, ApplicationScope> requestedScopes =
-                ValidationUtil.validateScope(formData.getFirst("scope"),
+                ValidationUtil.validateScope(scope,
                         client.getApplication().getScopes());
-
-        // Ensure that we retrieve a state, if it exists.
-        String state = formData.getFirst("state");
 
         // Go ahead and create the token.
         OAuthToken token = new OAuthToken();
@@ -100,6 +104,7 @@ public final class ClientCredentialsGrantHandler
         token.setTokenType(OAuthTokenType.Bearer);
         token.setExpiresIn(client.getAccessTokenExpireIn());
         token.setScopes(requestedScopes);
+        token.setIssuer(uriInfo.getAbsolutePath().getHost());
 
         session.save(token);
 
@@ -114,8 +119,7 @@ public final class ClientCredentialsGrantHandler
         @Override
         protected void configure() {
             bind(ClientCredentialsGrantHandler.class)
-                    .to(ITokenRequestHandler.class)
-                    .named("client_credentials")
+                    .to(ClientCredentialsGrantHandler.class)
                     .in(RequestScoped.class);
         }
     }

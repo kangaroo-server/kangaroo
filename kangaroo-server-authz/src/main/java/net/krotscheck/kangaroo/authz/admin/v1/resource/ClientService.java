@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -68,6 +72,19 @@ import java.net.URI;
 @Path("/client")
 @ScopesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
 @Transactional
+@Api(tags = "Client",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.CLIENT,
+                                description = "Modify clients in one"
+                                        + " application."),
+                        @AuthorizationScope(
+                                scope = Scope.CLIENT_ADMIN,
+                                description = "Modify clients in all"
+                                        + " applications.")
+                })
+        })
 public final class ClientService extends AbstractService {
 
     /**
@@ -83,16 +100,15 @@ public final class ClientService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Search clients")
     @SuppressWarnings({"CPD-START"})
     public Response search(
-            @DefaultValue("0") @QueryParam("offset")
-            final Integer offset,
-            @DefaultValue("10") @QueryParam("limit")
-            final Integer limit,
-            @DefaultValue("") @QueryParam("q")
-            final String queryString,
-            @Optional @QueryParam("owner")
-            final BigInteger ownerId,
+            @DefaultValue("0") @QueryParam("offset") final Integer offset,
+            @DefaultValue("10") @QueryParam("limit") final Integer limit,
+            @DefaultValue("") @QueryParam("q") final String queryString,
+            @io.swagger.annotations.ApiParam(type = "string")
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("application")
             final BigInteger applicationId) {
 
@@ -154,6 +170,7 @@ public final class ClientService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse clients")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
@@ -163,7 +180,9 @@ public final class ClientService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("application") final BigInteger applicationId,
             @Optional @QueryParam("type") final ClientType clientType) {
 
@@ -226,7 +245,10 @@ public final class ClientService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read client")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Client client = getSession().get(Client.class, id);
         assertCanAccess(client, getAdminScope());
         return Response.ok(client).build();
@@ -240,6 +262,7 @@ public final class ClientService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create client")
     public Response createResource(final Client client) {
 
         // Input value checks.
@@ -287,8 +310,11 @@ public final class ClientService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final Client client) {
+    @ApiOperation(value = "Update client")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final Client client) {
         Session s = getSession();
 
         // Load the old instance.
@@ -332,7 +358,10 @@ public final class ClientService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
-    public Response deleteResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Delete client")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         Client client = s.get(Client.class, id);
 
@@ -361,6 +390,7 @@ public final class ClientService extends AbstractService {
      */
     @Path("/{clientId: [a-f0-9]{32}}/redirect")
     public Class<ClientRedirectService> getRedirectService(
+            @io.swagger.annotations.ApiParam(type = "string")
             @PathParam("clientId") final BigInteger clientId) {
         return ClientRedirectService.class;
     }
@@ -375,6 +405,7 @@ public final class ClientService extends AbstractService {
      */
     @Path("/{clientId: [a-f0-9]{32}}/referrer")
     public Class<ClientReferrerService> getReferrerService(
+            @io.swagger.annotations.ApiParam(type = "string")
             @PathParam("clientId") final BigInteger clientId) {
         return ClientReferrerService.class;
     }

@@ -76,7 +76,7 @@ public class TimedTasksLifecycleListenerTest {
 
         listener.onStartup(container);
         Mockito.verifyNoMoreInteractions(container);
-        Thread.sleep(201);
+        Thread.sleep(250);
         listener.onShutdown(container);
         Mockito.verifyNoMoreInteractions(container);
 

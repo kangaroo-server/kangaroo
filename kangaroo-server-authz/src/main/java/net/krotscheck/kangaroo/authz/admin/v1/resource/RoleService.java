@@ -18,6 +18,10 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -65,6 +69,19 @@ import java.net.URI;
 @Path("/role")
 @ScopesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
 @Transactional
+@Api(tags = "Role",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.TOKEN,
+                                description = "Modify roles in one"
+                                        + " application."),
+                        @AuthorizationScope(
+                                scope = Scope.TOKEN_ADMIN,
+                                description = "Modify roles in all"
+                                        + " applications.")
+                })
+        })
 public final class RoleService extends AbstractService {
 
     /**
@@ -80,16 +97,15 @@ public final class RoleService extends AbstractService {
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Search roles")
     @SuppressWarnings({"CPD-START"})
     public Response search(
-            @DefaultValue("0") @QueryParam("offset")
-            final Integer offset,
-            @DefaultValue("10") @QueryParam("limit")
-            final Integer limit,
-            @DefaultValue("") @QueryParam("q")
-            final String queryString,
-            @Optional @QueryParam("owner")
-            final BigInteger ownerId,
+            @DefaultValue("0") @QueryParam("offset") final Integer offset,
+            @DefaultValue("10") @QueryParam("limit") final Integer limit,
+            @DefaultValue("") @QueryParam("q") final String queryString,
+            @io.swagger.annotations.ApiParam(type = "string")
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("application")
             final BigInteger applicationId) {
 
@@ -150,21 +166,19 @@ public final class RoleService extends AbstractService {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Browse roles")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
-            @DefaultValue(ApiParam.OFFSET_DEFAULT)
-            final int offset,
+            @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
             @QueryParam(ApiParam.LIMIT_QUERY)
-            @DefaultValue(ApiParam.LIMIT_DEFAULT)
-            final int limit,
+            @DefaultValue(ApiParam.LIMIT_DEFAULT) final int limit,
             @QueryParam(ApiParam.SORT_QUERY)
-            @DefaultValue(ApiParam.SORT_DEFAULT)
-            final String sort,
+            @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
-            @DefaultValue(ApiParam.ORDER_DEFAULT)
-            final SortOrder order,
-            @Optional @QueryParam("owner")
-            final BigInteger ownerId,
+            @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @io.swagger.annotations.ApiParam(type = "string")
+            @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("application")
             final BigInteger applicationId) {
 
@@ -221,7 +235,10 @@ public final class RoleService extends AbstractService {
     @GET
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read role")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Role role = getSession().get(Role.class, id);
         assertCanAccess(role, getAdminScope());
         return Response.ok(role).build();
@@ -235,6 +252,7 @@ public final class RoleService extends AbstractService {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create role")
     public Response createResource(final Role role) {
 
         // Input value checks.
@@ -282,8 +300,11 @@ public final class RoleService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final Role role) {
+    @ApiOperation(value = "Update role")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final Role role) {
         Session s = getSession();
 
         // Load the old instance.
@@ -322,7 +343,10 @@ public final class RoleService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
-    public Response deleteResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Delete role")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         Role role = s.get(Role.class, id);
 
@@ -354,6 +378,7 @@ public final class RoleService extends AbstractService {
      */
     @Path("/{id: [a-f0-9]{32}}/scope/")
     public RoleScopeService getScopeService(
+            @io.swagger.annotations.ApiParam(type = "string")
             @PathParam("id") final BigInteger roleId) {
 
         // Build a new role scope service.

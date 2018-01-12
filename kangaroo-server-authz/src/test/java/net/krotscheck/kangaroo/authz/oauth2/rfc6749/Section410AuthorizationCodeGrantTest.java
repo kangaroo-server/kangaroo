@@ -18,13 +18,13 @@
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.util.HttpUtil;
@@ -44,7 +44,6 @@ import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
 import java.net.URI;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -56,6 +55,43 @@ import static org.junit.Assert.assertTrue;
 public final class Section410AuthorizationCodeGrantTest
         extends AbstractRFC6749Test {
 
+    /**
+     * The test context for a regular application.
+     */
+    private static ApplicationContext context;
+    /**
+     * The test context for a bare application.
+     */
+    private static ApplicationContext bareContext;
+    /**
+     * The test context for an application with a user that has no roles.
+     */
+    private static ApplicationContext noUserRoleContext;
+    /**
+     * A scope with a role, but not scope assigned.
+     */
+    private static ApplicationContext noScopeRoleContext;
+    /**
+     * The test context for an authenticated application.
+     */
+    private static ApplicationContext authContext;
+    /**
+     * The test context for an application with no authenticator.
+     */
+    private static ApplicationContext noauthContext;
+    /**
+     * The test context for an application with an authenticator that has no
+     * implementation.
+     */
+    private static ApplicationContext misconfiguredAuthContext;
+    /**
+     * An invalid client context.
+     */
+    private static ApplicationContext invalidClientContext;
+    /**
+     * The auth header string for each test.
+     */
+    private static String authHeader;
     /**
      * Test data loading for this test.
      */
@@ -142,52 +178,6 @@ public final class Section410AuthorizationCodeGrantTest
             };
 
     /**
-     * The test context for a regular application.
-     */
-    private static ApplicationContext context;
-
-    /**
-     * The test context for a bare application.
-     */
-    private static ApplicationContext bareContext;
-
-    /**
-     * The test context for an application with a user that has no roles.
-     */
-    private static ApplicationContext noUserRoleContext;
-
-    /**
-     * A scope with a role, but not scope assigned.
-     */
-    private static ApplicationContext noScopeRoleContext;
-
-    /**
-     * The test context for an authenticated application.
-     */
-    private static ApplicationContext authContext;
-
-    /**
-     * The test context for an application with no authenticator.
-     */
-    private static ApplicationContext noauthContext;
-
-    /**
-     * The test context for an application with an authenticator that has no
-     * implementation.
-     */
-    private static ApplicationContext misconfiguredAuthContext;
-
-    /**
-     * An invalid client context.
-     */
-    private static ApplicationContext invalidClientContext;
-
-    /**
-     * The auth header string for each test.
-     */
-    private static String authHeader;
-
-    /**
      * Assert that a simple request works. This request requires the setup of a
      * default authenticator, a single redirect_uri, and a default scope.
      * <p>
@@ -229,8 +219,6 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeAuthHeaderValid() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id",
-                        IdUtil.toString(authContext.getClient().getId()))
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
                 .header("Authorization", authHeader)
@@ -267,38 +255,32 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", error.getError());
+        Assert.assertEquals("access_denied", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
     }
 
     /**
-     * Test that a user may not identify themselves solely via the
-     * Authorization
-     * header.
+     * Test that a user may identify themselves solely via the
+     * Authorization header.
      */
     @Test
     public void testAuthorizeAuthHeaderValidNoExplicitClientId() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
+                .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
                 .header("Authorization", authHeader)
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
-
-        // Validate the response parameters received.
-        ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        Assert.assertNotNull(r.getLocation());
     }
 
     /**
@@ -315,13 +297,13 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         Assert.assertNull(r.getLocation());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", error.getError());
+        Assert.assertEquals("access_denied", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
     }
 
@@ -346,7 +328,7 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", error.getError());
+        Assert.assertEquals("bad_request", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
     }
 
@@ -382,13 +364,13 @@ public final class Section410AuthorizationCodeGrantTest
     }
 
     /**
-     * Assert that a request with an invalid client id errors.
+     * Assert that a request with an malformed client id errors.
      */
     @Test
-    public void testAuthorizeClientIdInvalid() {
+    public void testAuthorizeClientIdMalformed() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id", "invalid_client_id")
+                .queryParam("client_id", "malformed_client_id")
                 .request()
                 .get();
 
@@ -399,7 +381,30 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", error.getError());
+        Assert.assertEquals("bad_request", error.getError());
+        Assert.assertNotNull(error.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request with an invalid client id errors.
+     */
+    @Test
+    public void testAuthorizeClientIdInvalid() {
+        Response r = target("/authorize")
+                .queryParam("response_type", "code")
+                .queryParam("client_id",
+                        IdUtil.toString(IdUtil.next()))
+                .request()
+                .get();
+
+        // Assert various response-specific parameters.
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        Assert.assertNull(r.getLocation());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the response parameters received.
+        ErrorResponse error = r.readEntity(ErrorResponse.class);
+        Assert.assertEquals("access_denied", error.getError());
         Assert.assertNotNull(error.getErrorDescription());
     }
 
@@ -632,8 +637,6 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeRedirectMulti() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id",
-                        IdUtil.toString(authContext.getClient().getId()))
                 .queryParam("redirect_uri",
                         "http://redirect.example.com/redirect")
                 .request()
@@ -716,8 +719,6 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeRedirectMultiNoneProvided() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id",
-                        IdUtil.toString(authContext.getClient().getId()))
                 .request()
                 .header("Authorization", authHeader)
                 .get();
@@ -972,12 +973,12 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", entity.getError());
+        Assert.assertEquals("access_denied", entity.getError());
         Assert.assertNotNull(entity.getErrorDescription());
     }
 
@@ -989,41 +990,6 @@ public final class Section410AuthorizationCodeGrantTest
         // Build the entity.
         Form f = new Form();
         f.param("client_id", IdUtil.toString(context.getClient().getId()));
-        f.param("grant_type", "authorization_code");
-        f.param("redirect_uri", "http://valid.example.com/redirect");
-        Entity postEntity = Entity.entity(f,
-                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
-
-        // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
-
-        // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
-    }
-
-    /**
-     * Assert that trying to send more than one code errors.
-     */
-    @Test
-    public void testTokenMultiCode() {
-        OAuthToken one = context.getBuilder()
-                .authToken()
-                .build()
-                .getToken();
-        OAuthToken two = context.getBuilder()
-                .authToken()
-                .build()
-                .getToken();
-
-        // Build the entity.
-        Form f = new Form();
-        f.param("client_id", IdUtil.toString(context.getClient().getId()));
-        f.param("code", IdUtil.toString(one.getId()));
-        f.param("code", IdUtil.toString(two.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
@@ -1111,7 +1077,6 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
         f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://redirect.example.com/redirect");
@@ -1162,20 +1127,26 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", entity.getError());
+        Assert.assertEquals("bad_request", entity.getError());
         Assert.assertNotNull(entity.getErrorDescription());
     }
 
     /**
-     * Test that a user may not identify themselves solely via the
-     * Authorization header.
+     * Test that a request may identify themselves solely via the
+     * authorization header.
      */
     @Test
     public void testTokenAuthHeaderValidNoExplicitClientId() {
+        OAuthToken token = authContext.getBuilder()
+                .authToken()
+                .build()
+                .getToken();
+
         // Build the entity.
         Form f = new Form();
         f.param("grant_type", "authorization_code");
-        f.param("redirect_uri", "http://valid.example.com/redirect");
+        f.param("redirect_uri", "http://redirect.example.com/redirect");
+        f.param("code", IdUtil.toString(token.getId()));
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
         Response r = target("/token")
@@ -1184,13 +1155,12 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, true);
     }
 
     /**
@@ -1262,7 +1232,8 @@ public final class Section410AuthorizationCodeGrantTest
     }
 
     /**
-     * Assert that only one authentication method may be used.
+     * Assert that two identification methods may be used, IFF they're for
+     * the same client.
      */
     @Test
     public void testTokenAuthBothMethods() {
@@ -1277,7 +1248,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("client_secret", authContext.getClient().getClientSecret());
         f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
-        f.param("redirect_uri", "http://valid.example.com/redirect");
+        f.param("redirect_uri", "http://redirect.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
         Response r = target("/token")
@@ -1286,13 +1257,12 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
         Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_client", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, true);
     }
 
     /**
@@ -1491,7 +1461,7 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
+        Assert.assertEquals("bad_request", entity.getError());
         Assert.assertNotNull(entity.getErrorDescription());
     }
 
@@ -1664,7 +1634,6 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
         f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         f.param("redirect_uri", "http://other.example.com/redirect");
@@ -1699,7 +1668,6 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", IdUtil.toString(authContext.getClient().getId()));
         f.param("code", IdUtil.toString(token.getId()));
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,

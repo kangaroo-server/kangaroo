@@ -136,10 +136,20 @@ public final class BigIntegerTypeTest {
     public void nullSafeSet() throws Exception {
         BigIntegerType type = new BigIntegerType();
         PreparedStatement st = Mockito.mock(PreparedStatement.class);
-        BigInteger one = IdUtil.next();
+        BigInteger one = BigInteger.ONE;
         type.nullSafeSet(st, one, 0, null);
+
+        // Expected value is a left-padded byte array.
+        byte[] zerofill = new byte[16];
+        byte[] expected = one.toByteArray();
+        // Prefix zeros if necessary...
+        System.arraycopy(expected, 0, zerofill,
+                zerofill.length - expected.length,
+                expected.length);
+        expected = zerofill;
+
         Mockito.verify(st, times(1))
-                .setBytes(0, one.toByteArray());
+                .setBytes(0, expected);
     }
 
     /**

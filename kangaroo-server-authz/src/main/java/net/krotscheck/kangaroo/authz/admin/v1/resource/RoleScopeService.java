@@ -18,13 +18,16 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
-
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScope;
 import org.hibernate.Session;
@@ -50,6 +53,19 @@ import java.math.BigInteger;
  */
 @ScopesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
 @Transactional
+@Api(tags = "Role",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.ROLE,
+                                description = "Modify scopes in one"
+                                        + " application."),
+                        @AuthorizationScope(
+                                scope = Scope.ROLE_ADMIN,
+                                description = "Modify scopes in all"
+                                        + " applications.")
+                })
+        })
 public final class RoleScopeService extends AbstractService {
 
     /**
@@ -74,7 +90,10 @@ public final class RoleScopeService extends AbstractService {
      */
     @POST
     @Path("/{id: [a-f0-9]{32}}")
-    public Response createResource(@PathParam("id") final BigInteger scopeId) {
+    @ApiOperation(value = "Link a scope to a role")
+    public Response createResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger scopeId) {
         Session s = getSession();
         SecurityContext security = getSecurityContext();
 
@@ -123,7 +142,10 @@ public final class RoleScopeService extends AbstractService {
      */
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
-    public Response deleteResource(@PathParam("id") final BigInteger scopeId) {
+    @ApiOperation(value = "Unlink a scope from a role")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger scopeId) {
         Session s = getSession();
         SecurityContext security = getSecurityContext();
 

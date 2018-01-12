@@ -18,9 +18,12 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.annotations.ApiModelProperty;
 import net.krotscheck.kangaroo.common.hibernate.id.AbstractEntityReferenceDeserializer;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -56,8 +59,16 @@ public final class User extends AbstractAuthzEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application", nullable = false, updatable = false)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = Application.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id", "owner.id"})
+    @ApiModelProperty(
+            required = true,
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private Application application;
 
     /**
@@ -78,8 +89,16 @@ public final class User extends AbstractAuthzEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role", nullable = true, updatable = true)
     @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
     @JsonDeserialize(using = Role.Deserializer.class)
     @IndexedEmbedded(includePaths = {"id"})
+    @ApiModelProperty(
+            required = true,
+            dataType = "string",
+            example = "3f631a2d6a04f5cc55f9e192f45649b7"
+    )
     private Role role;
 
     /**

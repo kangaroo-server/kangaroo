@@ -18,8 +18,6 @@
 
 package net.krotscheck.kangaroo.common.security;
 
-import org.glassfish.jersey.server.filter.CsrfProtectionFilter;
-
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 

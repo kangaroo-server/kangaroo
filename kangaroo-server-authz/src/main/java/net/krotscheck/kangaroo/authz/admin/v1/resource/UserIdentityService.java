@@ -19,6 +19,10 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
@@ -68,6 +72,19 @@ import java.net.URI;
 @Path("/identity")
 @ScopesAllowed({Scope.IDENTITY, Scope.IDENTITY_ADMIN})
 @Transactional
+@Api(tags = "User Identity",
+        authorizations = {
+                @Authorization(value = "Kangaroo", scopes = {
+                        @AuthorizationScope(
+                                scope = Scope.IDENTITY,
+                                description = "Modify identities in one"
+                                        + " application."),
+                        @AuthorizationScope(
+                                scope = Scope.IDENTITY_ADMIN,
+                                description = "Modify identities in all"
+                                        + " applications.")
+                })
+        })
 public final class UserIdentityService extends AbstractService {
 
     /**
@@ -85,12 +102,15 @@ public final class UserIdentityService extends AbstractService {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
+    @ApiOperation(value = "Search user identities")
     @SuppressWarnings({"CPD-START"})
     public Response search(
             @DefaultValue("0") @QueryParam("offset") final Integer offset,
             @DefaultValue("10") @QueryParam("limit") final Integer limit,
             @DefaultValue("") @QueryParam("q") final String queryString,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("user") final BigInteger userId,
             @Optional @QueryParam("type") final AuthenticatorType type) {
 
@@ -161,6 +181,7 @@ public final class UserIdentityService extends AbstractService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
+    @ApiOperation(value = "Browse user identities")
     public Response browse(
             @QueryParam(ApiParam.OFFSET_QUERY)
             @DefaultValue(ApiParam.OFFSET_DEFAULT) final int offset,
@@ -170,7 +191,9 @@ public final class UserIdentityService extends AbstractService {
             @DefaultValue(ApiParam.SORT_DEFAULT) final String sort,
             @QueryParam(ApiParam.ORDER_QUERY)
             @DefaultValue(ApiParam.ORDER_DEFAULT) final SortOrder order,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("owner") final BigInteger ownerId,
+            @io.swagger.annotations.ApiParam(type = "string")
             @Optional @QueryParam("user") final BigInteger userId,
             @Optional @QueryParam("type") final AuthenticatorType type) {
 
@@ -237,7 +260,10 @@ public final class UserIdentityService extends AbstractService {
     @Path("/{id: [a-f0-9]{32}}")
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
-    public Response getResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Read user identity")
+    public Response getResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         UserIdentity identity = getSession().get(UserIdentity.class, id);
         assertCanAccess(identity, getAdminScope());
         return Response.ok(identity).build();
@@ -253,6 +279,7 @@ public final class UserIdentityService extends AbstractService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
+    @ApiOperation(value = "Create user identity")
     public Response createResource(final UserIdentity identity) {
 
         // Input value checks.
@@ -326,8 +353,11 @@ public final class UserIdentityService extends AbstractService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @JsonView(Views.Public.class)
-    public Response updateResource(@PathParam("id") final BigInteger id,
-                                   final UserIdentity identity) {
+    @ApiOperation(value = "Update user identity")
+    public Response updateResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id,
+            final UserIdentity identity) {
         Session s = getSession();
 
         // Load the old instance.
@@ -372,7 +402,10 @@ public final class UserIdentityService extends AbstractService {
     @DELETE
     @Path("/{id: [a-f0-9]{32}}")
     @JsonView(Views.Public.class)
-    public Response deleteResource(@PathParam("id") final BigInteger id) {
+    @ApiOperation(value = "Delete user identity")
+    public Response deleteResource(
+            @io.swagger.annotations.ApiParam(type = "string")
+            @PathParam("id") final BigInteger id) {
         Session s = getSession();
         UserIdentity identity = s.get(UserIdentity.class, id);
 
