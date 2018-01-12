@@ -21,19 +21,19 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
-import net.krotscheck.kangaroo.authz.oauth2.authn.annotation.OAuthFilterChain;
-import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2Client;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2Principal;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidGrantException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.AuthorizationCodeGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.ClientCredentialsGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.OwnerCredentialsGrantHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.token.RefreshTokenGrantHandler;
 import net.krotscheck.kangaroo.common.hibernate.transaction.Transactional;
+import net.krotscheck.kangaroo.util.ObjectUtil;
 import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.hibernate.Session;
 import org.jvnet.hk2.annotations.Optional;
 
-import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -43,6 +43,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigInteger;
 import java.net.URI;
@@ -54,41 +55,31 @@ import java.net.URI;
  * @author Michael Krotscheck
  */
 @Path("/token")
-@PermitAll
-@OAuthFilterChain
 @Transactional
 @Api(tags = "OAuth2")
 public final class TokenService {
 
     /**
-     * Hibernate session to use.
+     * The request security context..
      */
-    private final Session session;
+    private final SecurityContext securityContext;
 
     /**
-     * Client credentials.
-     */
-    private final Credentials credentials;
-
-    /**
-     * injection manager.
+     * Injection manager.
      */
     private final InjectionManager injector;
 
     /**
      * Create a new token service.
      *
-     * @param session     Injected hibernate session.
-     * @param credentials Injected, resolved client credentials.
-     * @param injector    injection manager, to find the appropriate request
-     *                    handler.
+     * @param securityContext Injected, resolved security context.
+     * @param injector        injection manager, to find the appropriate request
+     *                        handler.
      */
     @Inject
-    public TokenService(final Session session,
-                        final Credentials credentials,
+    public TokenService(final SecurityContext securityContext,
                         final InjectionManager injector) {
-        this.session = session;
-        this.credentials = credentials;
+        this.securityContext = securityContext;
         this.injector = injector;
     }
 
@@ -111,6 +102,7 @@ public final class TokenService {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "OAuth2 Token endpoint.")
     @ApiParam(name = "token")
+    @O2Client
     public Response tokenRequest(
             @Context final UriInfo uriInfo,
             @ApiParam(type = "string")
@@ -126,8 +118,12 @@ public final class TokenService {
                     + "client_credentials,password,refresh_token")
             @FormParam("grant_type") final GrantType grantType) {
 
+        O2Principal principal = ObjectUtil
+                .safeCast(securityContext.getUserPrincipal(), O2Principal.class)
+                .orElseThrow(AccessDeniedException::new);
+
         // Resolve the client - validation is handled by the filters.
-        Client client = session.get(Client.class, credentials.getLogin());
+        Client client = principal.getContext();
         TokenResponseEntity tokenResponse = null;
 
         // Using if clauses here for proper coverage.

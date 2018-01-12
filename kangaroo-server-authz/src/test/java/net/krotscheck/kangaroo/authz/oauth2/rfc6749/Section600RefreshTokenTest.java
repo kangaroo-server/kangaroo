@@ -213,8 +213,6 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id",
-                IdUtil.toString(testContext.getClient().getId()));
         f.param("refresh_token",
                 IdUtil.toString(testContext.getToken().getId()));
         f.param("grant_type", "refresh_token");
@@ -273,7 +271,7 @@ public final class Section600RefreshTokenTest
     }
 
     /**
-     * Assert that a user may only use one auth method.
+     * Assert that a user may use matching auth methods if the clients match.
      */
     @Test
     public void testOnlyOneAuthMethod() {
@@ -299,13 +297,13 @@ public final class Section600RefreshTokenTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
-        assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, false);
+        assertNull(entity.getScope());
     }
 
     /**
@@ -334,20 +332,21 @@ public final class Section600RefreshTokenTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
+        assertEquals("access_denied", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 
     /**
-     * Assert that omitting a client id is not permitted.
+     * Assert that omitting a client id works, as long as the client
+     * authorization context works.
      */
     @Test
-    public void testNoClient() {
+    public void testNoClientValidAuthContext() {
         ApplicationContext testContext = context.getBuilder()
                 .bearerToken()
                 .refreshToken()
@@ -366,12 +365,43 @@ public final class Section600RefreshTokenTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+
+        // Validate the query parameters received.
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, false);
+    }
+
+    /**
+     * Assert that omitting a client id doesn't work if no client context is
+     * provided.
+     */
+    @Test
+    public void testNoClientMismatchAuthContext() {
+        ApplicationContext testContext = context.getBuilder()
+                .bearerToken()
+                .refreshToken()
+                .build();
+
+        // Build the entity.
+        Form f = new Form();
+        f.param("refresh_token",
+                IdUtil.toString(testContext.getToken().getId()));
+        f.param("grant_type", "refresh_token");
+
+        Entity postEntity = Entity.entity(f,
+                MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+        Response r = target("/token").request()
+                .post(postEntity);
+
+        // Assert various response-specific parameters.
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
+        assertEquals("access_denied", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 
@@ -384,8 +414,7 @@ public final class Section600RefreshTokenTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id",
-                IdUtil.toString(c.getId()));
+        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("refresh_token", "invalid_token");
         f.param("grant_type", "refresh_token");
 
