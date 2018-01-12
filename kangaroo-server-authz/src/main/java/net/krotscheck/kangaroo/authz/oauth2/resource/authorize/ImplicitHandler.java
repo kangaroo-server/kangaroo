@@ -29,8 +29,10 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.common.util.ValidationUtil;
-import net.krotscheck.kangaroo.authz.oauth2.authn.factory.CredentialsFactory.Credentials;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2Principal;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.util.ObjectUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -43,6 +45,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigInteger;
@@ -70,9 +73,9 @@ public final class ImplicitHandler implements IAuthorizeHandler {
     private final Session session;
 
     /**
-     * Request credentials.
+     * The request's security context..
      */
-    private final Credentials credentials;
+    private final SecurityContext securityContext;
 
     /**
      * Current request URI.
@@ -82,20 +85,20 @@ public final class ImplicitHandler implements IAuthorizeHandler {
     /**
      * Create a new handler.
      *
-     * @param injector    The system injection manager.
-     * @param session     The hibernate session.
-     * @param credentials The request credentials.
-     * @param uriInfo     The URI info for the current request.
+     * @param injector        The system injection manager.
+     * @param session         The hibernate session.
+     * @param securityContext The request's security context.
+     * @param uriInfo         The URI info for the current request.
      */
     @Inject
     @SuppressWarnings({"CPD-START"})
     public ImplicitHandler(final InjectionManager injector,
                            final Session session,
-                           final Credentials credentials,
+                           final SecurityContext securityContext,
                            @Context final UriInfo uriInfo) {
         this.injector = injector;
         this.session = session;
-        this.credentials = credentials;
+        this.securityContext = securityContext;
         this.uriInfo = uriInfo;
     }
 
@@ -410,9 +413,11 @@ public final class ImplicitHandler implements IAuthorizeHandler {
         // Get the DB session entity.
         HttpSession httpSession = getDbSession(browserSession);
 
-        // Get the client ID.
-        BigInteger clientId = credentials.getLogin();
-        Client c = session.get(Client.class, clientId);
+        O2Principal principal = ObjectUtil
+                .safeCast(securityContext.getUserPrincipal(), O2Principal.class)
+                .orElseThrow(AccessDeniedException::new);
+
+        Client c = principal.getContext();
 
         // We have a session and we have a client...
         return httpSession.getRefreshTokens().stream()

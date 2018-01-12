@@ -86,7 +86,7 @@ public final class ClientCredentialsGrantHandler {
         }
 
         // Ensure that the client is authorized. This is actually handled in
-        // the ClientAuthorizationFilter; here we check the edge case of a
+        // the O2AuthorizationFilter; here we check the edge case of a
         // ClientCredentials type with no set client_secret.
         if (StringUtils.isEmpty(client.getClientSecret())) {
             throw new UnauthorizedClientException();

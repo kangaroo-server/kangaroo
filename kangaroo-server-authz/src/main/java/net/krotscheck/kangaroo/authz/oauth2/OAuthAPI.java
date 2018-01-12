@@ -20,7 +20,7 @@ package net.krotscheck.kangaroo.authz.oauth2;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
 import net.krotscheck.kangaroo.authz.common.cors.AuthzCORSFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
-import net.krotscheck.kangaroo.authz.oauth2.authn.OAuthServerAuthnFeature;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2AuthDynamicFeature;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingExceptionMapper;
 import net.krotscheck.kangaroo.authz.oauth2.resource.AuthorizationService;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenService;
@@ -76,7 +76,7 @@ public class OAuthAPI extends ResourceConfig {
         register(new SwaggerFeature("net.krotscheck.kangaroo.authz.oauth2"));
 
         // Authorization context
-        register(OAuthServerAuthnFeature.class);
+        register(O2AuthDynamicFeature.class);
         register(SessionFeature.class);
 
         // Authorization handlers

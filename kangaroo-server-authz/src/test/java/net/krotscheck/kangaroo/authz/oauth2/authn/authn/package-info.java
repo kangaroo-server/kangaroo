@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2018 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,9 +13,10 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 /**
- * Asset factories for the OAuth2 API.
+ * Tests for our authorization filters.
  */
-package net.krotscheck.kangaroo.authz.oauth2.authn.factory;
+package net.krotscheck.kangaroo.authz.oauth2.authn.authn;

@@ -16,26 +16,23 @@
  *
  */
 
-package net.krotscheck.kangaroo.authz.oauth2.authn.annotation;
+package net.krotscheck.kangaroo.authz.oauth2.authn;
 
+import javax.ws.rs.NameBinding;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import javax.ws.rs.NameBinding;
 
 /**
- * This name binding annotation is used to annotate filters and service
- * methods that make use of a particular filter chain.
- *
- * The OAuth filter chain is intended to include all pre-request filters that
- * validate incoming requests.
+ * This annotation enables authentication via a private client; requiring
+ * a paired client_secret.
  *
  * @author Michael Krotscheck
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.METHOD})
 @Retention(value = RetentionPolicy.RUNTIME)
 @NameBinding
-public @interface OAuthFilterChain {
+public @interface O2Client {
 
 }

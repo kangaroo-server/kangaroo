@@ -172,12 +172,12 @@ public final class Section430OwnerPasswordTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
+        assertEquals("access_denied", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 
@@ -213,7 +213,6 @@ public final class Section430OwnerPasswordTest
     public void testTokenAuthHeaderValid() {
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", IdUtil.toString(authBuilder.getClient().getId()));
         f.param("grant_type", "password");
         f.param("scope", "debug");
         f.param("username", username);
@@ -255,17 +254,17 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
+        assertEquals("access_denied", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 
     /**
-     * Test that a user may not identify themselves solely via the
+     * Test that a user not identify themselves solely via the
      * Authorization header.
      */
     @Test
@@ -283,13 +282,12 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
-        assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, true);
     }
 
     /**
@@ -356,7 +354,8 @@ public final class Section430OwnerPasswordTest
     }
 
     /**
-     * Assert that only one authentication method may be used.
+     * Assert that two authentication methods may be used, as long as they
+     * match.
      */
     @Test
     public void testTokenAuthBothMethods() {
@@ -377,13 +376,12 @@ public final class Section430OwnerPasswordTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
-        assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, true);
     }
 
     /**

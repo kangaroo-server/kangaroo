@@ -312,7 +312,7 @@ public final class Section420ImplicitGrantTest
      * Assert that a request with an invalid client id errors.
      */
     @Test
-    public void testAuthorizeClientIdInvalid() {
+    public void testAuthorizeClientIdMalformed() {
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id", "invalid_client_id")
@@ -327,7 +327,31 @@ public final class Section420ImplicitGrantTest
 
         // Validate the response parameters received.
         ErrorResponse error = first.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", error.getError());
+        assertEquals("bad_request", error.getError());
+        assertNotNull(error.getErrorDescription());
+    }
+
+    /**
+     * Assert that a request with an invalid client id errors.
+     */
+    @Test
+    public void testAuthorizeClientIdInvalid() {
+        Response first = target("/authorize")
+                .queryParam("response_type", "token")
+                .queryParam("client_id",
+                        IdUtil.toString(IdUtil.next()))
+                .request()
+                .get();
+        assertNoNewSession(first);
+
+        // Assert various response-specific parameters.
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), first.getStatus());
+        assertNull(first.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, first.getMediaType());
+
+        // Validate the response parameters received.
+        ErrorResponse error = first.readEntity(ErrorResponse.class);
+        assertEquals("access_denied", error.getError());
         assertNotNull(error.getErrorDescription());
     }
 
@@ -916,7 +940,7 @@ public final class Section420ImplicitGrantTest
      * Assert that a request with an invalid client id errors.
      */
     @Test
-    public void testRefreshClientIdInvalid() {
+    public void testRefreshClientIdMalformed() {
         ApplicationContext refreshContext = context.getBuilder()
                 .user()
                 .identity()
@@ -927,7 +951,7 @@ public final class Section420ImplicitGrantTest
 
         Response first = target("/authorize")
                 .queryParam("response_type", "token")
-                .queryParam("client_id", "invalid_client_id")
+                .queryParam("client_id", "malformed_client_id")
                 .request()
                 .cookie("kangaroo", refreshContext.getHttpSessionId())
                 .get();
@@ -939,7 +963,7 @@ public final class Section420ImplicitGrantTest
 
         // Validate the response parameters received.
         ErrorResponse error = first.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", error.getError());
+        assertEquals("bad_request", error.getError());
         assertNotNull(error.getErrorDescription());
     }
 

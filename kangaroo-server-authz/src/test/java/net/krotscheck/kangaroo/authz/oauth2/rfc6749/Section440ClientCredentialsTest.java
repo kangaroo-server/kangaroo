@@ -156,12 +156,12 @@ public final class Section440ClientCredentialsTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
+        assertEquals("access_denied", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 
@@ -199,7 +199,6 @@ public final class Section440ClientCredentialsTest
 
         // Build the entity.
         Form f = new Form();
-        f.param("client_id", IdUtil.toString(c.getId()));
         f.param("grant_type", "client_credentials");
         f.param("scope", "debug");
         Entity postEntity = Entity.entity(f,
@@ -237,17 +236,17 @@ public final class Section440ClientCredentialsTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
+        assertEquals("access_denied", entity.getError());
         assertNotNull(entity.getErrorDescription());
     }
 
     /**
-     * Test that a user may not identify themselves solely via the
+     * Test that a user may identify themselves solely via the
      * Authorization header.
      */
     @Test
@@ -263,13 +262,12 @@ public final class Section440ClientCredentialsTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
-        assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, false);
     }
 
     /**
@@ -322,13 +320,12 @@ public final class Section440ClientCredentialsTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
         assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
-        ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        assertEquals("invalid_client", entity.getError());
-        assertNotNull(entity.getErrorDescription());
+        TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
+        assertValidBearerToken(entity, false);
     }
 
     /**
