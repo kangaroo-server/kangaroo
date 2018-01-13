@@ -30,13 +30,38 @@ import javax.ws.rs.core.SecurityContext;
 
 /**
  * This filter evaluates the existing security context to see whether the
- * request is permitted.
+ * request is permitted. It accepts two parameters, permitPrivate and
+ * permitPublic, which will govern whether a particular request is allowed to
+ * pass.
  *
  * @author Michael Krotscheck
  */
 @Priority(Priorities.AUTHORIZATION)
 public final class O2AuthorizationFilter
         implements ContainerRequestFilter {
+
+    /**
+     * Whether to permit private clients.
+     */
+    private final boolean permitPrivate;
+
+    /**
+     * Whether to permit public clients.
+     */
+    private final boolean permitPublic;
+
+    /**
+     * Create a new authorization filter, which rejects requests based on the
+     * passed authorization flags.
+     *
+     * @param permitPrivate Whether to permit private clients.
+     * @param permitPublic  Whether to permit public clients.
+     */
+    public O2AuthorizationFilter(final boolean permitPrivate,
+                                 final boolean permitPublic) {
+        this.permitPrivate = permitPrivate;
+        this.permitPublic = permitPublic;
+    }
 
     /**
      * Extract the client ID from the various locations where it can live,
@@ -54,6 +79,18 @@ public final class O2AuthorizationFilter
         }
 
         if (principal.getContext() == null) {
+            throw new AccessDeniedException();
+        }
+
+        boolean isPrivate = principal.getContext().isPrivate();
+
+        // Reject private clients if they're not permitted.
+        if (isPrivate && !permitPrivate) {
+            throw new AccessDeniedException();
+        }
+
+        // Reject public clients if they're not permitted.
+        if (!isPrivate && !permitPublic) {
             throw new AccessDeniedException();
         }
     }
