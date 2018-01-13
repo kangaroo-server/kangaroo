@@ -37,7 +37,7 @@ import java.util.Properties;
 /**
  * Unit tests for the configuration binder.
  */
-public class ConfigurationBinderTest extends KangarooJerseyTest {
+public final class ConfigurationBinderTest extends KangarooJerseyTest {
 
     /**
      * Build the configured application.

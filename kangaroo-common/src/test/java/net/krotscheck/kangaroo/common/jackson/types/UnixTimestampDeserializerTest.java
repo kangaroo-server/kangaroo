@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class UnixTimestampDeserializerTest {
+public final class UnixTimestampDeserializerTest {
 
     /**
      * Assert that we can access this class as its generic type.
@@ -78,7 +78,8 @@ public class UnixTimestampDeserializerTest {
         JsonParser preloadedParser = f.createParser(idBody);
         preloadedParser.nextToken(); // Advance to the first value.
 
-        UnixTimestampDeserializer deserializer = new UnixTimestampDeserializer();
+        UnixTimestampDeserializer deserializer =
+                new UnixTimestampDeserializer();
         Calendar deserialized = (Calendar)
                 deserializer.deserialize(preloadedParser,
                         mock(DeserializationContext.class));

@@ -31,7 +31,7 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2SecurityContextTest extends DatabaseTest {
+public final class OAuth2SecurityContextTest extends DatabaseTest {
 
     /**
      * Preload data into the system.

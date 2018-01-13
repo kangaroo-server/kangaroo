@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Michael Krotscheck
  */
-public class StringUtilTest {
+public final class StringUtilTest {
 
     /**
      * Assert the constructor is private.

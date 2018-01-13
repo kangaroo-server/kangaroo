@@ -57,7 +57,8 @@ public final class ScopeServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<ApplicationScope>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ApplicationScope>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ApplicationScope>>() {
 
             };

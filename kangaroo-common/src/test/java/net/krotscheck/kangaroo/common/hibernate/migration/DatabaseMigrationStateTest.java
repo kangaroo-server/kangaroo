@@ -28,7 +28,7 @@ import org.mockito.Mockito;
  *
  * @author Michael Krotscheck
  */
-public class DatabaseMigrationStateTest {
+public final class DatabaseMigrationStateTest {
 
     /**
      * Test that SchemaChanged returns as expected.

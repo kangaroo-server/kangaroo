@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public class ServerFactoryTest {
+public final class ServerFactoryTest {
 
     /**
      * Ensure that we have a working directory.

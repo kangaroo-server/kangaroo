@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.common.authenticator;
 
-import net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
@@ -43,6 +42,11 @@ import org.junit.runner.RunWith;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType.Facebook;
+import static net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType.Google;
+import static net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator.CLIENT_ID_KEY;
+import static net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator.CLIENT_SECRET_KEY;
 
 /**
  * An abstract testing class that sets up the browser harness and a running
@@ -69,16 +73,6 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
      * The test context for a regular application.
      */
     private static ApplicationContext context;
-
-    /**
-     * Get the application data context under test.
-     *
-     * @return The data snapshot for the current testing application.
-     */
-    public static ApplicationContext getContext() {
-        return context;
-    }
-
     /**
      * Test data loading for this test.
      */
@@ -92,15 +86,15 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
                 protected void loadTestData(final Session session) {
 
                     Map<String, String> googleConfig = new HashMap<>();
-                    googleConfig.put(AbstractOAuth2Authenticator.CLIENT_ID_KEY,
+                    googleConfig.put(CLIENT_ID_KEY,
                             TestConfig.getGoogleAppId());
-                    googleConfig.put(AbstractOAuth2Authenticator.CLIENT_SECRET_KEY,
+                    googleConfig.put(CLIENT_SECRET_KEY,
                             TestConfig.getGoogleAppSecret());
 
                     Map<String, String> fbConfig = new HashMap<>();
-                    fbConfig.put(AbstractOAuth2Authenticator.CLIENT_ID_KEY,
+                    fbConfig.put(CLIENT_ID_KEY,
                             TestConfig.getFacebookAppId());
-                    fbConfig.put(AbstractOAuth2Authenticator.CLIENT_SECRET_KEY,
+                    fbConfig.put(CLIENT_SECRET_KEY,
                             TestConfig.getFacebookAppSecret());
 
                     context = ApplicationBuilder
@@ -109,8 +103,8 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
                             .scope("debug1")
                             .role("test", new String[]{"debug", "debug1"})
                             .client(ClientType.AuthorizationGrant)
-                            .authenticator(AuthenticatorType.Google, googleConfig)
-                            .authenticator(AuthenticatorType.Facebook, fbConfig)
+                            .authenticator(Google, googleConfig)
+                            .authenticator(Facebook, fbConfig)
                             .redirect("https://www.example.com/")
                             .build();
                 }
@@ -126,6 +120,15 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
     private ResourceConfig testApplication;
 
     /**
+     * Get the application data context under test.
+     *
+     * @return The data snapshot for the current testing application.
+     */
+    public static ApplicationContext getContext() {
+        return context;
+    }
+
+    /**
      * This method overrides the underlying default test container provider,
      * with one that provides a singleton instance. This allows us to
      * circumvent the often expensive initialization routines that come from
@@ -136,7 +139,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
      *                                {@link TestContainerFactory} instance
      *                                is not successful.
      */
-    protected TestContainerFactory getTestContainerFactory()
+    protected final TestContainerFactory getTestContainerFactory()
             throws TestContainerException {
         if (this.testContainerFactory == null) {
             this.testContainerFactory =
@@ -153,7 +156,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
      * @return A configured api servlet.
      */
     @Override
-    protected ResourceConfig createApplication() {
+    protected final ResourceConfig createApplication() {
         if (testApplication == null) {
             testApplication = new OAuthAPI();
         }
@@ -166,8 +169,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
      * @return The deployment context.
      */
     @Override
-    protected DeploymentContext configureDeployment() {
-        // This matches the port registered with facebook.
+    protected final DeploymentContext configureDeployment() {
         forceSet(TestProperties.CONTAINER_PORT, TestConfig.getTestingPort());
         forceSet(TestProperties.LOG_TRAFFIC, "true");
         forceSet(TestProperties.DUMP_ENTITY, "true");

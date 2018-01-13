@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class RequestUtilTest {
+public final class RequestUtilTest {
 
     /**
      * Build a test request context, with all necessary bits mocked.

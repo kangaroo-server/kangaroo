@@ -19,15 +19,12 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
-import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.internal.inject.PerThread;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.event.service.spi.EventListenerGroup;
@@ -58,9 +55,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
 
 /**
  * Unit test for our hibernate session factory factory.

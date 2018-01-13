@@ -51,7 +51,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * These tests run through the Implicit Grant Flow.
@@ -152,6 +151,7 @@ public final class Section420ImplicitGrantTest
      * Test helper, asserts that the session is properly set.
      *
      * @param r The response to scan.
+     * @return The new HTTP Session, hydrated from the database.
      */
     private HttpSession assertNewSession(final Response r) {
         Map<String, NewCookie> cookies = r.getCookies();
@@ -216,7 +216,7 @@ public final class Section420ImplicitGrantTest
     /**
      * Assert that a session has not been rotated between two requests.
      *
-     * @param first  First response.
+     * @param first First response.
      */
     private void assertNoNewSession(final Response first) {
         assertNull(first.getCookies().get("kangaroo"));

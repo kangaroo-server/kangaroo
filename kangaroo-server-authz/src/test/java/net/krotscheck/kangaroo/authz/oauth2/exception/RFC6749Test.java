@@ -40,7 +40,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Michael Krotscheck
  */
-public class RFC6749Test {
+public final class RFC6749Test {
 
     /**
      * Assert that the constructor is private.

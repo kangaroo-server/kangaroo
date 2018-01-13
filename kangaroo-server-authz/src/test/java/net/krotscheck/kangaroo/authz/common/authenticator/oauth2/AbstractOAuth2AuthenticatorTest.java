@@ -69,7 +69,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class AbstractOAuth2AuthenticatorTest
+public final class AbstractOAuth2AuthenticatorTest
         extends DatabaseTest {
 
     /**

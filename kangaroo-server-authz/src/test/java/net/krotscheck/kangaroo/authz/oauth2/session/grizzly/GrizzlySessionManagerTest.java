@@ -99,8 +99,8 @@ public final class GrizzlySessionManagerTest extends DatabaseTest {
         // Create the session and zero the dates.
         hSession.beginTransaction();
         hSession.save(s);
-        Query q = hSession.createQuery("update HttpSession set " +
-                "createdDate=?, modifiedDate=?");
+        Query q = hSession.createQuery("update HttpSession set "
+                + "createdDate=?, modifiedDate=?");
         q.setParameter(0, zero);
         q.setParameter(1, zero);
         q.executeUpdate();

@@ -46,7 +46,7 @@ public final class KangarooErrorPageGeneratorTest {
     /**
      * Internal test mapper.
      */
-    private final static ObjectMapper MAPPER = new ObjectMapperFactory().get();
+    private static final ObjectMapper MAPPER = new ObjectMapperFactory().get();
 
     /**
      * Assert that a basic error is converted to an ErrorResponse instance.

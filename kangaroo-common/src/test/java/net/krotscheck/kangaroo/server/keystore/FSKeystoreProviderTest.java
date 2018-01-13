@@ -37,7 +37,7 @@ import static org.mockito.Mockito.doThrow;
  *
  * @author Michael Krotscheck
  */
-public class FSKeystoreProviderTest {
+public final class FSKeystoreProviderTest {
 
     /**
      * Test keystore.

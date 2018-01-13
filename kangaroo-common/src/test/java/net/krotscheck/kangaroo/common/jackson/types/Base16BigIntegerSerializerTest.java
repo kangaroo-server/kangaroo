@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class Base16BigIntegerSerializerTest {
+public final class Base16BigIntegerSerializerTest {
 
     /**
      * Assert that we can access this class as its generic type.
@@ -63,7 +63,8 @@ public class Base16BigIntegerSerializerTest {
         BigInteger id = IdUtil.next();
         String idString = IdUtil.toString(id);
 
-        Base16BigIntegerSerializer serializer = new Base16BigIntegerSerializer();
+        Base16BigIntegerSerializer serializer =
+                new Base16BigIntegerSerializer();
         JsonGenerator generator = mock(JsonGenerator.class);
 
         serializer.serialize(id, generator, null);

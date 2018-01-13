@@ -34,7 +34,7 @@ import java.util.TimerTask;
  *
  * @author Michael Krotscheck
  */
-public class TimedTasksLifecycleListenerTest {
+public final class TimedTasksLifecycleListenerTest {
 
     /**
      * The injector (This is a mockito mock).

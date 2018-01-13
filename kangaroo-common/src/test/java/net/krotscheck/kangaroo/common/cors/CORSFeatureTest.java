@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class CORSFeatureTest extends ContainerTest {
+public final class CORSFeatureTest extends ContainerTest {
 
     /**
      * Convenience generic type for response decoding.

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2AuthorizationFilterTest {
+public final class OAuth2AuthorizationFilterTest {
 
     /**
      * Request context.

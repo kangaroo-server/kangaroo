@@ -39,7 +39,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 
-
 /**
  * Tests for our authorization filter.
  *
@@ -51,22 +50,25 @@ public final class OAuth2AuthenticationFilterTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
-            new GenericType<ListResponseEntity<AbstractEntity>>() {
+    private static final GenericType<ListResponseEntity<AbstractEntity>>
+            LIST_TYPE = new GenericType<ListResponseEntity<AbstractEntity>>() {
+    };
 
-            };
     /**
      * A valid, non-expired, bearer token.
      */
     private OAuthToken validBearerToken;
+
     /**
      * A valid, non-expired, bearer token with no appropriate scope.
      */
     private OAuthToken noScopeBearerToken;
+
     /**
      * An expired bearer token.
      */
     private OAuthToken expiredBearerToken;
+
     /**
      * A non-bearer token.
      */

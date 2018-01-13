@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class TokenCleanupTaskTest extends DatabaseTest {
+public final class TokenCleanupTaskTest extends DatabaseTest {
 
     /**
      * Preload data into the system.

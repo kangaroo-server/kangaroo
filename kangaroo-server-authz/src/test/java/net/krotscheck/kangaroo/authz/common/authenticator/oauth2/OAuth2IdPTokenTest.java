@@ -29,7 +29,7 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2IdPTokenTest {
+public final class OAuth2IdPTokenTest {
 
     /**
      * Test get/set of the access token.

@@ -35,7 +35,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class SecurityFeatureTest extends KangarooJerseyTest {
+public final class SecurityFeatureTest extends KangarooJerseyTest {
 
     /**
      * Build an application.

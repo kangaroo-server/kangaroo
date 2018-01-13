@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
@@ -49,7 +48,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
@@ -65,7 +63,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -74,8 +71,8 @@ import static org.junit.Assert.assertEquals;
  * Abstract test harness for the administration API. Handles all of our data
  * bootstrapping.
  *
- * @author Michael Krotscheck
  * @param <T> The raw type.
+ * @author Michael Krotscheck
  */
 public abstract class AbstractResourceTest<T extends AbstractEntity>
         extends ContainerTest {

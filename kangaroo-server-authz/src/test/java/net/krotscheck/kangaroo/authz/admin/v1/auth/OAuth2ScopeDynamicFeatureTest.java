@@ -48,7 +48,7 @@ import javax.ws.rs.core.Response.Status;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
+public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
 
     /**
      * Preload data into the system.

@@ -29,7 +29,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Michael Krotscheck
  */
-public class AuthzServerConfigTest {
+public final class AuthzServerConfigTest {
 
     /**
      * Assert that the header is private.

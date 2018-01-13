@@ -36,7 +36,8 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class SingletonTestContainerFactory implements TestContainerFactory {
+public final class SingletonTestContainerFactory
+        implements TestContainerFactory {
 
     /**
      * Wrapped factory, used to generate instances if we don't have one yet.

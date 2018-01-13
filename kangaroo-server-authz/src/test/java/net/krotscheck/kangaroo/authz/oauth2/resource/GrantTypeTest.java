@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class GrantTypeTest {
+public final class GrantTypeTest {
 
     /**
      * Assert that these enum types serialize into expected values.

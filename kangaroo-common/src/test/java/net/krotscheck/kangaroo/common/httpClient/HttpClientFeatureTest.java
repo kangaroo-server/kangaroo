@@ -37,7 +37,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Michael Krotscheck
  */
-public class HttpClientFeatureTest extends ContainerTest {
+public final class HttpClientFeatureTest extends ContainerTest {
 
     /**
      * Create an application.
