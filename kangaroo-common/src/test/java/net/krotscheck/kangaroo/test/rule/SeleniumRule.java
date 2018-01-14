@@ -99,4 +99,12 @@ public final class SeleniumRule implements TestRule {
             }
         };
     }
+
+    /**
+     * A debugging tool, which dumps the current DOM tree to the console.
+     */
+    public void dumpHTML() {
+        String pageSource = driver.getPageSource();
+        System.out.print(pageSource);
+    }
 }

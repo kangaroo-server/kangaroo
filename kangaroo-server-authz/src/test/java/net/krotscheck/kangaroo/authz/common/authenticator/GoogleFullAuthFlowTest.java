@@ -54,22 +54,15 @@ public final class GoogleFullAuthFlowTest
         extends AbstractBrowserLoginTest {
 
     /**
-     * Reset the facebook account before every test.
+     * Login page V1 flow.
      */
-    @Before
-    public void googleLogin() {
+    private void googleLoginV1() {
         WebDriver d = SELENIUM.getDriver();
 
         By emailInput = By.id("identifierId");
         By nextButton = By.id("identifierNext");
         By passInput = By.cssSelector("div#password input[type='password']");
         By passNext = By.id("passwordNext");
-
-        // Login to google.
-        d.get("https://accounts.google.com/ServiceLogin");
-        SELENIUM.screenshot();
-        new WebDriverWait(d, 10)
-                .until(elementToBeClickable(emailInput));
 
         // Enter the login
         d.findElement(emailInput).clear();
@@ -83,6 +76,40 @@ public final class GoogleFullAuthFlowTest
         d.findElement(passInput).clear();
         d.findElement(passInput).sendKeys(TestConfig.getGoogleAccountSecret());
         d.findElement(passNext).click();
+
+        postLoginChecks();
+    }
+
+    /**
+     * Login Page V2 flow.
+     */
+    private void googleLoginV2() {
+        WebDriver d = SELENIUM.getDriver();
+        SELENIUM.screenshot();
+
+        By emailInput = By.id("Email");
+        By nextButton = By.id("next");
+        By passInput = By.id("Passwd");
+        By signinButton = By.id("signIn");
+
+        d.findElement(emailInput).clear();
+        d.findElement(emailInput).sendKeys(TestConfig.getGoogleAccountId());
+        d.findElement(nextButton).click();
+
+        new WebDriverWait(d, TIMEOUT)
+                .until(elementToBeClickable(passInput));
+        d.findElement(passInput).clear();
+        d.findElement(passInput).sendKeys(TestConfig.getGoogleAccountSecret());
+        d.findElement(signinButton).click();
+
+        postLoginChecks();
+    }
+
+    /**
+     * Post-login checks for potential identity checks.
+     */
+    private void postLoginChecks() {
+        WebDriver d = SELENIUM.getDriver();
 
         // Test for different conditions here.
         SELENIUM.screenshot();
@@ -113,6 +140,29 @@ public final class GoogleFullAuthFlowTest
                     .until(or(
                             urlContains("https://myaccount.google.com")
                     ));
+        }
+    }
+
+    /**
+     * Reset the facebook account before every test.
+     */
+    @Before
+    public void googleLogin() {
+        WebDriver d = SELENIUM.getDriver();
+
+        // Hit the login page, then wait to see which page we've been given.
+        d.get("https://accounts.google.com/ServiceLogin");
+        SELENIUM.screenshot();
+        new WebDriverWait(d, 10)
+                .until(or(
+                        elementToBeClickable(By.id("identifierId")),
+                        elementToBeClickable(By.id("Email"))
+                ));
+
+        if (d.findElements(By.id("Email")).size() > 0) {
+            googleLoginV2();
+        } else {
+            googleLoginV1();
         }
     }
 
