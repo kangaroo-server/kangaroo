@@ -85,6 +85,7 @@ public final class O2AuthDynamicFeature implements DynamicFeature {
         Boolean client = am.isAnnotationPresent(O2Client.class);
 
         if (client) {
+
             configuration.register(new O2ClientQueryParameterFilter(
                     requestProvider, sessionProvider));
             configuration.register(new O2ClientBasicAuthFilter(
@@ -92,8 +93,12 @@ public final class O2AuthDynamicFeature implements DynamicFeature {
             configuration.register(new O2ClientBodyFilter(
                     requestProvider, sessionProvider));
         }
+
         if (client) {
-            configuration.register(new O2AuthorizationFilter());
+            O2Client annotation = am.getAnnotation(O2Client.class);
+            configuration.register(new O2AuthorizationFilter(
+                    annotation.permitPrivate(),
+                    annotation.permitPublic()));
         }
     }
 }

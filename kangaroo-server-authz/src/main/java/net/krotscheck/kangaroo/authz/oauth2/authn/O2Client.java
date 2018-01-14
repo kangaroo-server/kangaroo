@@ -35,4 +35,17 @@ import java.lang.annotation.Target;
 @NameBinding
 public @interface O2Client {
 
+    /**
+     * Whether to permit private clients.
+     *
+     * @return True if private clients are permitted, otherwise false.
+     */
+    boolean permitPrivate() default true;
+
+    /**
+     * Whether to permit public clients.
+     *
+     * @return True if public clients are permitted, otherwise false.
+     */
+    boolean permitPublic() default true;
 }
