@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.authn;
 
+import net.krotscheck.kangaroo.authz.oauth2.authn.authn.O2BearerTokenFilter;
 import net.krotscheck.kangaroo.authz.oauth2.authn.authn.O2ClientBasicAuthFilter;
 import net.krotscheck.kangaroo.authz.oauth2.authn.authn.O2ClientBodyFilter;
 import net.krotscheck.kangaroo.authz.oauth2.authn.authn.O2ClientQueryParameterFilter;
@@ -83,12 +84,13 @@ public final class O2AuthDynamicFeature implements DynamicFeature {
                 new AnnotatedMethod(resourceInfo.getResourceMethod());
 
         Boolean client = am.isAnnotationPresent(O2Client.class);
+        Boolean token = am.isAnnotationPresent(O2BearerToken.class);
 
         if (client) {
-            O2Client annotation = am.getAnnotation(O2Client.class);
+            O2Client clientAT = am.getAnnotation(O2Client.class);
 
-            Boolean permitPrivate = annotation.permitPrivate();
-            Boolean permitPublic = annotation.permitPublic();
+            Boolean permitPrivate = clientAT.permitPrivate();
+            Boolean permitPublic = clientAT.permitPublic();
 
             if (permitPublic) {
                 configuration.register(new O2ClientQueryParameterFilter(
@@ -104,7 +106,17 @@ public final class O2AuthDynamicFeature implements DynamicFeature {
                     permitPrivate, permitPublic));
         }
 
-        if (client) {
+        if (token) {
+            O2BearerToken tokenAT = am.getAnnotation(O2BearerToken.class);
+            configuration.register(new O2BearerTokenFilter(
+                    requestProvider,
+                    sessionProvider,
+                    tokenAT.permitPrivate(),
+                    tokenAT.permitPublic()
+            ));
+        }
+
+        if (client || token) {
             configuration.register(new O2AuthorizationFilter());
         }
     }

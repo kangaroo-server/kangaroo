@@ -39,6 +39,11 @@ public enum O2AuthScheme {
     ClientPrivate(true),
 
     /**
+     * This request was authorized via a bearer token.
+     */
+    BearerToken(true),
+
+    /**
      * No authentication was included.
      */
     None(false);

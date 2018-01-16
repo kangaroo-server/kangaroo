@@ -150,13 +150,9 @@ public final class O2ClientBodyFilter
                         creds.getValue()))
                 .orElseThrow(AccessDeniedException::new);
 
-        // Only permit public if flagged.
-        if (!permitPublic && client.isPublic()) {
-            throw new AccessDeniedException();
-        }
 
-        // Only permit private if flagged.
-        if (!permitPrivate && client.isPrivate()) {
+        if (!client.isPublic().equals(permitPublic)
+                && !client.isPrivate().equals(permitPrivate)) {
             throw new AccessDeniedException();
         }
 
