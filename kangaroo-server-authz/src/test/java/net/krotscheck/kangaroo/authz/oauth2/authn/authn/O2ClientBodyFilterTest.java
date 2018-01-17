@@ -277,6 +277,30 @@ public class O2ClientBodyFilterTest extends ContainerTest {
     }
 
     /**
+     * Assert that a request with a valid ID of a public client, on a
+     * resource that does not permit public clients, is not permitted.
+     */
+    @Test
+    public void testPublicClientNotPermitted() {
+        Client c = TEST_DATA_RESOURCE.getAdminApplication()
+                .getBuilder()
+                .client(ClientType.AuthorizationGrant, false)
+                .build()
+                .getClient();
+
+        Form requestData = new Form();
+        requestData.param("client_id", IdUtil.toString(c.getId()));
+        Entity<Form> testEntity = Entity.entity(requestData,
+                APPLICATION_FORM_URLENCODED_TYPE);
+
+        Response r = target("/client/private")
+                .request()
+                .post(testEntity);
+
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+    }
+
+    /**
      * Assert that a request with a valid ID and secret pass.
      */
     @Test
@@ -298,6 +322,31 @@ public class O2ClientBodyFilterTest extends ContainerTest {
                 .post(testEntity);
 
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
+    }
+
+    /**
+     * Assert that a request with a valid ID of a private client, on a
+     * resource that does not permit private clients, is not permitted.
+     */
+    @Test
+    public void testPrivateClientNotPermitted() {
+        Client c = TEST_DATA_RESOURCE.getAdminApplication()
+                .getBuilder()
+                .client(ClientType.AuthorizationGrant, true)
+                .build()
+                .getClient();
+
+        Form requestData = new Form();
+        requestData.param("client_id", IdUtil.toString(c.getId()));
+        requestData.param("client_secret", c.getClientSecret());
+        Entity<Form> testEntity = Entity.entity(requestData,
+                APPLICATION_FORM_URLENCODED_TYPE);
+
+        Response r = target("/client/public")
+                .request()
+                .post(testEntity);
+
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**

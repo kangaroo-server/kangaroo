@@ -41,26 +41,10 @@ public final class O2AuthorizationFilter
         implements ContainerRequestFilter {
 
     /**
-     * Whether to permit private clients.
-     */
-    private final boolean permitPrivate;
-
-    /**
-     * Whether to permit public clients.
-     */
-    private final boolean permitPublic;
-
-    /**
      * Create a new authorization filter, which rejects requests based on the
      * passed authorization flags.
-     *
-     * @param permitPrivate Whether to permit private clients.
-     * @param permitPublic  Whether to permit public clients.
      */
-    public O2AuthorizationFilter(final boolean permitPrivate,
-                                 final boolean permitPublic) {
-        this.permitPrivate = permitPrivate;
-        this.permitPublic = permitPublic;
+    public O2AuthorizationFilter() {
     }
 
     /**
@@ -79,18 +63,6 @@ public final class O2AuthorizationFilter
         }
 
         if (principal.getContext() == null) {
-            throw new AccessDeniedException();
-        }
-
-        boolean isPrivate = principal.getContext().isPrivate();
-
-        // Reject private clients if they're not permitted.
-        if (isPrivate && !permitPrivate) {
-            throw new AccessDeniedException();
-        }
-
-        // Reject public clients if they're not permitted.
-        if (!isPrivate && !permitPublic) {
             throw new AccessDeniedException();
         }
     }

@@ -71,4 +71,30 @@ public final class O2TestResource {
     public Response authorizedPUT(@Context final SecurityContext c) {
         return Response.ok().build();
     }
+
+    /**
+     * A POST method that is private-only authorized.
+     *
+     * @param c The injected security context.
+     * @return The response.
+     */
+    @O2Client(permitPublic = false)
+    @POST
+    @Path("/client/private")
+    public Response authorizedPrivatePOST(@Context final SecurityContext c) {
+        return Response.ok().build();
+    }
+
+    /**
+     * A POST method that is private-only authorized.
+     *
+     * @param c The injected security context.
+     * @return The response.
+     */
+    @O2Client(permitPrivate = false)
+    @POST
+    @Path("/client/public")
+    public Response authorizedPublicPOST(@Context final SecurityContext c) {
+        return Response.ok().build();
+    }
 }
