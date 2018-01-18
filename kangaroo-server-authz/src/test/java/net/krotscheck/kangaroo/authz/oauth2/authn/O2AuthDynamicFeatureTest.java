@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
+import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.oauth2.authn.authn.O2TestResource;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
@@ -38,6 +39,7 @@ import javax.ws.rs.core.Response.Status;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static net.krotscheck.kangaroo.util.HttpUtil.authHeaderBasic;
+import static net.krotscheck.kangaroo.util.HttpUtil.authHeaderBearer;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -85,7 +87,7 @@ public final class O2AuthDynamicFeatureTest extends ContainerTest {
      */
     @Test
     public void testFailedAuth() {
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .get();
 
@@ -96,7 +98,7 @@ public final class O2AuthDynamicFeatureTest extends ContainerTest {
      * Assert that a request with a valid ID and secret pass.
      */
     @Test
-    public void testValidAuth() {
+    public void testValidClientAuth() {
         ApplicationContext context =
                 TEST_DATA_RESOURCE.getSecondaryApplication().getBuilder()
                         .client(ClientType.AuthorizationGrant, true)
@@ -105,7 +107,29 @@ public final class O2AuthDynamicFeatureTest extends ContainerTest {
 
         String header = authHeaderBasic(c.getId(), c.getClientSecret());
 
-        Response r = target("/")
+        Response r = target("/client")
+                .request()
+                .header(AUTHORIZATION, header)
+                .get();
+
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+    }
+
+    /**
+     * Assert that a request with a valid bearer token passes.
+     */
+    @Test
+    public void testValidTokenAuth() {
+        ApplicationContext context =
+                TEST_DATA_RESOURCE.getSecondaryApplication().getBuilder()
+                        .client(ClientType.AuthorizationGrant, true)
+                        .bearerToken()
+                        .build();
+        OAuthToken t = context.getToken();
+
+        String header = authHeaderBearer(t.getId());
+
+        Response r = target("/token")
                 .request()
                 .header(AUTHORIZATION, header)
                 .get();

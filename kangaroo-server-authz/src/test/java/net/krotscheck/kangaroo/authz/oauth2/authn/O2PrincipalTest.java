@@ -19,6 +19,8 @@
 package net.krotscheck.kangaroo.authz.oauth2.authn;
 
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
+import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import org.junit.Test;
@@ -56,6 +58,7 @@ public final class O2PrincipalTest {
         assertNull(p.getName());
         assertFalse(p.implies(mock(Subject.class)));
         assertNull(p.getContext());
+        assertNull(p.getOAuthToken());
     }
 
     /**
@@ -73,6 +76,7 @@ public final class O2PrincipalTest {
         assertEquals(testClient.getName(), p.getName());
         assertFalse(p.implies(mock(Subject.class)));
         assertEquals(testClient, p.getContext());
+        assertNull(p.getOAuthToken());
     }
 
     /**
@@ -90,6 +94,7 @@ public final class O2PrincipalTest {
         assertEquals(testClient.getName(), p.getName());
         assertFalse(p.implies(mock(Subject.class)));
         assertEquals(testClient, p.getContext());
+        assertNull(p.getOAuthToken());
     }
 
     /**
@@ -97,12 +102,13 @@ public final class O2PrincipalTest {
      */
     @Test
     public void testConstructorNullClient() {
-        O2Principal p = new O2Principal(null);
+        O2Principal p = new O2Principal((Client) null);
 
         assertEquals(O2AuthScheme.None.toString(), p.getScheme());
         assertNull(p.getName());
         assertFalse(p.implies(mock(Subject.class)));
         assertNull(p.getContext());
+        assertNull(p.getOAuthToken());
     }
 
     /**
@@ -118,6 +124,46 @@ public final class O2PrincipalTest {
         assertNull(p.getName());
         assertFalse(p.implies(mock(Subject.class)));
         assertNull(p.getContext());
+        assertNull(p.getOAuthToken());
+    }
+
+    /**
+     * Assert that we can create a principal with a bearer token
+     */
+    @Test
+    public void testConstructorToken() {
+        Client c = new Client();
+        c.setId(IdUtil.next());
+
+        OAuthToken t = new OAuthToken();
+        t.setTokenType(OAuthTokenType.Bearer);
+        t.setId(IdUtil.next());
+        t.setClient(c);
+
+        O2Principal p = new O2Principal(t);
+
+        assertEquals(O2AuthScheme.BearerToken.toString(), p.getScheme());
+        assertNull(p.getName());
+        assertFalse(p.implies(mock(Subject.class)));
+        assertEquals(c, p.getContext());
+        assertEquals(t, p.getOAuthToken());
+    }
+
+    /**
+     * Assert that we can create a principal with a bearer token
+     */
+    @Test
+    public void testConstructorInvalidToken() {
+        OAuthToken t = new OAuthToken();
+        t.setTokenType(OAuthTokenType.Bearer);
+
+        O2Principal p = new O2Principal(t);
+
+        assertEquals(O2AuthScheme.None.toString(), p.getScheme());
+        assertNull(p.getName());
+        assertFalse(p.implies(mock(Subject.class)));
+        assertNull(p.getContext());
+        assertNull(p.getOAuthToken());
     }
 
     /**
@@ -276,6 +322,105 @@ public final class O2PrincipalTest {
     }
 
     /**
+     * Try to merge tokens and clients.
+     */
+    @Test(expected = AccessDeniedException.class)
+    public void testMergeTokenAndClient() {
+        Client c = new Client();
+        c.setId(IdUtil.next());
+        c.setClientSecret("secret");
+        O2Principal p1 = new O2Principal(c);
+
+        OAuthToken t = new OAuthToken();
+        t.setId(IdUtil.next());
+        t.setClient(c);
+        O2Principal p2 = new O2Principal(t);
+
+        p1.merge(p2);
+    }
+
+    /**
+     * Try to merge two different token clients..
+     */
+    @Test(expected = AccessDeniedException.class)
+    public void testMergeTwoDifferentTokens() {
+        Client c1 = new Client();
+        c1.setId(IdUtil.next());
+        c1.setClientSecret("secret");
+        OAuthToken t1 = new OAuthToken();
+        t1.setId(IdUtil.next());
+        t1.setClient(c1);
+        O2Principal p1 = new O2Principal(t1);
+
+        Client c2 = new Client();
+        c2.setId(IdUtil.next());
+        c2.setClientSecret("secret");
+        OAuthToken t2 = new OAuthToken();
+        t2.setId(IdUtil.next());
+        t2.setClient(c2);
+        O2Principal p2 = new O2Principal(t2);
+
+        p1.merge(p2);
+    }
+
+    /**
+     * Try to merge two identical token clients.
+     */
+    @Test
+    public void testMergeTwoTokens() {
+        Client c1 = new Client();
+        c1.setId(IdUtil.next());
+        c1.setClientSecret("secret");
+        OAuthToken t = new OAuthToken();
+        t.setId(IdUtil.next());
+        t.setClient(c1);
+        O2Principal p1 = new O2Principal(t);
+        O2Principal p2 = new O2Principal(t);
+
+        O2Principal p = p1.merge(p2);
+        assertEquals(p, p1);
+        assertEquals(p, p2);
+    }
+
+    /**
+     * Try to merge token and null.
+     */
+    @Test
+    public void testMergeTokenAndNull() {
+        Client c1 = new Client();
+        c1.setId(IdUtil.next());
+        c1.setClientSecret("secret");
+        OAuthToken t = new OAuthToken();
+        t.setId(IdUtil.next());
+        t.setClient(c1);
+        O2Principal p1 = new O2Principal(t);
+
+        O2Principal merged = p1.merge(null);
+        assertEquals(p1, merged);
+        assertNotSame(p1, merged);
+    }
+
+    /**
+     * Try to merge token and empty.
+     */
+    @Test
+    public void testMergeTokenAndEmpty() {
+        Client c1 = new Client();
+        c1.setId(IdUtil.next());
+        c1.setClientSecret("secret");
+        OAuthToken t = new OAuthToken();
+        t.setId(IdUtil.next());
+        t.setClient(c1);
+        O2Principal p1 = new O2Principal(t);
+        O2Principal p2 = new O2Principal();
+
+        O2Principal merged = p1.merge(p2);
+        assertEquals(p1, merged);
+        assertNotEquals(p2, merged);
+        assertNotSame(p1, merged);
+    }
+
+    /**
      * Test the equality operator.
      */
     @Test
@@ -283,12 +428,22 @@ public final class O2PrincipalTest {
         Client c1 = new Client();
         c1.setId(IdUtil.next());
         c1.setClientSecret("secret");
+        OAuthToken t1 = new OAuthToken();
+        t1.setId(IdUtil.next());
+        t1.setClient(c1);
+
         O2Principal p1 = new O2Principal(c1);
         O2Principal pSame = new O2Principal(c1);
+        O2Principal p1Token = new O2Principal(t1);
 
         Client c2 = new Client();
         c2.setId(IdUtil.next());
+        OAuthToken t2 = new OAuthToken();
+        t2.setId(IdUtil.next());
+        t2.setClient(c2);
+
         O2Principal p2 = new O2Principal(c2);
+        O2Principal p2Token = new O2Principal(t2);
 
         Client c3 = new Client();
         c3.setId(IdUtil.next());
@@ -300,6 +455,10 @@ public final class O2PrincipalTest {
         assertFalse(p1.equals(p2));
         assertFalse(p1.equals(p3));
         assertFalse(p2.equals(p3));
+
+        assertFalse(p1.equals(p1Token));
+        assertFalse(p2.equals(p2Token));
+        assertFalse(p1Token.equals(p2Token));
 
         assertTrue(p1.equals(p1));
         assertTrue(p1.equals(pSame));

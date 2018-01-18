@@ -50,6 +50,9 @@ public class O2AuthSchemeTest {
         String implicit = m.writeValueAsString(O2AuthScheme.ClientPublic);
         assertEquals("\"ClientPublic\"", implicit);
 
+        String bearerToken = m.writeValueAsString(O2AuthScheme.BearerToken);
+        assertEquals("\"BearerToken\"", bearerToken);
+
         String owner = m.writeValueAsString(O2AuthScheme.None);
         assertEquals("\"None\"", owner);
     }
@@ -71,6 +74,10 @@ public class O2AuthSchemeTest {
                 m.readValue("\"ClientPublic\"", O2AuthScheme.class);
         assertSame(implicit, O2AuthScheme.ClientPublic);
 
+        O2AuthScheme bearerToken =
+                m.readValue("\"BearerToken\"", O2AuthScheme.class);
+        assertSame(bearerToken, O2AuthScheme.BearerToken);
+
         O2AuthScheme owner =
                 m.readValue("\"None\"", O2AuthScheme.class);
         assertSame(owner, O2AuthScheme.None);
@@ -90,6 +97,10 @@ public class O2AuthSchemeTest {
                 O2AuthScheme.valueOf("ClientPublic")
         );
         assertEquals(
+                O2AuthScheme.BearerToken,
+                O2AuthScheme.valueOf("BearerToken")
+        );
+        assertEquals(
                 O2AuthScheme.None,
                 O2AuthScheme.valueOf("None")
         );
@@ -101,6 +112,7 @@ public class O2AuthSchemeTest {
     @Test
     public void testType() {
         assertTrue(O2AuthScheme.ClientPrivate.isAuth());
+        assertTrue(O2AuthScheme.BearerToken.isAuth());
         assertFalse(O2AuthScheme.ClientPublic.isAuth());
         assertFalse(O2AuthScheme.None.isAuth());
     }

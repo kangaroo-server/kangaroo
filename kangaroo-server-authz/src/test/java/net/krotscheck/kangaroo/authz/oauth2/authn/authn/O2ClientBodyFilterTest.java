@@ -51,7 +51,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public class O2ClientBodyFilterTest extends ContainerTest {
+public final class O2ClientBodyFilterTest extends ContainerTest {
 
     /**
      * Preload data into the system.
@@ -95,7 +95,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -113,7 +113,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -134,7 +134,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Map<String, String>> testEntity =
                 Entity.entity(requestData, APPLICATION_JSON_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -151,7 +151,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -169,7 +169,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -194,7 +194,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -220,7 +220,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -245,7 +245,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -269,7 +269,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -317,7 +317,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .post(testEntity);
 
@@ -366,7 +366,7 @@ public class O2ClientBodyFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .put(testEntity);
 

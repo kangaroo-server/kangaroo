@@ -47,7 +47,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Michael Krotscheck
  */
-public class O2ClientBasicAuthFilterTest extends ContainerTest {
+public final class O2ClientBasicAuthFilterTest extends ContainerTest {
 
     /**
      * Preload data into the system.
@@ -87,7 +87,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
      */
     @Test
     public void testNoAuthorization() {
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .get();
 
@@ -99,7 +99,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
      */
     @Test
     public void testInvalidAuthorizationHeader() {
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, "Not A Valid header")
                 .get();
@@ -112,7 +112,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
      */
     @Test
     public void testInvalidBasicHeader() {
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, "Basic some_secluded_rendezvous")
                 .get();
@@ -128,7 +128,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
         String header =
                 authHeaderBasic("malformed_id", "malformed_pass");
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, header)
                 .get();
@@ -146,7 +146,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
 
         String header = authHeaderBasic(id, IdUtil.toString(pass));
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, header)
                 .get();
@@ -168,7 +168,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
 
         String header = authHeaderBasic(c.getId(), "invalid_pass");
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, header)
                 .get();
@@ -190,7 +190,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
 
         String header = authHeaderBasic(c.getId(), "");
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, header)
                 .get();
@@ -211,7 +211,7 @@ public class O2ClientBasicAuthFilterTest extends ContainerTest {
 
         String header = authHeaderBasic(c.getId(), c.getClientSecret());
 
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .header(AUTHORIZATION, header)
                 .get();
