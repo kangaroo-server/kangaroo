@@ -52,7 +52,8 @@ public final class ClientRedirectServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<ClientRedirect>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ClientRedirect>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ClientRedirect>>() {
 
             };
@@ -162,10 +163,12 @@ public final class ClientRedirectServiceCRUDTest
         Session s = getSession();
         s.getTransaction().begin();
         try {
-            ClientRedirect r = s.get(ClientRedirect.class, IdUtil.fromString(id));
+            ClientRedirect r = s.get(ClientRedirect.class,
+                    IdUtil.fromString(id));
             parentId = IdUtil.toString(r.getClient().getId());
         } catch (Exception e) {
-            parentId = IdUtil.toString(getParentEntity(getAdminContext()).getId());
+            parentId = IdUtil.toString(getParentEntity(getAdminContext())
+                    .getId());
         } finally {
             s.getTransaction().commit();
         }

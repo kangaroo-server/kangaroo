@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class UnixTimestampSerializerTest {
+public final class UnixTimestampSerializerTest {
 
     /**
      * Assert that we can access this class as its generic type.

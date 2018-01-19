@@ -33,7 +33,7 @@ import static org.junit.Assert.assertSame;
  *
  * @author Michael Krotscheck
  */
-public class ObjectUtilTest {
+public final class ObjectUtilTest {
 
     /**
      * Assert that the constructor is private.

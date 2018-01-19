@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.authz.admin.v1.resource;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
-import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
@@ -59,14 +58,6 @@ public final class RoleServiceBrowseTest
      */
     private static final GenericType<ListResponseEntity<Role>> LIST_TYPE =
             new GenericType<ListResponseEntity<Role>>() {
-
-            };
-
-    /**
-     * Generic type declaration for list decoding.
-     */
-    private static final GenericType<ListResponseEntity<ApplicationScope>> SCOPE_LIST_TYPE =
-            new GenericType<ListResponseEntity<ApplicationScope>>() {
 
             };
 

@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2AuthFeatureTest {
+public final class OAuth2AuthFeatureTest {
 
     /**
      * Assert that we are injecting expected features.

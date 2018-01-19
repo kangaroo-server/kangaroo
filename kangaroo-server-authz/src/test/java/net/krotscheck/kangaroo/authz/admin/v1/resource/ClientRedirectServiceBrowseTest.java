@@ -55,7 +55,8 @@ public final class ClientRedirectServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<ListResponseEntity<ClientRedirect>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ClientRedirect>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ClientRedirect>>() {
 
             };

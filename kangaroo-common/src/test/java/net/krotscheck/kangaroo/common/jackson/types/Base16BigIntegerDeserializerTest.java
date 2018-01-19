@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class Base16BigIntegerDeserializerTest {
+public final class Base16BigIntegerDeserializerTest {
 
     /**
      * Assert that we can access this class as its generic type.
@@ -71,7 +71,8 @@ public class Base16BigIntegerDeserializerTest {
         JsonParser preloadedParser = f.createParser(idBody);
         preloadedParser.nextToken(); // Advance to the first value.
 
-        Base16BigIntegerDeserializer deserializer = new Base16BigIntegerDeserializer();
+        Base16BigIntegerDeserializer deserializer =
+                new Base16BigIntegerDeserializer();
         BigInteger deserializedId = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 

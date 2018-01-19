@@ -63,7 +63,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      * @param params          URL Parameters.
      * @param requireIdentity Whether a User Identity is required.
      */
-    protected void assertValidBearerToken(
+    protected final void assertValidBearerToken(
             final MultivaluedMap<String, String> params,
             final boolean requireIdentity) {
         Session s = getSession();
@@ -91,7 +91,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      * @param token           The token.
      * @param requireIdentity Whether a User Identity is required.
      */
-    protected void assertValidBearerToken(final TokenResponseEntity token,
+    protected final void assertValidBearerToken(final TokenResponseEntity token,
                                           final boolean requireIdentity) {
         Session s = getSession();
 
@@ -140,7 +140,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      *                                {@link TestContainerFactory} instance
      *                                is not successful.
      */
-    protected TestContainerFactory getTestContainerFactory()
+    protected final TestContainerFactory getTestContainerFactory()
             throws TestContainerException {
         if (this.testContainerFactory == null) {
             this.testContainerFactory =

@@ -30,7 +30,7 @@ import static org.junit.Assert.assertSame;
  *
  * @author Michael Krotscheck
  */
-public class JerseyClientBuilderFactoryTest {
+public final class JerseyClientBuilderFactoryTest {
 
     /**
      * Assert that the client builder can be created.

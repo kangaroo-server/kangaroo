@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public class O2AuthSchemeTest {
+public final class O2AuthSchemeTest {
 
     /**
      * Assert that these enum types serialize into expected values.

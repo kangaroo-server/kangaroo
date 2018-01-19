@@ -47,7 +47,7 @@ import static org.mockito.Mockito.doThrow;
  *
  * @author Michael Krotscheck
  */
-public class GeneratedKeystoreProviderTest {
+public final class GeneratedKeystoreProviderTest {
 
     /**
      * Ensure that we have a working directory.

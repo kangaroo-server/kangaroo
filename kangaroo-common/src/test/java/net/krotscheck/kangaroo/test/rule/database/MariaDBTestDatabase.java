@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.test.rule.database;
 
 import net.krotscheck.kangaroo.test.TestConfig;
-import org.apache.lucene.util.TestUtil;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;

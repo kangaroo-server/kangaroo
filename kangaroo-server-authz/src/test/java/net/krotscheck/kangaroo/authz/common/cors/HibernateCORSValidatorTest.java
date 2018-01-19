@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Michael Krotscheck
  */
-public class HibernateCORSValidatorTest {
+public final class HibernateCORSValidatorTest {
 
     /**
      * Assert that we can load valid domains.

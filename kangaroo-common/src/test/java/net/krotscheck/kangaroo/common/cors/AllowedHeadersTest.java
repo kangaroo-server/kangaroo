@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class AllowedHeadersTest {
+public final class AllowedHeadersTest {
 
     /**
      * Assert that we can inject values using this binder.

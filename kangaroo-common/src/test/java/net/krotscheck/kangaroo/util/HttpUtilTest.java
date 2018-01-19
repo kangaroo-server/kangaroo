@@ -76,7 +76,8 @@ public final class HttpUtilTest {
                 HttpUtil.authHeaderBasic("login", "password"));
         assertEquals("", HttpUtil.authHeaderBasic((String) null, "password"));
         assertEquals("", HttpUtil.authHeaderBasic("login", null));
-        assertEquals("Basic MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGE6cGFzc3dvcmQ=",
+        assertEquals("Basic MDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+                        + "MDAwMDAwMDAwMGE6cGFzc3dvcmQ=",
                 HttpUtil.authHeaderBasic(BigInteger.TEN, "password"));
     }
 

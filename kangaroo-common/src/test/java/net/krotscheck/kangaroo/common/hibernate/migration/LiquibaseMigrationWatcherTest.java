@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class LiquibaseMigrationWatcherTest {
+public final class LiquibaseMigrationWatcherTest {
 
     /**
      * Test that the constructor works with no changesets.

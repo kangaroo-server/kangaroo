@@ -36,7 +36,7 @@ import org.junit.runners.model.Statement;
  *
  * @author Michael Krotscheck
  */
-public class HibernateTestResource implements TestRule {
+public final class HibernateTestResource implements TestRule {
 
     /**
      * The source of our hibernate session factory.
@@ -59,6 +59,15 @@ public class HibernateTestResource implements TestRule {
     private FullTextSession fullTextSession;
 
     /**
+     * Create a new instance of the hibernate session rule.
+     *
+     * @param factoryProvider The source of the session factory.
+     */
+    public HibernateTestResource(final HibernateResource factoryProvider) {
+        this.factoryProvider = factoryProvider;
+    }
+
+    /**
      * Create and return a hibernate session for the test database.
      *
      * @return The constructed session.
@@ -72,7 +81,7 @@ public class HibernateTestResource implements TestRule {
      *
      * @return The session factory
      */
-    public final SearchFactory getSearchFactory() {
+    public SearchFactory getSearchFactory() {
         return searchFactory;
     }
 
@@ -81,17 +90,8 @@ public class HibernateTestResource implements TestRule {
      *
      * @return The session factory
      */
-    public final FullTextSession getFullTextSession() {
+    public FullTextSession getFullTextSession() {
         return fullTextSession;
-    }
-
-    /**
-     * Create a new instance of the hibernate session rule.
-     *
-     * @param factoryProvider The source of the session factory.
-     */
-    public HibernateTestResource(final HibernateResource factoryProvider) {
-        this.factoryProvider = factoryProvider;
     }
 
     /**

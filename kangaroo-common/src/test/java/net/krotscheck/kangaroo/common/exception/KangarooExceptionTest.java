@@ -29,7 +29,7 @@ import javax.ws.rs.core.Response.Status;
  *
  * @author Michael Krotscheck
  */
-public class KangarooExceptionTest {
+public final class KangarooExceptionTest {
 
     /**
      * Test the error code class.

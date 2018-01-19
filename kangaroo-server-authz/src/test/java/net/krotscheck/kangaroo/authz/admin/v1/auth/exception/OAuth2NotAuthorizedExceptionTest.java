@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2NotAuthorizedExceptionTest {
+public final class OAuth2NotAuthorizedExceptionTest {
 
     /**
      * Assert that we can create an exception, and that the response values

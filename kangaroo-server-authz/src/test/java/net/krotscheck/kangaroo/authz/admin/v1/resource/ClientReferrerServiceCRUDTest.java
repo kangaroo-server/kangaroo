@@ -51,7 +51,8 @@ public final class ClientReferrerServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<ClientReferrer>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ClientReferrer>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ClientReferrer>>() {
 
             };

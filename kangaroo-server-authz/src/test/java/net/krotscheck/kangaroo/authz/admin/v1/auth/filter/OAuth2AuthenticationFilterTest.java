@@ -53,7 +53,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -64,7 +63,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2AuthenticationFilterTest extends DatabaseTest {
+public final class OAuth2AuthenticationFilterTest extends DatabaseTest {
 
     /**
      * The application context from which we'll build our test scenarios.
@@ -89,6 +88,7 @@ public class OAuth2AuthenticationFilterTest extends DatabaseTest {
                             .build();
                 }
             };
+
     /**
      * Session provider, used in tests.
      */

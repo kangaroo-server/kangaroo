@@ -140,7 +140,8 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params,
+                null);
         Assert.assertEquals("login", i.getRemoteId());
     }
 
@@ -179,7 +180,8 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "wrongIdentity");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params,
+                null);
         Assert.assertNull(i);
     }
 
@@ -194,7 +196,8 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "wrongpassword");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params,
+                null);
         Assert.assertNull(i);
     }
 }

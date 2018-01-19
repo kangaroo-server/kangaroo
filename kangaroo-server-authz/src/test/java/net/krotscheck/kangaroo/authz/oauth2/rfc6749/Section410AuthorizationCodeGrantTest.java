@@ -190,7 +190,8 @@ public final class Section410AuthorizationCodeGrantTest
     public void testAuthorizeSimpleRequest() {
         Response r = target("/authorize")
                 .queryParam("response_type", "code")
-                .queryParam("client_id", IdUtil.toString(context.getClient().getId()))
+                .queryParam("client_id",
+                        IdUtil.toString(context.getClient().getId()))
                 .request()
                 .get();
 

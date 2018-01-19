@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNull;
  *
  * @author Michael Krotscheck
  */
-public class IdUtilTest {
+public final class IdUtilTest {
 
     /**
      * Assert that the constructor is private.

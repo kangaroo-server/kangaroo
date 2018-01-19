@@ -25,10 +25,6 @@ import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
-import org.glassfish.jersey.servlet.ServletContainer;
-import org.glassfish.jersey.test.DeploymentContext;
-import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.glassfish.jersey.test.TestProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,12 +89,15 @@ public final class GoogleFullAuthFlowTest
         new WebDriverWait(d, TIMEOUT)
                 .until(or(
                         urlContains("https://myaccount.google.com"),
-                        urlContains("https://accounts.google.com/signin/oauth/oauthchooseaccount"),
-                        urlContains("https://accounts.google.com/signin/v2/challenge/selection")
+                        urlContains("https://accounts.google.com/"
+                                + "signin/oauth/oauthchooseaccount"),
+                        urlContains("https://accounts.google.com/"
+                                + "signin/v2/challenge/selection")
                 ));
 
         // Test for the sign-in challenge
-        if (d.getCurrentUrl().contains("https://accounts.google.com/signin/v2/challenge/selection")) {
+        if (d.getCurrentUrl().contains("https://accounts.google.com/"
+                + "signin/v2/challenge/selection")) {
             SELENIUM.screenshot();
             d.findElement(By.cssSelector("[data-challengetype=16]")).click();
 
@@ -131,23 +130,6 @@ public final class GoogleFullAuthFlowTest
     }
 
     /**
-     * Configure the deployment as a servlet.
-     *
-     * @return The deployment context.
-     */
-    @Override
-    protected DeploymentContext configureDeployment() {
-        // This matches the port registered with facebook.
-        forceSet(TestProperties.CONTAINER_PORT, TestConfig.getTestingPort());
-        forceSet(TestProperties.LOG_TRAFFIC, "true");
-        forceSet(TestProperties.DUMP_ENTITY, "true");
-
-        return ServletDeploymentContext.forServlet(
-                new ServletContainer(createApplication()))
-                .build();
-    }
-
-    /**
      * Someone new to your app logs in with Google.
      */
     @Test
@@ -170,14 +152,15 @@ public final class GoogleFullAuthFlowTest
         SELENIUM.screenshot();
         (new WebDriverWait(d, TIMEOUT))
                 .until(or(
-                        urlContains("https://accounts.google.com/signin/oauth/oauthchooseaccount"),
+                        urlContains("https://accounts.google.com/"
+                                + "signin/oauth/oauthchooseaccount"),
                         elementToBeClickable(By.id("submit_approve_access"))
                 ));
         SELENIUM.screenshot();
 
         // Test for the account chooser.
-        if (d.getCurrentUrl().contains("https://accounts.google" +
-                ".com/signin/oauth/oauthchooseaccount")) {
+        if (d.getCurrentUrl().contains("https://accounts.google"
+                + ".com/signin/oauth/oauthchooseaccount")) {
             d.findElement(By.cssSelector("[data-profileindex=\"0\"]"))
                     .click();
             SELENIUM.screenshot();

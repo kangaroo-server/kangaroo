@@ -45,7 +45,8 @@ public final class ConfigServiceTest extends AbstractResourceTest {
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<AbstractEntity>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<AbstractEntity>>() {
 
             };

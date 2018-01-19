@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class HttpSessionCleanupTaskTest extends DatabaseTest {
+public final class HttpSessionCleanupTaskTest extends DatabaseTest {
 
     /**
      * The application context used for this test suite.

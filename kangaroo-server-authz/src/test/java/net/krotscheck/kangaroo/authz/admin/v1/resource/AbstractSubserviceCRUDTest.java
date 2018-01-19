@@ -113,7 +113,7 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
      * @throws Exception Exception encountered during test.
      */
     @Test
-    public void testGetDifferentParent() throws Exception {
+    public final void testGetDifferentParent() throws Exception {
         T originalEntity = getEntity(getAdminContext());
         K testParent = (K) getParentEntity(getSecondaryContext()).clone();
 
@@ -131,7 +131,7 @@ public abstract class AbstractSubserviceCRUDTest<K extends AbstractAuthzEntity,
      * @throws Exception Exception encountered during test.
      */
     @Test
-    public void testGetInvalidParent() throws Exception {
+    public final void testGetInvalidParent() throws Exception {
         T originalEntity = (T) getEntity(getAdminContext()).clone();
         K testParent = createParentEntity(getAdminContext());
         testParent.setId(IdUtil.next());

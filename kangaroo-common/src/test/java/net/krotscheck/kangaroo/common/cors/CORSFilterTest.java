@@ -51,7 +51,7 @@ import static org.junit.Assert.assertSame;
  *
  * @author Michael Krotscheck
  */
-public class CORSFilterTest extends ContainerTest {
+public final class CORSFilterTest extends ContainerTest {
 
     /**
      * Create an application.

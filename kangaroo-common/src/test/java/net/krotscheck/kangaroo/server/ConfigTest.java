@@ -29,7 +29,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Michael Krotscheck
  */
-public class ConfigTest {
+public final class ConfigTest {
 
     /**
      * Assert that the header is private.

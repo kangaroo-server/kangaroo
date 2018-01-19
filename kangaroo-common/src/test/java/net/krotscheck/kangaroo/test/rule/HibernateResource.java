@@ -43,7 +43,7 @@ import java.io.IOException;
  *
  * @author Michael Krotscheck
  */
-public class HibernateResource implements TestRule {
+public final class HibernateResource implements TestRule {
 
     /**
      * Logger instance.
@@ -149,7 +149,7 @@ public class HibernateResource implements TestRule {
      *
      * @throws IOException Thrown if we cannot clean up.
      */
-    private void createHibernateConnection() throws IOException{
+    private void createHibernateConnection() throws IOException {
         // Create the session factory.
         logger.debug("Creating ServiceRegistry");
         registry = new HibernateServiceRegistryFactory(systemConfiguration)

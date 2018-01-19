@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @author Michael Krotscheck
  */
-public class AllowedMethodsTest {
+public final class AllowedMethodsTest {
 
     /**
      * Assert that we can inject values using this binder.

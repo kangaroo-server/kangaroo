@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response.Status;
  *
  * @author Michael Krotscheck
  */
-public class KangarooExceptionMapperTest {
+public final class KangarooExceptionMapperTest {
 
     /**
      * Test converting to a response.

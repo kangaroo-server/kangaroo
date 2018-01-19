@@ -32,7 +32,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-public class RedirectingExceptionTest {
+public final class RedirectingExceptionTest {
 
     /**
      * Test that the constructor is reasonably functional.

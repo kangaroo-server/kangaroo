@@ -30,7 +30,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Michael Krotscheck
  */
-public class SecurityHeadersTest {
+public final class SecurityHeadersTest {
 
     /**
      * Assert that the constructor is private.

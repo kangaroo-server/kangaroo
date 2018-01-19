@@ -21,15 +21,10 @@ package net.krotscheck.kangaroo.authz.common.authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
-import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.rule.FacebookTestUser;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
-import org.glassfish.jersey.servlet.ServletContainer;
-import org.glassfish.jersey.test.DeploymentContext;
-import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.glassfish.jersey.test.TestProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -110,23 +105,6 @@ public final class FacebookFullAuthFlowTest
                 .until(presenceOfElementLocated(
                         By.id("loginbutton")))
                 .click();
-    }
-
-    /**
-     * Configure the deployment as a servlet.
-     *
-     * @return The deployment context.
-     */
-    @Override
-    protected DeploymentContext configureDeployment() {
-        // This matches the port registered with facebook.
-        forceSet(TestProperties.CONTAINER_PORT, TestConfig.getTestingPort());
-        forceSet(TestProperties.LOG_TRAFFIC, "true");
-        forceSet(TestProperties.DUMP_ENTITY, "true");
-
-        return ServletDeploymentContext.forServlet(
-                new ServletContainer(createApplication()))
-                .build();
     }
 
     /**

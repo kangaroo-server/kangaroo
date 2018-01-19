@@ -184,7 +184,8 @@ public final class AuthorizationServiceTest extends ContainerTest {
     public void testCallbackStateWithInvalidClientType() throws Exception {
         Response r = target("/authorize/callback")
                 .queryParam("state",
-                        IdUtil.toString(ownerContext.getAuthenticatorState().getId()))
+                        IdUtil.toString(ownerContext.getAuthenticatorState()
+                                .getId()))
                 .request()
                 .get();
 
