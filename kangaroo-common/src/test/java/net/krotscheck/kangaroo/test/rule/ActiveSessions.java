@@ -30,6 +30,8 @@ import org.junit.runners.model.Statement;
 
 import java.sql.SQLException;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * This JUnit4 rule provides a few handy methods that allow one to mark(),
  * and then verify(), the current number of open connections against the
@@ -87,7 +89,7 @@ public final class ActiveSessions implements TestRule {
             Assert.fail(e.getMessage());
         }
 
-        Assert.assertEquals(String.format("%s Orphaned Connections found",
+        assertEquals(String.format("%s Orphaned Connections found",
                 unclosedOrphaned), 0, unclosedOrphaned);
     }
 

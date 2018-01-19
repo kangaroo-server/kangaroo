@@ -18,11 +18,13 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the configuration constants.
@@ -39,7 +41,7 @@ public final class ConfigTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = Config.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -51,13 +53,13 @@ public final class ConfigTest {
      */
     @Test
     public void testConfigurationConstants() {
-        Assert.assertEquals("application_client_id",
+        assertEquals("application_client_id",
                 Config.APPLICATION_CLIENT_ID);
-        Assert.assertEquals("application_admin_id",
+        assertEquals("application_admin_id",
                 Config.APPLICATION_ADMIN_ID);
-        Assert.assertEquals("application_id",
+        assertEquals("application_id",
                 Config.APPLICATION_ID);
-        Assert.assertEquals("first_run",
+        assertEquals("first_run",
                 Config.FIRST_RUN);
     }
 }

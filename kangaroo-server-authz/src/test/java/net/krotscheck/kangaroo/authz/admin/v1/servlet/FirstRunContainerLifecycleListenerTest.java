@@ -31,12 +31,13 @@ import org.glassfish.jersey.server.spi.Container;
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.util.Properties;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test our application bootstrap.
@@ -88,29 +89,29 @@ public final class FirstRunContainerLifecycleListenerTest
         // Make sure we have an application ID.
         String appId = testConfig.getString(Config.APPLICATION_ID);
         BigInteger appByte = IdUtil.fromString(appId);
-        Assert.assertNotNull(appByte);
+        assertNotNull(appByte);
 
         // Ensure that the app id can be resolved.
         Application application = s.get(Application.class, appByte);
-        Assert.assertNotNull(application);
+        assertNotNull(application);
 
         // Make sure we have an application client ID
         String clientId = testConfig.getString(Config.APPLICATION_CLIENT_ID);
         BigInteger clientByte = IdUtil.fromString(clientId);
-        Assert.assertNotNull(clientByte);
+        assertNotNull(clientByte);
 
         // Ensure that the client id can be resolved.
         Client client = s.get(Client.class, clientByte);
-        Assert.assertNotNull(client);
+        assertNotNull(client);
 
         // Make sure we have an application user ID
         String adminId = testConfig.getString(Config.APPLICATION_ADMIN_ID);
         BigInteger adminByte = IdUtil.fromString(adminId);
-        Assert.assertNotNull(adminByte);
+        assertNotNull(adminByte);
 
         // Ensure that the client id can be resolved.
         User user = s.get(User.class, adminByte);
-        Assert.assertNotNull(user);
+        assertNotNull(user);
 
         // Cleanup
         testConfig.clear();

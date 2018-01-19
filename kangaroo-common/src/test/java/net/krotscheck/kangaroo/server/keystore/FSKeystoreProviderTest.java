@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.server.keystore;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -29,6 +28,9 @@ import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
@@ -65,22 +67,22 @@ public final class FSKeystoreProviderTest {
         FSKeystoreProvider provider =
                 new FSKeystoreProvider(KS_PATH, KS_PASS, KS_TYPE);
         KeyStore ks = provider.getKeyStore();
-        Assert.assertEquals("kangaroo", ks.aliases().nextElement());
+        assertEquals("kangaroo", ks.aliases().nextElement());
 
         Certificate[] chain = ks.getCertificateChain("kangaroo");
-        Assert.assertEquals(1, chain.length);
+        assertEquals(1, chain.length);
 
         X509Certificate cert = (X509Certificate) chain[0];
-        Assert.assertNotNull(cert);
+        assertNotNull(cert);
 
         Principal iss = cert.getIssuerDN();
         Principal sub = cert.getSubjectDN();
 
-        Assert.assertEquals("EMAILADDRESS=krotscheck@gmail.com, "
+        assertEquals("EMAILADDRESS=krotscheck@gmail.com, "
                         + "CN=localhost, OU=Kangaroo, O=Kangaroo, L=Seattle, "
                         + "ST=Washington, C=US",
                 iss.getName());
-        Assert.assertEquals("EMAILADDRESS=krotscheck@gmail.com, "
+        assertEquals("EMAILADDRESS=krotscheck@gmail.com, "
                         + "CN=localhost, OU=Kangaroo, O=Kangaroo, L=Seattle, "
                         + "ST=Washington, C=US",
                 sub.getName());
@@ -97,7 +99,7 @@ public final class FSKeystoreProviderTest {
                 new FSKeystoreProvider(KS_PATH, KS_PASS, KS_TYPE);
         KeyStore ks1 = provider.getKeyStore();
         KeyStore ks2 = provider.getKeyStore();
-        Assert.assertSame(ks1, ks2);
+        assertSame(ks1, ks2);
     }
 
     /**
@@ -146,7 +148,7 @@ public final class FSKeystoreProviderTest {
 
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(bais, "kangaroo".toCharArray());
-        Assert.assertEquals("kangaroo", keyStore.aliases().nextElement());
+        assertEquals("kangaroo", keyStore.aliases().nextElement());
     }
 
     /**

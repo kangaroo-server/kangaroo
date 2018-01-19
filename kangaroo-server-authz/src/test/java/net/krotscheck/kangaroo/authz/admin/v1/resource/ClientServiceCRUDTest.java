@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -38,6 +37,9 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -273,8 +275,8 @@ public final class ClientServiceCRUDTest
 
         Response r = postEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             Client response = getResponse.readEntity(Client.class);
@@ -325,8 +327,8 @@ public final class ClientServiceCRUDTest
 
         if (isAccessible(a, getAdminToken())) {
             Client response = r.readEntity(Client.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(a, response);
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(a, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

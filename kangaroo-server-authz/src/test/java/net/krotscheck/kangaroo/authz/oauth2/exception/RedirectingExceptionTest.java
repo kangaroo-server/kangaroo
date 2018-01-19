@@ -21,11 +21,12 @@ package net.krotscheck.kangaroo.authz.oauth2.exception;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for the redirecting exception.
@@ -45,9 +46,9 @@ public final class RedirectingExceptionTest {
         RedirectingException r = new RedirectingException(cause, redirect,
                 ClientType.Implicit);
 
-        Assert.assertEquals(ClientType.Implicit, r.getClientType());
-        Assert.assertEquals(redirect, r.getRedirect());
-        Assert.assertEquals(cause.getMessage(), r.getMessage());
-        Assert.assertEquals(cause, r.getCause());
+        assertEquals(ClientType.Implicit, r.getClientType());
+        assertEquals(redirect, r.getRedirect());
+        assertEquals(cause.getMessage(), r.getMessage());
+        assertEquals(cause, r.getCause());
     }
 }

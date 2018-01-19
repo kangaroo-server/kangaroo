@@ -20,8 +20,12 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the client type.
@@ -40,16 +44,16 @@ public final class ClientTypeTest {
         ObjectMapper m = new ObjectMapperFactory().get();
 
         String auth = m.writeValueAsString(ClientType.AuthorizationGrant);
-        Assert.assertEquals("\"AuthorizationGrant\"", auth);
+        assertEquals("\"AuthorizationGrant\"", auth);
 
         String implicit = m.writeValueAsString(ClientType.Implicit);
-        Assert.assertEquals("\"Implicit\"", implicit);
+        assertEquals("\"Implicit\"", implicit);
 
         String owner = m.writeValueAsString(ClientType.OwnerCredentials);
-        Assert.assertEquals("\"OwnerCredentials\"", owner);
+        assertEquals("\"OwnerCredentials\"", owner);
 
         String client = m.writeValueAsString(ClientType.ClientCredentials);
-        Assert.assertEquals("\"ClientCredentials\"", client);
+        assertEquals("\"ClientCredentials\"", client);
     }
 
     /**
@@ -63,19 +67,19 @@ public final class ClientTypeTest {
 
         ClientType auth =
                 m.readValue("\"AuthorizationGrant\"", ClientType.class);
-        Assert.assertSame(auth, ClientType.AuthorizationGrant);
+        assertSame(auth, ClientType.AuthorizationGrant);
 
         ClientType implicit =
                 m.readValue("\"Implicit\"", ClientType.class);
-        Assert.assertSame(implicit, ClientType.Implicit);
+        assertSame(implicit, ClientType.Implicit);
 
         ClientType owner =
                 m.readValue("\"OwnerCredentials\"", ClientType.class);
-        Assert.assertSame(owner, ClientType.OwnerCredentials);
+        assertSame(owner, ClientType.OwnerCredentials);
 
         ClientType client =
                 m.readValue("\"ClientCredentials\"", ClientType.class);
-        Assert.assertSame(client, ClientType.ClientCredentials);
+        assertSame(client, ClientType.ClientCredentials);
     }
 
     /**
@@ -83,21 +87,21 @@ public final class ClientTypeTest {
      */
     @Test
     public void testInWithValues() {
-        Assert.assertFalse(ClientType.AuthorizationGrant.in());
-        Assert.assertFalse(ClientType.AuthorizationGrant.in(null));
-        Assert.assertTrue(ClientType.AuthorizationGrant.in(
+        assertFalse(ClientType.AuthorizationGrant.in());
+        assertFalse(ClientType.AuthorizationGrant.in(null));
+        assertTrue(ClientType.AuthorizationGrant.in(
                 ClientType.ClientCredentials,
                 ClientType.AuthorizationGrant
         ));
-        Assert.assertTrue(ClientType.AuthorizationGrant.in(
+        assertTrue(ClientType.AuthorizationGrant.in(
                 ClientType.AuthorizationGrant
         ));
-        Assert.assertTrue(ClientType.AuthorizationGrant.in(
+        assertTrue(ClientType.AuthorizationGrant.in(
                 ClientType.AuthorizationGrant,
                 ClientType.AuthorizationGrant,
                 ClientType.AuthorizationGrant
         ));
-        Assert.assertFalse(ClientType.AuthorizationGrant.in(
+        assertFalse(ClientType.AuthorizationGrant.in(
                 ClientType.Implicit,
                 ClientType.ClientCredentials,
                 ClientType.OwnerCredentials
@@ -109,19 +113,19 @@ public final class ClientTypeTest {
      */
     @Test
     public void testValueOf() {
-        Assert.assertEquals(
+        assertEquals(
                 ClientType.AuthorizationGrant,
                 ClientType.valueOf("AuthorizationGrant")
         );
-        Assert.assertEquals(
+        assertEquals(
                 ClientType.Implicit,
                 ClientType.valueOf("Implicit")
         );
-        Assert.assertEquals(
+        assertEquals(
                 ClientType.ClientCredentials,
                 ClientType.valueOf("ClientCredentials")
         );
-        Assert.assertEquals(
+        assertEquals(
                 ClientType.OwnerCredentials,
                 ClientType.valueOf("OwnerCredentials")
         );

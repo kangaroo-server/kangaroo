@@ -35,7 +35,6 @@ import net.krotscheck.kangaroo.util.HttpUtil;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -53,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -123,7 +123,7 @@ public final class OAuth2AuthenticationFilterTest extends DatabaseTest {
     public void assertCorrectPriority() throws Exception {
         Priority a = OAuth2AuthenticationFilter.class
                 .getAnnotation(Priority.class);
-        Assert.assertEquals(Priorities.AUTHENTICATION, a.value());
+        assertEquals(Priorities.AUTHENTICATION, a.value());
     }
 
     /**
@@ -169,7 +169,7 @@ public final class OAuth2AuthenticationFilterTest extends DatabaseTest {
         verify(requestContext, times(1))
                 .setSecurityContext(contextCaptor.capture());
 
-        Assert.assertEquals(token, contextCaptor.getValue().getUserPrincipal());
+        assertEquals(token, contextCaptor.getValue().getUserPrincipal());
     }
 
     /**

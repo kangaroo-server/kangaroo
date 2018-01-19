@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.common.httpClient;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -31,6 +30,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test that the client feature works.
@@ -59,7 +60,7 @@ public final class HttpClientFeatureTest extends ContainerTest {
     @Test
     public void testFeature() {
         Response response = target("/").request().get();
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
     }
 
     /**

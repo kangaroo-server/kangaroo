@@ -17,12 +17,13 @@
 
 package net.krotscheck.kangaroo.common.response;
 
-import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for our list response builder.
@@ -42,7 +43,7 @@ public final class ListResponseBuilderTest {
         b.addResult(entity);
         Response response = b.build();
         ListResponseEntity e = (ListResponseEntity) response.getEntity();
-        Assert.assertEquals(entity, e.getResults());
+        assertEquals(entity, e.getResults());
     }
 
     /**
@@ -56,7 +57,7 @@ public final class ListResponseBuilderTest {
         b.offset(Integer.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.OFFSET_HEADER));
     }
 
@@ -71,7 +72,7 @@ public final class ListResponseBuilderTest {
         b.offset(Long.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.OFFSET_HEADER));
     }
 
@@ -86,7 +87,7 @@ public final class ListResponseBuilderTest {
         b.offset(Short.valueOf((short) 10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.OFFSET_HEADER));
     }
 
@@ -101,7 +102,7 @@ public final class ListResponseBuilderTest {
         b.limit(Integer.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.LIMIT_HEADER));
     }
 
@@ -116,7 +117,7 @@ public final class ListResponseBuilderTest {
         b.limit(Long.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.LIMIT_HEADER));
     }
 
@@ -131,7 +132,7 @@ public final class ListResponseBuilderTest {
         b.limit(Short.valueOf((short) 10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.LIMIT_HEADER));
     }
 
@@ -146,7 +147,7 @@ public final class ListResponseBuilderTest {
         b.total(Integer.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.TOTAL_HEADER));
     }
 
@@ -161,7 +162,7 @@ public final class ListResponseBuilderTest {
         b.total((Object) Integer.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.TOTAL_HEADER));
     }
 
@@ -176,7 +177,7 @@ public final class ListResponseBuilderTest {
         b.total(Long.valueOf(10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.TOTAL_HEADER));
     }
 
@@ -191,7 +192,7 @@ public final class ListResponseBuilderTest {
         b.total(Short.valueOf((short) 10));
         Response response = b.build();
 
-        Assert.assertEquals("10",
+        assertEquals("10",
                 response.getHeaderString(ApiParam.TOTAL_HEADER));
     }
 
@@ -206,7 +207,7 @@ public final class ListResponseBuilderTest {
         b.sort("foo");
         Response response = b.build();
 
-        Assert.assertEquals("foo",
+        assertEquals("foo",
                 response.getHeaderString(ApiParam.SORT_HEADER));
     }
 
@@ -221,7 +222,7 @@ public final class ListResponseBuilderTest {
         b.order("DESC");
         Response response = b.build();
 
-        Assert.assertEquals("DESC",
+        assertEquals("DESC",
                 response.getHeaderString(ApiParam.ORDER_HEADER));
     }
 
@@ -236,7 +237,7 @@ public final class ListResponseBuilderTest {
         b.order(SortOrder.DESC);
         Response response = b.build();
 
-        Assert.assertEquals("DESC",
+        assertEquals("DESC",
                 response.getHeaderString(ApiParam.ORDER_HEADER));
     }
 
@@ -247,11 +248,11 @@ public final class ListResponseBuilderTest {
      */
     @Test
     public void testSortFromString() throws Exception {
-        Assert.assertEquals(SortOrder.ASC,
+        assertEquals(SortOrder.ASC,
                 SortOrder.fromString("ASC"));
-        Assert.assertEquals(SortOrder.DESC,
+        assertEquals(SortOrder.DESC,
                 SortOrder.fromString("DESC"));
-        Assert.assertEquals(SortOrder.ASC,
+        assertEquals(SortOrder.ASC,
                 SortOrder.fromString("invalid"));
     }
 
@@ -262,7 +263,7 @@ public final class ListResponseBuilderTest {
      */
     @Test
     public void testSortToString() throws Exception {
-        Assert.assertEquals("ASC", SortOrder.ASC.toString());
-        Assert.assertEquals("DESC", SortOrder.DESC.toString());
+        assertEquals("ASC", SortOrder.ASC.toString());
+        assertEquals("DESC", SortOrder.DESC.toString());
     }
 }

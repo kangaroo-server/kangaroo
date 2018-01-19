@@ -74,7 +74,7 @@ public final class TransactionFilterTest {
      * Setup the provider.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         mockTransaction = Mockito.mock(Transaction.class);
         mockSession = Mockito.mock(Session.class);
         mockSessionProvider = (Provider<Session>) Mockito.mock(Provider.class);
@@ -190,11 +190,11 @@ public final class TransactionFilterTest {
 //                locator.getDescriptors(
 //                        BuilderHelper.createContractFilter(
 //                                ContainerRequestFilter.class.getName()));
-//        Assert.assertEquals(1, reqDescriptors.size());
+//        assertEquals(1, reqDescriptors.size());
 //
 //        ActiveDescriptor reqDescriptor = reqDescriptors.get(0);
-//        Assert.assertNotNull(reqDescriptor);
-//        Assert.assertEquals(Singleton.class.getCanonicalName(),
+//        assertNotNull(reqDescriptor);
+//        assertEquals(Singleton.class.getCanonicalName(),
 //                reqDescriptor.getScope());
 //
 //        // Ensure it's a response filter.
@@ -202,11 +202,11 @@ public final class TransactionFilterTest {
 //                locator.getDescriptors(
 //                        BuilderHelper.createContractFilter(
 //                                ContainerResponseFilter.class.getName()));
-//        Assert.assertEquals(1, respDescriptors.size());
+//        assertEquals(1, respDescriptors.size());
 //
 //        ActiveDescriptor respDescriptor = respDescriptors.get(0);
-//        Assert.assertNotNull(respDescriptor);
-//        Assert.assertEquals(Singleton.class.getCanonicalName(),
+//        assertNotNull(respDescriptor);
+//        assertEquals(Singleton.class.getCanonicalName(),
 //                respDescriptor.getScope());
     }
 }

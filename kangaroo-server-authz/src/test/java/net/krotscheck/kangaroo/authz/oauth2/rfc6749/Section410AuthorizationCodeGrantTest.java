@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.apache.http.HttpHeaders;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -45,6 +44,9 @@ import java.math.BigInteger;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -200,16 +202,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -230,16 +232,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -256,14 +258,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("access_denied", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("access_denied", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -280,8 +282,8 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
-        Assert.assertNotNull(r.getLocation());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        assertNotNull(r.getLocation());
     }
 
     /**
@@ -298,14 +300,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("access_denied", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("access_denied", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -323,14 +325,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("bad_request", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("bad_request", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -346,22 +348,22 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("unsupported_response_type",
+        assertTrue(params.containsKey("error"));
+        assertEquals("unsupported_response_type",
                 params.getFirst("error"));
-        Assert.assertTrue(params.containsKey("error_description"));
+        assertTrue(params.containsKey("error_description"));
     }
 
     /**
@@ -376,14 +378,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("bad_request", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("bad_request", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -399,14 +401,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("access_denied", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("access_denied", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -427,16 +429,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -453,21 +455,21 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("invalid_request", params.getFirst("error"));
-        Assert.assertTrue(params.containsKey("error_description"));
+        assertTrue(params.containsKey("error"));
+        assertEquals("invalid_request", params.getFirst("error"));
+        assertTrue(params.containsKey("error_description"));
     }
 
     /**
@@ -486,21 +488,21 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         // Validate the redirect location
         URI location = r.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("error"));
-        Assert.assertEquals("invalid_request", params.getFirst("error"));
-        Assert.assertTrue(params.containsKey("error_description"));
+        assertTrue(params.containsKey("error"));
+        assertEquals("invalid_request", params.getFirst("error"));
+        assertTrue(params.containsKey("error_description"));
     }
 
     /**
@@ -520,21 +522,21 @@ public final class Section410AuthorizationCodeGrantTest
         Response second = followRedirect(r);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.FOUND.getStatusCode(), second.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), second.getStatus());
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
-        Assert.assertFalse(params.containsKey("scope"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
+        assertFalse(params.containsKey("scope"));
     }
 
     /**
@@ -557,16 +559,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertEquals(state, params.getFirst("state"));
+        assertTrue(params.containsKey("code"));
+        assertEquals(state, params.getFirst("state"));
     }
 
     /**
@@ -587,16 +589,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -619,16 +621,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertEquals(state.toString(), params.getFirst("state"));
+        assertTrue(params.containsKey("code"));
+        assertEquals(state.toString(), params.getFirst("state"));
     }
 
     /**
@@ -649,16 +651,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("redirect.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("redirect.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the body parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -675,14 +677,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("invalid_request", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -701,14 +703,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("invalid_request", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -725,14 +727,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("invalid_request", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -753,16 +755,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -786,18 +788,18 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
-        Assert.assertTrue(params.containsKey("foo"));
-        Assert.assertEquals("bar", params.getFirst("foo"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("foo"));
+        assertEquals("bar", params.getFirst("foo"));
     }
 
     /**
@@ -815,14 +817,14 @@ public final class Section410AuthorizationCodeGrantTest
                 .get();
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertNull(r.getLocation());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertNull(r.getLocation());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the response parameters received.
         ErrorResponse error = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("invalid_request", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -921,8 +923,8 @@ public final class Section410AuthorizationCodeGrantTest
         // Extract the query parameters in the fragment
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(secondLocation);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertFalse(params.containsKey("state"));
+        assertTrue(params.containsKey("code"));
+        assertFalse(params.containsKey("state"));
     }
 
     /**
@@ -946,8 +948,8 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
@@ -974,13 +976,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("access_denied", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("access_denied", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -998,13 +1000,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_request", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1027,13 +1029,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1056,13 +1058,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_request", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1089,13 +1091,13 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
         assertValidBearerToken(entity, true);
-        Assert.assertNull(entity.getScope());
+        assertNull(entity.getScope());
     }
 
     /**
@@ -1123,13 +1125,13 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("bad_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("bad_request", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1156,8 +1158,8 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
@@ -1192,13 +1194,13 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("access_denied", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("access_denied", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1224,8 +1226,8 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
@@ -1258,8 +1260,8 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
@@ -1287,13 +1289,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1317,13 +1319,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1347,13 +1349,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1377,13 +1379,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1407,13 +1409,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1432,13 +1434,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1457,13 +1459,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("bad_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("bad_request", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1488,13 +1490,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1519,13 +1521,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1550,13 +1552,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1582,13 +1584,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1613,13 +1615,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
         assertValidBearerToken(entity, true);
-        Assert.assertNull(entity.getScope());
+        assertNull(entity.getScope());
     }
 
     /**
@@ -1646,13 +1648,13 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
         assertValidBearerToken(entity, true);
-        Assert.assertNull(entity.getScope());
+        assertNull(entity.getScope());
     }
 
     /**
@@ -1679,13 +1681,13 @@ public final class Section410AuthorizationCodeGrantTest
                 .post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_request", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1710,13 +1712,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_request", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1744,13 +1746,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = r.readEntity(TokenResponseEntity.class);
         assertValidBearerToken(entity, true);
-        Assert.assertNull(entity.getScope());
+        assertNull(entity.getScope());
     }
 
     /**
@@ -1779,13 +1781,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1810,13 +1812,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response r = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, r.getMediaType());
 
         // Validate the query parameters received.
         ErrorResponse entity = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_grant", entity.getError());
-        Assert.assertNotNull(entity.getErrorDescription());
+        assertEquals("invalid_grant", entity.getError());
+        assertNotNull(entity.getErrorDescription());
     }
 
     /**
@@ -1839,16 +1841,16 @@ public final class Section410AuthorizationCodeGrantTest
 
         // Validate the redirect location
         URI location = second.getLocation();
-        Assert.assertEquals("http", location.getScheme());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertNull(location.getFragment());
+        assertEquals("http", location.getScheme());
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertNull(location.getFragment());
 
         // Validate the query parameters received.
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertTrue(params.containsKey("code"));
-        Assert.assertEquals(state1, params.getFirst("state"));
+        assertTrue(params.containsKey("code"));
+        assertEquals(state1, params.getFirst("state"));
 
         // Extract the authorization code and issue a token request
         String state2 = IdUtil.toString(IdUtil.next());
@@ -1863,13 +1865,13 @@ public final class Section410AuthorizationCodeGrantTest
         Response tr = target("/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
-        Assert.assertEquals(Status.OK.getStatusCode(), tr.getStatus());
-        Assert.assertEquals(MediaType.APPLICATION_JSON_TYPE, tr.getMediaType());
+        assertEquals(Status.OK.getStatusCode(), tr.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, tr.getMediaType());
 
         // Validate the query parameters received.
         TokenResponseEntity entity = tr.readEntity(TokenResponseEntity.class);
         assertValidBearerToken(entity, true);
-        Assert.assertEquals("debug", entity.getScope());
-        Assert.assertEquals(state2, entity.getState());
+        assertEquals("debug", entity.getScope());
+        assertEquals(state2, entity.getState());
     }
 }

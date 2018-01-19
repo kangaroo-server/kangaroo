@@ -21,11 +21,17 @@ package net.krotscheck.kangaroo.common.hibernate.entity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.Calendar;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for our abstract entity.
@@ -56,14 +62,14 @@ public final class AbstractEntityTest {
         String jsonString = MAPPER.writeValueAsString(a);
         TestEntity b = MAPPER.readValue(jsonString, TestEntity.class);
 
-        Assert.assertEquals(a, b);
-        Assert.assertEquals(
+        assertEquals(a, b);
+        assertEquals(
                 a.getId(),
                 b.getId());
-        Assert.assertEquals(
+        assertEquals(
                 a.getChildEntity(),
                 b.getChildEntity());
-        Assert.assertEquals(
+        assertEquals(
                 a.getChildEntity().getId(),
                 b.getChildEntity().getId());
     }
@@ -75,9 +81,9 @@ public final class AbstractEntityTest {
     public void testGetSetId() {
         BigInteger id = IdUtil.next();
         AbstractEntity a = new TestEntity();
-        Assert.assertNull(a.getId());
+        assertNull(a.getId());
         a.setId(id);
-        Assert.assertEquals(id, a.getId());
+        assertEquals(id, a.getId());
     }
 
     /**
@@ -88,10 +94,10 @@ public final class AbstractEntityTest {
         AbstractEntity a = new TestEntity();
         Calendar d = Calendar.getInstance();
 
-        Assert.assertNull(a.getCreatedDate());
+        assertNull(a.getCreatedDate());
         a.setCreatedDate(d);
-        Assert.assertEquals(d, a.getCreatedDate());
-        Assert.assertNotSame(d, a.getCreatedDate());
+        assertEquals(d, a.getCreatedDate());
+        assertNotSame(d, a.getCreatedDate());
     }
 
     /**
@@ -102,10 +108,10 @@ public final class AbstractEntityTest {
         AbstractEntity a = new TestEntity();
         Calendar d = Calendar.getInstance();
 
-        Assert.assertNull(a.getModifiedDate());
+        assertNull(a.getModifiedDate());
         a.setModifiedDate(d);
-        Assert.assertEquals(d, a.getModifiedDate());
-        Assert.assertNotSame(d, a.getModifiedDate());
+        assertEquals(d, a.getModifiedDate());
+        assertNotSame(d, a.getModifiedDate());
     }
 
     /**
@@ -128,16 +134,16 @@ public final class AbstractEntityTest {
         AbstractEntity e = new TestChildEntity();
         e.setId(IdUtil.next());
 
-        Assert.assertTrue(a.equals(a));
-        Assert.assertFalse(a.equals(null));
-        Assert.assertTrue(a.equals(b));
-        Assert.assertTrue(b.equals(a));
-        Assert.assertFalse(a.equals(c));
-        Assert.assertFalse(c.equals(a));
-        Assert.assertFalse(a.equals(d));
-        Assert.assertFalse(d.equals(a));
-        Assert.assertFalse(a.equals(e));
-        Assert.assertFalse(e.equals(a));
+        assertTrue(a.equals(a));
+        assertFalse(a.equals(null));
+        assertTrue(a.equals(b));
+        assertTrue(b.equals(a));
+        assertFalse(a.equals(c));
+        assertFalse(c.equals(a));
+        assertFalse(a.equals(d));
+        assertFalse(d.equals(a));
+        assertFalse(a.equals(e));
+        assertFalse(e.equals(a));
     }
 
     /**
@@ -160,10 +166,10 @@ public final class AbstractEntityTest {
         AbstractEntity e = new TestChildEntity();
         e.setId(IdUtil.next());
 
-        Assert.assertEquals(a.hashCode(), b.hashCode());
-        Assert.assertNotEquals(a.hashCode(), c.hashCode());
-        Assert.assertNotEquals(a.hashCode(), d.hashCode());
-        Assert.assertNotEquals(a.hashCode(), e.hashCode());
+        assertEquals(a.hashCode(), b.hashCode());
+        assertNotEquals(a.hashCode(), c.hashCode());
+        assertNotEquals(a.hashCode(), d.hashCode());
+        assertNotEquals(a.hashCode(), e.hashCode());
     }
 
     /**
@@ -175,12 +181,12 @@ public final class AbstractEntityTest {
         a.setId(IdUtil.next());
         AbstractEntity b = new TestEntity();
 
-        Assert.assertEquals(
+        assertEquals(
                 String.format("net.krotscheck.kangaroo.common.hibernate.entity"
                                 + ".TestEntity [id=%s]",
                         IdUtil.toString(a.getId())),
                 a.toString());
-        Assert.assertEquals("net.krotscheck.kangaroo.common"
+        assertEquals("net.krotscheck.kangaroo.common"
                 + ".hibernate.entity.TestEntity"
                 + " [id=null]", b.toString());
     }
@@ -197,6 +203,6 @@ public final class AbstractEntityTest {
         a.setId(id);
         AbstractEntity b = (AbstractEntity) a.clone();
 
-        Assert.assertEquals(a.getId(), b.getId());
+        assertEquals(a.getId(), b.getId());
     }
 }

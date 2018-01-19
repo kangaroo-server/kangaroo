@@ -21,10 +21,12 @@ package net.krotscheck.kangaroo.authz.admin.v1.servlet;
 import net.krotscheck.kangaroo.common.hibernate.config.HibernateConfiguration;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.function.Supplier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test that the admin configuration factory creates a singleton instance of
@@ -49,7 +51,7 @@ public final class ServletConfigFactoryTest extends DatabaseTest {
         Configuration created = factory.get();
 
         // Make sure it can access the data.
-        Assert.assertEquals("property", created.getString("test"));
+        assertEquals("property", created.getString("test"));
     }
 
     /**
@@ -63,6 +65,6 @@ public final class ServletConfigFactoryTest extends DatabaseTest {
         // Intentionally using the generic untyped interface here.
         Supplier factory = new ServletConfigFactory(getSessionFactory());
         Object instance = factory.get();
-        Assert.assertTrue(instance instanceof HibernateConfiguration);
+        assertTrue(instance instanceof HibernateConfiguration);
     }
 }

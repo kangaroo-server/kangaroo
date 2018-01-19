@@ -21,11 +21,13 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -55,13 +57,13 @@ public final class TokenResponseEntityTest {
         String state = IdUtil.toString(IdUtil.next());
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token, state);
-        Assert.assertEquals(token.getId(), entity.getAccessToken());
-        Assert.assertEquals(token.getExpiresIn().longValue(),
+        assertEquals(token.getId(), entity.getAccessToken());
+        assertEquals(token.getExpiresIn().longValue(),
                 (long) entity.getExpiresIn());
-        Assert.assertEquals("Bearer", entity.getTokenType().toString());
-        Assert.assertEquals("debug test", entity.getScope());
-        Assert.assertNull(entity.getRefreshToken());
-        Assert.assertEquals(state, entity.getState());
+        assertEquals("Bearer", entity.getTokenType().toString());
+        assertEquals("debug test", entity.getScope());
+        assertNull(entity.getRefreshToken());
+        assertEquals(state, entity.getState());
     }
 
     /**
@@ -91,13 +93,13 @@ public final class TokenResponseEntityTest {
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
                 refresh, state);
-        Assert.assertEquals(token.getId(), entity.getAccessToken());
-        Assert.assertEquals(token.getExpiresIn().longValue(),
+        assertEquals(token.getId(), entity.getAccessToken());
+        assertEquals(token.getExpiresIn().longValue(),
                 (long) entity.getExpiresIn());
-        Assert.assertEquals("Bearer", entity.getTokenType().toString());
-        Assert.assertEquals("debug test", entity.getScope());
-        Assert.assertEquals(refresh.getId(), entity.getRefreshToken());
-        Assert.assertEquals(state, entity.getState());
+        assertEquals("Bearer", entity.getTokenType().toString());
+        assertEquals("debug test", entity.getScope());
+        assertEquals(refresh.getId(), entity.getRefreshToken());
+        assertEquals(state, entity.getState());
     }
 
     /**
@@ -121,12 +123,12 @@ public final class TokenResponseEntityTest {
 
         TokenResponseEntity entity = TokenResponseEntity.factory(token,
                 refresh, state);
-        Assert.assertEquals(token.getId(), entity.getAccessToken());
-        Assert.assertEquals(token.getExpiresIn().longValue(),
+        assertEquals(token.getId(), entity.getAccessToken());
+        assertEquals(token.getExpiresIn().longValue(),
                 (long) entity.getExpiresIn());
-        Assert.assertEquals("Bearer", entity.getTokenType().toString());
-        Assert.assertNull(entity.getScope());
-        Assert.assertEquals(refresh.getId(), entity.getRefreshToken());
-        Assert.assertEquals(state, entity.getState());
+        assertEquals("Bearer", entity.getTokenType().toString());
+        assertNull(entity.getScope());
+        assertEquals(refresh.getId(), entity.getRefreshToken());
+        assertEquals(state, entity.getState());
     }
 }

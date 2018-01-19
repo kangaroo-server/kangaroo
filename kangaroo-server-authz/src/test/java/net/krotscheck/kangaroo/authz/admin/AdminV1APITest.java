@@ -20,11 +20,12 @@ package net.krotscheck.kangaroo.authz.admin;
 
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for the admin API.
@@ -50,7 +51,7 @@ public final class AdminV1APITest extends ContainerTest {
         Response response = target("/status")
                 .request()
                 .get();
-        Assert.assertEquals(Status.OK.getStatusCode(),
+        assertEquals(Status.OK.getStatusCode(),
                 response.getStatus());
     }
 }

@@ -17,11 +17,13 @@
 
 package net.krotscheck.kangaroo.common.response;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test our API parameters.
@@ -38,7 +40,7 @@ public final class ApiParamTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = ApiParam.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -52,25 +54,25 @@ public final class ApiParamTest {
      */
     @Test
     public void testApiParamProperties() throws Exception {
-        Assert.assertEquals("Limit", ApiParam.LIMIT_HEADER);
-        Assert.assertEquals("limit", ApiParam.LIMIT_QUERY);
-        Assert.assertEquals("10", ApiParam.LIMIT_DEFAULT);
+        assertEquals("Limit", ApiParam.LIMIT_HEADER);
+        assertEquals("limit", ApiParam.LIMIT_QUERY);
+        assertEquals("10", ApiParam.LIMIT_DEFAULT);
 
-        Assert.assertEquals("Offset", ApiParam.OFFSET_HEADER);
-        Assert.assertEquals("offset", ApiParam.OFFSET_QUERY);
-        Assert.assertEquals("0", ApiParam.OFFSET_DEFAULT);
+        assertEquals("Offset", ApiParam.OFFSET_HEADER);
+        assertEquals("offset", ApiParam.OFFSET_QUERY);
+        assertEquals("0", ApiParam.OFFSET_DEFAULT);
 
-        Assert.assertEquals("Total", ApiParam.TOTAL_HEADER);
+        assertEquals("Total", ApiParam.TOTAL_HEADER);
 
-        Assert.assertEquals("q", ApiParam.QUERY_QUERY);
-        Assert.assertEquals("", ApiParam.QUERY_DEFAULT);
+        assertEquals("q", ApiParam.QUERY_QUERY);
+        assertEquals("", ApiParam.QUERY_DEFAULT);
 
-        Assert.assertEquals("Sort", ApiParam.SORT_HEADER);
-        Assert.assertEquals("sort", ApiParam.SORT_QUERY);
-        Assert.assertEquals("createdDate", ApiParam.SORT_DEFAULT);
+        assertEquals("Sort", ApiParam.SORT_HEADER);
+        assertEquals("sort", ApiParam.SORT_QUERY);
+        assertEquals("createdDate", ApiParam.SORT_DEFAULT);
 
-        Assert.assertEquals("Order", ApiParam.ORDER_HEADER);
-        Assert.assertEquals("order", ApiParam.ORDER_QUERY);
-        Assert.assertEquals("ASC", ApiParam.ORDER_DEFAULT);
+        assertEquals("Order", ApiParam.ORDER_HEADER);
+        assertEquals("order", ApiParam.ORDER_QUERY);
+        assertEquals("ASC", ApiParam.ORDER_DEFAULT);
     }
 }

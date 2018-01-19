@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -40,7 +39,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -61,9 +63,9 @@ public final class ClientTest {
         Client c = new Client();
         Application a = new Application();
 
-        Assert.assertNull(c.getApplication());
+        assertNull(c.getApplication());
         c.setApplication(a);
-        Assert.assertEquals(a, c.getApplication());
+        assertEquals(a, c.getApplication());
     }
 
     /**
@@ -74,9 +76,9 @@ public final class ClientTest {
         Client c = new Client();
         String name = "test";
 
-        Assert.assertNull(c.getName());
+        assertNull(c.getName());
         c.setName(name);
-        Assert.assertEquals(name, c.getName());
+        assertEquals(name, c.getName());
     }
 
     /**
@@ -87,9 +89,9 @@ public final class ClientTest {
         Client c = new Client();
         String secret = "secret";
 
-        Assert.assertNull(c.getClientSecret());
+        assertNull(c.getClientSecret());
         c.setClientSecret(secret);
-        Assert.assertEquals(secret, c.getClientSecret());
+        assertEquals(secret, c.getClientSecret());
     }
 
     /**
@@ -99,9 +101,9 @@ public final class ClientTest {
     public void testGetSetType() {
         Client c = new Client();
 
-        Assert.assertNull(c.getType());
+        assertNull(c.getType());
         c.setType(ClientType.Implicit);
-        Assert.assertEquals(ClientType.Implicit, c.getType());
+        assertEquals(ClientType.Implicit, c.getType());
     }
 
     /**
@@ -120,10 +122,10 @@ public final class ClientTest {
         r.setUri(referrer);
         referrers.add(r);
 
-        Assert.assertEquals(0, c.getReferrers().size());
+        assertEquals(0, c.getReferrers().size());
         c.setReferrers(referrers);
-        Assert.assertEquals(referrers, c.getReferrers());
-        Assert.assertTrue(c.getReferrers().contains(r));
+        assertEquals(referrers, c.getReferrers());
+        assertTrue(c.getReferrers().contains(r));
     }
 
     /**
@@ -142,10 +144,10 @@ public final class ClientTest {
         r.setUri(referrer);
         redirects.add(r);
 
-        Assert.assertEquals(0, c.getRedirects().size());
+        assertEquals(0, c.getRedirects().size());
         c.setRedirects(redirects);
-        Assert.assertEquals(redirects, c.getRedirects());
-        Assert.assertTrue(c.getRedirects().contains(r));
+        assertEquals(redirects, c.getRedirects());
+        assertTrue(c.getRedirects().contains(r));
     }
 
     /**
@@ -157,10 +159,10 @@ public final class ClientTest {
         List<OAuthToken> tokens = new ArrayList<>();
         tokens.add(new OAuthToken());
 
-        Assert.assertEquals(0, client.getTokens().size());
+        assertEquals(0, client.getTokens().size());
         client.setTokens(tokens);
-        Assert.assertEquals(tokens, client.getTokens());
-        Assert.assertNotSame(tokens, client.getTokens());
+        assertEquals(tokens, client.getTokens());
+        assertNotSame(tokens, client.getTokens());
     }
 
     /**
@@ -172,10 +174,10 @@ public final class ClientTest {
         List<Authenticator> authenticators = new ArrayList<>();
         authenticators.add(new Authenticator());
 
-        Assert.assertEquals(0, client.getAuthenticators().size());
+        assertEquals(0, client.getAuthenticators().size());
         client.setAuthenticators(authenticators);
-        Assert.assertEquals(authenticators, client.getAuthenticators());
-        Assert.assertNotSame(authenticators, client.getAuthenticators());
+        assertEquals(authenticators, client.getAuthenticators());
+        assertNotSame(authenticators, client.getAuthenticators());
     }
 
     /**
@@ -186,10 +188,10 @@ public final class ClientTest {
         Client client = new Client();
         Map<String, String> configuration = new HashMap<>();
 
-        Assert.assertEquals(0, client.getConfiguration().size());
+        assertEquals(0, client.getConfiguration().size());
         client.setConfiguration(configuration);
-        Assert.assertEquals(configuration, client.getConfiguration());
-        Assert.assertNotSame(configuration, client.getConfiguration());
+        assertEquals(configuration, client.getConfiguration());
+        assertNotSame(configuration, client.getConfiguration());
     }
 
     /**
@@ -203,21 +205,21 @@ public final class ClientTest {
         Integer expectedDefault = 10 * 60; // Ten minutes
 
         // Assert no config.
-        Assert.assertEquals(expectedDefault, client.getAccessTokenExpireIn());
+        assertEquals(expectedDefault, client.getAccessTokenExpireIn());
 
         // Assert empty config.
         client.setConfiguration(configuration);
-        Assert.assertEquals(expectedDefault, client.getAccessTokenExpireIn());
+        assertEquals(expectedDefault, client.getAccessTokenExpireIn());
 
         // Assert unparseable config
         configuration.put(ClientConfig.ACCESS_TOKEN_EXPIRES_NAME, "not_an_int");
         client.setConfiguration(configuration);
-        Assert.assertEquals(expectedDefault, client.getAccessTokenExpireIn());
+        assertEquals(expectedDefault, client.getAccessTokenExpireIn());
 
         // Assert parseable config
         configuration.put(ClientConfig.ACCESS_TOKEN_EXPIRES_NAME, "50");
         client.setConfiguration(configuration);
-        Assert.assertEquals((Integer) 50, client.getAccessTokenExpireIn());
+        assertEquals((Integer) 50, client.getAccessTokenExpireIn());
     }
 
     /**
@@ -230,22 +232,22 @@ public final class ClientTest {
         Integer expectedDefault = 60 * 60 * 24 * 30; // One month.
 
         // Assert no config.
-        Assert.assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
+        assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
 
         // Assert empty config.
         client.setConfiguration(configuration);
-        Assert.assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
+        assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
 
         // Assert unparseable config
         configuration
                 .put(ClientConfig.REFRESH_TOKEN_EXPIRES_NAME, "not_an_int");
         client.setConfiguration(configuration);
-        Assert.assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
+        assertEquals(expectedDefault, client.getRefreshTokenExpireIn());
 
         // Assert parseable config
         configuration.put(ClientConfig.REFRESH_TOKEN_EXPIRES_NAME, "50");
         client.setConfiguration(configuration);
-        Assert.assertEquals((Integer) 50, client.getRefreshTokenExpireIn());
+        assertEquals((Integer) 50, client.getRefreshTokenExpireIn());
     }
 
     /**
@@ -258,12 +260,12 @@ public final class ClientTest {
         Integer expectedDefault = 60 * 10; // Ten minutes.
 
         // Assert no config.
-        Assert.assertEquals(expectedDefault,
+        assertEquals(expectedDefault,
                 client.getAuthorizationCodeExpiresIn());
 
         // Assert empty config.
         client.setConfiguration(configuration);
-        Assert.assertEquals(expectedDefault,
+        assertEquals(expectedDefault,
                 client.getAuthorizationCodeExpiresIn());
 
         // Assert unparseable config
@@ -271,13 +273,13 @@ public final class ClientTest {
                 .put(ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME,
                         "not_an_int");
         client.setConfiguration(configuration);
-        Assert.assertEquals(expectedDefault,
+        assertEquals(expectedDefault,
                 client.getAuthorizationCodeExpiresIn());
 
         // Assert parseable config
         configuration.put(ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME, "50");
         client.setConfiguration(configuration);
-        Assert.assertEquals((Integer) 50,
+        assertEquals((Integer) 50,
                 client.getAuthorizationCodeExpiresIn());
     }
 
@@ -290,7 +292,7 @@ public final class ClientTest {
         Application spy = spy(new Application());
 
         // Null check
-        Assert.assertNull(client.getOwner());
+        assertNull(client.getOwner());
 
         client.setApplication(spy);
         client.getOwner();
@@ -373,36 +375,36 @@ public final class ClientTest {
         String output = m.writeValueAsString(c);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 c.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getApplication().getId()),
                 node.get("application").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getName(),
                 node.get("name").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getClientSecret(),
                 node.get("clientSecret").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getType().toString(),
                 node.get("type").asText());
         assertFalse(node.has("tokens"));
 
         // Get the configuration node.
         JsonNode configurationNode = node.get("configuration");
-        Assert.assertEquals(
+        assertEquals(
                 "value",
                 configurationNode.get("one").asText());
-        Assert.assertEquals(
+        assertEquals(
                 "value",
                 configurationNode.get("two").asText());
 
@@ -417,7 +419,7 @@ public final class ClientTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(8, names.size());
+        assertEquals(8, names.size());
     }
 
     /**
@@ -446,32 +448,32 @@ public final class ClientTest {
         String output = m.writeValueAsString(node);
         Client c = m.readValue(output, Client.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 c.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 c.getName(),
                 node.get("name").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getClientSecret(),
                 node.get("clientSecret").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getType().toString(),
                 node.get("type").asText());
 
         Map<String, String> configuration = c.getConfiguration();
 
-        Assert.assertEquals(
+        assertEquals(
                 configuration.get("one"),
                 configurationNode.get("one").asText());
-        Assert.assertEquals(
+        assertEquals(
                 configuration.get("two"),
                 configurationNode.get("two").asText());
     }
@@ -493,6 +495,6 @@ public final class ClientTest {
         Client c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, c.getId());
+        assertEquals(newId, c.getId());
     }
 }

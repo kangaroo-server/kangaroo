@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.server;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -30,6 +29,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Unit tests for the ConfigurationBuilder.
@@ -58,23 +60,23 @@ public final class ConfigurationBuilderTest {
                 })
                 .build();
 
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.HOST.getKey()), "example.com");
-        Assert.assertEquals(config.getInt(
+        assertEquals(config.getInt(
                 Config.PORT.getKey()), 9000);
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.WORKING_DIR.getKey()), "/opt/kangaroo");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.KEYSTORE_PATH.getKey()), "/foo/bar");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.KEYSTORE_PASS.getKey()), "keystore_password");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.KEYSTORE_TYPE.getKey()), "JKS");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.CERT_ALIAS.getKey()), "cert_alias");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.CERT_KEY_PASS.getKey()), "key_password");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.HTML_APP_ROOT.getKey()), "/var/www");
     }
 
@@ -102,15 +104,15 @@ public final class ConfigurationBuilderTest {
                 })
                 .build();
 
-        Assert.assertNull(config.getString(Config.HOST.getKey()));
-        Assert.assertNull(config.getString(Config.PORT.getKey()));
-        Assert.assertNull(config.getString(Config.WORKING_DIR.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
-        Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
-        Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
-        Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
+        assertNull(config.getString(Config.HOST.getKey()));
+        assertNull(config.getString(Config.PORT.getKey()));
+        assertNull(config.getString(Config.WORKING_DIR.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
+        assertNull(config.getString(Config.CERT_ALIAS.getKey()));
+        assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
+        assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
     }
 
     /**
@@ -130,11 +132,11 @@ public final class ConfigurationBuilderTest {
                 })
                 .build();
 
-        Assert.assertEquals("example.com",
+        assertEquals("example.com",
                 config.getString(Config.HOST.getKey()));
-        Assert.assertEquals(1000,
+        assertEquals(1000,
                 config.getInt(Config.PORT.getKey()));
-        Assert.assertEquals("/foo/bar",
+        assertEquals("/foo/bar",
                 config.getString(Config.WORKING_DIR.getKey()));
     }
 
@@ -151,23 +153,23 @@ public final class ConfigurationBuilderTest {
                 .addPropertiesFile(filePath.getPath())
                 .build();
 
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.HOST.getKey()), "example.com");
-        Assert.assertEquals(config.getInt(
+        assertEquals(config.getInt(
                 Config.PORT.getKey()), 9000);
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.WORKING_DIR.getKey()), "/opt/kangaroo");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.KEYSTORE_PATH.getKey()), "/foo/bar");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.KEYSTORE_PASS.getKey()), "keystore_password");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.KEYSTORE_TYPE.getKey()), "JKS");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.CERT_ALIAS.getKey()), "cert_alias");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.CERT_KEY_PASS.getKey()), "key_password");
-        Assert.assertEquals(config.getString(
+        assertEquals(config.getString(
                 Config.HTML_APP_ROOT.getKey()), "/var/www");
     }
 
@@ -181,15 +183,15 @@ public final class ConfigurationBuilderTest {
                 .addPropertiesFile("/config/nonexistent.properties")
                 .build();
 
-        Assert.assertNull(config.getString(Config.HOST.getKey()));
-        Assert.assertNull(config.getString(Config.PORT.getKey()));
-        Assert.assertNull(config.getString(Config.WORKING_DIR.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
-        Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
-        Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
-        Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
+        assertNull(config.getString(Config.HOST.getKey()));
+        assertNull(config.getString(Config.PORT.getKey()));
+        assertNull(config.getString(Config.WORKING_DIR.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
+        assertNull(config.getString(Config.CERT_ALIAS.getKey()));
+        assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
+        assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
     }
 
     /**
@@ -207,15 +209,15 @@ public final class ConfigurationBuilderTest {
                 .addPropertiesFile(mockConfigFile)
                 .build();
 
-        Assert.assertNull(config.getString(Config.HOST.getKey()));
-        Assert.assertNull(config.getString(Config.PORT.getKey()));
-        Assert.assertNull(config.getString(Config.WORKING_DIR.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
-        Assert.assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
-        Assert.assertNull(config.getString(Config.CERT_ALIAS.getKey()));
-        Assert.assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
-        Assert.assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
+        assertNull(config.getString(Config.HOST.getKey()));
+        assertNull(config.getString(Config.PORT.getKey()));
+        assertNull(config.getString(Config.WORKING_DIR.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_PATH.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_PASS.getKey()));
+        assertNull(config.getString(Config.KEYSTORE_TYPE.getKey()));
+        assertNull(config.getString(Config.CERT_ALIAS.getKey()));
+        assertNull(config.getString(Config.CERT_KEY_PASS.getKey()));
+        assertNull(config.getString(Config.HTML_APP_ROOT.getKey()));
     }
 
     /**
@@ -231,7 +233,7 @@ public final class ConfigurationBuilderTest {
         Iterator<String> iterator = c.getKeys();
         while (iterator.hasNext()) {
             String key = iterator.next();
-            Assert.assertEquals(
+            assertEquals(
                     config.getString(key),
                     c.getString(key)
             );
@@ -251,7 +253,7 @@ public final class ConfigurationBuilderTest {
         Iterator<String> iterator = c.getKeys();
         while (iterator.hasNext()) {
             String key = iterator.next();
-            Assert.assertEquals(
+            assertEquals(
                     config.getString(key),
                     c.getString(key)
             );

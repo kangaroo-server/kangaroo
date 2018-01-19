@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -40,6 +39,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -58,9 +61,9 @@ public final class AuthenticatorTest {
         Authenticator auth = new Authenticator();
         Client client = new Client();
 
-        Assert.assertNull(auth.getClient());
+        assertNull(auth.getClient());
         auth.setClient(client);
-        Assert.assertEquals(client, auth.getClient());
+        assertEquals(client, auth.getClient());
     }
 
     /**
@@ -70,9 +73,9 @@ public final class AuthenticatorTest {
     public void testGetSetType() {
         Authenticator auth = new Authenticator();
 
-        Assert.assertNull(auth.getType());
+        assertNull(auth.getType());
         auth.setType(AuthenticatorType.Password);
-        Assert.assertEquals(AuthenticatorType.Password, auth.getType());
+        assertEquals(AuthenticatorType.Password, auth.getType());
     }
 
     /**
@@ -83,9 +86,9 @@ public final class AuthenticatorTest {
         Authenticator auth = new Authenticator();
         Map<String, String> config = new HashMap<>();
 
-        Assert.assertEquals(0, auth.getConfiguration().size());
+        assertEquals(0, auth.getConfiguration().size());
         auth.setConfiguration(config);
-        Assert.assertEquals(config, auth.getConfiguration());
+        assertEquals(config, auth.getConfiguration());
     }
 
     /**
@@ -97,10 +100,10 @@ public final class AuthenticatorTest {
         List<AuthenticatorState> states = new ArrayList<>();
         states.add(new AuthenticatorState());
 
-        Assert.assertEquals(0, a.getStates().size());
+        assertEquals(0, a.getStates().size());
         a.setStates(states);
-        Assert.assertEquals(states, a.getStates());
-        Assert.assertNotSame(states, a.getStates());
+        assertEquals(states, a.getStates());
+        assertNotSame(states, a.getStates());
     }
 
     /**
@@ -112,7 +115,7 @@ public final class AuthenticatorTest {
         Client spy = spy(new Client());
 
         // Null check
-        Assert.assertNull(authenticator.getOwner());
+        assertNull(authenticator.getOwner());
 
         authenticator.setClient(spy);
         authenticator.getOwner();
@@ -162,34 +165,34 @@ public final class AuthenticatorTest {
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 a.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getClient().getId()),
                 node.get("client").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getType().toString(),
                 node.get("type").asText());
 
         // Get the configuration node.
         JsonNode configNode = node.get("configuration");
-        Assert.assertEquals(
+        assertEquals(
                 "value",
                 configNode.get("one").asText());
-        Assert.assertEquals(
+        assertEquals(
                 "value",
                 configNode.get("two").asText());
 
-        Assert.assertFalse(node.has("identities"));
-        Assert.assertFalse(node.has("states"));
+        assertFalse(node.has("identities"));
+        assertFalse(node.has("states"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -197,7 +200,7 @@ public final class AuthenticatorTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(6, names.size());
+        assertEquals(6, names.size());
     }
 
     /**
@@ -223,27 +226,27 @@ public final class AuthenticatorTest {
         String output = m.writeValueAsString(node);
         Authenticator a = m.readValue(output, Authenticator.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 a.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 a.getType().toString(),
                 node.get("type").asText());
-        Assert.assertNull(a.getClient());
+        assertNull(a.getClient());
 
         Map<String, String> config = a.getConfiguration();
 
-        Assert.assertEquals(
+        assertEquals(
                 config.get("one"),
                 configNode.get("one").asText());
-        Assert.assertEquals(
+        assertEquals(
                 config.get("two"),
                 configNode.get("two").asText());
     }
@@ -265,6 +268,6 @@ public final class AuthenticatorTest {
         Authenticator u = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, u.getId());
+        assertEquals(newId, u.getId());
     }
 }

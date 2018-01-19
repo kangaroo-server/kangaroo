@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,6 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the search endpoint of the scope service.
@@ -195,7 +196,7 @@ public final class ScopeServiceSearchTest
                     "invalid_scope");
         } else if (getAttached(token).getScopes().keySet()
                 .contains(Scope.SCOPE_ADMIN)) {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,

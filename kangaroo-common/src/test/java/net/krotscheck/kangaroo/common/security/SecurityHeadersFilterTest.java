@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.common.security;
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
@@ -30,6 +29,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test that all the expected filters are attached.
@@ -62,13 +64,13 @@ public final class SecurityHeadersFilterTest extends KangarooJerseyTest {
         // one provided by the filter.
         MultivaluedMap<String, Object> headers = r.getHeaders();
 
-        Assert.assertEquals(3, headers.size());
+        assertEquals(3, headers.size());
 
         // Framework provided tests.
-        Assert.assertNotNull(headers.get(HttpHeaders.CONTENT_LENGTH));
+        assertNotNull(headers.get(HttpHeaders.CONTENT_LENGTH));
 
         // Expected headers.
-        Assert.assertEquals("Deny",
+        assertEquals("Deny",
                 headers.getFirst(HttpHeaders.X_FRAME_OPTIONS));
     }
 

@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -42,6 +41,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the oauth2 feature.
@@ -85,7 +86,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
         Response response = target("/first/deny")
                 .request()
                 .get();
-        Assert.assertEquals(401, response.getStatus());
+        assertEquals(401, response.getStatus());
     }
 
     /**
@@ -96,7 +97,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
         Response response = target("/first/permit")
                 .request()
                 .get();
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
@@ -115,7 +116,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(token.getId()))
                 .get();
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
@@ -134,7 +135,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(token.getId()))
                 .get();
-        Assert.assertEquals(403, response.getStatus());
+        assertEquals(403, response.getStatus());
     }
 
     /**
@@ -153,7 +154,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(token.getId()))
                 .get();
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
@@ -172,7 +173,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(token.getId()))
                 .get();
-        Assert.assertEquals(403, response.getStatus());
+        assertEquals(403, response.getStatus());
     }
 
     /**
@@ -191,7 +192,7 @@ public final class OAuth2ScopeDynamicFeatureTest extends ContainerTest {
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(token.getId()))
                 .get();
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**

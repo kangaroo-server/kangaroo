@@ -19,11 +19,13 @@
 package net.krotscheck.kangaroo.server;
 
 import com.google.common.net.HttpHeaders;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for our common security headers.
@@ -40,7 +42,7 @@ public final class SecurityHeadersTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = SecurityHeaders.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -54,9 +56,9 @@ public final class SecurityHeadersTest {
      */
     @Test
     public void testExpectedHeaders() throws Exception {
-        Assert.assertEquals(1, SecurityHeaders.ALL.size());
+        assertEquals(1, SecurityHeaders.ALL.size());
 
-        Assert.assertEquals("Deny",
+        assertEquals("Deny",
                 SecurityHeaders.ALL.get(HttpHeaders.X_FRAME_OPTIONS));
     }
 }

@@ -20,11 +20,12 @@ package net.krotscheck.kangaroo.common.exception.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for mapping kangaroo exceptions.
@@ -44,10 +45,10 @@ public final class KangarooExceptionMapperTest {
         Response r = mapper.toResponse(jpe);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
-        Assert.assertEquals(Status.FORBIDDEN, er.getHttpStatus());
-        Assert.assertEquals("test_error", er.getError());
-        Assert.assertEquals("Test Error", er.getErrorDescription());
+        assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        assertEquals(Status.FORBIDDEN, er.getHttpStatus());
+        assertEquals("test_error", er.getError());
+        assertEquals("Test Error", er.getErrorDescription());
     }
 
     /**

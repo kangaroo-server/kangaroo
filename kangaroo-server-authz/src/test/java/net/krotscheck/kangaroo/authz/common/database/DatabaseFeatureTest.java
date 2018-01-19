@@ -25,7 +25,6 @@ import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEventListener;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -36,6 +35,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the database feature.
@@ -65,7 +67,7 @@ public final class DatabaseFeatureTest extends ContainerTest {
     @Test
     public void testStatus() {
         String response = target("/").request().get(String.class);
-        Assert.assertEquals("true", response);
+        assertEquals("true", response);
     }
 
     /**
@@ -104,11 +106,11 @@ public final class DatabaseFeatureTest extends ContainerTest {
             List<PreUpdateEventListener> updateListeners = injector
                     .getAllInstances(PreUpdateEventListener.class);
 
-            Assert.assertEquals(1, insertListeners.size());
-            Assert.assertEquals(1, updateListeners.size());
-            Assert.assertTrue(CreatedUpdatedListener.class
+            assertEquals(1, insertListeners.size());
+            assertEquals(1, updateListeners.size());
+            assertTrue(CreatedUpdatedListener.class
                     .isInstance(insertListeners.get(0)));
-            Assert.assertTrue(CreatedUpdatedListener.class
+            assertTrue(CreatedUpdatedListener.class
                     .isInstance(updateListeners.get(0)));
 
             return Response

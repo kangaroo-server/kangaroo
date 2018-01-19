@@ -19,11 +19,12 @@ package net.krotscheck.kangaroo.authz.oauth2;
 
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Smoke test that the OAuthAPI can be loaded.
@@ -51,7 +52,7 @@ public final class OAuthAPITest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(Status.OK.getStatusCode(),
+        assertEquals(Status.OK.getStatusCode(),
                 response.getStatus());
     }
 }

@@ -28,13 +28,14 @@ import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for CORS specifically used in the authz application.
@@ -86,15 +87,15 @@ public final class AuthzCORSFeatureTest extends ContainerTest {
         List<Object> exposedHeaders = headers.get(HttpHeaders
                 .ACCESS_CONTROL_EXPOSE_HEADERS);
 
-        Assert.assertTrue(exposedHeaders
+        assertTrue(exposedHeaders
                 .indexOf(ApiParam.LIMIT_HEADER.toLowerCase()) > -1);
-        Assert.assertTrue(exposedHeaders
+        assertTrue(exposedHeaders
                 .indexOf(ApiParam.OFFSET_HEADER.toLowerCase()) > -1);
-        Assert.assertTrue(exposedHeaders
+        assertTrue(exposedHeaders
                 .indexOf(ApiParam.ORDER_HEADER.toLowerCase()) > -1);
-        Assert.assertTrue(exposedHeaders
+        assertTrue(exposedHeaders
                 .indexOf(ApiParam.SORT_HEADER.toLowerCase()) > -1);
-        Assert.assertTrue(exposedHeaders
+        assertTrue(exposedHeaders
                 .indexOf(ApiParam.TOTAL_HEADER.toLowerCase()) > -1);
     }
 }

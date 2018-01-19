@@ -19,10 +19,12 @@
 package net.krotscheck.kangaroo.common.exception;
 
 import net.krotscheck.kangaroo.common.exception.KangarooException.ErrorCode;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * Unit tests for our common application exception.
@@ -38,9 +40,9 @@ public final class KangarooExceptionTest {
     public void testErrorCode() {
         ErrorCode testCode = new ErrorCode(Status.FORBIDDEN,
                 "code", "description");
-        Assert.assertEquals(Status.FORBIDDEN, testCode.getHttpStatus());
-        Assert.assertEquals("code", testCode.getError());
-        Assert.assertEquals("description", testCode.getErrorDescription());
+        assertEquals(Status.FORBIDDEN, testCode.getHttpStatus());
+        assertEquals("code", testCode.getError());
+        assertEquals("description", testCode.getErrorDescription());
     }
 
     /**
@@ -49,7 +51,7 @@ public final class KangarooExceptionTest {
     @Test
     public void testGetCode() {
         KangarooException e = new TestError();
-        Assert.assertSame(TestError.CODE, e.getCode());
+        assertSame(TestError.CODE, e.getCode());
     }
 
     /**
@@ -59,9 +61,9 @@ public final class KangarooExceptionTest {
     public void testPlain() {
         KangarooException e = new TestError();
 
-        Assert.assertEquals(TestError.CODE.getHttpStatus().getStatusCode(),
+        assertEquals(TestError.CODE.getHttpStatus().getStatusCode(),
                 e.getResponse().getStatus());
-        Assert.assertEquals(e.getCode(), TestError.CODE);
+        assertEquals(e.getCode(), TestError.CODE);
     }
 
     /**

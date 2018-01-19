@@ -33,7 +33,6 @@ import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -505,7 +505,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
 
             Integer expectedResults = getOwnedEntities(adminAppToken).size();
 
-            Assert.assertEquals(200, r.getStatus());
+            assertEquals(200, r.getStatus());
 
             assertListResponse(r,
                     Math.min(expectedResults, 10),

@@ -29,12 +29,13 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for the fulltext search factory factory.
@@ -64,7 +65,7 @@ public final class FulltextSearchFactoryFactoryTest {
      * Setup the application handler for this test.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         injector = Injections.createInjectionManager();
         injector.register(new SystemConfiguration.Binder());
         injector.register(new HibernateServiceRegistryFactory.Binder());
@@ -79,7 +80,7 @@ public final class FulltextSearchFactoryFactoryTest {
      * Teardown the application handler.
      */
     @After
-    public void teardown() {
+    public void tearDown() {
         injector.shutdown();
         injector = null;
     }
@@ -100,7 +101,7 @@ public final class FulltextSearchFactoryFactoryTest {
 
         // Make sure that we can create a search factory.
         SearchFactory searchFactory = factory.get();
-        Assert.assertNotNull(searchFactory);
+        assertNotNull(searchFactory);
 
         if (hibernateSession.isOpen()) {
             hibernateSession.close();

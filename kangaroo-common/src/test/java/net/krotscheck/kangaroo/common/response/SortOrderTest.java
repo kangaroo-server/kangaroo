@@ -17,8 +17,10 @@
 
 package net.krotscheck.kangaroo.common.response;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test the parameters for the sort order.
@@ -32,9 +34,9 @@ public final class SortOrderTest {
      */
     @Test
     public void testAllVariablesPresent() {
-        Assert.assertNotNull(SortOrder.ASC);
-        Assert.assertNotNull(SortOrder.DESC);
-        Assert.assertEquals(2, SortOrder.values().length);
+        assertNotNull(SortOrder.ASC);
+        assertNotNull(SortOrder.DESC);
+        assertEquals(2, SortOrder.values().length);
     }
 
     /**
@@ -45,9 +47,9 @@ public final class SortOrderTest {
         SortOrder upperCaseOrder = SortOrder.fromString("ASC");
         SortOrder lowerCaseOrder = SortOrder.fromString("asc");
 
-        Assert.assertEquals(SortOrder.ASC, upperCaseOrder);
-        Assert.assertEquals(SortOrder.ASC, lowerCaseOrder);
-        Assert.assertEquals("ASC", SortOrder.ASC.toString());
+        assertEquals(SortOrder.ASC, upperCaseOrder);
+        assertEquals(SortOrder.ASC, lowerCaseOrder);
+        assertEquals("ASC", SortOrder.ASC.toString());
     }
 
     /**
@@ -58,9 +60,9 @@ public final class SortOrderTest {
         SortOrder upperCaseOrder = SortOrder.fromString("DESC");
         SortOrder lowerCaseOrder = SortOrder.fromString("desc");
 
-        Assert.assertEquals(SortOrder.DESC, upperCaseOrder);
-        Assert.assertEquals(SortOrder.DESC, lowerCaseOrder);
-        Assert.assertEquals("DESC", SortOrder.DESC.toString());
+        assertEquals(SortOrder.DESC, upperCaseOrder);
+        assertEquals(SortOrder.DESC, lowerCaseOrder);
+        assertEquals("DESC", SortOrder.DESC.toString());
 
     }
 
@@ -69,11 +71,11 @@ public final class SortOrderTest {
      */
     @Test
     public void testValueOf() {
-        Assert.assertEquals(
+        assertEquals(
                 SortOrder.DESC,
                 SortOrder.valueOf("DESC")
         );
-        Assert.assertEquals(
+        assertEquals(
                 SortOrder.ASC,
                 SortOrder.valueOf("ASC")
         );

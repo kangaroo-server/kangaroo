@@ -22,9 +22,13 @@ import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the Security Context.
@@ -58,13 +62,13 @@ public final class OAuth2SecurityContextTest extends DatabaseTest {
         OAuth2SecurityContext securityContext = new OAuth2SecurityContext(
                 token, false);
 
-        Assert.assertEquals(false,
+        assertEquals(false,
                 securityContext.isSecure());
-        Assert.assertEquals("OAuth2",
+        assertEquals("OAuth2",
                 securityContext.getAuthenticationScheme());
-        Assert.assertSame(token, securityContext.getUserPrincipal());
-        Assert.assertTrue(securityContext.isUserInRole("principal-1"));
-        Assert.assertTrue(securityContext.isUserInRole("principal-2"));
-        Assert.assertFalse(securityContext.isUserInRole("principal-3"));
+        assertSame(token, securityContext.getUserPrincipal());
+        assertTrue(securityContext.isUserInRole("principal-1"));
+        assertTrue(securityContext.isUserInRole("principal-2"));
+        assertFalse(securityContext.isUserInRole("principal-3"));
     }
 }

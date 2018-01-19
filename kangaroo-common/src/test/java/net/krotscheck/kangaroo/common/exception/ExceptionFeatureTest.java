@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.CommonProperties;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
@@ -35,6 +34,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -68,9 +68,9 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
-        Assert.assertEquals(404, r.getStatus());
-        Assert.assertEquals("not_found", response.getError());
-        Assert.assertEquals("HTTP 404 Not Found",
+        assertEquals(404, r.getStatus());
+        assertEquals("not_found", response.getError());
+        assertEquals("HTTP 404 Not Found",
                 response.getErrorDescription());
     }
 
@@ -83,9 +83,9 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
-        Assert.assertEquals(500, r.getStatus());
-        Assert.assertEquals("internal_server_error", response.getError());
-        Assert.assertEquals("HTTP 500 Internal Server Error",
+        assertEquals(500, r.getStatus());
+        assertEquals("internal_server_error", response.getError());
+        assertEquals("HTTP 500 Internal Server Error",
                 response.getErrorDescription());
     }
 
@@ -98,8 +98,8 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
-        Assert.assertEquals(400, r.getStatus());
-        Assert.assertEquals("bad_request", response.getError());
+        assertEquals(400, r.getStatus());
+        assertEquals("bad_request", response.getError());
     }
 
     /**
@@ -111,9 +111,9 @@ public final class ExceptionFeatureTest extends KangarooJerseyTest {
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
 
-        Assert.assertEquals(500, r.getStatus());
-        Assert.assertEquals("internal_server_error", response.getError());
-        Assert.assertEquals("Internal Server Error",
+        assertEquals(500, r.getStatus());
+        assertEquals("internal_server_error", response.getError());
+        assertEquals("Internal Server Error",
                 response.getErrorDescription());
     }
 

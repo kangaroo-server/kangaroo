@@ -28,13 +28,14 @@ import org.apache.http.util.EntityUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.nio.file.Paths;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test for our HTML Application HTTP handler.
@@ -119,9 +120,9 @@ public final class HtmlApplicationHttpHandlerTest {
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Hello world", responseBody1);
+        assertEquals("Hello world", responseBody1);
 
         httpclient.close();
     }
@@ -140,9 +141,9 @@ public final class HtmlApplicationHttpHandlerTest {
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Hello world", responseBody1);
+        assertEquals("Hello world", responseBody1);
 
         httpclient.close();
     }
@@ -162,9 +163,9 @@ public final class HtmlApplicationHttpHandlerTest {
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Hello world", responseBody1);
+        assertEquals("Hello world", responseBody1);
 
         httpclient.close();
     }
@@ -184,9 +185,9 @@ public final class HtmlApplicationHttpHandlerTest {
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Hello world", responseBody1);
+        assertEquals("Hello world", responseBody1);
 
         httpclient.close();
     }
@@ -206,9 +207,9 @@ public final class HtmlApplicationHttpHandlerTest {
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 200);
-        Assert.assertEquals("Other hello world", responseBody1);
+        assertEquals("Other hello world", responseBody1);
 
         httpclient.close();
     }
@@ -228,7 +229,7 @@ public final class HtmlApplicationHttpHandlerTest {
         String responseBody1 = EntityUtils.toString(response.getEntity());
         response.close();
 
-        Assert.assertEquals(response.getStatusLine().getStatusCode(),
+        assertEquals(response.getStatusLine().getStatusCode(),
                 405);
 
         httpclient.close();

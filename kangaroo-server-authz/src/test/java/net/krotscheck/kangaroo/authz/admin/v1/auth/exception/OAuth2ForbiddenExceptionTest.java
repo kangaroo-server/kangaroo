@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.auth.exception;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,6 +25,8 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the forbidden exception.
@@ -53,7 +54,7 @@ public final class OAuth2ForbiddenExceptionTest {
         OAuth2ForbiddenException e =
                 new OAuth2ForbiddenException(mockInfo, requiredScopes);
 
-        Assert.assertEquals(OAuth2ForbiddenException.CODE, e.getCode());
-        Assert.assertEquals("forbidden", e.getMessage());
+        assertEquals(OAuth2ForbiddenException.CODE, e.getCode());
+        assertEquals("forbidden", e.getMessage());
     }
 }

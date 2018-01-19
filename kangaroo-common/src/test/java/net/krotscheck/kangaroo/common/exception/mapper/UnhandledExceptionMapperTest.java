@@ -18,11 +18,12 @@
 package net.krotscheck.kangaroo.common.exception.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test that jersey exceptions are caught and rewritten into appropriate
@@ -43,9 +44,9 @@ public final class UnhandledExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
+        assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        assertEquals("Internal Server Error", er.getErrorDescription());
     }
 }

@@ -30,7 +30,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.hibernate.type.Type;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -39,6 +38,8 @@ import org.mockito.Mockito;
 import java.sql.SQLException;
 import java.util.TimerTask;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -81,7 +82,7 @@ public final class HttpSessionCleanupTaskTest extends DatabaseTest {
         HttpSessionCleanupTask task =
                 new HttpSessionCleanupTask(getSessionFactory(), null);
         TimerTask rTask = task.getTask();
-        Assert.assertSame(task, rTask);
+        assertSame(task, rTask);
     }
 
     /**
@@ -104,15 +105,15 @@ public final class HttpSessionCleanupTaskTest extends DatabaseTest {
                 .createQuery("SELECT count(id) from HttpSession");
 
         long startCount = (long) q.uniqueResult();
-        Assert.assertEquals((long) 10, startCount);
+        assertEquals((long) 10, startCount);
         rTask.run();
         long count = (long) q.uniqueResult();
-        Assert.assertEquals((long) 5, count);
+        assertEquals((long) 5, count);
 
         // Run one more time, make sure it doesn't change anything.
         rTask.run();
         long secondCount = (long) q.uniqueResult();
-        Assert.assertEquals((long) 5, secondCount);
+        assertEquals((long) 5, secondCount);
     }
 
     /**
@@ -272,7 +273,7 @@ public final class HttpSessionCleanupTaskTest extends DatabaseTest {
     public void getPeriod() {
         HttpSessionCleanupTask task =
                 new HttpSessionCleanupTask(getSessionFactory(), null);
-        Assert.assertEquals(10 * 60 * 1000, task.getPeriod());
+        assertEquals(10 * 60 * 1000, task.getPeriod());
     }
 
     /**
@@ -284,6 +285,6 @@ public final class HttpSessionCleanupTaskTest extends DatabaseTest {
                 new HttpSessionCleanupTask(getSessionFactory(), null);
         // By default, the period should equal the delay. No
         // immediately-running tasks.
-        Assert.assertEquals(task.getPeriod(), task.getDelay());
+        assertEquals(task.getPeriod(), task.getDelay());
     }
 }

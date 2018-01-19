@@ -23,7 +23,6 @@ import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -36,6 +35,8 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the CORS feature, by injecting it and accessing its values.
@@ -73,13 +74,13 @@ public final class CORSFeatureTest extends ContainerTest {
     public void testAllowedHeaders() {
         Response response = target("/allowed_headers").request().get();
         List<String> results = response.readEntity(LIST_TYPE);
-        Assert.assertTrue(results.contains(HttpHeaders.ACCEPT));
-        Assert.assertTrue(results.contains(HttpHeaders.ACCEPT_LANGUAGE));
-        Assert.assertTrue(results.contains(HttpHeaders.CONTENT_LANGUAGE));
-        Assert.assertTrue(results.contains(HttpHeaders.AUTHORIZATION));
-        Assert.assertTrue(results.contains(HttpHeaders.CONTENT_TYPE));
-        Assert.assertTrue(results.contains(HttpHeaders.ORIGIN));
-        Assert.assertTrue(results.contains(HttpHeaders.X_REQUESTED_WITH));
+        assertTrue(results.contains(HttpHeaders.ACCEPT));
+        assertTrue(results.contains(HttpHeaders.ACCEPT_LANGUAGE));
+        assertTrue(results.contains(HttpHeaders.CONTENT_LANGUAGE));
+        assertTrue(results.contains(HttpHeaders.AUTHORIZATION));
+        assertTrue(results.contains(HttpHeaders.CONTENT_TYPE));
+        assertTrue(results.contains(HttpHeaders.ORIGIN));
+        assertTrue(results.contains(HttpHeaders.X_REQUESTED_WITH));
     }
 
     /**
@@ -89,11 +90,11 @@ public final class CORSFeatureTest extends ContainerTest {
     public void testAllowedMethods() {
         Response response = target("/allowed_methods").request().get();
         List<String> results = response.readEntity(LIST_TYPE);
-        Assert.assertTrue(results.contains(HttpMethod.GET));
-        Assert.assertTrue(results.contains(HttpMethod.PUT));
-        Assert.assertTrue(results.contains(HttpMethod.POST));
-        Assert.assertTrue(results.contains(HttpMethod.DELETE));
-        Assert.assertTrue(results.contains(HttpMethod.OPTIONS));
+        assertTrue(results.contains(HttpMethod.GET));
+        assertTrue(results.contains(HttpMethod.PUT));
+        assertTrue(results.contains(HttpMethod.POST));
+        assertTrue(results.contains(HttpMethod.DELETE));
+        assertTrue(results.contains(HttpMethod.OPTIONS));
     }
 
     /**
@@ -103,14 +104,14 @@ public final class CORSFeatureTest extends ContainerTest {
     public void testExposedHeaders() {
         Response response = target("/exposed_headers").request().get();
         List<String> results = response.readEntity(LIST_TYPE);
-        Assert.assertTrue(results.contains(HttpHeaders.LOCATION));
-        Assert.assertTrue(results.contains(HttpHeaders.WWW_AUTHENTICATE));
-        Assert.assertTrue(results.contains(HttpHeaders.CACHE_CONTROL));
-        Assert.assertTrue(results.contains(HttpHeaders.CONTENT_LANGUAGE));
-        Assert.assertTrue(results.contains(HttpHeaders.CONTENT_TYPE));
-        Assert.assertTrue(results.contains(HttpHeaders.EXPIRES));
-        Assert.assertTrue(results.contains(HttpHeaders.LAST_MODIFIED));
-        Assert.assertTrue(results.contains(HttpHeaders.PRAGMA));
+        assertTrue(results.contains(HttpHeaders.LOCATION));
+        assertTrue(results.contains(HttpHeaders.WWW_AUTHENTICATE));
+        assertTrue(results.contains(HttpHeaders.CACHE_CONTROL));
+        assertTrue(results.contains(HttpHeaders.CONTENT_LANGUAGE));
+        assertTrue(results.contains(HttpHeaders.CONTENT_TYPE));
+        assertTrue(results.contains(HttpHeaders.EXPIRES));
+        assertTrue(results.contains(HttpHeaders.LAST_MODIFIED));
+        assertTrue(results.contains(HttpHeaders.PRAGMA));
     }
 
     /**

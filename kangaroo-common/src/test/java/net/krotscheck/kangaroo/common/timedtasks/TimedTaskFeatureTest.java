@@ -21,11 +21,12 @@ package net.krotscheck.kangaroo.common.timedtasks;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * General smoke test for the timed task feature.
@@ -53,6 +54,6 @@ public final class TimedTaskFeatureTest extends KangarooJerseyTest {
     @Test
     public void testSimpleRequest() {
         Response r = target("/status").request().get();
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
     }
 }

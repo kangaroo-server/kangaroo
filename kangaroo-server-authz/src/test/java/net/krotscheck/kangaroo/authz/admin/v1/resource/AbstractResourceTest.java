@@ -37,7 +37,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.collection.internal.PersistentSortedMap;
 import org.hibernate.internal.SessionImpl;
-import org.junit.Assert;
 import org.junit.ClassRule;
 
 import javax.persistence.Transient;
@@ -66,6 +65,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Abstract test harness for the administration API. Handles all of our data
@@ -560,7 +560,7 @@ public abstract class AbstractResourceTest<T extends AbstractEntity>
             }
 
         } catch (Exception e) {
-            Assert.assertTrue(false);
+            assertTrue(false);
         }
     }
 
