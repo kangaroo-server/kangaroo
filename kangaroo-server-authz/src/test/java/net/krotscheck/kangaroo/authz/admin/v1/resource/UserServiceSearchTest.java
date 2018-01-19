@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -42,6 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the UserService API.
@@ -230,7 +231,7 @@ public final class UserServiceSearchTest
         } else if (!isAccessible(a, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -315,7 +316,7 @@ public final class UserServiceSearchTest
         } else if (!isAccessible(role, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,

@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.util.HttpUtil;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,6 +37,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for our authorization filter.
@@ -153,7 +154,7 @@ public final class OAuth2AuthenticationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(validBearerToken.getId()))
                 .get();
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -164,7 +165,7 @@ public final class OAuth2AuthenticationFilterTest
         Response r = target("/user")
                 .request()
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -177,7 +178,7 @@ public final class OAuth2AuthenticationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(noScopeBearerToken.getId()))
                 .get();
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -190,7 +191,7 @@ public final class OAuth2AuthenticationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(expiredBearerToken.getId()))
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -204,7 +205,7 @@ public final class OAuth2AuthenticationFilterTest
                         HttpUtil.authHeaderBearer(
                                 IdUtil.toString(IdUtil.next())))
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -216,7 +217,7 @@ public final class OAuth2AuthenticationFilterTest
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer YUIIUYIY")
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -230,7 +231,7 @@ public final class OAuth2AuthenticationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(authToken.getId()))
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -243,7 +244,7 @@ public final class OAuth2AuthenticationFilterTest
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("HMAC %s", authToken.getId()))
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**
@@ -255,7 +256,7 @@ public final class OAuth2AuthenticationFilterTest
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OMGOMGOMG")
                 .get();
-        Assert.assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
     }
 
     /**

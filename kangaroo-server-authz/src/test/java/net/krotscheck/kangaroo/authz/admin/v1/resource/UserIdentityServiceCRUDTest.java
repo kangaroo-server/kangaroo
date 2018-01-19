@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.authz.common.util.PasswordUtil;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -41,6 +40,10 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test the CRUD methods of the UserIdentity service.
@@ -242,19 +245,19 @@ public final class UserIdentityServiceCRUDTest
                 .build();
         UserIdentity testingEntity = testContext.getUserIdentity();
 
-        Assert.assertNotNull(testingEntity.getPassword());
-        Assert.assertNotNull(testingEntity.getSalt());
+        assertNotNull(testingEntity.getPassword());
+        assertNotNull(testingEntity.getSalt());
 
         // Issue the request.
         Response r = getEntity(testingEntity, getAdminToken());
 
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
 
             UserIdentity response = r.readEntity(UserIdentity.class);
-            Assert.assertEquals(testingEntity.getId(), response.getId());
-            Assert.assertNull(response.getPassword());
-            Assert.assertNull(response.getSalt());
+            assertEquals(testingEntity.getId(), response.getId());
+            assertNull(response.getPassword());
+            assertNull(response.getSalt());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -273,13 +276,13 @@ public final class UserIdentityServiceCRUDTest
         Response r = postEntity(testEntity, getAdminToken());
 
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             UserIdentity response = getResponse.readEntity(UserIdentity.class);
-            Assert.assertNull(response.getPassword());
-            Assert.assertNull(response.getSalt());
+            assertNull(response.getPassword());
+            assertNull(response.getSalt());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -298,14 +301,14 @@ public final class UserIdentityServiceCRUDTest
         Response r = postEntity(testEntity, getAdminToken());
 
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             UserIdentity response = getResponse.readEntity(UserIdentity.class);
 
-            Assert.assertNull(response.getPassword());
-            Assert.assertNull(response.getSalt());
+            assertNull(response.getPassword());
+            assertNull(response.getSalt());
 
             // Load all entities. This seems to add just enough lag into the
             // test that we can correctly load the dbEntity later.
@@ -317,9 +320,9 @@ public final class UserIdentityServiceCRUDTest
                     .byId(UserIdentity.class)
                     .load(response.getId());
 
-            Assert.assertNotNull(dbEntity.getPassword());
-            Assert.assertNotNull(dbEntity.getSalt());
-            Assert.assertEquals(dbEntity.getPassword(),
+            assertNotNull(dbEntity.getPassword());
+            assertNotNull(dbEntity.getSalt());
+            assertEquals(dbEntity.getPassword(),
                     PasswordUtil.hash(testEntity.getPassword(),
                             dbEntity.getSalt()));
         } else {
@@ -450,11 +453,11 @@ public final class UserIdentityServiceCRUDTest
         Response r = putEntity(testEntity, getAdminToken());
 
         if (isAccessible(testEntity, getAdminToken())) {
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
 
             UserIdentity response = r.readEntity(UserIdentity.class);
-            Assert.assertNull(response.getPassword());
-            Assert.assertNull(response.getSalt());
+            assertNull(response.getPassword());
+            assertNull(response.getSalt());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

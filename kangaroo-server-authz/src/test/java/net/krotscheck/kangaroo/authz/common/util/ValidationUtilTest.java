@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidRequestException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnsupportedResponseTypeException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,6 +41,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for the validation utilities.
@@ -79,7 +82,7 @@ public final class ValidationUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = ValidationUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -106,7 +109,7 @@ public final class ValidationUtilTest {
         URI result =
                 ValidationUtil.requireValidRedirect("http://one.example.com",
                         testRedirects);
-        Assert.assertEquals("http://one.example.com", result.toString());
+        assertEquals("http://one.example.com", result.toString());
     }
 
     /**
@@ -131,7 +134,7 @@ public final class ValidationUtilTest {
         URI result =
                 ValidationUtil.requireValidRedirect(validUri,
                         testRedirects);
-        Assert.assertEquals(validUri, result);
+        assertEquals(validUri, result);
     }
 
     /**
@@ -173,7 +176,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil.requireValidRedirect((String) null,
                 testRedirects);
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -190,7 +193,7 @@ public final class ValidationUtilTest {
         URI result =
                 ValidationUtil.requireValidRedirect("http://one.example.com",
                         testSet);
-        Assert.assertEquals("http://one.example.com", result.toString());
+        assertEquals("http://one.example.com", result.toString());
     }
 
     /**
@@ -206,7 +209,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil.validateRedirect(
                 new URI("http://one.example.com"), testSet);
-        Assert.assertEquals("http://one.example.com", result.toString());
+        assertEquals("http://one.example.com", result.toString());
     }
 
     /**
@@ -221,7 +224,7 @@ public final class ValidationUtilTest {
         testSet.add(new URI("http://two.example.com"));
 
         URI result = ValidationUtil.validateRedirect((URI) null, testSet);
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -301,7 +304,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil.validateRedirect("http://three.example.com",
                 testRedirects);
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -315,7 +318,7 @@ public final class ValidationUtilTest {
         testSet.add(new URI("http://two.example.com"));
 
         URI result = ValidationUtil.requireValidRedirect("", testSet);
-        Assert.assertEquals("http://two.example.com", result.toString());
+        assertEquals("http://two.example.com", result.toString());
     }
 
     /**
@@ -370,7 +373,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil
                 .requireValidRedirect(test.toString(), testSet);
-        Assert.assertEquals(test, result);
+        assertEquals(test, result);
     }
 
     /**
@@ -387,7 +390,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil
                 .requireValidRedirect(test.toString(), testSet);
-        Assert.assertEquals(test, result);
+        assertEquals(test, result);
     }
 
     /**
@@ -405,7 +408,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil
                 .requireValidRedirect(test.toString(), testSet);
-        Assert.assertEquals(test, result);
+        assertEquals(test, result);
     }
 
     /**
@@ -424,7 +427,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil.requireValidRedirect(test.toString(),
                 testSet);
-        Assert.assertEquals(test, result);
+        assertEquals(test, result);
     }
 
     /**
@@ -457,7 +460,7 @@ public final class ValidationUtilTest {
 
         URI result = ValidationUtil.requireValidRedirect(test.toString(),
                 testSet);
-        Assert.assertEquals(test, result);
+        assertEquals(test, result);
     }
 
     /**
@@ -469,7 +472,7 @@ public final class ValidationUtilTest {
     public void testValidScopeString() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope("debug1", validScopes);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -483,7 +486,7 @@ public final class ValidationUtilTest {
         String encoded = URLEncoder.encode(scope, "UTF-8");
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(encoded, validScopes);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -495,7 +498,7 @@ public final class ValidationUtilTest {
     public void testValidScopeArray() throws Exception {
         SortedMap<String, ApplicationScope> scopes = ValidationUtil
                 .validateScope(new String[]{"debug1"}, validScopes);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -508,7 +511,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(new String[]{"invalid"},
                         validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -520,7 +523,7 @@ public final class ValidationUtilTest {
     public void testNullScopeString() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope((String) null, validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -532,7 +535,7 @@ public final class ValidationUtilTest {
     public void testEmptyScopeString() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope("", validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -544,7 +547,7 @@ public final class ValidationUtilTest {
     public void testNullScopeArray() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope((String[]) null, validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -556,7 +559,7 @@ public final class ValidationUtilTest {
     public void testEmptyScopeArray() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(new String[]{}, validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -568,7 +571,7 @@ public final class ValidationUtilTest {
     public void testNullValidScopes() throws Exception {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(new String[]{"debug1"}, null);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -581,7 +584,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(new String[]{"debug1"},
                         new TreeMap<>());
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -608,7 +611,7 @@ public final class ValidationUtilTest {
 
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope("", r);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -633,7 +636,7 @@ public final class ValidationUtilTest {
 
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope("debug2", r);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -659,7 +662,7 @@ public final class ValidationUtilTest {
 
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope("debug1 debug3", r);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -687,7 +690,7 @@ public final class ValidationUtilTest {
 
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(new TreeMap<>(), r);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -715,7 +718,7 @@ public final class ValidationUtilTest {
 
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.validateScope(requestedScopes, r);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -758,7 +761,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(
                         new String[]{"debug1"}, validScopes, validScopes);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -771,7 +774,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(
                         "debug1", validScopes, validScopes);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -787,7 +790,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(
                         "debug1", validScopes, r);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -810,7 +813,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(
                         "", validScopes, validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -823,7 +826,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope((String) null, validScopes,
                         validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -836,7 +839,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(new String[]{}, validScopes,
                         validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -849,7 +852,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope((String[]) null, validScopes,
                         validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -862,7 +865,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(new String[]{}, emptyScope,
                         validScopes);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -885,7 +888,7 @@ public final class ValidationUtilTest {
         SortedMap<String, ApplicationScope> scopes =
                 ValidationUtil.revalidateScope(new String[]{}, validScopes,
                         emptyScope);
-        Assert.assertEquals(0, scopes.size());
+        assertEquals(0, scopes.size());
     }
 
     /**
@@ -925,7 +928,7 @@ public final class ValidationUtilTest {
                 ValidationUtil.revalidateScope(
                         new String[]{"debug", "debug1"}, validScopes,
                         shrunkScopes);
-        Assert.assertEquals(1, scopes.size());
+        assertEquals(1, scopes.size());
     }
 
     /**
@@ -946,7 +949,7 @@ public final class ValidationUtilTest {
 
         Authenticator result = ValidationUtil.validateAuthenticator(
                 AuthenticatorType.Test, testList);
-        Assert.assertEquals(result, two);
+        assertEquals(result, two);
     }
 
     /**
@@ -981,7 +984,7 @@ public final class ValidationUtilTest {
 
         Authenticator result = ValidationUtil.validateAuthenticator(null,
                 testList);
-        Assert.assertEquals(result, one);
+        assertEquals(result, one);
     }
 
     /**
@@ -1024,7 +1027,6 @@ public final class ValidationUtilTest {
         c.setType(ClientType.Implicit);
 
         ValidationUtil.validateResponseType(c, "token");
-        Assert.assertTrue(true);
     }
 
     /**
@@ -1037,7 +1039,6 @@ public final class ValidationUtilTest {
         c.setType(ClientType.AuthorizationGrant);
 
         ValidationUtil.validateResponseType(c, "code");
-        Assert.assertTrue(true);
     }
 
     /**

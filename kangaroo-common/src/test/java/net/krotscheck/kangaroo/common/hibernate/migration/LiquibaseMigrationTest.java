@@ -37,6 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -98,7 +101,7 @@ public final class LiquibaseMigrationTest {
         DatabaseResource resource = new DatabaseResource();
         try (ITestDatabase db = resource.createDatabase();
              Connection c = db.getConnection()) {
-            Assert.assertFalse(hasTestTable(c));
+            assertFalse(hasTestTable(c));
 
             // Run the migration
             PooledDataSource ps = mock(PooledDataSource.class);
@@ -109,10 +112,10 @@ public final class LiquibaseMigrationTest {
             listener.get();
 
             // Assert that the connection is closed after migration.
-            Assert.assertTrue(testConnection.isClosed());
+            assertTrue(testConnection.isClosed());
 
             // Ensure that the tables have been created.
-            Assert.assertTrue(hasTestTable(c));
+            assertTrue(hasTestTable(c));
         }
     }
 
@@ -134,7 +137,7 @@ public final class LiquibaseMigrationTest {
             listener.get();
             Assert.fail();
         } catch (RuntimeException e) {
-            Assert.assertNotNull(e);
+            assertNotNull(e);
         }
     }
 
@@ -155,7 +158,7 @@ public final class LiquibaseMigrationTest {
             listener.get();
             Assert.fail();
         } catch (RuntimeException e) {
-            Assert.assertNotNull(e);
+            assertNotNull(e);
         }
     }
 
@@ -176,7 +179,7 @@ public final class LiquibaseMigrationTest {
             listener.get();
             Assert.fail();
         } catch (RuntimeException e) {
-            Assert.assertNotNull(e);
+            assertNotNull(e);
         }
     }
 
@@ -191,7 +194,7 @@ public final class LiquibaseMigrationTest {
         DatabaseResource resource = new DatabaseResource();
         try (ITestDatabase db = resource.createDatabase();
              Connection c = db.getConnection()) {
-            Assert.assertFalse(hasTestTable(c));
+            assertFalse(hasTestTable(c));
 
             // Run the migration
             PooledDataSource ps = mock(PooledDataSource.class);
@@ -210,14 +213,14 @@ public final class LiquibaseMigrationTest {
                 listener.get();
                 Assert.fail();
             } catch (RuntimeException e) {
-                Assert.assertNotNull(e);
+                assertNotNull(e);
             }
 
             // Assert that the connection is closed after migration.
-            Assert.assertTrue(testConnection.isClosed());
+            assertTrue(testConnection.isClosed());
 
             // Ensure that the tables have been created.
-            Assert.assertFalse(hasTestTable(c));
+            assertFalse(hasTestTable(c));
         }
     }
 
@@ -232,7 +235,7 @@ public final class LiquibaseMigrationTest {
         DatabaseResource resource = new DatabaseResource();
         try (ITestDatabase db = resource.createDatabase();
              Connection c = db.getConnection()) {
-            Assert.assertFalse(hasTestTable(c));
+            assertFalse(hasTestTable(c));
 
             // Run the migration
             PooledDataSource ps = mock(PooledDataSource.class);
@@ -251,14 +254,14 @@ public final class LiquibaseMigrationTest {
                 listener.get();
                 Assert.fail();
             } catch (BadRequestException e) {
-                Assert.assertNotNull(e);
+                assertNotNull(e);
             }
 
             // Assert that the connection is closed after migration.
-            Assert.assertTrue(testConnection.isClosed());
+            assertTrue(testConnection.isClosed());
 
             // Ensure that the tables have been created.
-            Assert.assertFalse(hasTestTable(c));
+            assertFalse(hasTestTable(c));
         }
     }
 }

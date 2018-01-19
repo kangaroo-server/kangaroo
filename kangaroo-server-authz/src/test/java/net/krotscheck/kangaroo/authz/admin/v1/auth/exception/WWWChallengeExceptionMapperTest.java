@@ -24,7 +24,6 @@ import net.krotscheck.kangaroo.common.exception.ExceptionFeature;
 import net.krotscheck.kangaroo.common.jackson.JacksonFeature;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
@@ -39,6 +38,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -71,23 +73,23 @@ public final class WWWChallengeExceptionMapperTest extends ContainerTest {
     public void test401Serialization() {
         Response r = target("/error/401").request().get();
 
-        Assert.assertEquals(401, r.getStatus());
+        assertEquals(401, r.getStatus());
 
         Map<String, String> headerValues =
                 decodeHeader(r.getHeaderString(HttpHeaders.WWW_AUTHENTICATE));
 
-        Assert.assertEquals(
+        assertEquals(
                 "unauthorized",
                 headerValues.get("error"));
-        Assert.assertEquals(
+        assertEquals(
                 "You are not authorized.",
                 headerValues.get("error_description"));
-        Assert.assertEquals(
+        assertEquals(
                 "one two",
                 headerValues.get("scope"));
 
         URI realm = UriBuilder.fromUri(headerValues.get("realm")).build();
-        Assert.assertEquals("/error", realm.getPath());
+        assertEquals("/error", realm.getPath());
     }
 
     /**
@@ -97,23 +99,23 @@ public final class WWWChallengeExceptionMapperTest extends ContainerTest {
     public void test403Serialization() {
         Response r = target("/error/403").request().get();
 
-        Assert.assertEquals(403, r.getStatus());
+        assertEquals(403, r.getStatus());
 
         Map<String, String> headerValues =
                 decodeHeader(r.getHeaderString(HttpHeaders.WWW_AUTHENTICATE));
 
-        Assert.assertEquals(
+        assertEquals(
                 "forbidden",
                 headerValues.get("error"));
-        Assert.assertEquals(
+        assertEquals(
                 "This token may not access this resource.",
                 headerValues.get("error_description"));
-        Assert.assertEquals(
+        assertEquals(
                 "one two",
                 headerValues.get("scope"));
 
         URI realm = UriBuilder.fromUri(headerValues.get("realm")).build();
-        Assert.assertEquals("/error", realm.getPath());
+        assertEquals("/error", realm.getPath());
     }
 
     /**
@@ -124,7 +126,7 @@ public final class WWWChallengeExceptionMapperTest extends ContainerTest {
      */
     private Map<String, String> decodeHeader(final String headerString) {
 
-        Assert.assertTrue(headerString.indexOf("Bearer") == 0);
+        assertTrue(headerString.indexOf("Bearer") == 0);
 
         Map<String, String> headerValues = new HashMap<>();
         Arrays.stream(headerString.substring(7).split(","))

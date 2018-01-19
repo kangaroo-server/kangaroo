@@ -30,11 +30,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.runner.RunWith;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -75,9 +77,9 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
         BigInteger accessTokenId = IdUtil.fromString(accessTokenString);
 
         OAuthToken t = s.get(OAuthToken.class, accessTokenId);
-        Assert.assertEquals(OAuthTokenType.valueOf(tokenType),
+        assertEquals(OAuthTokenType.valueOf(tokenType),
                 t.getTokenType());
-        Assert.assertEquals(expiresIn, t.getExpiresIn());
+        assertEquals(expiresIn, t.getExpiresIn());
 
         TokenResponseEntity entity = TokenResponseEntity.factory(t, state);
 
@@ -96,34 +98,34 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
         Session s = getSession();
 
         // Validate the token itself.
-        Assert.assertNotNull(token.getAccessToken());
-        Assert.assertEquals(
+        assertNotNull(token.getAccessToken());
+        assertEquals(
                 Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
                 token.getExpiresIn());
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
 
         OAuthToken bearer = s.get(OAuthToken.class, token.getAccessToken());
-        Assert.assertNotNull(bearer);
-        Assert.assertEquals(
+        assertNotNull(bearer);
+        assertEquals(
                 Long.valueOf(ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT),
                 bearer.getExpiresIn());
-        Assert.assertEquals(bearer.getTokenType(), OAuthTokenType.Bearer);
+        assertEquals(bearer.getTokenType(), OAuthTokenType.Bearer);
 
         // Do we expect an identity?
         if (requireIdentity) {
-            Assert.assertNotNull(bearer.getIdentity());
+            assertNotNull(bearer.getIdentity());
         }
 
         // Validate any attached refresh token.
         BigInteger refreshTokenId = token.getRefreshToken();
         if (refreshTokenId != null) {
             OAuthToken refresh = s.get(OAuthToken.class, refreshTokenId);
-            Assert.assertEquals(refresh.getAuthToken(), bearer);
-            Assert.assertEquals(refresh.getIdentity(), bearer.getIdentity());
-            Assert.assertEquals(refresh.getScopes(), bearer.getScopes());
-            Assert.assertEquals(refresh.getTokenType(), OAuthTokenType.Refresh);
-            Assert.assertEquals(refresh.getClient(), bearer.getClient());
-            Assert.assertEquals(
+            assertEquals(refresh.getAuthToken(), bearer);
+            assertEquals(refresh.getIdentity(), bearer.getIdentity());
+            assertEquals(refresh.getScopes(), bearer.getScopes());
+            assertEquals(refresh.getTokenType(), OAuthTokenType.Refresh);
+            assertEquals(refresh.getClient(), bearer.getClient());
+            assertEquals(
                     Long.valueOf(ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT),
                     refresh.getExpiresIn());
         }

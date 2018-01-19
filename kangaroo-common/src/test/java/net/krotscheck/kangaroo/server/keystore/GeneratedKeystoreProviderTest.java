@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.server.keystore;
 
 import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +37,8 @@ import java.security.interfaces.RSAPublicKey;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
@@ -65,7 +66,7 @@ public final class GeneratedKeystoreProviderTest {
      * Setup the tests.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         File tempDir = workingDirectory.getWorkingDir();
         provider = Mockito.spy(new GeneratedKeystoreProvider(tempDir
                 .getAbsolutePath()));
@@ -143,18 +144,18 @@ public final class GeneratedKeystoreProviderTest {
     public void validateCertificates() throws Exception {
         Certificate[] chain =
                 provider.getKeyStore().getCertificateChain("kangaroo");
-        Assert.assertEquals(1, chain.length);
+        assertEquals(1, chain.length);
 
         X509Certificate cert = (X509Certificate) chain[0];
-        Assert.assertNotNull(cert);
+        assertNotNull(cert);
 
         Principal iss = cert.getIssuerDN();
         Principal sub = cert.getSubjectDN();
 
-        Assert.assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
+        assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
                         + "L=Seattle, ST=Washington, C=US",
                 iss.getName());
-        Assert.assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
+        assertEquals("CN=localhost, OU=Kangaroo, O=Kangaroo, "
                         + "L=Seattle, ST=Washington, C=US",
                 sub.getName());
     }
@@ -171,10 +172,10 @@ public final class GeneratedKeystoreProviderTest {
                 ks.getKey("kangaroo", "kangaroo".toCharArray());
         Certificate[] chain =
                 provider.getKeyStore().getCertificateChain("kangaroo");
-        Assert.assertEquals(1, chain.length);
+        assertEquals(1, chain.length);
         RSAPublicKey pubKey = (RSAPublicKey) chain[0].getPublicKey();
 
-        Assert.assertEquals(key.getModulus(), pubKey.getModulus());
+        assertEquals(key.getModulus(), pubKey.getModulus());
     }
 
     /**
@@ -186,7 +187,7 @@ public final class GeneratedKeystoreProviderTest {
     public void getKeystoreSingleton() throws Exception {
         KeyStore ks1 = provider.getKeyStore();
         KeyStore ks2 = provider.getKeyStore();
-        Assert.assertSame(ks1, ks2);
+        assertSame(ks1, ks2);
     }
 
     /**
@@ -204,7 +205,7 @@ public final class GeneratedKeystoreProviderTest {
 
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(bais, "kangaroo".toCharArray());
-        Assert.assertEquals("kangaroo", keyStore.aliases().nextElement());
+        assertEquals("kangaroo", keyStore.aliases().nextElement());
     }
 
     /**

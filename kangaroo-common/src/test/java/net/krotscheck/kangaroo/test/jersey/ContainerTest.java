@@ -30,7 +30,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -51,6 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -62,10 +62,15 @@ import static org.junit.Assert.assertTrue;
 public abstract class ContainerTest extends KangarooJerseyTest {
 
     /**
-     * Logger instance.
+     * Ensure that we have a STATIC working directory.
      */
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    public static final WorkingDirectoryRule WORKING_DIRECTORY =
+            new WorkingDirectoryRule();
+    /**
+     * The hibernate rule, explicitly created so we can reference it later.
+     */
+    public static final HibernateResource HIBERNATE_RESOURCE =
+            new HibernateResource();
     /**
      * A list of HTTP status codes that are valid for redirects.
      */
@@ -73,25 +78,11 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             Arrays.asList(Status.SEE_OTHER, Status.CREATED,
                     Status.MOVED_PERMANENTLY,
                     Status.FOUND);
-
     /**
      * The database test rule. Private, so it can be wrapped below.
      */
     private static final DatabaseResource DATABASE_RESOURCE =
             new DatabaseResource();
-
-    /**
-     * Ensure that we have a STATIC working directory.
-     */
-    public static final WorkingDirectoryRule WORKING_DIRECTORY =
-            new WorkingDirectoryRule();
-
-    /**
-     * The hibernate rule, explicitly created so we can reference it later.
-     */
-    public static final HibernateResource HIBERNATE_RESOURCE =
-            new HibernateResource();
-
     /**
      * Ensure that a JDNI resource is set up for this suite.
      */
@@ -100,24 +91,20 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             .outerRule(DATABASE_RESOURCE)
             .around(WORKING_DIRECTORY)
             .around(HIBERNATE_RESOURCE);
-
     /**
      * The hibernate test rule. Private, so it can be wrapped below.
      */
     private final HibernateTestResource hibernate =
             new HibernateTestResource(HIBERNATE_RESOURCE);
-
     /**
      * Make the test name available during a test.
      */
     private final TestName testName = new TestName();
-
     /**
      * Make the # of active DB sessions available in every test.
      */
     private final ActiveSessions sessionCount =
             new ActiveSessions(HIBERNATE_RESOURCE);
-
     /**
      * Ensure that a JDNI resource is set up for this suite.
      */
@@ -126,6 +113,10 @@ public abstract class ContainerTest extends KangarooJerseyTest {
             .outerRule(testName)
             .around(sessionCount)
             .around(hibernate);
+    /**
+     * Logger instance.
+     */
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Log out the test name.
@@ -268,7 +259,7 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     protected final void assertErrorResponse(final Response r,
                                              final int statusCode,
                                              final String expectedMessage) {
-        Assert.assertFalse(
+        assertFalse(
                 String.format("%s must not be a success code", r.getStatus()),
                 r.getStatus() < 400);
         ErrorResponse response = r.readEntity(ErrorResponse.class);

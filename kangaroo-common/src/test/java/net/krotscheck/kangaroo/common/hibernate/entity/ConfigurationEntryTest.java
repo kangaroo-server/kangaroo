@@ -18,8 +18,10 @@
 
 package net.krotscheck.kangaroo.common.hibernate.entity;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test the configuration entry entity.
@@ -35,9 +37,9 @@ public final class ConfigurationEntryTest {
     public void testGetSetSection() {
         ConfigurationEntry entry = new ConfigurationEntry();
 
-        Assert.assertNull(entry.getSection());
+        assertNull(entry.getSection());
         entry.setSection("section");
-        Assert.assertEquals("section", entry.getSection());
+        assertEquals("section", entry.getSection());
     }
 
     /**
@@ -47,9 +49,9 @@ public final class ConfigurationEntryTest {
     public void testGetSetKey() {
         ConfigurationEntry entry = new ConfigurationEntry();
 
-        Assert.assertNull(entry.getKey());
+        assertNull(entry.getKey());
         entry.setKey("key");
-        Assert.assertEquals("key", entry.getKey());
+        assertEquals("key", entry.getKey());
     }
 
     /**
@@ -59,8 +61,8 @@ public final class ConfigurationEntryTest {
     public void testGetSetValue() {
         ConfigurationEntry entry = new ConfigurationEntry();
 
-        Assert.assertNull(entry.getValue());
+        assertNull(entry.getValue());
         entry.setValue("value");
-        Assert.assertEquals("value", entry.getValue());
+        assertEquals("value", entry.getValue());
     }
 }

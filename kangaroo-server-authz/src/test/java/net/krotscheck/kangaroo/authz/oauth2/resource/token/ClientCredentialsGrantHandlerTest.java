@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -37,6 +36,9 @@ import org.junit.rules.TestRule;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -121,12 +123,12 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
 
         TokenResponseEntity token = handler.handle(testClient,
                 "debug", null);
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNull(token.getRefreshToken());
-        Assert.assertEquals("debug", token.getScope());
-        Assert.assertNotNull(token.getAccessToken());
+        assertNull(token.getRefreshToken());
+        assertEquals("debug", token.getScope());
+        assertNotNull(token.getAccessToken());
     }
 
     /**
@@ -160,12 +162,12 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
 
         TokenResponseEntity token = handler.handle(testClient,
                 "debug", null);
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNull(token.getRefreshToken());
-        Assert.assertEquals("debug", token.getScope());
-        Assert.assertNotNull(token.getAccessToken());
+        assertNull(token.getRefreshToken());
+        assertEquals("debug", token.getScope());
+        assertNotNull(token.getAccessToken());
     }
 
     /**
@@ -177,11 +179,11 @@ public final class ClientCredentialsGrantHandlerTest extends DatabaseTest {
         Client c = noScopeContext.getClient();
         TokenResponseEntity token = handler.handle(c,
                 "debug", null);
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNull(token.getRefreshToken());
-        Assert.assertNull(token.getScope());
-        Assert.assertNotNull(token.getAccessToken());
+        assertNull(token.getRefreshToken());
+        assertNull(token.getScope());
+        assertNotNull(token.getAccessToken());
     }
 }

@@ -23,12 +23,14 @@ import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.net.URI;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for the CORS cache loader.
@@ -61,7 +63,7 @@ public final class HibernateCORSCacheLoaderTest extends DatabaseTest {
                 new HibernateCORSCacheLoader(getSessionFactory());
 
         Boolean result = loader.load(valid);
-        Assert.assertTrue(result);
+        assertTrue(result);
     }
 
     /**
@@ -76,7 +78,7 @@ public final class HibernateCORSCacheLoaderTest extends DatabaseTest {
                 new HibernateCORSCacheLoader(getSessionFactory());
 
         Boolean result = loader.load(invalid);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -97,7 +99,7 @@ public final class HibernateCORSCacheLoaderTest extends DatabaseTest {
                 new HibernateCORSCacheLoader(mockFactory);
 
         Boolean result = loader.load(invalid);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -119,6 +121,6 @@ public final class HibernateCORSCacheLoaderTest extends DatabaseTest {
                 new HibernateCORSCacheLoader(mockFactory);
 
         Boolean result = loader.load(invalid);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 }

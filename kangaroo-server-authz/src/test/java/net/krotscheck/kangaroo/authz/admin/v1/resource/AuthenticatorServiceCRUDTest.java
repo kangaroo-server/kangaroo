@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -39,6 +38,9 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 
 /**
@@ -305,8 +307,8 @@ public final class AuthenticatorServiceCRUDTest
 
         if (isAccessible(a, getAdminToken())) {
             Authenticator response = r.readEntity(Authenticator.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(a, response);
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(a, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -359,7 +361,7 @@ public final class AuthenticatorServiceCRUDTest
         Client newParent = getAdminContext().getClient();
         Authenticator entity = getEntity(getSecondaryContext());
 
-        Assert.assertNotEquals(newParent, entity.getClient());
+        assertNotEquals(newParent, entity.getClient());
 
         Authenticator authenticator = new Authenticator();
         authenticator.setId(entity.getId());

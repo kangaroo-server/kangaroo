@@ -19,11 +19,13 @@ package net.krotscheck.kangaroo.authz.common.database.util;
 
 import net.krotscheck.kangaroo.common.response.SortOrder;
 import org.hibernate.criterion.Order;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * A hibernate sort utility.
@@ -39,12 +41,12 @@ public final class SortUtilTest {
     @Test
     public void testOrder() {
         Order order = SortUtil.order(SortOrder.ASC, "foo");
-        Assert.assertEquals("foo", order.getPropertyName());
-        Assert.assertEquals(true, order.isAscending());
+        assertEquals("foo", order.getPropertyName());
+        assertEquals(true, order.isAscending());
 
         Order order2 = SortUtil.order(SortOrder.DESC, "bar");
-        Assert.assertEquals("bar", order2.getPropertyName());
-        Assert.assertEquals(false, order2.isAscending());
+        assertEquals("bar", order2.getPropertyName());
+        assertEquals(false, order2.isAscending());
     }
 
     /**
@@ -55,7 +57,7 @@ public final class SortUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = SortUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);

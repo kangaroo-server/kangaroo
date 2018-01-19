@@ -20,11 +20,13 @@ package net.krotscheck.kangaroo.common.hibernate.type;
 
 import org.hibernate.dialect.MariaDBDialect;
 import org.hibernate.type.DiscriminatorType;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the custom URI type.
@@ -48,7 +50,7 @@ public final class URITypeTest {
     public void testGenericConstructor() throws Exception {
         DiscriminatorType t = new URIType();
         URI uri = (URI) t.stringToObject("http://example.com");
-        Assert.assertEquals(testUri, uri);
+        assertEquals(testUri, uri);
     }
 
     /**
@@ -57,7 +59,7 @@ public final class URITypeTest {
     @Test
     public void testRegisterUnderJavaType() {
         URIType t = new URIType();
-        Assert.assertTrue(t.registerUnderJavaType());
+        assertTrue(t.registerUnderJavaType());
     }
 
     /**
@@ -67,7 +69,7 @@ public final class URITypeTest {
     public void testToString() {
         URIType t = new URIType();
         String uriString = t.toString(testUri);
-        Assert.assertEquals("http://example.com", uriString);
+        assertEquals("http://example.com", uriString);
     }
 
     /**
@@ -79,7 +81,7 @@ public final class URITypeTest {
     public void testStringToObject() throws Exception {
         URIType t = new URIType();
         URI uri = t.stringToObject("http://example.com");
-        Assert.assertEquals(testUri, uri);
+        assertEquals(testUri, uri);
     }
 
     /**
@@ -91,7 +93,7 @@ public final class URITypeTest {
     public void testObjectToSQLString() throws Exception {
         URIType t = new URIType();
         String sql = t.objectToSQLString(testUri, new MariaDBDialect());
-        Assert.assertEquals("'http://example.com'", sql);
+        assertEquals("'http://example.com'", sql);
     }
 
     /**
@@ -100,6 +102,6 @@ public final class URITypeTest {
     @Test
     public void testGetName() {
         URIType t = new URIType();
-        Assert.assertEquals("uri", t.getName());
+        assertEquals("uri", t.getName());
     }
 }

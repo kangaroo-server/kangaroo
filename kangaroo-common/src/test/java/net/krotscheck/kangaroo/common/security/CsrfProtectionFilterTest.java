@@ -45,7 +45,7 @@ public final class CsrfProtectionFilterTest {
      * Setup the test.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         mockContext = mock(ContainerRequestContext.class);
     }
 

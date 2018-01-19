@@ -19,9 +19,13 @@
 package net.krotscheck.kangaroo.common.hibernate.migration;
 
 import liquibase.changelog.ChangeSet;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for the DB Migration State injectable.
@@ -39,17 +43,17 @@ public final class DatabaseMigrationStateTest {
 
         // Default is false.
         DatabaseMigrationState state1 = new DatabaseMigrationState();
-        Assert.assertFalse(state1.isSchemaChanged());
+        assertFalse(state1.isSchemaChanged());
 
         // Pass true should be true.
         DatabaseMigrationState state2 =
                 new DatabaseMigrationState(true, change);
-        Assert.assertTrue(state2.isSchemaChanged());
+        assertTrue(state2.isSchemaChanged());
 
         // Pass false should be false.
         DatabaseMigrationState state3 =
                 new DatabaseMigrationState(false, change);
-        Assert.assertFalse(state3.isSchemaChanged());
+        assertFalse(state3.isSchemaChanged());
     }
 
     /**
@@ -61,11 +65,11 @@ public final class DatabaseMigrationStateTest {
 
         // Default is null.
         DatabaseMigrationState state1 = new DatabaseMigrationState();
-        Assert.assertNull(state1.getVersion());
+        assertNull(state1.getVersion());
 
         // Value should be passed back
         DatabaseMigrationState state2 =
                 new DatabaseMigrationState(true, change);
-        Assert.assertSame(state2.getVersion(), change);
+        assertSame(state2.getVersion(), change);
     }
 }

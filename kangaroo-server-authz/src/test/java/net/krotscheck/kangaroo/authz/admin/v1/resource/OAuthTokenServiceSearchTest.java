@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -45,6 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the search endpoint of the token service.
@@ -239,7 +240,7 @@ public final class OAuthTokenServiceSearchTest
         } else if (!isAccessible(user, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -321,7 +322,7 @@ public final class OAuthTokenServiceSearchTest
         } else if (!isAccessible(identity, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -399,7 +400,7 @@ public final class OAuthTokenServiceSearchTest
         } else if (!isAccessible(client, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -474,7 +475,7 @@ public final class OAuthTokenServiceSearchTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,

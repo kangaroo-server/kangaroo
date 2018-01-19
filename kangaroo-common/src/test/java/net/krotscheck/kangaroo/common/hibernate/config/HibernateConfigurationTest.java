@@ -21,12 +21,15 @@ package net.krotscheck.kangaroo.common.hibernate.config;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.apache.commons.configuration.Configuration;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the Hibernate-backed configuration implementation.
@@ -49,7 +52,7 @@ public final class HibernateConfigurationTest extends DatabaseTest {
      * Setup the test.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         configOne = new HibernateConfiguration(
                 getSessionFactory(),
                 "one");
@@ -62,7 +65,7 @@ public final class HibernateConfigurationTest extends DatabaseTest {
      * Teardown the test.
      */
     @After
-    public void teardown() {
+    public void tearDown() {
         configOne.clear();
         configTwo.clear();
     }
@@ -72,9 +75,9 @@ public final class HibernateConfigurationTest extends DatabaseTest {
      */
     @Test
     public void testIsEmpty() {
-        Assert.assertTrue(configOne.isEmpty());
+        assertTrue(configOne.isEmpty());
         configOne.addProperty("key", "value");
-        Assert.assertFalse(configOne.isEmpty());
+        assertFalse(configOne.isEmpty());
     }
 
     /**
@@ -88,9 +91,9 @@ public final class HibernateConfigurationTest extends DatabaseTest {
         List<String> keys = new ArrayList<>();
         configOne.getKeys().forEachRemaining(keys::add);
 
-        Assert.assertTrue(keys.contains("key"));
-        Assert.assertTrue(keys.contains("lol"));
-        Assert.assertEquals(2, keys.size());
+        assertTrue(keys.contains("key"));
+        assertTrue(keys.contains("lol"));
+        assertEquals(2, keys.size());
     }
 
     /**
@@ -99,10 +102,10 @@ public final class HibernateConfigurationTest extends DatabaseTest {
     @Test
     public void testStoreAndRetrieve() {
         configOne.addProperty("key", "value");
-        Assert.assertTrue(configOne.containsKey("key"));
-        Assert.assertEquals("value", configOne.getString("key"));
+        assertTrue(configOne.containsKey("key"));
+        assertEquals("value", configOne.getString("key"));
         configOne.clearProperty("key");
-        Assert.assertFalse(configOne.containsKey("key"));
+        assertFalse(configOne.containsKey("key"));
     }
 
     /**
@@ -111,12 +114,12 @@ public final class HibernateConfigurationTest extends DatabaseTest {
     @Test
     public void testMultipleInstances() {
         configOne.addProperty("key", "value");
-        Assert.assertTrue(configOne.containsKey("key"));
+        assertTrue(configOne.containsKey("key"));
 
         Configuration configuration = new HibernateConfiguration(
                 getSessionFactory(),
                 "one");
-        Assert.assertTrue(configuration.containsKey("key"));
+        assertTrue(configuration.containsKey("key"));
     }
 
     /**
@@ -125,11 +128,11 @@ public final class HibernateConfigurationTest extends DatabaseTest {
     @Test
     public void testNoGroupConflict() {
         configOne.addProperty("key", "value");
-        Assert.assertTrue(configOne.containsKey("key"));
-        Assert.assertFalse(configTwo.containsKey("key"));
+        assertTrue(configOne.containsKey("key"));
+        assertFalse(configTwo.containsKey("key"));
 
         configTwo.addProperty("foo", "bar");
-        Assert.assertFalse(configOne.containsKey("foo"));
-        Assert.assertTrue(configTwo.containsKey("foo"));
+        assertFalse(configOne.containsKey("foo"));
+        assertTrue(configTwo.containsKey("foo"));
     }
 }

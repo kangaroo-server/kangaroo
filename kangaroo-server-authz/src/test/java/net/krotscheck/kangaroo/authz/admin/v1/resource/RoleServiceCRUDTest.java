@@ -31,7 +31,6 @@ import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -45,6 +44,11 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the CRUD methods of the scope service.
@@ -321,10 +325,10 @@ public final class RoleServiceCRUDTest
         Response r = putEntity(testEntity, getAdminToken());
 
         if (isAccessible(testEntity, getAdminToken())) {
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
             Role result = r.readEntity(Role.class);
-            Assert.assertEquals(testEntity.getId(), result.getId());
-            Assert.assertEquals(newName, testEntity.getName());
+            assertEquals(testEntity.getId(), result.getId());
+            assertEquals(newName, testEntity.getName());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -400,7 +404,7 @@ public final class RoleServiceCRUDTest
         Application second = getSecondaryContext().getApplication();
         Role defaultRole = second.getDefaultRole();
 
-        Assert.assertNotNull(defaultRole);
+        assertNotNull(defaultRole);
 
         // Issue the request.
         Response r = deleteEntity(defaultRole, getAdminToken());
@@ -446,10 +450,10 @@ public final class RoleServiceCRUDTest
                 .post(null);
 
         if (isAccessible(testContext.getScope(), token)) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
 
             s.refresh(role);
-            Assert.assertTrue(role.getScopes().values()
+            assertTrue(role.getScopes().values()
                     .contains(testContext.getScope()));
 
             // Cleanup
@@ -708,10 +712,10 @@ public final class RoleServiceCRUDTest
                 .post(null);
 
         if (shouldSucceed) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
 
             s.refresh(role);
-            Assert.assertTrue(role.getScopes().values().contains(scope));
+            assertTrue(role.getScopes().values().contains(scope));
 
             // Cleanup
             s.getTransaction().begin();
@@ -809,11 +813,11 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (isAccessible(newScope, token)) {
-            Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
 
             getSession().refresh(editedRole);
-            Assert.assertFalse(editedRole.getScopes().values()
+            assertFalse(editedRole.getScopes().values()
                     .contains(newScope));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -889,7 +893,7 @@ public final class RoleServiceCRUDTest
         Role role = getAttached(context.getRole());
         ApplicationScope scope = getAttached(context.getScope());
 
-        Assert.assertFalse(role.getScopes().values().contains(scope));
+        assertFalse(role.getScopes().values().contains(scope));
         String url = getUrlForSubresourceId(role.getId(), scope.getId());
 
         // Execute the request.
@@ -970,7 +974,7 @@ public final class RoleServiceCRUDTest
                 .collect(Collectors.toList())
                 .get(0);
         ApplicationScope scope = role.getScopes().values().iterator().next();
-        Assert.assertTrue(role.getScopes().values().contains(scope));
+        assertTrue(role.getScopes().values().contains(scope));
         String url = getUrlForSubresourceId(role.getId(), scope.getId());
 
         // Execute the request.
@@ -1036,11 +1040,11 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (shouldSucceed) {
-            Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
 
             getSession().refresh(editedRole);
-            Assert.assertFalse(editedRole.getScopes().values()
+            assertFalse(editedRole.getScopes().values()
                     .contains(newScope));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -1071,7 +1075,7 @@ public final class RoleServiceCRUDTest
         ApplicationContext context = getAdminContext();
         Role role = context.getRole();
         ApplicationScope scope = role.getScopes().values().iterator().next();
-        Assert.assertTrue(role.getScopes().values().contains(scope));
+        assertTrue(role.getScopes().values().contains(scope));
         String url = getUrlForSubresourceId(role.getId(),
                 scope.getId());
 
@@ -1096,11 +1100,11 @@ public final class RoleServiceCRUDTest
     @Test
     public void testGetScopes() {
         RoleService roleService = new RoleService();
-        Assert.assertEquals(Scope.ROLE, roleService.getAccessScope());
-        Assert.assertEquals(Scope.ROLE_ADMIN, roleService.getAdminScope());
+        assertEquals(Scope.ROLE, roleService.getAccessScope());
+        assertEquals(Scope.ROLE_ADMIN, roleService.getAdminScope());
 
         RoleScopeService roleScopeService = new RoleScopeService();
-        Assert.assertEquals(Scope.ROLE, roleScopeService.getAccessScope());
-        Assert.assertEquals(Scope.ROLE_ADMIN, roleScopeService.getAdminScope());
+        assertEquals(Scope.ROLE, roleScopeService.getAccessScope());
+        assertEquals(Scope.ROLE_ADMIN, roleScopeService.getAdminScope());
     }
 }

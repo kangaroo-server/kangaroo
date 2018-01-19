@@ -26,7 +26,6 @@ import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -36,6 +35,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for the authenticator feature.
@@ -68,7 +70,7 @@ public final class AuthenticatorFeatureTest extends ContainerTest {
     @Test
     public void testStatus() {
         Response response = target("/").request().get();
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
     }
 
     /**
@@ -107,13 +109,13 @@ public final class AuthenticatorFeatureTest extends ContainerTest {
             for (AuthenticatorType t : AuthenticatorType.values()) {
                 IAuthenticator authenticator =
                         locator.getInstance(IAuthenticator.class, t.name());
-                Assert.assertNotNull(authenticator);
+                assertNotNull(authenticator);
             }
 
             // Make sure there aren't any zombies.
             List<IAuthenticator> authenticators =
                     locator.getAllInstances(IAuthenticator.class);
-            Assert.assertEquals(AuthenticatorType.values().length,
+            assertEquals(AuthenticatorType.values().length,
                     authenticators.size());
 
             return Response

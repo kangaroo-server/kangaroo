@@ -40,6 +40,10 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit test for the hibernate configuration and its binder.
  *
@@ -81,10 +85,10 @@ public final class HibernateServiceRegistryFactoryTest {
 
         switch (dbDriver) {
             case "org.h2.Driver":
-                Assert.assertTrue(d instanceof H2Dialect);
+                assertTrue(d instanceof H2Dialect);
                 break;
             case "org.mariadb.jdbc.Driver":
-                Assert.assertTrue(d instanceof MariaDBDialect);
+                assertTrue(d instanceof MariaDBDialect);
                 break;
             default:
                 Assert.fail(String.format("Unrecognized driver: %s", dbDriver));
@@ -110,7 +114,7 @@ public final class HibernateServiceRegistryFactoryTest {
 
         ServiceRegistry serviceRegistry =
                 injector.getInstance(ServiceRegistry.class);
-        Assert.assertNotNull(serviceRegistry);
+        assertNotNull(serviceRegistry);
 
         // Make sure it's reading from the same place.
         String dbDriver = TestConfig.getDbDriver();
@@ -119,10 +123,10 @@ public final class HibernateServiceRegistryFactoryTest {
 
         switch (dbDriver) {
             case "org.h2.Driver":
-                Assert.assertTrue(d instanceof H2Dialect);
+                assertTrue(d instanceof H2Dialect);
                 break;
             case "org.mariadb.jdbc.Driver":
-                Assert.assertTrue(d instanceof MariaDBDialect);
+                assertTrue(d instanceof MariaDBDialect);
                 break;
             default:
                 Assert.fail(String.format("Unrecognized driver: %s", dbDriver));
@@ -131,7 +135,7 @@ public final class HibernateServiceRegistryFactoryTest {
         // Make sure it's a singleton...
         ServiceRegistry serviceRegistry2 =
                 injector.getInstance(ServiceRegistry.class);
-        Assert.assertSame(serviceRegistry, serviceRegistry2);
+        assertSame(serviceRegistry, serviceRegistry2);
 
         injector.shutdown();
     }

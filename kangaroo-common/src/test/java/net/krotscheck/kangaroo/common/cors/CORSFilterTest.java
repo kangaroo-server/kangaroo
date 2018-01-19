@@ -23,7 +23,6 @@ import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
@@ -45,6 +44,8 @@ import java.util.List;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the CORS filter.
@@ -116,8 +117,8 @@ public final class CORSFilterTest extends ContainerTest {
             final MultivaluedMap<String, Object> received) {
 
         expected.forEach((key, values) -> {
-            Assert.assertTrue(received.containsKey(key));
-            Assert.assertThat(received.get(key), hasItems(values.toArray()));
+            assertTrue(received.containsKey(key));
+            assertThat(received.get(key), hasItems(values.toArray()));
         });
     }
 

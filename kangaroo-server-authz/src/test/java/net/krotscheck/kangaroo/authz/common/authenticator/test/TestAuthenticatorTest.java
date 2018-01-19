@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -43,8 +42,10 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the test authenticator.
@@ -89,7 +90,7 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         Response r = a.delegate(config, testUri);
 
-        Assert.assertEquals(testUri, r.getLocation());
+        assertEquals(testUri, r.getLocation());
         Mockito.verifyNoMoreInteractions(session);
     }
 
@@ -143,8 +144,8 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         assertNotNull(i);
         assertNotNull(i.getId());
-        Assert.assertTrue(getSession().contains(i));
-        Assert.assertEquals("dev_user", i.getRemoteId());
+        assertTrue(getSession().contains(i));
+        assertEquals("dev_user", i.getRemoteId());
     }
 
     /**
@@ -162,9 +163,9 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         assertNotNull(i);
         assertNotNull(i.getId());
-        Assert.assertTrue(getSession().contains(i));
-        Assert.assertEquals("dev_user", i.getRemoteId());
-        Assert.assertEquals(context.getApplication().getDefaultRole(),
+        assertTrue(getSession().contains(i));
+        assertEquals("dev_user", i.getRemoteId());
+        assertEquals(context.getApplication().getDefaultRole(),
                 i.getUser().getRole());
     }
 
@@ -186,6 +187,6 @@ public final class TestAuthenticatorTest extends DatabaseTest {
 
         UserIdentity i = a.authenticate(config, params, null);
 
-        Assert.assertEquals(persistedIdentity, i);
+        assertEquals(persistedIdentity, i);
     }
 }

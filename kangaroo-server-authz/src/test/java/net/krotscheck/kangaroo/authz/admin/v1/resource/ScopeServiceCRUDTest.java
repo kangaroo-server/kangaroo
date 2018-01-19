@@ -31,7 +31,6 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,6 +42,9 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -245,14 +247,14 @@ public final class ScopeServiceCRUDTest
 
         if (shouldSucceed()) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.CONFLICT.getStatusCode(),
+            assertEquals(Status.CONFLICT.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("conflict", response.getError());
+            assertEquals("conflict", response.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("bad_request", response.getError());
+            assertEquals("bad_request", response.getError());
         }
     }
 
@@ -271,9 +273,9 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, token);
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals("bad_request", response.getError());
+        assertEquals("bad_request", response.getError());
     }
 
     /**
@@ -293,9 +295,9 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, getAdminToken());
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals("bad_request", response.getError());
+        assertEquals("bad_request", response.getError());
     }
 
     /**
@@ -312,9 +314,9 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, getAdminToken());
 
         ErrorResponse response = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals("bad_request", response.getError());
+        assertEquals("bad_request", response.getError());
     }
 
     /**
@@ -337,22 +339,22 @@ public final class ScopeServiceCRUDTest
         Response r = postEntity(newScope, token);
 
         if (getTokenScope().equals(getAdminScope())) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(),
+            assertEquals(Status.CREATED.getStatusCode(),
                     r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), token);
             ApplicationScope response =
                     getResponse.readEntity(ApplicationScope.class);
-            Assert.assertNotNull(response.getId());
-            Assert.assertEquals(newScope.getName(), response.getName());
-            Assert.assertEquals(yetAnotherApp.getApplication(),
+            assertNotNull(response.getId());
+            assertEquals(newScope.getName(), response.getName());
+            assertEquals(yetAnotherApp.getApplication(),
                     response.getApplication());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("bad_request", response.getError());
+            assertEquals("bad_request", response.getError());
         }
     }
 
@@ -370,15 +372,15 @@ public final class ScopeServiceCRUDTest
         Response r = putEntity(scope, getAdminToken());
 
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.FORBIDDEN.getStatusCode(),
+            assertEquals(Status.FORBIDDEN.getStatusCode(),
                     r.getStatus());
             ErrorResponse result = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals("forbidden", result.getError());
+            assertEquals("forbidden", result.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("not_found", response.getError());
+            assertEquals("not_found", response.getError());
         }
     }
 
@@ -403,14 +405,14 @@ public final class ScopeServiceCRUDTest
 
         if (isAccessible(scope, getAdminToken())) {
             ApplicationScope response = r.readEntity(ApplicationScope.class);
-            Assert.assertEquals(Status.OK.getStatusCode(),
+            assertEquals(Status.OK.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals(newName, response.getName());
+            assertEquals(newName, response.getName());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("not_found", response.getError());
+            assertEquals("not_found", response.getError());
         }
     }
 
@@ -433,14 +435,14 @@ public final class ScopeServiceCRUDTest
 
         if (isAccessible(getSecondaryContext().getScope(), getAdminToken())) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("bad_request", response.getError());
+            assertEquals("bad_request", response.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("not_found", response.getError());
+            assertEquals("not_found", response.getError());
         }
     }
 
@@ -459,14 +461,14 @@ public final class ScopeServiceCRUDTest
 
         if (shouldSucceed()) {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.FORBIDDEN.getStatusCode(),
+            assertEquals(Status.FORBIDDEN.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("forbidden", response.getError());
+            assertEquals("forbidden", response.getError());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("not_found", response.getError());
+            assertEquals("not_found", response.getError());
         }
     }
 
@@ -489,13 +491,13 @@ public final class ScopeServiceCRUDTest
         Response r = deleteEntity(scope, getAdminToken());
 
         if (isAccessible(scope, getAdminToken())) {
-            Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
-            Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
                     r.getStatus());
-            Assert.assertEquals("not_found", response.getError());
+            assertEquals("not_found", response.getError());
         }
     }
 }

@@ -20,11 +20,15 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
 /**
  * Assert that the HTTP session data is sanely persisted.
@@ -40,20 +44,20 @@ public final class HttpSessionTest extends DatabaseTest {
     public void testSimplePersistence() {
         HttpSession httpSession = new HttpSession();
 
-        Assert.assertEquals(-1, httpSession.getSessionTimeout());
+        assertEquals(-1, httpSession.getSessionTimeout());
         httpSession.setSessionTimeout(1000);
 
-        Assert.assertNull(httpSession.getId());
+        assertNull(httpSession.getId());
 
         Session s = getSession();
         s.beginTransaction();
         s.save(httpSession);
         s.getTransaction().commit();
 
-        Assert.assertNotNull(httpSession.getId());
-        Assert.assertEquals(httpSession.getModifiedDate(),
+        assertNotNull(httpSession.getId());
+        assertEquals(httpSession.getModifiedDate(),
                 httpSession.getCreatedDate());
-        Assert.assertEquals(1000, httpSession.getSessionTimeout());
+        assertEquals(1000, httpSession.getSessionTimeout());
     }
 
     /**
@@ -65,9 +69,9 @@ public final class HttpSessionTest extends DatabaseTest {
         List<OAuthToken> refreshTokens = new ArrayList<>();
         refreshTokens.add(new OAuthToken());
 
-        Assert.assertEquals(0, httpSession.getRefreshTokens().size());
+        assertEquals(0, httpSession.getRefreshTokens().size());
         httpSession.setRefreshTokens(refreshTokens);
-        Assert.assertEquals(refreshTokens, httpSession.getRefreshTokens());
-        Assert.assertNotSame(refreshTokens, httpSession.getRefreshTokens());
+        assertEquals(refreshTokens, httpSession.getRefreshTokens());
+        assertNotSame(refreshTokens, httpSession.getRefreshTokens());
     }
 }

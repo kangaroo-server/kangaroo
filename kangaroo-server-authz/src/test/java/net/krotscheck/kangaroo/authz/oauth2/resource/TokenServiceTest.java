@@ -17,19 +17,18 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -40,6 +39,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 /**
  * Unit tests for the /token endpoint. Note that this is not a
  * comprehensive suite, as it only covers edge cases and functionality not
@@ -49,6 +52,10 @@ import javax.ws.rs.core.Response.Status;
  */
 public final class TokenServiceTest extends ContainerTest {
 
+    /**
+     * Simple testing context.
+     */
+    private static ApplicationContext context;
     /**
      * Test data loading for this test.
      */
@@ -65,11 +72,6 @@ public final class TokenServiceTest extends ContainerTest {
                             .build();
                 }
             };
-
-    /**
-     * Simple testing context.
-     */
-    private static ApplicationContext context;
 
     /**
      * Build and configure the application.
@@ -100,10 +102,10 @@ public final class TokenServiceTest extends ContainerTest {
                 .post(testEntity);
 
         ErrorResponse error = response.readEntity(ErrorResponse.class);
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 response.getStatus());
-        Assert.assertEquals("invalid_grant", error.getError());
-        Assert.assertNotNull(error.getErrorDescription());
+        assertEquals("invalid_grant", error.getError());
+        assertNotNull(error.getErrorDescription());
     }
 
     /**
@@ -126,11 +128,11 @@ public final class TokenServiceTest extends ContainerTest {
                 .request()
                 .post(testEntity, TokenResponseEntity.class);
 
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNull(token.getRefreshToken());
-        Assert.assertNull(token.getScope());
-        Assert.assertNotNull(token.getAccessToken());
+        assertNull(token.getRefreshToken());
+        assertNull(token.getScope());
+        assertNotNull(token.getAccessToken());
     }
 }

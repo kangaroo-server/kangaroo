@@ -32,7 +32,6 @@ import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -45,6 +44,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test the CRUD methods of the OAuth Token service.
@@ -501,8 +503,8 @@ public final class OAuthTokenServiceCRUDTest
         if (shouldSucceed()
                 && !getClientType().equals(ClientType.ClientCredentials)) {
 
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             OAuthToken response = getResponse.readEntity(OAuthToken.class);
@@ -558,8 +560,8 @@ public final class OAuthTokenServiceCRUDTest
                 && !getClientType().equals(ClientType.Implicit)
                 && !getClientType().equals(ClientType.ClientCredentials)) {
 
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             OAuthToken response = getResponse.readEntity(OAuthToken.class);
@@ -824,7 +826,7 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
             OAuthToken response = r.readEntity(OAuthToken.class);
             assertContentEquals(testEntity, response);
         } else {

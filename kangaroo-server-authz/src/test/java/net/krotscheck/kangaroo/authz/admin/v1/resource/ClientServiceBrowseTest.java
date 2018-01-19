@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -44,6 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the list and filter methods of the scope service.
@@ -271,7 +272,7 @@ public final class ClientServiceBrowseTest
                     "invalid_scope");
         } else {
             // Make sure we're actually testing against something here.
-            Assert.assertTrue(expectedEntities > 0);
+            assertTrue(expectedEntities > 0);
 
             assertListResponse(r,
                     expectedResultSize,

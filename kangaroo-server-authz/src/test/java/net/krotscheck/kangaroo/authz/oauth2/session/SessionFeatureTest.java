@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.common.timedtasks.RepeatingTask;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 import org.jvnet.hk2.annotations.Optional;
 
@@ -40,6 +39,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test that the session feature works.
@@ -71,7 +72,7 @@ public final class SessionFeatureTest extends ContainerTest {
     @Test
     public void testStatus() {
         Response response = target("/").request().get();
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
     }
 
     /**

@@ -29,13 +29,14 @@ import org.glassfish.jersey.internal.inject.Bindings;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.spi.ExceptionMappers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for the redirecting exception mapper.
@@ -69,22 +70,22 @@ public final class RedirectingExceptionMapperTest {
                 ClientType.AuthorizationGrant);
 
         Response r = mapper.toResponse(re);
-        Assert.assertEquals(302, r.getStatus());
+        assertEquals(302, r.getStatus());
 
         URI location =
                 UriBuilder.fromUri(r.getHeaderString(HttpHeaders.LOCATION))
                         .build();
 
-        Assert.assertEquals(location.getScheme(), redirect.getScheme());
-        Assert.assertEquals(location.getHost(), redirect.getHost());
-        Assert.assertEquals(location.getPort(), redirect.getPort());
-        Assert.assertEquals(location.getPath(), redirect.getPath());
+        assertEquals(location.getScheme(), redirect.getScheme());
+        assertEquals(location.getHost(), redirect.getHost());
+        assertEquals(location.getPort(), redirect.getPort());
+        assertEquals(location.getPath(), redirect.getPath());
 
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location);
-        Assert.assertEquals(params.getFirst("error"),
+        assertEquals(params.getFirst("error"),
                 ke.getCode().getError());
-        Assert.assertEquals(params.getFirst("error_description"),
+        assertEquals(params.getFirst("error_description"),
                 ke.getCode().getErrorDescription());
     }
 
@@ -113,22 +114,22 @@ public final class RedirectingExceptionMapperTest {
                 ClientType.Implicit);
 
         Response r = mapper.toResponse(re);
-        Assert.assertEquals(302, r.getStatus());
+        assertEquals(302, r.getStatus());
 
         URI location =
                 UriBuilder.fromUri(r.getHeaderString(HttpHeaders.LOCATION))
                         .build();
 
-        Assert.assertEquals(location.getScheme(), redirect.getScheme());
-        Assert.assertEquals(location.getHost(), redirect.getHost());
-        Assert.assertEquals(location.getPort(), redirect.getPort());
-        Assert.assertEquals(location.getPath(), redirect.getPath());
+        assertEquals(location.getScheme(), redirect.getScheme());
+        assertEquals(location.getHost(), redirect.getHost());
+        assertEquals(location.getPort(), redirect.getPort());
+        assertEquals(location.getPath(), redirect.getPath());
 
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        Assert.assertEquals(params.getFirst("error"),
+        assertEquals(params.getFirst("error"),
                 ke.getCode().getError());
-        Assert.assertEquals(params.getFirst("error_description"),
+        assertEquals(params.getFirst("error_description"),
                 ke.getCode().getErrorDescription());
 
         injector.shutdown();

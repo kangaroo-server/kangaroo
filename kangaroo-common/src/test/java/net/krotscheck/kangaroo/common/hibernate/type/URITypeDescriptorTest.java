@@ -20,11 +20,13 @@ package net.krotscheck.kangaroo.common.hibernate.type;
 
 import org.hibernate.HibernateException;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests for the URI Type Descriptor.
@@ -48,7 +50,7 @@ public final class URITypeDescriptorTest {
     public void testGenericConstructor() throws Exception {
         AbstractTypeDescriptor t = new URITypeDescriptor();
         URI result = (URI) t.wrap("http://example.com", null);
-        Assert.assertEquals(testUri, result);
+        assertEquals(testUri, result);
     }
 
     /**
@@ -57,7 +59,7 @@ public final class URITypeDescriptorTest {
     @Test
     public void testToString() {
         String result = URITypeDescriptor.INSTANCE.toString(testUri);
-        Assert.assertEquals("http://example.com", result);
+        assertEquals("http://example.com", result);
     }
 
     /**
@@ -67,7 +69,7 @@ public final class URITypeDescriptorTest {
     public void testFromString() {
         URI result = URITypeDescriptor.INSTANCE
                 .fromString("http://example.com");
-        Assert.assertEquals(testUri, result);
+        assertEquals(testUri, result);
     }
 
     /**
@@ -85,7 +87,7 @@ public final class URITypeDescriptorTest {
     public void testUnwrapNull() {
         String result = URITypeDescriptor.INSTANCE.unwrap(null, String.class,
                 null);
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -95,7 +97,7 @@ public final class URITypeDescriptorTest {
     public void testUnwrapString() {
         String result = URITypeDescriptor.INSTANCE.unwrap(testUri, String.class,
                 null);
-        Assert.assertEquals("http://example.com", result);
+        assertEquals("http://example.com", result);
     }
 
     /**
@@ -113,7 +115,7 @@ public final class URITypeDescriptorTest {
     public void testWrapNull() {
         URI result =
                 URITypeDescriptor.INSTANCE.wrap(null, null);
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -123,7 +125,7 @@ public final class URITypeDescriptorTest {
     public void testWrapString() {
         URI result =
                 URITypeDescriptor.INSTANCE.wrap("http://example.com", null);
-        Assert.assertEquals(testUri, result);
+        assertEquals(testUri, result);
     }
 
     /**

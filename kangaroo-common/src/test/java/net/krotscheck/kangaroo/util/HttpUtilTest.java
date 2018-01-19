@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.util;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -60,7 +59,7 @@ public final class HttpUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = HttpUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);

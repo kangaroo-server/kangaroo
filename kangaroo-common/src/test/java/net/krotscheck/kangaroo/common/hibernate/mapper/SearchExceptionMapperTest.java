@@ -21,11 +21,12 @@ package net.krotscheck.kangaroo.common.hibernate.mapper;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import org.hibernate.search.exception.EmptyQueryException;
 import org.hibernate.search.exception.SearchException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the search exception mapper.
@@ -45,10 +46,10 @@ public final class SearchExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
+        assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        assertEquals("Internal Server Error", er.getErrorDescription());
     }
 
     /**
@@ -62,9 +63,9 @@ public final class SearchExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertEquals("Bad Request", er.getErrorDescription());
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertEquals("Bad Request", er.getErrorDescription());
     }
 }

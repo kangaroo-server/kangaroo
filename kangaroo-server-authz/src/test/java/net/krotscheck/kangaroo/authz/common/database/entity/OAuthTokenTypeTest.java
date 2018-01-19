@@ -20,8 +20,10 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * Unit tests for the token type.
@@ -40,13 +42,13 @@ public final class OAuthTokenTypeTest {
         ObjectMapper m = new ObjectMapperFactory().get();
 
         String authOutput = m.writeValueAsString(OAuthTokenType.Authorization);
-        Assert.assertEquals("\"Authorization\"", authOutput);
+        assertEquals("\"Authorization\"", authOutput);
 
         String bearerOutput = m.writeValueAsString(OAuthTokenType.Bearer);
-        Assert.assertEquals("\"Bearer\"", bearerOutput);
+        assertEquals("\"Bearer\"", bearerOutput);
 
         String refreshOutput = m.writeValueAsString(OAuthTokenType.Refresh);
-        Assert.assertEquals("\"Refresh\"", refreshOutput);
+        assertEquals("\"Refresh\"", refreshOutput);
     }
 
     /**
@@ -59,13 +61,13 @@ public final class OAuthTokenTypeTest {
         ObjectMapper m = new ObjectMapperFactory().get();
         OAuthTokenType authOutput =
                 m.readValue("\"Authorization\"", OAuthTokenType.class);
-        Assert.assertSame(authOutput, OAuthTokenType.Authorization);
+        assertSame(authOutput, OAuthTokenType.Authorization);
         OAuthTokenType bearerOutput =
                 m.readValue("\"Bearer\"", OAuthTokenType.class);
-        Assert.assertSame(bearerOutput, OAuthTokenType.Bearer);
+        assertSame(bearerOutput, OAuthTokenType.Bearer);
         OAuthTokenType refreshOutput =
                 m.readValue("\"Refresh\"", OAuthTokenType.class);
-        Assert.assertSame(refreshOutput, OAuthTokenType.Refresh);
+        assertSame(refreshOutput, OAuthTokenType.Refresh);
     }
 
     /**
@@ -73,15 +75,15 @@ public final class OAuthTokenTypeTest {
      */
     @Test
     public void testValueOf() {
-        Assert.assertEquals(
+        assertEquals(
                 OAuthTokenType.Bearer,
                 OAuthTokenType.valueOf("Bearer")
         );
-        Assert.assertEquals(
+        assertEquals(
                 OAuthTokenType.Authorization,
                 OAuthTokenType.valueOf("Authorization")
         );
-        Assert.assertEquals(
+        assertEquals(
                 OAuthTokenType.Refresh,
                 OAuthTokenType.valueOf("Refresh")
         );

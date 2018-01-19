@@ -32,13 +32,16 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -131,26 +134,26 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
 
         TokenResponseEntity token = handler.handle(authClient, "debug",
                 null, refreshToken.getId());
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNotNull(token.getAccessToken());
-        Assert.assertNotNull(token.getRefreshToken());
-        Assert.assertEquals("debug", token.getScope());
+        assertNotNull(token.getAccessToken());
+        assertNotNull(token.getRefreshToken());
+        assertEquals("debug", token.getScope());
 
         // Resolve the granted refresh token
         OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
-        Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
+        assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
-        Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
-        Assert.assertEquals(token.getAccessToken(),
+        assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
+        assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getAuthToken().getId()));
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 
@@ -168,26 +171,26 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
 
         TokenResponseEntity token = handler.handle(authClient, "debug",
                 null, refreshToken.getId());
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNotNull(token.getAccessToken());
-        Assert.assertNotNull(token.getRefreshToken());
-        Assert.assertEquals("debug", token.getScope());
+        assertNotNull(token.getAccessToken());
+        assertNotNull(token.getRefreshToken());
+        assertEquals("debug", token.getScope());
 
         // Resolve the granted refresh token
         OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
-        Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
+        assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
-        Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
-        Assert.assertEquals(token.getAccessToken(),
+        assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
+        assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getAuthToken().getId()));
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 
@@ -306,26 +309,26 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
 
         TokenResponseEntity token = handler.handle(authClient, "",
                 null, refreshToken.getId());
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNotNull(token.getAccessToken());
-        Assert.assertNotNull(token.getRefreshToken());
-        Assert.assertNull(token.getScope());
+        assertNotNull(token.getAccessToken());
+        assertNotNull(token.getRefreshToken());
+        assertNull(token.getScope());
 
         // Resolve the granted refresh token
         OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
-        Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
+        assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
-        Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
-        Assert.assertEquals(token.getAccessToken(),
+        assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
+        assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getAuthToken().getId()));
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 
@@ -343,24 +346,24 @@ public final class RefreshTokenGrantHandlerTest extends DatabaseTest {
 
         TokenResponseEntity token = handler.handle(authClient, "",
                 null, refreshToken.getId());
-        Assert.assertEquals(OAuthTokenType.Bearer, token.getTokenType());
-        Assert.assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
+        assertEquals(OAuthTokenType.Bearer, token.getTokenType());
+        assertEquals((long) ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT,
                 (long) token.getExpiresIn());
-        Assert.assertNotNull(token.getAccessToken());
-        Assert.assertNotNull(token.getRefreshToken());
-        Assert.assertNull(token.getScope());
+        assertNotNull(token.getAccessToken());
+        assertNotNull(token.getRefreshToken());
+        assertNull(token.getScope());
 
         // Resolve the granted refresh token
         OAuthToken newRefresh = getSession().get(OAuthToken.class,
                 token.getRefreshToken());
-        Assert.assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
+        assertEquals((long) ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT,
                 newRefresh.getExpiresIn().longValue());
-        Assert.assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
-        Assert.assertEquals(token.getAccessToken(),
+        assertEquals(OAuthTokenType.Refresh, newRefresh.getTokenType());
+        assertEquals(token.getAccessToken(),
                 newRefresh.getAuthToken().getId());
 
         // Ensure that the previous tokens no longer exist.
-        Assert.assertNull(getSession().get(OAuthToken.class,
+        assertNull(getSession().get(OAuthToken.class,
                 refreshToken.getId()));
     }
 }
