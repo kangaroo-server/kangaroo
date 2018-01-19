@@ -154,7 +154,7 @@
     <jersey.version>2.26</jersey.version>
     <grizzly.version>2.4.2</grizzly.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <jacoco.version>0.7.9</jacoco.version>
+    <jacoco.version>0.8.0</jacoco.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
