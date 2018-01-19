@@ -23,6 +23,7 @@ import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
 import net.krotscheck.kangaroo.authz.oauth2.authn.O2AuthDynamicFeature;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RedirectingExceptionMapper;
 import net.krotscheck.kangaroo.authz.oauth2.resource.AuthorizationService;
+import net.krotscheck.kangaroo.authz.oauth2.resource.IntrospectionService;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenService;
 import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.AuthCodeHandler;
 import net.krotscheck.kangaroo.authz.oauth2.resource.authorize.ImplicitHandler;
@@ -98,5 +99,6 @@ public class OAuthAPI extends ResourceConfig {
         // Resource services
         register(TokenService.class);
         register(AuthorizationService.class);
+        register(IntrospectionService.class);
     }
 }

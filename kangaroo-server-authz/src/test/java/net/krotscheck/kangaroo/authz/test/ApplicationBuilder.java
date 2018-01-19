@@ -93,15 +93,6 @@ public final class ApplicationBuilder {
     }
 
     /**
-     * Get the builder that was used to create this context.
-     *
-     * @return The builder.
-     */
-    public ApplicationContext getContext() {
-        return context.copy();
-    }
-
-    /**
      * Private constructor.
      *
      * @param session     The session which this builder should use to persist
@@ -219,6 +210,15 @@ public final class ApplicationBuilder {
         context.token = token;
 
         return new ApplicationBuilder(context);
+    }
+
+    /**
+     * Get the builder that was used to create this context.
+     *
+     * @return The builder.
+     */
+    public ApplicationContext getContext() {
+        return context.copy();
     }
 
     /**
@@ -447,7 +447,7 @@ public final class ApplicationBuilder {
      * Enable an authenticator for the current client context, with provided
      * configuration.
      *
-     * @param type The authenticator type to use.
+     * @param type   The authenticator type to use.
      * @param config The configuration properties.
      * @return This builder.
      */
