@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -62,8 +63,12 @@ public final class IntrospectionResponseEntityTest {
         Calendar now = Calendar.getInstance();
         now.set(Calendar.MILLISECOND, 0);
 
+        Application a = new Application();
+        a.setId(IdUtil.next());
+
         Client c = new Client();
         c.setId(IdUtil.next());
+        c.setApplication(a);
 
         OAuthToken token = new OAuthToken();
         token.setId(IdUtil.next());
@@ -153,7 +158,8 @@ public final class IntrospectionResponseEntityTest {
         assertEquals(!token.isExpired(), entity.isActive());
         assertEquals(token.getId(), entity.getJti());
         assertEquals(token.getCreatedDate(), entity.getNbf());
-        assertEquals(token.getClient().getId(), entity.getAud());
+        assertEquals(token.getClient().getApplication().getId(),
+                entity.getAud());
         assertEquals(entity.getIss(), token.getIssuer());
 
         Calendar expires = (Calendar) token.getCreatedDate().clone();
@@ -190,7 +196,8 @@ public final class IntrospectionResponseEntityTest {
         assertEquals(!token.isExpired(), entity.isActive());
         assertEquals(token.getId(), entity.getJti());
         assertEquals(token.getCreatedDate(), entity.getNbf());
-        assertEquals(token.getClient().getId(), entity.getAud());
+        assertEquals(token.getClient().getApplication().getId(),
+                entity.getAud());
         assertEquals(entity.getIss(), token.getIssuer());
 
         Calendar expires = (Calendar) token.getCreatedDate().clone();
@@ -227,7 +234,8 @@ public final class IntrospectionResponseEntityTest {
         assertEquals(!token.isExpired(), entity.isActive());
         assertEquals(token.getId(), entity.getJti());
         assertEquals(token.getCreatedDate(), entity.getNbf());
-        assertEquals(token.getClient().getId(), entity.getAud());
+        assertEquals(token.getClient().getApplication().getId(),
+                entity.getAud());
         assertEquals(entity.getIss(), token.getIssuer());
 
         Calendar expires = (Calendar) token.getCreatedDate().clone();
@@ -264,7 +272,8 @@ public final class IntrospectionResponseEntityTest {
         assertEquals(!token.isExpired(), entity.isActive());
         assertEquals(token.getId(), entity.getJti());
         assertEquals(token.getCreatedDate(), entity.getNbf());
-        assertEquals(token.getClient().getId(), entity.getAud());
+        assertEquals(token.getClient().getApplication().getId(),
+                entity.getAud());
         assertEquals(entity.getIss(), token.getIssuer());
 
         Calendar expires = (Calendar) token.getCreatedDate().clone();

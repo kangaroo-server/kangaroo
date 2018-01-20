@@ -140,7 +140,7 @@ public final class IntrospectionResponseEntity {
 
         this.tokenType = token.getTokenType();
         this.clientId = token.getClient().getId();
-        this.aud = token.getClient().getId();
+        this.aud = token.getClient().getApplication().getId();
         this.jti = token.getId();
 
         if (token.getIdentity() != null) {

@@ -246,7 +246,8 @@ public final class TokenIntrospectionTest extends ContainerTest {
         assertEquals(!token.isExpired(), entity.isActive());
         assertEquals(token.getId(), entity.getJti());
         assertEquals(created, entity.getNbf());
-        assertEquals(token.getClient().getId(), entity.getAud());
+        assertEquals(token.getClient().getApplication().getId(),
+                entity.getAud());
 
         Calendar expires = (Calendar) created.clone();
         expires.add(Calendar.SECOND, token.getExpiresIn().intValue());
