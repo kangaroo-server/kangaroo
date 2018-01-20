@@ -17,11 +17,13 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for our configuration defaults.
@@ -38,7 +40,7 @@ public final class ClientConfigTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = ClientConfig.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -51,9 +53,9 @@ public final class ClientConfigTest {
     @Test
     public void testAuthorizationCodeDefaults() {
         Integer expectedDefault = 60 * 10; // 10 minutes.
-        Assert.assertEquals(expectedDefault,
+        assertEquals(expectedDefault,
                 ClientConfig.AUTHORIZATION_CODE_EXPIRES_DEFAULT);
-        Assert.assertEquals("authorization_code_expires_in",
+        assertEquals("authorization_code_expires_in",
                 ClientConfig.AUTHORIZATION_CODE_EXPIRES_NAME);
     }
 
@@ -63,9 +65,9 @@ public final class ClientConfigTest {
     @Test
     public void testAccessTokenDefaults() {
         Integer expectedDefault = 60 * 10; // 10 minutes.
-        Assert.assertEquals(expectedDefault,
+        assertEquals(expectedDefault,
                 ClientConfig.ACCESS_TOKEN_EXPIRES_DEFAULT);
-        Assert.assertEquals("access_token_expires_in",
+        assertEquals("access_token_expires_in",
                 ClientConfig.ACCESS_TOKEN_EXPIRES_NAME);
     }
 
@@ -75,9 +77,9 @@ public final class ClientConfigTest {
     @Test
     public void testRefreshTokenDefaults() {
         Integer expectedDefault = 60 * 60 * 24 * 30; // One month.
-        Assert.assertEquals(expectedDefault,
+        assertEquals(expectedDefault,
                 ClientConfig.REFRESH_TOKEN_EXPIRES_DEFAULT);
-        Assert.assertEquals("refresh_token_expires_in",
+        assertEquals("refresh_token_expires_in",
                 ClientConfig.REFRESH_TOKEN_EXPIRES_NAME);
     }
 }

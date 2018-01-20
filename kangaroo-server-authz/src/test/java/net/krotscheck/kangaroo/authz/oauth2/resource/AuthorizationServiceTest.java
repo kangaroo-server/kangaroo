@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,6 +37,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -105,16 +107,16 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
+        assertEquals(Status.FOUND.getStatusCode(), r.getStatus());
 
         URI location = r.getLocation();
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("unsupported_response_type",
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertEquals("unsupported_response_type",
                 params.getFirst("error"));
-        Assert.assertNotNull(params.get("error_description"));
+        assertNotNull(params.get("error_description"));
     }
 
     /**
@@ -132,11 +134,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
         URI location = r.getLocation();
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getFragment());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("unsupported_response_type",
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertEquals("unsupported_response_type",
                 params.getFirst("error"));
-        Assert.assertNotNull(params.get("error_description"));
+        assertNotNull(params.get("error_description"));
     }
 
     /**
@@ -149,11 +151,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
         ErrorResponse e = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", e.getError());
-        Assert.assertNotNull(e.getErrorDescription());
+        assertEquals("invalid_request", e.getError());
+        assertNotNull(e.getErrorDescription());
     }
 
     /**
@@ -166,11 +168,11 @@ public final class AuthorizationServiceTest extends ContainerTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
         ErrorResponse e = r.readEntity(ErrorResponse.class);
-        Assert.assertEquals("invalid_request", e.getError());
-        Assert.assertNotNull(e.getErrorDescription());
+        assertEquals("invalid_request", e.getError());
+        assertNotNull(e.getErrorDescription());
     }
 
     /**
@@ -184,16 +186,17 @@ public final class AuthorizationServiceTest extends ContainerTest {
     public void testCallbackStateWithInvalidClientType() throws Exception {
         Response r = target("/authorize/callback")
                 .queryParam("state",
-                        IdUtil.toString(ownerContext.getAuthenticatorState().getId()))
+                        IdUtil.toString(ownerContext.getAuthenticatorState()
+                                .getId()))
                 .request()
                 .get();
 
         URI location = r.getLocation();
         MultivaluedMap<String, String> params =
                 HttpUtil.parseQueryParams(location.getQuery());
-        Assert.assertEquals("valid.example.com", location.getHost());
-        Assert.assertEquals("/redirect", location.getPath());
-        Assert.assertEquals("invalid_request", params.getFirst("error"));
-        Assert.assertNotNull(params.get("error_description"));
+        assertEquals("valid.example.com", location.getHost());
+        assertEquals("/redirect", location.getPath());
+        assertEquals("invalid_request", params.getFirst("error"));
+        assertNotNull(params.get("error_description"));
     }
 }

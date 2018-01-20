@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.common.hibernate.id;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -27,13 +26,14 @@ import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * ID utility tests.
  *
  * @author Michael Krotscheck
  */
-public class IdUtilTest {
+public final class IdUtilTest {
 
     /**
      * Assert that the constructor is private.
@@ -43,7 +43,7 @@ public class IdUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = IdUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);

@@ -19,11 +19,15 @@
 package net.krotscheck.kangaroo.authz.common.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the password utilities.
@@ -40,7 +44,7 @@ public final class PasswordUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = PasswordUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -53,10 +57,10 @@ public final class PasswordUtilTest {
     @Test
     public void testCreateSalt() {
         String salt = PasswordUtil.createSalt();
-        Assert.assertEquals(44, salt.length());
+        assertEquals(44, salt.length());
 
         String salt2 = PasswordUtil.createSalt();
-        Assert.assertNotEquals(salt, salt2);
+        assertNotEquals(salt, salt2);
     }
 
     /**
@@ -71,7 +75,7 @@ public final class PasswordUtilTest {
         String salt2 = PasswordUtil.createSalt();
         String hash1 = PasswordUtil.hash(password, salt1);
 
-        Assert.assertTrue(PasswordUtil.isValid(password, salt1, hash1));
-        Assert.assertFalse(PasswordUtil.isValid(password, salt2, hash1));
+        assertTrue(PasswordUtil.isValid(password, salt1, hash1));
+        assertFalse(PasswordUtil.isValid(password, salt2, hash1));
     }
 }

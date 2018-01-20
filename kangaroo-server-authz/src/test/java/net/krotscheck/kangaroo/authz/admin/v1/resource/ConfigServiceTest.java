@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.configuration.Configuration;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.GenericType;
@@ -35,6 +34,7 @@ import javax.ws.rs.core.Response;
 import java.math.BigInteger;
 import java.net.URI;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -45,7 +45,8 @@ public final class ConfigServiceTest extends AbstractResourceTest {
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<AbstractEntity>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<AbstractEntity>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<AbstractEntity>>() {
 
             };
@@ -118,12 +119,12 @@ public final class ConfigServiceTest extends AbstractResourceTest {
                 .request()
                 .get();
 
-        Assert.assertEquals(200, r.getStatus());
+        assertEquals(200, r.getStatus());
 
         ConfigurationEntity entity = r.readEntity(ConfigurationEntity.class);
 
         a.getScopes().keySet()
                 .forEach(s -> assertTrue(entity.getScopes().contains(s)));
-        Assert.assertEquals(entity.getClient(), clientId);
+        assertEquals(entity.getClient(), clientId);
     }
 }

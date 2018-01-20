@@ -31,7 +31,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.hibernate.type.Type;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -40,6 +39,8 @@ import org.mockito.Mockito;
 import java.sql.SQLException;
 import java.util.TimerTask;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -49,8 +50,12 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class TokenCleanupTaskTest extends DatabaseTest {
+public final class TokenCleanupTaskTest extends DatabaseTest {
 
+    /**
+     * The application context used for this test suite.
+     */
+    private static ApplicationContext context;
     /**
      * Preload data into the system.
      */
@@ -70,11 +75,6 @@ public class TokenCleanupTaskTest extends DatabaseTest {
             };
 
     /**
-     * The application context used for this test suite.
-     */
-    private static ApplicationContext context;
-
-    /**
      * Assert that the task can be executed with expected results.
      */
     @Test
@@ -82,7 +82,7 @@ public class TokenCleanupTaskTest extends DatabaseTest {
         TokenCleanupTask task = new TokenCleanupTask(getSessionFactory(),
                 null);
         TimerTask rTask = task.getTask();
-        Assert.assertSame(task, rTask);
+        assertSame(task, rTask);
     }
 
     /**
@@ -109,15 +109,15 @@ public class TokenCleanupTaskTest extends DatabaseTest {
                 .createQuery("SELECT count(id) from OAuthToken");
 
         long startCount = (long) q.uniqueResult();
-        Assert.assertEquals((long) 10, startCount);
+        assertEquals((long) 10, startCount);
         rTask.run();
         long count = (long) q.uniqueResult();
-        Assert.assertEquals((long) 5, count);
+        assertEquals((long) 5, count);
 
         // Run one more time, make sure it doesn't change anything.
         rTask.run();
         long secondCount = (long) q.uniqueResult();
-        Assert.assertEquals((long) 5, secondCount);
+        assertEquals((long) 5, secondCount);
     }
 
     /**
@@ -273,7 +273,7 @@ public class TokenCleanupTaskTest extends DatabaseTest {
     public void getPeriod() {
         TokenCleanupTask task = new TokenCleanupTask(getSessionFactory(),
                 null);
-        Assert.assertEquals(5 * 60 * 1000, task.getPeriod());
+        assertEquals(5 * 60 * 1000, task.getPeriod());
     }
 
     /**
@@ -285,6 +285,6 @@ public class TokenCleanupTaskTest extends DatabaseTest {
                 null);
         // By default, the period should equal the delay. No
         // immediately-running tasks.
-        Assert.assertEquals(task.getPeriod(), task.getDelay());
+        assertEquals(task.getPeriod(), task.getDelay());
     }
 }

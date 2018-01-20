@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.common.security;
 import com.google.common.net.HttpHeaders;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
@@ -30,12 +29,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Assert that our security features are injected.
  *
  * @author Michael Krotscheck
  */
-public class SecurityFeatureTest extends KangarooJerseyTest {
+public final class SecurityFeatureTest extends KangarooJerseyTest {
 
     /**
      * Build an application.
@@ -57,7 +58,7 @@ public class SecurityFeatureTest extends KangarooJerseyTest {
     public void testFilters() {
         Response r = target("/").request().get();
 
-        Assert.assertEquals("Deny",
+        assertEquals("Deny",
                 r.getHeaderString(HttpHeaders.X_FRAME_OPTIONS));
     }
 

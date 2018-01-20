@@ -69,7 +69,7 @@ public final class SeleniumRule implements TestRule {
     }
 
     /**
-     * Start the rule
+     * Start the rule.
      *
      * @param base
      * @param description

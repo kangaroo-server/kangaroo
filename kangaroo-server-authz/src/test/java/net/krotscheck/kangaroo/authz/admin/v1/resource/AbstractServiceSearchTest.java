@@ -34,7 +34,6 @@ import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.search.query.dsl.QueryBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the list and filter methods of the scope service.
@@ -363,7 +364,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            assertTrue(expectedTotal > 1);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -404,7 +405,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            assertTrue(expectedTotal > 1);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -445,7 +446,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 1);
+            assertTrue(expectedTotal > 1);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -494,7 +495,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -533,7 +534,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
             // Make request.
             Response r = search(params, adminToken);
 
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
 
             assertListResponse(r,
                     expectedResultSize,
@@ -541,7 +542,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
                     expectedLimit,
                     expectedTotal);
         } else {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
     }
 

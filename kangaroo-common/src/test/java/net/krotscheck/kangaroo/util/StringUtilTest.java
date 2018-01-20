@@ -18,20 +18,20 @@
 
 package net.krotscheck.kangaroo.util;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for our private string utility.
  *
  * @author Michael Krotscheck
  */
-public class StringUtilTest {
+public final class StringUtilTest {
 
     /**
      * Assert the constructor is private.
@@ -41,7 +41,7 @@ public class StringUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = StringUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);

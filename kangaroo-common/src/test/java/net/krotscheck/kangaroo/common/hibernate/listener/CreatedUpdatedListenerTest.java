@@ -29,12 +29,15 @@ import org.hibernate.event.spi.PreInsertEvent;
 import org.hibernate.event.spi.PreUpdateEvent;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -52,7 +55,7 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
      * Attach the event listener to our session factory.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         SessionFactory factory = getSessionFactory();
 
         // Register our event listeners.
@@ -81,23 +84,23 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
     public void testOnPreInsert() {
         TestEntity a = new TestEntity();
         a.setName("foo");
-        Assert.assertNull(a.getCreatedDate());
-        Assert.assertNull(a.getModifiedDate());
+        assertNull(a.getCreatedDate());
+        assertNull(a.getModifiedDate());
 
         Session s = getSession();
         s.getTransaction().begin();
         s.saveOrUpdate(a);
         s.getTransaction().commit();
 
-        Assert.assertNotNull(a.getCreatedDate());
-        Assert.assertNotNull(a.getModifiedDate());
+        assertNotNull(a.getCreatedDate());
+        assertNotNull(a.getModifiedDate());
 
         s.evict(a);
 
         TestEntity testEntity = s.get(TestEntity.class, a.getId());
 
-        Assert.assertNotNull(testEntity.getCreatedDate());
-        Assert.assertNotNull(testEntity.getModifiedDate());
+        assertNotNull(testEntity.getCreatedDate());
+        assertNotNull(testEntity.getModifiedDate());
     }
 
     /**
@@ -142,17 +145,17 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
 
         // Make sure that the createdDate has not changed, but the modified
         // date has.
-        Assert.assertEquals(created, a.getCreatedDate());
-        Assert.assertNotEquals(modified, a.getModifiedDate());
+        assertEquals(created, a.getCreatedDate());
+        assertNotEquals(modified, a.getModifiedDate());
         Calendar newModifiedDate = a.getModifiedDate();
 
         // Evict and refresh, make sure that the above values have persisted.
         s.evict(a);
         TestEntity testEntity = s.get(TestEntity.class, a.getId());
 
-        Assert.assertEquals(created, testEntity.getCreatedDate());
-        Assert.assertEquals(newModifiedDate, testEntity.getModifiedDate());
-        Assert.assertNotEquals(modified, testEntity.getModifiedDate());
+        assertEquals(created, testEntity.getCreatedDate());
+        assertEquals(newModifiedDate, testEntity.getModifiedDate());
+        assertNotEquals(modified, testEntity.getModifiedDate());
     }
 
     /**

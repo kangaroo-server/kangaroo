@@ -24,17 +24,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -42,6 +39,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -60,9 +61,9 @@ public final class UserIdentityTest {
         UserIdentity identity = new UserIdentity();
         User user = new User();
 
-        Assert.assertNull(identity.getUser());
+        assertNull(identity.getUser());
         identity.setUser(user);
-        Assert.assertEquals(user, identity.getUser());
+        assertEquals(user, identity.getUser());
     }
 
     /**
@@ -72,9 +73,9 @@ public final class UserIdentityTest {
     public void testGetSetType() {
         UserIdentity identity = new UserIdentity();
 
-        Assert.assertNull(identity.getType());
+        assertNull(identity.getType());
         identity.setType(AuthenticatorType.Test);
-        Assert.assertEquals(AuthenticatorType.Test, identity.getType());
+        assertEquals(AuthenticatorType.Test, identity.getType());
     }
 
     /**
@@ -86,10 +87,10 @@ public final class UserIdentityTest {
         List<OAuthToken> tokens = new ArrayList<>();
         tokens.add(new OAuthToken());
 
-        Assert.assertEquals(0, identity.getTokens().size());
+        assertEquals(0, identity.getTokens().size());
         identity.setTokens(tokens);
-        Assert.assertEquals(tokens, identity.getTokens());
-        Assert.assertNotSame(tokens, identity.getTokens());
+        assertEquals(tokens, identity.getTokens());
+        assertNotSame(tokens, identity.getTokens());
     }
 
     /**
@@ -99,9 +100,9 @@ public final class UserIdentityTest {
     public void testGetSetRemoteId() {
         UserIdentity identity = new UserIdentity();
 
-        Assert.assertNull(identity.getRemoteId());
+        assertNull(identity.getRemoteId());
         identity.setRemoteId("foo");
-        Assert.assertEquals("foo", identity.getRemoteId());
+        assertEquals("foo", identity.getRemoteId());
     }
 
     /**
@@ -112,10 +113,10 @@ public final class UserIdentityTest {
         UserIdentity identity = new UserIdentity();
         Map<String, String> claims = new HashMap<>();
 
-        Assert.assertEquals(0, identity.getClaims().size());
+        assertEquals(0, identity.getClaims().size());
         identity.setClaims(claims);
-        Assert.assertEquals(claims, identity.getClaims());
-        Assert.assertNotSame(claims, identity.getClaims());
+        assertEquals(claims, identity.getClaims());
+        assertNotSame(claims, identity.getClaims());
     }
 
     /**
@@ -126,9 +127,9 @@ public final class UserIdentityTest {
         UserIdentity identity = new UserIdentity();
         String testString = "zomg";
 
-        Assert.assertNull(identity.getSalt());
+        assertNull(identity.getSalt());
         identity.setSalt(testString);
-        Assert.assertEquals(testString, identity.getSalt());
+        assertEquals(testString, identity.getSalt());
     }
 
     /**
@@ -139,9 +140,9 @@ public final class UserIdentityTest {
         UserIdentity identity = new UserIdentity();
         String testString = "zomg";
 
-        Assert.assertNull(identity.getPassword());
+        assertNull(identity.getPassword());
         identity.setPassword(testString);
-        Assert.assertEquals(testString, identity.getPassword());
+        assertEquals(testString, identity.getPassword());
     }
 
     /**
@@ -153,7 +154,7 @@ public final class UserIdentityTest {
         User spy = spy(new User());
 
         // Null check
-        Assert.assertNull(identity.getOwner());
+        assertNull(identity.getOwner());
 
         identity.setUser(spy);
         identity.getOwner();
@@ -202,40 +203,40 @@ public final class UserIdentityTest {
         String output = m.writeValueAsString(identity);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(identity.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 identity.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 identity.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 identity.getType().toString(),
                 node.get("type").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(identity.getUser().getId()),
                 node.get("user").asText());
-        Assert.assertEquals(
+        assertEquals(
                 identity.getRemoteId(),
                 node.get("remoteId").asText());
 
         // Get the claims node.
         JsonNode claimsNode = node.get("claims");
-        Assert.assertEquals(
+        assertEquals(
                 "value",
                 claimsNode.get("one").asText());
-        Assert.assertEquals(
+        assertEquals(
                 "value",
                 claimsNode.get("two").asText());
 
-        Assert.assertFalse(node.has("tokens"));
+        assertFalse(node.has("tokens"));
         // We are not testing for password/salt, as those are
         // handled by view inclusion
-//        Assert.assertFalse(node.has("password"));
-//        Assert.assertFalse(node.has("salt"));
+//        assertFalse(node.has("password"));
+//        assertFalse(node.has("salt"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -243,7 +244,7 @@ public final class UserIdentityTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(9, names.size());
+        assertEquals(9, names.size());
     }
 
     /**
@@ -271,29 +272,29 @@ public final class UserIdentityTest {
         String output = m.writeValueAsString(node);
         UserIdentity a = m.readValue(output, UserIdentity.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 a.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 a.getRemoteId(),
                 node.get("remoteId").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getUser().getId()),
                 node.get("user").asText());
 
         Map<String, String> claims = a.getClaims();
 
-        Assert.assertEquals(
+        assertEquals(
                 claims.get("one"),
                 claimNode.get("one").asText());
-        Assert.assertEquals(
+        assertEquals(
                 claims.get("two"),
                 claimNode.get("two").asText());
     }
@@ -315,6 +316,6 @@ public final class UserIdentityTest {
         UserIdentity u = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, u.getId());
+        assertEquals(newId, u.getId());
     }
 }

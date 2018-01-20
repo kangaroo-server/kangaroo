@@ -22,19 +22,21 @@ import com.google.common.collect.Lists;
 import org.glassfish.jersey.internal.inject.Binder;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Test that we can provide multiple sources of CORS allowed headers.
  *
  * @author Michael Krotscheck
  */
-public class AllowedHeadersTest {
+public final class AllowedHeadersTest {
 
     /**
      * Assert that we can inject values using this binder.
@@ -55,11 +57,11 @@ public class AllowedHeadersTest {
         injector.inject(testInjectee);
 
         List<String> values = Lists.newArrayList(testInjectee.getValues());
-        Assert.assertTrue(values.contains("Test1"));
-        Assert.assertTrue(values.contains("Test2"));
-        Assert.assertTrue(values.contains("Test3"));
-        Assert.assertTrue(values.contains("Test4"));
-        Assert.assertEquals(4, values.size());
+        assertTrue(values.contains("Test1"));
+        assertTrue(values.contains("Test2"));
+        assertTrue(values.contains("Test3"));
+        assertTrue(values.contains("Test4"));
+        assertEquals(4, values.size());
 
         injector.shutdown();
     }

@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.util;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -27,13 +26,14 @@ import java.lang.reflect.Modifier;
 import static net.krotscheck.kangaroo.util.ObjectUtil.safeCast;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for our object utilities.
  *
  * @author Michael Krotscheck
  */
-public class ObjectUtilTest {
+public final class ObjectUtilTest {
 
     /**
      * Assert that the constructor is private.
@@ -43,7 +43,7 @@ public class ObjectUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = ObjectUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);

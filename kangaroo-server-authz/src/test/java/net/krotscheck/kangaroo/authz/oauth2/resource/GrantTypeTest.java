@@ -19,17 +19,18 @@
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * Unti test for the grant type enumeration and its conversion methods.
  *
  * @author Michael Krotscheck
  */
-public class GrantTypeTest {
+public final class GrantTypeTest {
 
     /**
      * Assert that these enum types serialize into expected values.
@@ -41,16 +42,16 @@ public class GrantTypeTest {
         ObjectMapper m = new ObjectMapperFactory().get();
 
         String auth = m.writeValueAsString(GrantType.AuthorizationCode);
-        Assert.assertEquals("\"authorization_code\"", auth);
+        assertEquals("\"authorization_code\"", auth);
 
         String cc = m.writeValueAsString(GrantType.ClientCredentials);
-        Assert.assertEquals("\"client_credentials\"", cc);
+        assertEquals("\"client_credentials\"", cc);
 
         String pswd = m.writeValueAsString(GrantType.Password);
-        Assert.assertEquals("\"password\"", pswd);
+        assertEquals("\"password\"", pswd);
 
         String refresh = m.writeValueAsString(GrantType.RefreshToken);
-        Assert.assertEquals("\"refresh_token\"", refresh);
+        assertEquals("\"refresh_token\"", refresh);
     }
 
     /**
@@ -64,19 +65,19 @@ public class GrantTypeTest {
 
         GrantType auth =
                 m.readValue("\"authorization_code\"", GrantType.class);
-        Assert.assertSame(auth, GrantType.AuthorizationCode);
+        assertSame(auth, GrantType.AuthorizationCode);
 
         GrantType implicit =
                 m.readValue("\"client_credentials\"", GrantType.class);
-        Assert.assertSame(implicit, GrantType.ClientCredentials);
+        assertSame(implicit, GrantType.ClientCredentials);
 
         GrantType owner =
                 m.readValue("\"password\"", GrantType.class);
-        Assert.assertSame(owner, GrantType.Password);
+        assertSame(owner, GrantType.Password);
 
         GrantType client =
                 m.readValue("\"refresh_token\"", GrantType.class);
-        Assert.assertSame(client, GrantType.RefreshToken);
+        assertSame(client, GrantType.RefreshToken);
     }
 
     /**
@@ -84,19 +85,19 @@ public class GrantTypeTest {
      */
     @Test
     public void testFromString() {
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.AuthorizationCode,
                 GrantType.fromString("authorization_code")
         );
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.ClientCredentials,
                 GrantType.fromString("client_credentials")
         );
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.Password,
                 GrantType.fromString("password")
         );
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.RefreshToken,
                 GrantType.fromString("refresh_token")
         );
@@ -107,19 +108,19 @@ public class GrantTypeTest {
      */
     @Test
     public void testValueOf() {
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.AuthorizationCode,
                 GrantType.valueOf("AuthorizationCode")
         );
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.ClientCredentials,
                 GrantType.valueOf("ClientCredentials")
         );
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.Password,
                 GrantType.valueOf("Password")
         );
-        Assert.assertEquals(
+        assertEquals(
                 GrantType.RefreshToken,
                 GrantType.valueOf("RefreshToken")
         );

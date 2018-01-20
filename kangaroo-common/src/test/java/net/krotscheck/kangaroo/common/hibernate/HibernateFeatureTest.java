@@ -27,7 +27,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.service.ServiceRegistry;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,6 +37,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test that all expected classes are in the hibernate feature.
@@ -138,11 +139,11 @@ public final class HibernateFeatureTest extends KangarooJerseyTest {
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         public Response testService() {
-            Assert.assertNotNull(serviceRegistry);
-            Assert.assertNotNull(searchFactory);
-            Assert.assertNotNull(factory);
-            Assert.assertNotNull(ftSession);
-            Assert.assertNotNull(session);
+            assertNotNull(serviceRegistry);
+            assertNotNull(searchFactory);
+            assertNotNull(factory);
+            assertNotNull(ftSession);
+            assertNotNull(session);
 
             return Response.ok().build();
         }

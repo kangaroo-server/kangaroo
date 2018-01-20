@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import net.krotscheck.kangaroo.common.hibernate.entity.TestChildEntity;
 import net.krotscheck.kangaroo.common.hibernate.entity.TestPrivateEntity;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import java.math.BigInteger;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 
@@ -64,7 +64,7 @@ public final class AbstractEntityReferenceDeserializerTest {
                 deserializer.deserialize(preloadedParser,
                         mock(DeserializationContext.class));
 
-        Assert.assertEquals(intId, e.getId());
+        assertEquals(intId, e.getId());
     }
 
     /**
@@ -84,7 +84,7 @@ public final class AbstractEntityReferenceDeserializerTest {
         TestChildEntity e = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(intId, e.getId());
+        assertEquals(intId, e.getId());
     }
 
     /**

@@ -31,7 +31,6 @@ import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,6 +42,10 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -333,16 +336,16 @@ public final class ApplicationServiceCRUDTest
         Response r = postEntity(newApp, token);
 
         if (!token.getClient().getType().equals(ClientType.ClientCredentials)) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse =
                     getEntity(r.getLocation(), getAdminToken());
             Application response =
                     getResponse.readEntity(Application.class);
-            Assert.assertNotNull(response.getId());
-            Assert.assertEquals(newApp.getName(), response.getName());
-            Assert.assertNotNull(response.getOwner().getId());
+            assertNotNull(response.getId());
+            assertEquals(newApp.getName(), response.getName());
+            assertNotNull(response.getOwner().getId());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -370,15 +373,15 @@ public final class ApplicationServiceCRUDTest
         Response r = postEntity(newApp, token);
 
         if (getTokenScope().equals(Scope.APPLICATION_ADMIN)) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             Application response = getResponse.readEntity(Application.class);
 
-            Assert.assertNotNull(response.getId());
-            Assert.assertEquals(newApp.getName(), response.getName());
-            Assert.assertEquals(newApp.getOwner(), response.getOwner());
+            assertNotNull(response.getId());
+            assertEquals(newApp.getName(), response.getName());
+            assertEquals(newApp.getOwner(), response.getOwner());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -417,8 +420,8 @@ public final class ApplicationServiceCRUDTest
 
         if (isAccessible(a, getAdminToken())) {
             Application response = r.readEntity(Application.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(a, response);
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(a, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -445,7 +448,7 @@ public final class ApplicationServiceCRUDTest
         s.save(newRole);
         t.commit();
 
-        Assert.assertNull(newApp.getDefaultRole());
+        assertNull(newApp.getDefaultRole());
 
         // Try to set the default role.
         newApp.setDefaultRole(newRole);
@@ -455,9 +458,9 @@ public final class ApplicationServiceCRUDTest
 
         if (isAccessible(newApp, getAdminToken())) {
             Application response = r.readEntity(Application.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(newApp, response);
-            Assert.assertEquals(newRole.getId(),
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(newApp, response);
+            assertEquals(newRole.getId(),
                     response.getDefaultRole().getId());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -503,9 +506,9 @@ public final class ApplicationServiceCRUDTest
 
         if (isAccessible(testEntity, getAdminToken())) {
             Application response = r.readEntity(Application.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(testEntity, response);
-            Assert.assertEquals(newRole.getId(),
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(testEntity, response);
+            assertEquals(newRole.getId(),
                     response.getDefaultRole().getId());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -520,7 +523,7 @@ public final class ApplicationServiceCRUDTest
     @Test
     public void testPutEmptyDefaultRole() throws Exception {
         Application a = getSecondaryContext().getApplication();
-        Assert.assertNotNull(a.getDefaultRole());
+        assertNotNull(a.getDefaultRole());
 
         Application testEntity = new Application();
         testEntity.setDefaultRole(null);
@@ -646,8 +649,8 @@ public final class ApplicationServiceCRUDTest
     public void testScopes() throws Exception {
         ApplicationService as = new ApplicationService();
 
-        Assert.assertEquals(Scope.APPLICATION_ADMIN, as.getAdminScope());
-        Assert.assertEquals(Scope.APPLICATION, as.getAccessScope());
+        assertEquals(Scope.APPLICATION_ADMIN, as.getAdminScope());
+        assertEquals(Scope.APPLICATION, as.getAccessScope());
     }
 
     /**

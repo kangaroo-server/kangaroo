@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public class ObjectMapperFactoryTest {
+public final class ObjectMapperFactoryTest {
 
     /**
      * The mapper factory we're testing.

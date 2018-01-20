@@ -102,4 +102,3 @@ public final class IAuthenticatorTest {
         }
     }
 }
-    

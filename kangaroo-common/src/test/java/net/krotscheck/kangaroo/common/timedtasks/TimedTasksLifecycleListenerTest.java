@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.common.timedtasks;
 
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.server.spi.Container;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,12 +28,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Unit tests for the manager of injected timer tasks.
  *
  * @author Michael Krotscheck
  */
-public class TimedTasksLifecycleListenerTest {
+public final class TimedTasksLifecycleListenerTest {
 
     /**
      * The injector (This is a mockito mock).
@@ -80,8 +81,8 @@ public class TimedTasksLifecycleListenerTest {
         listener.onShutdown(container);
         Mockito.verifyNoMoreInteractions(container);
 
-        Assert.assertEquals(one.getTickCount(), 2);
-        Assert.assertEquals(two.getTickCount(), 1);
+        assertEquals(one.getTickCount(), 2);
+        assertEquals(two.getTickCount(), 1);
     }
 
     /**

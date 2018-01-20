@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.common.config;
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.apache.commons.configuration.MapConfiguration;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -34,10 +33,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Properties;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Unit tests for the configuration binder.
  */
-public class ConfigurationBinderTest extends KangarooJerseyTest {
+public final class ConfigurationBinderTest extends KangarooJerseyTest {
 
     /**
      * Build the configured application.
@@ -63,7 +64,7 @@ public class ConfigurationBinderTest extends KangarooJerseyTest {
     @Test
     public void testBoundExternalValue() {
         String response = target("/foo").request().get(String.class);
-        Assert.assertEquals("bar", response);
+        assertEquals("bar", response);
     }
 
     /**

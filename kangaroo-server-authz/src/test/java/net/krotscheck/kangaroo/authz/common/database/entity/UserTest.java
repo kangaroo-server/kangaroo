@@ -24,21 +24,22 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.User.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -58,9 +59,9 @@ public final class UserTest {
         User u = new User();
         Application a = new Application();
 
-        Assert.assertNull(u.getApplication());
+        assertNull(u.getApplication());
         u.setApplication(a);
-        Assert.assertEquals(a, u.getApplication());
+        assertEquals(a, u.getApplication());
     }
 
     /**
@@ -73,10 +74,10 @@ public final class UserTest {
         applications.add(new Application());
         applications.add(new Application());
 
-        Assert.assertEquals(0, u.getIdentities().size());
+        assertEquals(0, u.getIdentities().size());
         u.setApplications(applications);
-        Assert.assertEquals(applications, u.getApplications());
-        Assert.assertNotSame(applications, u.getApplications());
+        assertEquals(applications, u.getApplications());
+        assertNotSame(applications, u.getApplications());
     }
 
     /**
@@ -87,9 +88,9 @@ public final class UserTest {
         User user = new User();
         Role role = new Role();
 
-        Assert.assertNull(user.getRole());
+        assertNull(user.getRole());
         user.setRole(role);
-        Assert.assertEquals(role, user.getRole());
+        assertEquals(role, user.getRole());
     }
 
     /**
@@ -101,10 +102,10 @@ public final class UserTest {
         identities.add(new UserIdentity());
         User user = new User();
 
-        Assert.assertEquals(0, user.getIdentities().size());
+        assertEquals(0, user.getIdentities().size());
         user.setIdentities(identities);
-        Assert.assertEquals(identities, user.getIdentities());
-        Assert.assertNotSame(identities, user.getIdentities());
+        assertEquals(identities, user.getIdentities());
+        assertNotSame(identities, user.getIdentities());
     }
 
     /**
@@ -116,7 +117,7 @@ public final class UserTest {
         Application spy = spy(new Application());
 
         // Null check
-        Assert.assertNull(user.getOwner());
+        assertNull(user.getOwner());
 
         user.setApplication(spy);
         user.getOwner();
@@ -157,25 +158,25 @@ public final class UserTest {
         String output = m.writeValueAsString(user);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(user.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 user.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 user.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(user.getRole().getId()),
                 node.get("role").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(user.getApplication().getId()),
                 node.get("application").asText());
 
         // Should not be serialized.
-        Assert.assertFalse(node.has("identities"));
+        assertFalse(node.has("identities"));
 
         // Enforce a given number of items.
         List<String> names = new ArrayList<>();
@@ -183,7 +184,7 @@ public final class UserTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(5, names.size());
+        assertEquals(5, names.size());
     }
 
     /**
@@ -204,16 +205,16 @@ public final class UserTest {
         String output = m.writeValueAsString(node);
         User user = m.readValue(output, User.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(user.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 user.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 user.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(user.getApplication().getId()),
                 node.get("application").asText());
     }
@@ -236,6 +237,6 @@ public final class UserTest {
         User u = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, u.getId());
+        assertEquals(newId, u.getId());
     }
 }

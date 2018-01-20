@@ -62,7 +62,7 @@ public abstract class AbstractTestDatabase implements ITestDatabase {
      * @return The connection string.
      */
     @Override
-    public String getJdbcConnectionString() {
+    public final String getJdbcConnectionString() {
         return TestConfig.getDbJdbcPath();
     }
 
@@ -72,7 +72,7 @@ public abstract class AbstractTestDatabase implements ITestDatabase {
      * @return Dialect class, in string format.
      */
     @Override
-    public String getDialect() {
+    public final String getDialect() {
         return TestConfig.getDbDialect();
     }
 
@@ -82,10 +82,9 @@ public abstract class AbstractTestDatabase implements ITestDatabase {
      * @return Driver class, in string format.
      */
     @Override
-    public String getDriverClass() {
+    public final String getDriverClass() {
         return TestConfig.getDbDriver();
     }
-
 
     /**
      * Execute a query against the current database, and return the results.
@@ -93,7 +92,7 @@ public abstract class AbstractTestDatabase implements ITestDatabase {
      * @param query The query to execute.
      * @return A map of the results.
      */
-    protected List<Map<String, String>> executeQuery(final String query) {
+    protected final List<Map<String, String>> executeQuery(final String query) {
         try (
                 Connection conn = getConnection();
                 java.sql.Statement stmt = conn.createStatement()

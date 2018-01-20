@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.common.hibernate.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -30,6 +29,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the constraint violation exception mapping.
@@ -56,9 +57,9 @@ public final class ConstraintViolationExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertEquals("test 1", er.getErrorDescription());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertEquals("test 1", er.getErrorDescription());
     }
 
 }

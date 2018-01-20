@@ -55,7 +55,8 @@ public final class ClientReferrerServiceBrowseTest
     /**
      * Generic type declaration for list decoding.
      */
-    private static final GenericType<ListResponseEntity<ClientReferrer>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ClientReferrer>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ClientReferrer>>() {
 
             };
@@ -213,11 +214,13 @@ public final class ClientReferrerServiceBrowseTest
         Session s = getSession();
         s.getTransaction().begin();
         try {
-            ClientReferrer r = s.get(ClientReferrer.class, IdUtil.fromString(id));
+            ClientReferrer r = s.get(ClientReferrer.class,
+                    IdUtil.fromString(id));
             parentId = IdUtil.toString(r.getClient().getId());
         } catch (Exception e) {
             parentId =
-                    IdUtil.toString(getParentEntity(getAdminContext()).getId());
+                    IdUtil.toString(getParentEntity(getAdminContext())
+                            .getId());
         } finally {
             s.getTransaction().commit();
         }

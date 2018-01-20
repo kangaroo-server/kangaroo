@@ -18,7 +18,6 @@
 package net.krotscheck.kangaroo.common.exception.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.ForbiddenException;
@@ -26,6 +25,8 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test that jersey exceptions are caught and rewritten into appropriate
@@ -46,10 +47,10 @@ public final class JerseyExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("test", er.getErrorDescription());
+        assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        assertEquals("test", er.getErrorDescription());
     }
 
     /**
@@ -63,10 +64,10 @@ public final class JerseyExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
-        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
-        Assert.assertEquals("HTTP 404 Not Found", er.getErrorDescription());
-        Assert.assertEquals("not_found", er.getError());
+        assertEquals(Status.NOT_FOUND.getStatusCode(), r.getStatus());
+        assertEquals(Status.NOT_FOUND, er.getHttpStatus());
+        assertEquals("HTTP 404 Not Found", er.getErrorDescription());
+        assertEquals("not_found", er.getError());
     }
 
     /**
@@ -80,9 +81,9 @@ public final class JerseyExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
-        Assert.assertEquals(Status.FORBIDDEN, er.getHttpStatus());
-        Assert.assertEquals("HTTP 403 Forbidden", er.getErrorDescription());
-        Assert.assertEquals("forbidden", er.getError());
+        assertEquals(Status.FORBIDDEN.getStatusCode(), r.getStatus());
+        assertEquals(Status.FORBIDDEN, er.getHttpStatus());
+        assertEquals("HTTP 403 Forbidden", er.getErrorDescription());
+        assertEquals("forbidden", er.getError());
     }
 }

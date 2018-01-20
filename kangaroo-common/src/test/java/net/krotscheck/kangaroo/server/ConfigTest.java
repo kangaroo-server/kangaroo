@@ -18,18 +18,21 @@
 
 package net.krotscheck.kangaroo.server;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Assert common config options are defaulted.
  *
  * @author Michael Krotscheck
  */
-public class ConfigTest {
+public final class ConfigTest {
 
     /**
      * Assert that the header is private.
@@ -39,7 +42,7 @@ public class ConfigTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = Config.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -51,39 +54,39 @@ public class ConfigTest {
      */
     @Test
     public void testConfigurationValues() {
-        Assert.assertEquals("kangaroo.host", Config.HOST.getKey());
-        Assert.assertEquals("127.0.0.1", Config.HOST.getValue());
+        assertEquals("kangaroo.host", Config.HOST.getKey());
+        assertEquals("127.0.0.1", Config.HOST.getValue());
 
-        Assert.assertEquals("kangaroo.port", Config.PORT.getKey());
-        Assert.assertEquals((Integer) 8080, Config.PORT.getValue());
+        assertEquals("kangaroo.port", Config.PORT.getKey());
+        assertEquals((Integer) 8080, Config.PORT.getValue());
 
-        Assert.assertEquals("kangaroo.working_dir",
+        assertEquals("kangaroo.working_dir",
                 Config.WORKING_DIR.getKey());
-        Assert.assertEquals("/var/lib/kangaroo",
+        assertEquals("/var/lib/kangaroo",
                 Config.WORKING_DIR.getValue());
 
-        Assert.assertEquals("kangaroo.keystore_path",
+        assertEquals("kangaroo.keystore_path",
                 Config.KEYSTORE_PATH.getKey());
-        Assert.assertNull(Config.KEYSTORE_PATH.getValue());
+        assertNull(Config.KEYSTORE_PATH.getValue());
 
-        Assert.assertEquals("kangaroo.keystore_password",
+        assertEquals("kangaroo.keystore_password",
                 Config.KEYSTORE_PASS.getKey());
-        Assert.assertEquals("kangaroo", Config.KEYSTORE_PASS.getValue());
+        assertEquals("kangaroo", Config.KEYSTORE_PASS.getValue());
 
-        Assert.assertEquals("kangaroo.keystore_type",
+        assertEquals("kangaroo.keystore_type",
                 Config.KEYSTORE_TYPE.getKey());
-        Assert.assertEquals("PKCS12", Config.KEYSTORE_TYPE.getValue());
+        assertEquals("PKCS12", Config.KEYSTORE_TYPE.getValue());
 
-        Assert.assertEquals("kangaroo.cert_alias",
+        assertEquals("kangaroo.cert_alias",
                 Config.CERT_ALIAS.getKey());
-        Assert.assertEquals("kangaroo", Config.CERT_ALIAS.getValue());
+        assertEquals("kangaroo", Config.CERT_ALIAS.getValue());
 
-        Assert.assertEquals("kangaroo.cert_key_password",
+        assertEquals("kangaroo.cert_key_password",
                 Config.CERT_KEY_PASS.getKey());
-        Assert.assertEquals("kangaroo", Config.CERT_KEY_PASS.getValue());
+        assertEquals("kangaroo", Config.CERT_KEY_PASS.getValue());
 
-        Assert.assertEquals("kangaroo.html_app_root",
+        assertEquals("kangaroo.html_app_root",
                 Config.HTML_APP_ROOT.getKey());
-        Assert.assertNull(Config.HTML_APP_ROOT.getValue());
+        assertNull(Config.HTML_APP_ROOT.getValue());
     }
 }

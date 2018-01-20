@@ -26,12 +26,15 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for our Scope constants.
@@ -48,7 +51,7 @@ public final class ScopeTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = Scope.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -60,37 +63,37 @@ public final class ScopeTest {
      */
     @Test
     public void testExpectedConstants() {
-        Assert.assertEquals("kangaroo:application",
+        assertEquals("kangaroo:application",
                 Scope.APPLICATION);
-        Assert.assertEquals("kangaroo:application_admin",
+        assertEquals("kangaroo:application_admin",
                 Scope.APPLICATION_ADMIN);
-        Assert.assertEquals("kangaroo:authenticator",
+        assertEquals("kangaroo:authenticator",
                 Scope.AUTHENTICATOR);
-        Assert.assertEquals("kangaroo:authenticator_admin",
+        assertEquals("kangaroo:authenticator_admin",
                 Scope.AUTHENTICATOR_ADMIN);
-        Assert.assertEquals("kangaroo:client",
+        assertEquals("kangaroo:client",
                 Scope.CLIENT);
-        Assert.assertEquals("kangaroo:client_admin",
+        assertEquals("kangaroo:client_admin",
                 Scope.CLIENT_ADMIN);
-        Assert.assertEquals("kangaroo:user",
+        assertEquals("kangaroo:user",
                 Scope.USER);
-        Assert.assertEquals("kangaroo:user_admin",
+        assertEquals("kangaroo:user_admin",
                 Scope.USER_ADMIN);
-        Assert.assertEquals("kangaroo:role",
+        assertEquals("kangaroo:role",
                 Scope.ROLE);
-        Assert.assertEquals("kangaroo:role_admin",
+        assertEquals("kangaroo:role_admin",
                 Scope.ROLE_ADMIN);
-        Assert.assertEquals("kangaroo:identity",
+        assertEquals("kangaroo:identity",
                 Scope.IDENTITY);
-        Assert.assertEquals("kangaroo:identity_admin",
+        assertEquals("kangaroo:identity_admin",
                 Scope.IDENTITY_ADMIN);
-        Assert.assertEquals("kangaroo:scope",
+        assertEquals("kangaroo:scope",
                 Scope.SCOPE);
-        Assert.assertEquals("kangaroo:scope_admin",
+        assertEquals("kangaroo:scope_admin",
                 Scope.SCOPE_ADMIN);
-        Assert.assertEquals("kangaroo:token",
+        assertEquals("kangaroo:token",
                 Scope.TOKEN);
-        Assert.assertEquals("kangaroo:token_admin",
+        assertEquals("kangaroo:token_admin",
                 Scope.TOKEN_ADMIN);
     }
 
@@ -101,24 +104,24 @@ public final class ScopeTest {
     public void testAllScopeList() {
         List<String> allScopes = Scope.allScopes();
 
-        Assert.assertTrue(allScopes.contains(Scope.APPLICATION));
-        Assert.assertTrue(allScopes.contains(Scope.APPLICATION_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.AUTHENTICATOR));
-        Assert.assertTrue(allScopes.contains(Scope.AUTHENTICATOR_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.CLIENT));
-        Assert.assertTrue(allScopes.contains(Scope.CLIENT_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.USER));
-        Assert.assertTrue(allScopes.contains(Scope.USER_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.ROLE));
-        Assert.assertTrue(allScopes.contains(Scope.ROLE_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.IDENTITY));
-        Assert.assertTrue(allScopes.contains(Scope.IDENTITY_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.SCOPE));
-        Assert.assertTrue(allScopes.contains(Scope.SCOPE_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.TOKEN));
-        Assert.assertTrue(allScopes.contains(Scope.TOKEN_ADMIN));
+        assertTrue(allScopes.contains(Scope.APPLICATION));
+        assertTrue(allScopes.contains(Scope.APPLICATION_ADMIN));
+        assertTrue(allScopes.contains(Scope.AUTHENTICATOR));
+        assertTrue(allScopes.contains(Scope.AUTHENTICATOR_ADMIN));
+        assertTrue(allScopes.contains(Scope.CLIENT));
+        assertTrue(allScopes.contains(Scope.CLIENT_ADMIN));
+        assertTrue(allScopes.contains(Scope.USER));
+        assertTrue(allScopes.contains(Scope.USER_ADMIN));
+        assertTrue(allScopes.contains(Scope.ROLE));
+        assertTrue(allScopes.contains(Scope.ROLE_ADMIN));
+        assertTrue(allScopes.contains(Scope.IDENTITY));
+        assertTrue(allScopes.contains(Scope.IDENTITY_ADMIN));
+        assertTrue(allScopes.contains(Scope.SCOPE));
+        assertTrue(allScopes.contains(Scope.SCOPE_ADMIN));
+        assertTrue(allScopes.contains(Scope.TOKEN));
+        assertTrue(allScopes.contains(Scope.TOKEN_ADMIN));
 
-        Assert.assertEquals(16, allScopes.size());
+        assertEquals(16, allScopes.size());
     }
 
     /**
@@ -128,24 +131,24 @@ public final class ScopeTest {
     public void testAdminScopeList() {
         List<String> allScopes = Scope.adminScopes();
 
-        Assert.assertFalse(allScopes.contains(Scope.APPLICATION));
-        Assert.assertTrue(allScopes.contains(Scope.APPLICATION_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.AUTHENTICATOR));
-        Assert.assertTrue(allScopes.contains(Scope.AUTHENTICATOR_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.CLIENT));
-        Assert.assertTrue(allScopes.contains(Scope.CLIENT_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.USER));
-        Assert.assertTrue(allScopes.contains(Scope.USER_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.ROLE));
-        Assert.assertTrue(allScopes.contains(Scope.ROLE_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.IDENTITY));
-        Assert.assertTrue(allScopes.contains(Scope.IDENTITY_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.SCOPE));
-        Assert.assertTrue(allScopes.contains(Scope.SCOPE_ADMIN));
-        Assert.assertFalse(allScopes.contains(Scope.TOKEN));
-        Assert.assertTrue(allScopes.contains(Scope.TOKEN_ADMIN));
+        assertFalse(allScopes.contains(Scope.APPLICATION));
+        assertTrue(allScopes.contains(Scope.APPLICATION_ADMIN));
+        assertFalse(allScopes.contains(Scope.AUTHENTICATOR));
+        assertTrue(allScopes.contains(Scope.AUTHENTICATOR_ADMIN));
+        assertFalse(allScopes.contains(Scope.CLIENT));
+        assertTrue(allScopes.contains(Scope.CLIENT_ADMIN));
+        assertFalse(allScopes.contains(Scope.USER));
+        assertTrue(allScopes.contains(Scope.USER_ADMIN));
+        assertFalse(allScopes.contains(Scope.ROLE));
+        assertTrue(allScopes.contains(Scope.ROLE_ADMIN));
+        assertFalse(allScopes.contains(Scope.IDENTITY));
+        assertTrue(allScopes.contains(Scope.IDENTITY_ADMIN));
+        assertFalse(allScopes.contains(Scope.SCOPE));
+        assertTrue(allScopes.contains(Scope.SCOPE_ADMIN));
+        assertFalse(allScopes.contains(Scope.TOKEN));
+        assertTrue(allScopes.contains(Scope.TOKEN_ADMIN));
 
-        Assert.assertEquals(8, allScopes.size());
+        assertEquals(8, allScopes.size());
     }
 
     /**
@@ -155,24 +158,24 @@ public final class ScopeTest {
     public void testUserScopeList() {
         List<String> allScopes = Scope.userScopes();
 
-        Assert.assertTrue(allScopes.contains(Scope.APPLICATION));
-        Assert.assertFalse(allScopes.contains(Scope.APPLICATION_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.AUTHENTICATOR));
-        Assert.assertFalse(allScopes.contains(Scope.AUTHENTICATOR_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.CLIENT));
-        Assert.assertFalse(allScopes.contains(Scope.CLIENT_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.USER));
-        Assert.assertFalse(allScopes.contains(Scope.USER_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.ROLE));
-        Assert.assertFalse(allScopes.contains(Scope.ROLE_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.IDENTITY));
-        Assert.assertFalse(allScopes.contains(Scope.IDENTITY_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.SCOPE));
-        Assert.assertFalse(allScopes.contains(Scope.SCOPE_ADMIN));
-        Assert.assertTrue(allScopes.contains(Scope.TOKEN));
-        Assert.assertFalse(allScopes.contains(Scope.TOKEN_ADMIN));
+        assertTrue(allScopes.contains(Scope.APPLICATION));
+        assertFalse(allScopes.contains(Scope.APPLICATION_ADMIN));
+        assertTrue(allScopes.contains(Scope.AUTHENTICATOR));
+        assertFalse(allScopes.contains(Scope.AUTHENTICATOR_ADMIN));
+        assertTrue(allScopes.contains(Scope.CLIENT));
+        assertFalse(allScopes.contains(Scope.CLIENT_ADMIN));
+        assertTrue(allScopes.contains(Scope.USER));
+        assertFalse(allScopes.contains(Scope.USER_ADMIN));
+        assertTrue(allScopes.contains(Scope.ROLE));
+        assertFalse(allScopes.contains(Scope.ROLE_ADMIN));
+        assertTrue(allScopes.contains(Scope.IDENTITY));
+        assertFalse(allScopes.contains(Scope.IDENTITY_ADMIN));
+        assertTrue(allScopes.contains(Scope.SCOPE));
+        assertFalse(allScopes.contains(Scope.SCOPE_ADMIN));
+        assertTrue(allScopes.contains(Scope.TOKEN));
+        assertFalse(allScopes.contains(Scope.TOKEN_ADMIN));
 
-        Assert.assertEquals(8, allScopes.size());
+        assertEquals(8, allScopes.size());
     }
 
     /**
@@ -180,39 +183,39 @@ public final class ScopeTest {
      */
     @Test
     public void testGetScopeForEntity() {
-        Assert.assertEquals(Scope.APPLICATION,
+        assertEquals(Scope.APPLICATION,
                 Scope.forEntity(new Application(), false));
-        Assert.assertEquals(Scope.APPLICATION_ADMIN,
+        assertEquals(Scope.APPLICATION_ADMIN,
                 Scope.forEntity(new Application(), true));
-        Assert.assertEquals(Scope.AUTHENTICATOR,
+        assertEquals(Scope.AUTHENTICATOR,
                 Scope.forEntity(new Authenticator(), false));
-        Assert.assertEquals(Scope.AUTHENTICATOR_ADMIN,
+        assertEquals(Scope.AUTHENTICATOR_ADMIN,
                 Scope.forEntity(new Authenticator(), true));
-        Assert.assertEquals(Scope.CLIENT,
+        assertEquals(Scope.CLIENT,
                 Scope.forEntity(new Client(), false));
-        Assert.assertEquals(Scope.CLIENT_ADMIN,
+        assertEquals(Scope.CLIENT_ADMIN,
                 Scope.forEntity(new Client(), true));
-        Assert.assertEquals(Scope.USER,
+        assertEquals(Scope.USER,
                 Scope.forEntity(new User(), false));
-        Assert.assertEquals(Scope.USER_ADMIN,
+        assertEquals(Scope.USER_ADMIN,
                 Scope.forEntity(new User(), true));
-        Assert.assertEquals(Scope.ROLE,
+        assertEquals(Scope.ROLE,
                 Scope.forEntity(new Role(), false));
-        Assert.assertEquals(Scope.ROLE_ADMIN,
+        assertEquals(Scope.ROLE_ADMIN,
                 Scope.forEntity(new Role(), true));
-        Assert.assertEquals(Scope.IDENTITY,
+        assertEquals(Scope.IDENTITY,
                 Scope.forEntity(new UserIdentity(), false));
-        Assert.assertEquals(Scope.IDENTITY_ADMIN,
+        assertEquals(Scope.IDENTITY_ADMIN,
                 Scope.forEntity(new UserIdentity(), true));
-        Assert.assertEquals(Scope.SCOPE,
+        assertEquals(Scope.SCOPE,
                 Scope.forEntity(new ApplicationScope(), false));
-        Assert.assertEquals(Scope.SCOPE_ADMIN,
+        assertEquals(Scope.SCOPE_ADMIN,
                 Scope.forEntity(new ApplicationScope(), true));
-        Assert.assertEquals(Scope.TOKEN,
+        assertEquals(Scope.TOKEN,
                 Scope.forEntity(new OAuthToken(), false));
-        Assert.assertEquals(Scope.TOKEN_ADMIN,
+        assertEquals(Scope.TOKEN_ADMIN,
                 Scope.forEntity(new OAuthToken(), true));
-        Assert.assertEquals("kangaroo:unknown",
+        assertEquals("kangaroo:unknown",
                 Scope.forEntity(null, true));
     }
 }

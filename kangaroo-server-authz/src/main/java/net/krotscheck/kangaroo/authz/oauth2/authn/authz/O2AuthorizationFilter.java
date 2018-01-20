@@ -30,13 +30,22 @@ import javax.ws.rs.core.SecurityContext;
 
 /**
  * This filter evaluates the existing security context to see whether the
- * request is permitted.
+ * request is permitted. It accepts two parameters, permitPrivate and
+ * permitPublic, which will govern whether a particular request is allowed to
+ * pass.
  *
  * @author Michael Krotscheck
  */
 @Priority(Priorities.AUTHORIZATION)
 public final class O2AuthorizationFilter
         implements ContainerRequestFilter {
+
+    /**
+     * Create a new authorization filter, which rejects requests based on the
+     * passed authorization flags.
+     */
+    public O2AuthorizationFilter() {
+    }
 
     /**
      * Extract the client ID from the various locations where it can live,

@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.util;
 
 import com.google.common.net.HttpHeaders;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,12 +32,17 @@ import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit tests for the HTTP Header utility.
  *
  * @author Michael Krotscheck
  */
-public class RequestUtilTest {
+public final class RequestUtilTest {
 
     /**
      * Build a test request context, with all necessary bits mocked.
@@ -72,7 +76,7 @@ public class RequestUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = RequestUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -93,7 +97,7 @@ public class RequestUtilTest {
                 headers
         );
         String method = RequestUtil.getCORSRequestedMethod(mockContext);
-        Assert.assertEquals("OPTIONS", method);
+        assertEquals("OPTIONS", method);
     }
 
     /**
@@ -109,7 +113,7 @@ public class RequestUtilTest {
                 headers
         );
         String method = RequestUtil.getCORSRequestedMethod(mockContext);
-        Assert.assertNull(method);
+        assertNull(method);
     }
 
     /**
@@ -129,12 +133,12 @@ public class RequestUtilTest {
         List<String> reqHeaders =
                 RequestUtil.getCORSRequestedHeaders(mockContext);
 
-        Assert.assertEquals(5, reqHeaders.size());
-        Assert.assertTrue(reqHeaders.contains("one"));
-        Assert.assertTrue(reqHeaders.contains("two"));
-        Assert.assertTrue(reqHeaders.contains("three"));
-        Assert.assertTrue(reqHeaders.contains("four"));
-        Assert.assertTrue(reqHeaders.contains("five"));
+        assertEquals(5, reqHeaders.size());
+        assertTrue(reqHeaders.contains("one"));
+        assertTrue(reqHeaders.contains("two"));
+        assertTrue(reqHeaders.contains("three"));
+        assertTrue(reqHeaders.contains("four"));
+        assertTrue(reqHeaders.contains("five"));
     }
 
     /**
@@ -151,7 +155,7 @@ public class RequestUtilTest {
         );
         List<String> reqHeaders =
                 RequestUtil.getCORSRequestedHeaders(mockContext);
-        Assert.assertEquals(0, reqHeaders.size());
+        assertEquals(0, reqHeaders.size());
     }
 
     /**
@@ -169,7 +173,7 @@ public class RequestUtilTest {
         );
         URI result = RequestUtil.getHost(mockContext);
 
-        Assert.assertEquals("https://host.example.com",
+        assertEquals("https://host.example.com",
                 result.toString());
     }
 
@@ -188,7 +192,7 @@ public class RequestUtilTest {
         );
         URI result = RequestUtil.getHost(mockContext);
 
-        Assert.assertEquals("https://host.example.com:8080",
+        assertEquals("https://host.example.com:8080",
                 result.toString());
     }
 
@@ -241,7 +245,7 @@ public class RequestUtilTest {
         );
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertEquals("https://example.com:8080",
+        assertEquals("https://example.com:8080",
                 result.toString());
     }
 
@@ -262,7 +266,7 @@ public class RequestUtilTest {
 
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertEquals("https://example.com",
+        assertEquals("https://example.com",
                 result.toString());
     }
 
@@ -283,7 +287,7 @@ public class RequestUtilTest {
 
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -304,7 +308,7 @@ public class RequestUtilTest {
 
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -325,7 +329,7 @@ public class RequestUtilTest {
 
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -345,7 +349,7 @@ public class RequestUtilTest {
 
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -366,7 +370,7 @@ public class RequestUtilTest {
 
         URI result = RequestUtil.getForwardedHost(mockContext);
 
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -384,7 +388,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -403,7 +407,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -422,7 +426,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertTrue(result);
+        assertTrue(result);
     }
 
     /**
@@ -444,7 +448,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -466,7 +470,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertTrue(result);
+        assertTrue(result);
     }
 
     /**
@@ -507,7 +511,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -526,7 +530,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertTrue(result);
+        assertTrue(result);
     }
 
     /**
@@ -549,7 +553,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertFalse(result);
+        assertFalse(result);
     }
 
     /**
@@ -571,7 +575,7 @@ public class RequestUtilTest {
         );
 
         Boolean result = RequestUtil.isCrossOriginRequest(mockContext);
-        Assert.assertTrue(result);
+        assertTrue(result);
     }
 
     /**

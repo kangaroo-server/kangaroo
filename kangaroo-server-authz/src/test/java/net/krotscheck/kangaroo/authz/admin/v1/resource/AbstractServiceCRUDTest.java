@@ -35,7 +35,6 @@ import net.krotscheck.kangaroo.util.HttpUtil;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +44,9 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -276,7 +278,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         if (shouldSucceed) {
             T response = r.readEntity(typingClass);
-            Assert.assertEquals(testingEntity, response);
+            assertEquals(testingEntity, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -297,7 +299,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         if (isAccessible(testingEntity, adminAppToken)) {
             T response = r.readEntity(typingClass);
-            Assert.assertEquals(testingEntity, response);
+            assertEquals(testingEntity, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -375,8 +377,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = postEntity(testEntity, adminAppToken);
 
         if (shouldSucceed()) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), adminAppToken);
             T response = getResponse.readEntity(typingClass);
@@ -426,12 +428,12 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = postEntity(testEntity, getAdminToken());
 
         if (this.isAccessible(testEntity, getAdminToken())) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             T response = getResponse.readEntity(typingClass);
-            Assert.assertNotNull(response.getId());
+            assertNotNull(response.getId());
             assertContentEquals(testEntity, response);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
@@ -493,15 +495,15 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else if (tokenScope.equals(getAdminScope())
                 || testingEntity instanceof Application) {
-            Assert.assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            Assert.assertNotNull(r.getLocation());
+            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+            assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), adminAppToken);
 
             T responseEntity = getResponse.readEntity(typingClass);
-            Assert.assertNotNull(responseEntity.getId());
-            Assert.assertNotNull(responseEntity.getCreatedDate());
-            Assert.assertNotNull(responseEntity.getModifiedDate());
+            assertNotNull(responseEntity.getId());
+            assertNotNull(responseEntity.getCreatedDate());
+            assertNotNull(responseEntity.getModifiedDate());
             assertContentEquals(testingEntity, responseEntity);
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
@@ -630,7 +632,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = deleteEntity(testingEntity, adminAppToken);
 
         if (isAccessible(testingEntity, adminAppToken)) {
-            Assert.assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.NO_CONTENT.getStatusCode(),
                     r.getStatus());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

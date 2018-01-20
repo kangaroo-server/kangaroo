@@ -29,18 +29,20 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnauthorizedClient
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnsupportedGrantTypeException;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.UnsupportedResponseTypeException;
 import net.krotscheck.kangaroo.common.exception.KangarooException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Data validation tests for the errors defined in RFC6749.
  *
  * @author Michael Krotscheck
  */
-public class RFC6749Test {
+public final class RFC6749Test {
 
     /**
      * Assert that the constructor is private.
@@ -50,7 +52,7 @@ public class RFC6749Test {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = RFC6749.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -112,6 +114,6 @@ public class RFC6749Test {
         // Try creating a regular version and make sure it has valid values.
         KangarooException e = errorClass.newInstance();
         // We assume that KangarooException is well tested.
-        Assert.assertEquals(expectedCode, e.getCode().getError());
+        assertEquals(expectedCode, e.getCode().getError());
     }
 }

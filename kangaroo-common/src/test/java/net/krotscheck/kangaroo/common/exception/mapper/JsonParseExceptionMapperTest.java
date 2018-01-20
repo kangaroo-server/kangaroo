@@ -20,12 +20,12 @@ package net.krotscheck.kangaroo.common.exception.mapper;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -48,7 +48,7 @@ public final class JsonParseExceptionMapperTest {
         Response r = mapper.toResponse(jpe);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
     }
 }

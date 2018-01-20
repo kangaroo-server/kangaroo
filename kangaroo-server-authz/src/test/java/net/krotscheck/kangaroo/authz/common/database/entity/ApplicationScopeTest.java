@@ -24,21 +24,22 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -57,9 +58,9 @@ public final class ApplicationScopeTest {
         ApplicationScope scope = new ApplicationScope();
         Application application = new Application();
 
-        Assert.assertNull(scope.getApplication());
+        assertNull(scope.getApplication());
         scope.setApplication(application);
-        Assert.assertEquals(application, scope.getApplication());
+        assertEquals(application, scope.getApplication());
     }
 
     /**
@@ -69,9 +70,9 @@ public final class ApplicationScopeTest {
     public void testGetSetName() {
         ApplicationScope a = new ApplicationScope();
 
-        Assert.assertNull(a.getName());
+        assertNull(a.getName());
         a.setName("foo");
-        Assert.assertEquals("foo", a.getName());
+        assertEquals("foo", a.getName());
     }
 
     /**
@@ -83,10 +84,10 @@ public final class ApplicationScopeTest {
         List<Role> roles = new ArrayList<>();
         roles.add(new Role());
 
-        Assert.assertTrue(scope.getRoles().size() == 0);
+        assertTrue(scope.getRoles().size() == 0);
         scope.setRoles(roles);
-        Assert.assertEquals(roles, scope.getRoles());
-        Assert.assertNotSame(roles, scope.getRoles());
+        assertEquals(roles, scope.getRoles());
+        assertNotSame(roles, scope.getRoles());
     }
 
     /**
@@ -98,10 +99,10 @@ public final class ApplicationScopeTest {
         List<OAuthToken> tokens = new ArrayList<>();
         tokens.add(new OAuthToken());
 
-        Assert.assertTrue(scope.getTokens().size() == 0);
+        assertTrue(scope.getTokens().size() == 0);
         scope.setTokens(tokens);
-        Assert.assertEquals(tokens, scope.getTokens());
-        Assert.assertNotSame(tokens, scope.getTokens());
+        assertEquals(tokens, scope.getTokens());
+        assertNotSame(tokens, scope.getTokens());
     }
 
     /**
@@ -113,7 +114,7 @@ public final class ApplicationScopeTest {
         Application spy = spy(new Application());
 
         // Null check
-        Assert.assertNull(scope.getOwner());
+        assertNull(scope.getOwner());
 
         scope.setApplication(spy);
         scope.getOwner();
@@ -146,19 +147,19 @@ public final class ApplicationScopeTest {
         String output = m.writeValueAsString(a);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 a.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getApplication().getId()),
                 node.get("application").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getName(),
                 node.get("name").asText());
 
@@ -168,7 +169,7 @@ public final class ApplicationScopeTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(5, names.size());
+        assertEquals(5, names.size());
     }
 
     /**
@@ -190,19 +191,19 @@ public final class ApplicationScopeTest {
         String output = m.writeValueAsString(node);
         ApplicationScope a = m.readValue(output, ApplicationScope.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 a.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 a.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 a.getName(),
                 node.get("name").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(a.getApplication().getId()),
                 node.get("application").asText());
     }
@@ -224,6 +225,6 @@ public final class ApplicationScopeTest {
         ApplicationScope a = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, a.getId());
+        assertEquals(newId, a.getId());
     }
 }

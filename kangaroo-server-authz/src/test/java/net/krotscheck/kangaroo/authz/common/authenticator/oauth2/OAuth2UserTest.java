@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2UserTest {
+public final class OAuth2UserTest {
 
     /**
      * Test get/set the ID.

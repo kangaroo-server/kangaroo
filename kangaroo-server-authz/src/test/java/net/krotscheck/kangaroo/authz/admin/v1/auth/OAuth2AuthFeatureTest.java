@@ -19,11 +19,11 @@
 package net.krotscheck.kangaroo.authz.admin.v1.auth;
 
 import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.WWWChallengeExceptionMapper;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.FeatureContext;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2AuthFeatureTest {
+public final class OAuth2AuthFeatureTest {
 
     /**
      * Assert that we are injecting expected features.
@@ -49,7 +49,7 @@ public class OAuth2AuthFeatureTest {
         FeatureContext mockContext = mock(FeatureContext.class);
 
         boolean result = feature.configure(mockContext);
-        Assert.assertTrue(result);
+        assertTrue(result);
 
         verify(mockContext, times(1))
                 .register(OAuth2ScopeDynamicFeature.class);

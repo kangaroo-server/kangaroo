@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.authz.admin.v1.auth.filter;
 
 import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2ForbiddenException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +28,10 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -41,7 +40,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2AuthorizationFilterTest {
+public final class OAuth2AuthorizationFilterTest {
 
     /**
      * Request context.
@@ -81,7 +80,7 @@ public class OAuth2AuthorizationFilterTest {
     public void assertCorrectPriority() throws Exception {
         Priority a = OAuth2AuthorizationFilter.class
                 .getAnnotation(Priority.class);
-        Assert.assertEquals(Priorities.AUTHORIZATION, a.value());
+        assertEquals(Priorities.AUTHORIZATION, a.value());
     }
 
     /**

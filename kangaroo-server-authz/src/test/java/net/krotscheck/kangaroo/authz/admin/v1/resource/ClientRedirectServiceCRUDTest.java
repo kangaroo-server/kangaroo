@@ -29,7 +29,6 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -42,6 +41,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Unit test suite for the client redirect subresource.
@@ -52,7 +53,8 @@ public final class ClientRedirectServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<ClientRedirect>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ClientRedirect>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ClientRedirect>>() {
 
             };
@@ -162,10 +164,12 @@ public final class ClientRedirectServiceCRUDTest
         Session s = getSession();
         s.getTransaction().begin();
         try {
-            ClientRedirect r = s.get(ClientRedirect.class, IdUtil.fromString(id));
+            ClientRedirect r = s.get(ClientRedirect.class,
+                    IdUtil.fromString(id));
             parentId = IdUtil.toString(r.getClient().getId());
         } catch (Exception e) {
-            parentId = IdUtil.toString(getParentEntity(getAdminContext()).getId());
+            parentId = IdUtil.toString(getParentEntity(getAdminContext())
+                    .getId());
         } finally {
             s.getTransaction().commit();
         }
@@ -348,8 +352,8 @@ public final class ClientRedirectServiceCRUDTest
         Response r = putEntity(cr, getAdminToken());
         if (shouldSucceed()) {
             ClientRedirect response = r.readEntity(ClientRedirect.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(cr, response);
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(cr, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -439,7 +443,7 @@ public final class ClientRedirectServiceCRUDTest
     public void testScopes() throws Exception {
         ClientRedirectService cs = new ClientRedirectService(IdUtil.next());
 
-        Assert.assertEquals(Scope.CLIENT_ADMIN, cs.getAdminScope());
-        Assert.assertEquals(Scope.CLIENT, cs.getAccessScope());
+        assertEquals(Scope.CLIENT_ADMIN, cs.getAdminScope());
+        assertEquals(Scope.CLIENT, cs.getAccessScope());
     }
 }

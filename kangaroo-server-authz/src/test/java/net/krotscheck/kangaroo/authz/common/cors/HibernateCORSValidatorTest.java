@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.common.cors;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -26,12 +25,15 @@ import org.mockito.Mockito;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit tests for the ICORSValidator.
  *
  * @author Michael Krotscheck
  */
-public class HibernateCORSValidatorTest {
+public final class HibernateCORSValidatorTest {
 
     /**
      * Assert that we can load valid domains.
@@ -52,7 +54,7 @@ public class HibernateCORSValidatorTest {
         Boolean response1 = validator.isValidCORSOrigin(uri);
         validator.isValidCORSOrigin(uri);
 
-        Assert.assertTrue(response1);
+        assertTrue(response1);
 
         Mockito.verify(loader, Mockito.times(1))
                 .load(Matchers.any(URI.class));
@@ -78,7 +80,7 @@ public class HibernateCORSValidatorTest {
         Boolean response1 = validator.isValidCORSOrigin(uri);
         validator.isValidCORSOrigin(uri);
 
-        Assert.assertFalse(response1);
+        assertFalse(response1);
 
         Mockito.verify(loader, Mockito.times(2))
                 .load(Matchers.any(URI.class));

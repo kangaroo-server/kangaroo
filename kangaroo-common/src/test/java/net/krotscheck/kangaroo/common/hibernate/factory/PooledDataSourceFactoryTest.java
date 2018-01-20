@@ -21,8 +21,10 @@ package net.krotscheck.kangaroo.common.hibernate.factory;
 import com.mchange.v2.c3p0.PoolBackedDataSource;
 import com.mchange.v2.c3p0.PooledDataSource;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the pooled data source factory.
@@ -40,7 +42,7 @@ public final class PooledDataSourceFactoryTest extends DatabaseTest {
                 new PooledDataSourceFactory(getSessionFactory());
 
         PooledDataSource ds = factory.get();
-        Assert.assertNotNull(ds);
-        Assert.assertTrue(ds instanceof PoolBackedDataSource);
+        assertNotNull(ds);
+        assertTrue(ds instanceof PoolBackedDataSource);
     }
 }

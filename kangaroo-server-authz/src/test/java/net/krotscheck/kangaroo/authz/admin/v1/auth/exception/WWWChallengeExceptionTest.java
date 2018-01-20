@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.auth.exception;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -28,6 +27,9 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 
 /**
@@ -55,8 +57,8 @@ public final class WWWChallengeExceptionTest {
 
         TestException e = new TestException(mockInfo, requiredScopes);
 
-        Assert.assertSame(requiredScopes, e.getRequiredScopes());
-        Assert.assertEquals("http://localhost/foo", e.getRealm().toString());
+        assertSame(requiredScopes, e.getRequiredScopes());
+        assertEquals("http://localhost/foo", e.getRealm().toString());
     }
 
     /**
@@ -76,8 +78,8 @@ public final class WWWChallengeExceptionTest {
 
         TestException e = new TestException(mockInfo, requiredScopes);
 
-        Assert.assertSame(requiredScopes, e.getRequiredScopes());
-        Assert.assertEquals("http://localhost/three", e.getRealm().toString());
+        assertSame(requiredScopes, e.getRequiredScopes());
+        assertEquals("http://localhost/three", e.getRealm().toString());
     }
 
     /**
@@ -97,8 +99,8 @@ public final class WWWChallengeExceptionTest {
 
         TestException e = new TestException(mockInfo, requiredScopes);
 
-        Assert.assertSame(requiredScopes, e.getRequiredScopes());
-        Assert.assertEquals("http://localhost/", e.getRealm().toString());
+        assertSame(requiredScopes, e.getRequiredScopes());
+        assertEquals("http://localhost/", e.getRealm().toString());
 
     }
 

@@ -19,15 +19,12 @@
 package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
-import net.krotscheck.kangaroo.server.Config;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.internal.inject.PerThread;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.event.service.spi.EventListenerGroup;
@@ -52,15 +49,16 @@ import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for our hibernate session factory factory.
@@ -90,7 +88,7 @@ public final class HibernateSessionFactoryFactoryTest {
      * Setup the application handler for this test.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         injector = Injections.createInjectionManager();
         injector.register(new SystemConfiguration.Binder());
         injector.register(new HibernateServiceRegistryFactory.Binder());
@@ -103,7 +101,7 @@ public final class HibernateSessionFactoryFactoryTest {
      * Teardown the application handler.
      */
     @After
-    public void teardown() {
+    public void tearDown() {
         injector.shutdown();
         injector = null;
     }
@@ -120,17 +118,17 @@ public final class HibernateSessionFactoryFactoryTest {
         SessionFactory factory = injector.getInstance(SessionFactory.class);
 
         // Assert that the factory is open.
-        Assert.assertFalse(factory.isClosed());
+        assertFalse(factory.isClosed());
 
         // Make sure that we can create a session.
         Session session = factory.openSession();
-        Assert.assertNotNull(session);
-        Assert.assertTrue(session.isOpen());
+        assertNotNull(session);
+        assertTrue(session.isOpen());
 
         // Make sure we can dispose of the factory.
         factoryFactory.dispose(factory);
-        Assert.assertTrue(factory.isClosed());
-        Assert.assertFalse(session.isOpen());
+        assertTrue(factory.isClosed());
+        assertFalse(session.isOpen());
 
         // Make sure doing it twice won't fail.
         factoryFactory.dispose(factory);
@@ -148,15 +146,15 @@ public final class HibernateSessionFactoryFactoryTest {
         // Create a fake application.
         SessionFactory factoryFactory = injector
                 .getInstance(SessionFactory.class);
-        Assert.assertNotNull(factoryFactory);
+        assertNotNull(factoryFactory);
 
         // Make sure it's reading from the same place.
-        Assert.assertFalse(factoryFactory.isClosed());
+        assertFalse(factoryFactory.isClosed());
 
         // Make sure it's a singleton...
         SessionFactory factoryFactory2 =
                 injector.getInstance(SessionFactory.class);
-        Assert.assertSame(factoryFactory, factoryFactory2);
+        assertSame(factoryFactory, factoryFactory2);
     }
 
     /**
@@ -168,7 +166,7 @@ public final class HibernateSessionFactoryFactoryTest {
         // Create a fake application.
         SessionFactory factoryFactory = injector
                 .getInstance(SessionFactory.class);
-        Assert.assertNotNull(factoryFactory);
+        assertNotNull(factoryFactory);
 
 
         ServiceRegistry serviceRegistry = ((SessionFactoryImpl) factoryFactory)
@@ -227,7 +225,7 @@ public final class HibernateSessionFactoryFactoryTest {
             }
         }
 
-        Assert.assertFalse(true);
+        assertFalse(true);
     }
 
     /**

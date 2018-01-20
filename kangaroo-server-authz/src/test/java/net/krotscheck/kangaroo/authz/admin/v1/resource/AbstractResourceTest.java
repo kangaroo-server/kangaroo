@@ -27,7 +27,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
-import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
@@ -38,7 +37,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.Session;
 import org.hibernate.collection.internal.PersistentSortedMap;
 import org.hibernate.internal.SessionImpl;
-import org.junit.Assert;
 import org.junit.ClassRule;
 
 import javax.persistence.Transient;
@@ -49,7 +47,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
@@ -65,17 +62,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Abstract test harness for the administration API. Handles all of our data
  * bootstrapping.
  *
- * @author Michael Krotscheck
  * @param <T> The raw type.
+ * @author Michael Krotscheck
  */
 public abstract class AbstractResourceTest<T extends AbstractEntity>
         extends ContainerTest {
@@ -563,7 +560,7 @@ public abstract class AbstractResourceTest<T extends AbstractEntity>
             }
 
         } catch (Exception e) {
-            Assert.assertTrue(false);
+            assertTrue(false);
         }
     }
 

@@ -118,7 +118,7 @@ public abstract class AbstractSubserviceBrowseTest<K
      *                                {@link TestContainerFactory} instance
      *                                is not successful.
      */
-    protected TestContainerFactory getTestContainerFactory()
+    protected final TestContainerFactory getTestContainerFactory()
             throws TestContainerException {
         if (this.testContainerFactory == null) {
             this.testContainerFactory =

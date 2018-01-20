@@ -30,7 +30,6 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.hibernate.Criteria;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -46,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the list and filter methods of the user identity service.
@@ -313,7 +314,7 @@ public final class UserIdentityServiceBrowseTest
             assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
                     "invalid_scope");
         } else {
-            Assert.assertTrue(expectedTotal > 0);
+            assertTrue(expectedTotal > 0);
             assertListResponse(r,
                     expectedResultSize,
                     expectedOffset,

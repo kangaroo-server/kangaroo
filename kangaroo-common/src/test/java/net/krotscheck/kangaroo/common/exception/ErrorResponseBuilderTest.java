@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import net.krotscheck.kangaroo.common.exception.KangarooExceptionTest.TestError;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -37,6 +36,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -55,11 +56,11 @@ public final class ErrorResponseBuilderTest {
                 Status.NOT_FOUND).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+        assertEquals(Status.NOT_FOUND.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
-        Assert.assertEquals("Not Found", er.getErrorDescription());
-        Assert.assertEquals("not_found", er.getError());
+        assertEquals(Status.NOT_FOUND, er.getHttpStatus());
+        assertEquals("Not Found", er.getErrorDescription());
+        assertEquals("not_found", er.getError());
     }
 
     /**
@@ -72,11 +73,11 @@ public final class ErrorResponseBuilderTest {
                 "message").build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+        assertEquals(Status.NOT_FOUND.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
-        Assert.assertEquals("message", er.getErrorDescription());
-        Assert.assertEquals("not_found", er.getError());
+        assertEquals(Status.NOT_FOUND, er.getHttpStatus());
+        assertEquals("message", er.getErrorDescription());
+        assertEquals("not_found", er.getError());
     }
 
     /**
@@ -89,11 +90,11 @@ public final class ErrorResponseBuilderTest {
                 "message", "test_code").build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.NOT_FOUND.getStatusCode(),
+        assertEquals(Status.NOT_FOUND.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.NOT_FOUND, er.getHttpStatus());
-        Assert.assertEquals("message", er.getErrorDescription());
-        Assert.assertEquals("test_code", er.getError());
+        assertEquals(Status.NOT_FOUND, er.getHttpStatus());
+        assertEquals("message", er.getErrorDescription());
+        assertEquals("test_code", er.getError());
     }
 
     /**
@@ -107,11 +108,11 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertTrue(er.getErrorDescription().indexOf("foo") > -1);
-        Assert.assertEquals("bad_request", er.getError());
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertTrue(er.getErrorDescription().indexOf("foo") > -1);
+        assertEquals("bad_request", er.getError());
     }
 
     /**
@@ -124,12 +125,12 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertEquals("Test Error",
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertEquals("Test Error",
                 er.getErrorDescription());
-        Assert.assertEquals("test_error", er.getError());
+        assertEquals("test_error", er.getError());
     }
 
     /**
@@ -142,12 +143,12 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("HTTP 500 Internal Server Error",
+        assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        assertEquals("HTTP 500 Internal Server Error",
                 er.getErrorDescription());
-        Assert.assertEquals("internal_server_error", er.getError());
+        assertEquals("internal_server_error", er.getError());
     }
 
     /**
@@ -166,11 +167,11 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(),
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertEquals("test 1", er.getErrorDescription());
-        Assert.assertEquals("bad_request", er.getError());
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertEquals("test 1", er.getErrorDescription());
+        assertEquals("bad_request", er.getError());
     }
 
     /**
@@ -185,11 +186,11 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
-        Assert.assertEquals("internal_server_error", er.getError());
+        assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        assertEquals("Internal Server Error", er.getErrorDescription());
+        assertEquals("internal_server_error", er.getError());
     }
 
     /**
@@ -202,11 +203,11 @@ public final class ErrorResponseBuilderTest {
         Response r = ErrorResponseBuilder.from(e).build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 r.getStatus());
-        Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
-        Assert.assertEquals("Internal Server Error", er.getErrorDescription());
-        Assert.assertEquals("internal_server_error", er.getError());
+        assertEquals(Status.INTERNAL_SERVER_ERROR, er.getHttpStatus());
+        assertEquals("Internal Server Error", er.getErrorDescription());
+        assertEquals("internal_server_error", er.getError());
     }
 
     /**
@@ -218,8 +219,8 @@ public final class ErrorResponseBuilderTest {
 
         ErrorResponse r = ErrorResponseBuilder.from(e).buildEntity();
 
-        Assert.assertEquals("Internal Server Error", r.getErrorDescription());
-        Assert.assertEquals("internal_server_error", r.getError());
+        assertEquals("Internal Server Error", r.getErrorDescription());
+        assertEquals("internal_server_error", r.getError());
     }
 
     /**
@@ -234,7 +235,7 @@ public final class ErrorResponseBuilderTest {
                 .build();
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals("test", r.getHeaderString("test"));
+        assertEquals("test", r.getHeaderString("test"));
     }
 
     /**
@@ -259,11 +260,11 @@ public final class ErrorResponseBuilderTest {
             nameIterator.next();
             fieldCount++;
         }
-        Assert.assertEquals(2, fieldCount);
+        assertEquals(2, fieldCount);
 
-        Assert.assertEquals("Internal Server Error",
+        assertEquals("Internal Server Error",
                 node.get("error_description").asText());
-        Assert.assertEquals("internal_server_error",
+        assertEquals("internal_server_error",
                 node.get("error").asText());
     }
 }

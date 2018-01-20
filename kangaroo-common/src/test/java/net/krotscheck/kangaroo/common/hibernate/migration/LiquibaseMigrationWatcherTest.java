@@ -29,19 +29,23 @@ import liquibase.exception.PreconditionErrorException;
 import liquibase.exception.PreconditionFailedException;
 import liquibase.precondition.core.PreconditionContainer.ErrorOption;
 import liquibase.precondition.core.PreconditionContainer.FailOption;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Tests for the liquibase migration watcher.
  *
  * @author Michael Krotscheck
  */
-public class LiquibaseMigrationWatcherTest {
+public final class LiquibaseMigrationWatcherTest {
 
     /**
      * Test that the constructor works with no changesets.
@@ -50,7 +54,7 @@ public class LiquibaseMigrationWatcherTest {
     public void testConstructorWithNoChangesets() {
         List<ChangeSetStatus> changeSets = new ArrayList<>();
         LiquibaseMigrationWatcher w = new LiquibaseMigrationWatcher(changeSets);
-        Assert.assertNull(w.getCurrentVersion());
+        assertNull(w.getCurrentVersion());
     }
 
     /**
@@ -67,7 +71,7 @@ public class LiquibaseMigrationWatcherTest {
         changeSets.add(mockStatus);
 
         LiquibaseMigrationWatcher w = new LiquibaseMigrationWatcher(changeSets);
-        Assert.assertSame(mockSet, w.getCurrentVersion());
+        assertSame(mockSet, w.getCurrentVersion());
     }
 
     /**
@@ -84,7 +88,7 @@ public class LiquibaseMigrationWatcherTest {
         changeSets.add(mockStatus);
 
         LiquibaseMigrationWatcher w = new LiquibaseMigrationWatcher(changeSets);
-        Assert.assertNull(w.getCurrentVersion());
+        assertNull(w.getCurrentVersion());
     }
 
     /**
@@ -113,7 +117,7 @@ public class LiquibaseMigrationWatcherTest {
         }
 
         LiquibaseMigrationWatcher w = new LiquibaseMigrationWatcher(changeSets);
-        Assert.assertSame(lastSet, w.getCurrentVersion());
+        assertSame(lastSet, w.getCurrentVersion());
     }
 
     /**
@@ -178,7 +182,7 @@ public class LiquibaseMigrationWatcherTest {
      * Assert that a successfully run migration is recorded.
      */
     @Test
-    public void ran()  {
+    public void ran() {
         List<ChangeSetStatus> changeSets = new ArrayList<>();
         ChangeSet mockChangeSet = Mockito.mock(ChangeSet.class);
         DatabaseChangeLog mockDbChangeLog =
@@ -187,12 +191,12 @@ public class LiquibaseMigrationWatcherTest {
 
         LiquibaseMigrationWatcher w = new LiquibaseMigrationWatcher(changeSets);
 
-        Assert.assertFalse(w.isMigrated());
-        Assert.assertNull(w.getCurrentVersion());
+        assertFalse(w.isMigrated());
+        assertNull(w.getCurrentVersion());
 
         w.ran(mockChangeSet, mockDbChangeLog, mockDatabase, ExecType.EXECUTED);
 
-        Assert.assertTrue(w.isMigrated());
-        Assert.assertSame(mockChangeSet, w.getCurrentVersion());
+        assertTrue(w.isMigrated());
+        assertSame(mockChangeSet, w.getCurrentVersion());
     }
 }

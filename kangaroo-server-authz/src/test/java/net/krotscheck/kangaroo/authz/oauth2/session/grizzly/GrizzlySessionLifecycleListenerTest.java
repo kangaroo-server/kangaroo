@@ -22,23 +22,14 @@ import net.krotscheck.kangaroo.authz.AuthzServerConfig;
 import net.krotscheck.kangaroo.common.config.SystemConfiguration;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.glassfish.grizzly.servlet.WebappContext;
-import org.glassfish.hk2.api.ActiveDescriptor;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.BuilderHelper;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.jersey.server.spi.Container;
-import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Singleton;
 import javax.servlet.SessionCookieConfig;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -52,7 +43,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Michael Krotscheck
  */
-public class GrizzlySessionLifecycleListenerTest extends DatabaseTest {
+public final class GrizzlySessionLifecycleListenerTest extends DatabaseTest {
 
     /**
      * The listener under test.

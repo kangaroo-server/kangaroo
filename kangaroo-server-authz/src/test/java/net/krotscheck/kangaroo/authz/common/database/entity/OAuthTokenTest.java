@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -41,6 +40,11 @@ import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -59,9 +63,9 @@ public final class OAuthTokenTest {
         OAuthToken token = new OAuthToken();
         UserIdentity identity = new UserIdentity();
 
-        Assert.assertNull(token.getIdentity());
+        assertNull(token.getIdentity());
         token.setIdentity(identity);
-        Assert.assertEquals(identity, token.getIdentity());
+        assertEquals(identity, token.getIdentity());
     }
 
     /**
@@ -72,9 +76,9 @@ public final class OAuthTokenTest {
         OAuthToken token = new OAuthToken();
         HttpSession session = new HttpSession();
 
-        Assert.assertNull(token.getHttpSession());
+        assertNull(token.getHttpSession());
         token.setHttpSession(session);
-        Assert.assertEquals(session, token.getHttpSession());
+        assertEquals(session, token.getHttpSession());
     }
 
     /**
@@ -85,9 +89,9 @@ public final class OAuthTokenTest {
         OAuthToken token = new OAuthToken();
         Client client = new Client();
 
-        Assert.assertNull(token.getClient());
+        assertNull(token.getClient());
         token.setClient(client);
-        Assert.assertEquals(client, token.getClient());
+        assertEquals(client, token.getClient());
     }
 
     /**
@@ -98,9 +102,9 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertNull(c.getTokenType());
+        assertNull(c.getTokenType());
         c.setTokenType(OAuthTokenType.Authorization);
-        Assert.assertEquals(OAuthTokenType.Authorization, c.getTokenType());
+        assertEquals(OAuthTokenType.Authorization, c.getTokenType());
     }
 
     /**
@@ -111,19 +115,19 @@ public final class OAuthTokenTest {
         OAuthToken c = new OAuthToken();
 
         // Default
-        Assert.assertNull(c.getExpiresIn());
+        assertNull(c.getExpiresIn());
         c.setExpiresIn(100);
-        Assert.assertEquals(100, c.getExpiresIn().longValue());
+        assertEquals(100, c.getExpiresIn().longValue());
         c.setExpiresIn((long) 200);
-        Assert.assertEquals(200, c.getExpiresIn().longValue());
+        assertEquals(200, c.getExpiresIn().longValue());
         c.setExpiresIn(Double.valueOf(2.222));
-        Assert.assertEquals(2, c.getExpiresIn().longValue());
+        assertEquals(2, c.getExpiresIn().longValue());
         c.setExpiresIn(Integer.valueOf(22));
-        Assert.assertEquals(22, c.getExpiresIn().longValue());
+        assertEquals(22, c.getExpiresIn().longValue());
         c.setExpiresIn(Long.valueOf(100));
-        Assert.assertEquals(100, c.getExpiresIn().longValue());
+        assertEquals(100, c.getExpiresIn().longValue());
         c.setExpiresIn((Long) null);
-        Assert.assertNull(c.getExpiresIn());
+        assertNull(c.getExpiresIn());
     }
 
     /**
@@ -135,9 +139,9 @@ public final class OAuthTokenTest {
         OAuthToken token = new OAuthToken();
         OAuthToken otherToken = new OAuthToken();
 
-        Assert.assertNull(token.getAuthToken());
+        assertNull(token.getAuthToken());
         token.setAuthToken(otherToken);
-        Assert.assertEquals(otherToken, token.getAuthToken());
+        assertEquals(otherToken, token.getAuthToken());
     }
 
     /**
@@ -151,9 +155,9 @@ public final class OAuthTokenTest {
 
         URI test = new URI("http://example.com/");
 
-        Assert.assertNull(token.getRedirect());
+        assertNull(token.getRedirect());
         token.setRedirect(test);
-        Assert.assertEquals(test, token.getRedirect());
+        assertEquals(test, token.getRedirect());
     }
 
     /**
@@ -165,9 +169,9 @@ public final class OAuthTokenTest {
     public void testGetSetIssuer() throws Exception {
         OAuthToken token = new OAuthToken();
 
-        Assert.assertNull(token.getIssuer());
+        assertNull(token.getIssuer());
         token.setIssuer("test");
-        Assert.assertEquals("test", token.getIssuer());
+        assertEquals("test", token.getIssuer());
     }
 
     /**
@@ -188,7 +192,7 @@ public final class OAuthTokenTest {
         token.setClient(c);
         token.setIdentity(u);
 
-        Assert.assertEquals(u.getRemoteId(), token.getName());
+        assertEquals(u.getRemoteId(), token.getName());
     }
 
     /**
@@ -204,7 +208,7 @@ public final class OAuthTokenTest {
         c.setName("foo");
 
         token.setClient(c);
-        Assert.assertEquals(c.getName(), token.getName());
+        assertEquals(c.getName(), token.getName());
     }
 
     /**
@@ -215,7 +219,7 @@ public final class OAuthTokenTest {
     @Test
     public void testGetNullClient() throws Exception {
         OAuthToken token = new OAuthToken();
-        Assert.assertNull(token.getName());
+        assertNull(token.getName());
     }
 
     /**
@@ -227,10 +231,10 @@ public final class OAuthTokenTest {
         SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         scopes.put("test", new ApplicationScope());
 
-        Assert.assertEquals(0, token.getScopes().size());
+        assertEquals(0, token.getScopes().size());
         token.setScopes(scopes);
-        Assert.assertEquals(scopes, token.getScopes());
-        Assert.assertNotSame(scopes, token.getScopes());
+        assertEquals(scopes, token.getScopes());
+        assertNotSame(scopes, token.getScopes());
     }
 
     /**
@@ -249,25 +253,25 @@ public final class OAuthTokenTest {
         recentPDT.add(Calendar.SECOND, -100);
 
         // Test null createdDate.
-        Assert.assertTrue(token.isExpired());
+        assertTrue(token.isExpired());
 
         // Test UTC Non-Expired Token.
         token.setCreatedDate(recentUTC);
         token.setExpiresIn((long) 103);
-        Assert.assertFalse(token.isExpired());
+        assertFalse(token.isExpired());
 
         // Expire the token.
         token.setExpiresIn((long) 99);
-        Assert.assertTrue(token.isExpired());
+        assertTrue(token.isExpired());
 
         // Test Non-UTC Non-Expired Token.
         token.setCreatedDate(recentPDT);
         token.setExpiresIn((long) 103);
-        Assert.assertFalse(token.isExpired());
+        assertFalse(token.isExpired());
 
         // Expire the token.
         token.setExpiresIn((long) 99);
-        Assert.assertTrue(token.isExpired());
+        assertTrue(token.isExpired());
     }
 
     /**
@@ -279,7 +283,7 @@ public final class OAuthTokenTest {
         Client spy = spy(new Client());
 
         // Null check
-        Assert.assertNull(token.getOwner());
+        assertNull(token.getOwner());
 
         token.setClient(spy);
         token.getOwner();
@@ -319,32 +323,32 @@ public final class OAuthTokenTest {
         String output = m.writeValueAsString(token);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(token.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 token.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 token.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 token.getTokenType().toString(),
                 node.get("tokenType").asText());
-        Assert.assertEquals(
+        assertEquals(
                 token.getExpiresIn().longValue(),
                 node.get("expiresIn").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 token.getRedirect().toString(),
                 node.get("redirect").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(token.getClient().getId()),
                 node.get("client").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(token.getIdentity().getId()),
                 node.get("identity").asText());
-        Assert.assertEquals(token.getIssuer(),
+        assertEquals(token.getIssuer(),
                 node.get("issuer").asText());
 
         // Enforce a given number of items.
@@ -353,7 +357,7 @@ public final class OAuthTokenTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(9, names.size());
+        assertEquals(9, names.size());
     }
 
     /**
@@ -381,35 +385,35 @@ public final class OAuthTokenTest {
         String output = m.writeValueAsString(node);
         OAuthToken c = m.readValue(output, OAuthToken.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 c.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 c.getTokenType().toString(),
                 node.get("tokenType").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getExpiresIn().longValue(),
                 node.get("expiresIn").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 c.getIssuer(),
                 node.get("issuer").asText());
-        Assert.assertEquals(
+        assertEquals(
                 c.getRedirect().toString(),
                 node.get("redirect").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getIdentity().getId()),
                 node.get("identity").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getClient().getId()),
                 node.get("client").asText());
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(c.getAuthToken().getId()),
                 node.get("authToken").asText());
     }
@@ -431,6 +435,6 @@ public final class OAuthTokenTest {
         OAuthToken c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, c.getId());
+        assertEquals(newId, c.getId());
     }
 }

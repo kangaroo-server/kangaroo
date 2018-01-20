@@ -18,8 +18,11 @@
 
 package net.krotscheck.kangaroo.authz.common.authenticator;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for the authenticator type.
@@ -38,9 +41,9 @@ public final class AuthenticatorTypeTest {
                     AuthenticatorType.Test,
                     AuthenticatorType.Google,
                     AuthenticatorType.Facebook)) {
-                Assert.assertTrue(type.isPrivate());
+                assertTrue(type.isPrivate());
             } else {
-                Assert.assertFalse(type.isPrivate());
+                assertFalse(type.isPrivate());
             }
         }
     }
@@ -50,23 +53,23 @@ public final class AuthenticatorTypeTest {
      */
     @Test
     public void testIn() {
-        Assert.assertTrue(AuthenticatorType.Password.in(
+        assertTrue(AuthenticatorType.Password.in(
                 AuthenticatorType.Password,
                 AuthenticatorType.Password
         ));
-        Assert.assertTrue(AuthenticatorType.Password.in(
+        assertTrue(AuthenticatorType.Password.in(
                 AuthenticatorType.Test,
                 AuthenticatorType.Password
         ));
-        Assert.assertTrue(AuthenticatorType.Password.in(
+        assertTrue(AuthenticatorType.Password.in(
                 AuthenticatorType.Password
         ));
-        Assert.assertFalse(AuthenticatorType.Password.in(
+        assertFalse(AuthenticatorType.Password.in(
                 AuthenticatorType.Test,
                 AuthenticatorType.Test
         ));
-        Assert.assertFalse(AuthenticatorType.Password.in());
-        Assert.assertFalse(AuthenticatorType.Password.in(null));
+        assertFalse(AuthenticatorType.Password.in());
+        assertFalse(AuthenticatorType.Password.in(null));
     }
 
     /**
@@ -74,19 +77,19 @@ public final class AuthenticatorTypeTest {
      */
     @Test
     public void testValueOf() {
-        Assert.assertEquals(
+        assertEquals(
                 AuthenticatorType.Password,
                 AuthenticatorType.valueOf("Password")
         );
-        Assert.assertEquals(
+        assertEquals(
                 AuthenticatorType.Test,
                 AuthenticatorType.valueOf("Test")
         );
-        Assert.assertEquals(
+        assertEquals(
                 AuthenticatorType.Facebook,
                 AuthenticatorType.valueOf("Facebook")
         );
-        Assert.assertEquals(
+        assertEquals(
                 AuthenticatorType.Google,
                 AuthenticatorType.valueOf("Google")
         );

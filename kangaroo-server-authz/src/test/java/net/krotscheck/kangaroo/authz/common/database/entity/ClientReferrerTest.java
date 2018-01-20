@@ -24,22 +24,21 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client.Deserializer;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.jackson.ObjectMapperFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.net.URI;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -58,9 +57,9 @@ public final class ClientReferrerTest {
         ClientReferrer referrer = new ClientReferrer();
         Client client = new Client();
 
-        Assert.assertNull(referrer.getClient());
+        assertNull(referrer.getClient());
         referrer.setClient(client);
-        Assert.assertEquals(client, referrer.getClient());
+        assertEquals(client, referrer.getClient());
     }
 
     /**
@@ -71,9 +70,9 @@ public final class ClientReferrerTest {
         ClientReferrer referrer = new ClientReferrer();
         URI uri = URI.create("http://example.com/");
 
-        Assert.assertNull(referrer.getUri());
+        assertNull(referrer.getUri());
         referrer.setUri(uri);
-        Assert.assertEquals(uri, referrer.getUri());
+        assertEquals(uri, referrer.getUri());
     }
 
     /**
@@ -85,7 +84,7 @@ public final class ClientReferrerTest {
         Client spy = spy(new Client());
 
         // Null check
-        Assert.assertNull(referrer.getOwner());
+        assertNull(referrer.getOwner());
 
         referrer.setClient(spy);
         referrer.getOwner();
@@ -116,17 +115,17 @@ public final class ClientReferrerTest {
         String output = m.writeValueAsString(r);
         JsonNode node = m.readTree(output);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(r.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 r.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 r.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 r.getUri().toString(),
                 node.get("uri").asText());
 
@@ -136,7 +135,7 @@ public final class ClientReferrerTest {
         while (nameIterator.hasNext()) {
             names.add(nameIterator.next());
         }
-        Assert.assertEquals(4, names.size());
+        assertEquals(4, names.size());
     }
 
     /**
@@ -158,22 +157,22 @@ public final class ClientReferrerTest {
         String output = m.writeValueAsString(node);
         ClientReferrer r = m.readValue(output, ClientReferrer.class);
 
-        Assert.assertEquals(
+        assertEquals(
                 IdUtil.toString(r.getId()),
                 node.get("id").asText());
-        Assert.assertEquals(
+        assertEquals(
                 r.getCreatedDate().getTimeInMillis() / 1000,
                 node.get("createdDate").asLong());
-        Assert.assertEquals(
+        assertEquals(
                 r.getModifiedDate().getTimeInMillis() / 1000,
                 node.get("modifiedDate").asLong());
 
-        Assert.assertEquals(
+        assertEquals(
                 r.getUri().toString(),
                 node.get("uri").asText());
 
         // Client is not publicly serialized.
-        Assert.assertNull(r.getClient());
+        assertNull(r.getClient());
     }
 
     /**
@@ -193,6 +192,6 @@ public final class ClientReferrerTest {
         Client c = deserializer.deserialize(preloadedParser,
                 mock(DeserializationContext.class));
 
-        Assert.assertEquals(newId, c.getId());
+        assertEquals(newId, c.getId());
     }
 }

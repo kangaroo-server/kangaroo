@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Michael Krotscheck
  */
-public class HttpClientFactoryTest extends ContainerTest {
+public final class HttpClientFactoryTest extends ContainerTest {
 
     /**
      * Create a blank application.

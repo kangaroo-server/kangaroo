@@ -47,7 +47,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Michael Krotscheck
  */
-public class O2ClientQueryParameterFilterTest extends ContainerTest {
+public final class O2ClientQueryParameterFilterTest extends ContainerTest {
 
     /**
      * Preload data into the system.
@@ -87,7 +87,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
      */
     @Test
     public void testNoParam() {
-        Response r = target("/")
+        Response r = target("/client")
                 .request()
                 .get();
 
@@ -99,7 +99,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
      */
     @Test
     public void testNoClientAuthParams() {
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("hello", "world")
                 .queryParam("hello", "kitty")
                 .request()
@@ -113,7 +113,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
      */
     @Test
     public void testMalformedClientId() {
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", "not_a_biginteger")
                 .request()
                 .get();
@@ -126,7 +126,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
      */
     @Test
     public void testNonexistentClientId() {
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", IdUtil.toString(IdUtil.next()))
                 .request()
                 .get();
@@ -146,7 +146,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
         Client c2 = b.client(ClientType.Implicit, false)
                 .build().getClient();
 
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", IdUtil.toString(c1.getId()))
                 .queryParam("client_id", IdUtil.toString(c2.getId()))
                 .request()
@@ -166,7 +166,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
                 .build()
                 .getClient();
 
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", IdUtil.toString(c.getId()))
                 .queryParam("client_secret", c.getClientSecret())
                 .request()
@@ -186,7 +186,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
                 .build()
                 .getClient();
 
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", IdUtil.toString(c.getId()))
                 .request()
                 .get();
@@ -209,7 +209,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", IdUtil.toString(c.getId()))
                 .request()
                 .put(testEntity);
@@ -232,7 +232,7 @@ public class O2ClientQueryParameterFilterTest extends ContainerTest {
         Entity<Form> testEntity = Entity.entity(requestData,
                 APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response r = target("/")
+        Response r = target("/client")
                 .queryParam("client_id", IdUtil.toString(c.getId()))
                 .request()
                 .post(testEntity);

@@ -54,11 +54,14 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.ClientCredentials;
+import static net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType.Refresh;
+
 /**
  * This class assists in the creation of a test environment, by bootstrapping
  * applications, clients, their enabled authenticators and flows, as well as
  * other miscellaneous components.
- * <p>
+ *
  * Note that this class is a bit volatile, as it makes the implicit
  * assumption that all the resources it needs will be created before they're
  * used. In other words, if you've got weird issues, then you're probably
@@ -90,15 +93,6 @@ public final class ApplicationBuilder {
      */
     private ApplicationBuilder(final ApplicationContext context) {
         this.context = context;
-    }
-
-    /**
-     * Get the builder that was used to create this context.
-     *
-     * @return The builder.
-     */
-    public ApplicationContext getContext() {
-        return context.copy();
     }
 
     /**
@@ -219,6 +213,15 @@ public final class ApplicationBuilder {
         context.token = token;
 
         return new ApplicationBuilder(context);
+    }
+
+    /**
+     * Get the builder that was used to create this context.
+     *
+     * @return The builder.
+     */
+    public ApplicationContext getContext() {
+        return context.copy();
     }
 
     /**
@@ -447,7 +450,7 @@ public final class ApplicationBuilder {
      * Enable an authenticator for the current client context, with provided
      * configuration.
      *
-     * @param type The authenticator type to use.
+     * @param type   The authenticator type to use.
      * @param config The configuration properties.
      * @return This builder.
      */
@@ -627,7 +630,7 @@ public final class ApplicationBuilder {
         if (context.token != null) {
             scopes = String.join(" ", context.token.getScopes().keySet());
         }
-        return token(OAuthTokenType.Refresh, false, scopes, null, context.token);
+        return token(Refresh, false, scopes, null, context.token);
     }
 
     /**
@@ -680,7 +683,7 @@ public final class ApplicationBuilder {
 
         // Only non-client-credentials clients are associated with users.
         if (!context.token.getClient()
-                .getType().equals(ClientType.ClientCredentials)) {
+                .getType().equals(ClientCredentials)) {
             context.token.setIdentity(identity);
         }
 
@@ -761,7 +764,7 @@ public final class ApplicationBuilder {
         context.httpSession.setSessionTimeout(expired ? -100 : 100);
 
         if (context.token != null
-                && context.token.getTokenType().equals(OAuthTokenType.Refresh)) {
+                && context.token.getTokenType().equals(Refresh)) {
             context.token.setHttpSession(context.httpSession);
         }
 

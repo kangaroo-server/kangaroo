@@ -19,8 +19,10 @@
 package net.krotscheck.kangaroo.authz.common.authenticator.oauth2;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -29,7 +31,7 @@ import org.junit.Test;
  *
  * @author Michael Krotscheck
  */
-public class OAuth2IdPTokenTest {
+public final class OAuth2IdPTokenTest {
 
     /**
      * Test get/set of the access token.
@@ -39,9 +41,9 @@ public class OAuth2IdPTokenTest {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
         OAuth2IdPToken token = new OAuth2IdPToken();
 
-        Assert.assertNull(token.getAccessToken());
+        assertNull(token.getAccessToken());
         token.setAccessToken(randomValue);
-        Assert.assertEquals(randomValue, token.getAccessToken());
+        assertEquals(randomValue, token.getAccessToken());
     }
 
     /**
@@ -52,9 +54,9 @@ public class OAuth2IdPTokenTest {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
         OAuth2IdPToken token = new OAuth2IdPToken();
 
-        Assert.assertNull(token.getTokenType());
+        assertNull(token.getTokenType());
         token.setTokenType(randomValue);
-        Assert.assertEquals(randomValue, token.getTokenType());
+        assertEquals(randomValue, token.getTokenType());
     }
 
     /**
@@ -64,9 +66,9 @@ public class OAuth2IdPTokenTest {
     public void getSetExpiresIn() {
         OAuth2IdPToken token = new OAuth2IdPToken();
 
-        Assert.assertNull(token.getExpiresIn());
+        assertNull(token.getExpiresIn());
         token.setExpiresIn(Long.valueOf(100));
-        Assert.assertEquals(Long.valueOf(100), token.getExpiresIn());
+        assertEquals(Long.valueOf(100), token.getExpiresIn());
     }
 
     /**
@@ -77,9 +79,9 @@ public class OAuth2IdPTokenTest {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
         OAuth2IdPToken token = new OAuth2IdPToken();
 
-        Assert.assertNull(token.getRefreshToken());
+        assertNull(token.getRefreshToken());
         token.setRefreshToken(randomValue);
-        Assert.assertEquals(randomValue, token.getRefreshToken());
+        assertEquals(randomValue, token.getRefreshToken());
     }
 
     /**
@@ -90,9 +92,9 @@ public class OAuth2IdPTokenTest {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
         OAuth2IdPToken token = new OAuth2IdPToken();
 
-        Assert.assertNull(token.getScope());
+        assertNull(token.getScope());
         token.setScope(randomValue);
-        Assert.assertEquals(randomValue, token.getScope());
+        assertEquals(randomValue, token.getScope());
     }
 
     /**
@@ -103,8 +105,8 @@ public class OAuth2IdPTokenTest {
         String randomValue = RandomStringUtils.randomAlphabetic(30);
         OAuth2IdPToken token = new OAuth2IdPToken();
 
-        Assert.assertNull(token.getState());
+        assertNull(token.getState());
         token.setState(randomValue);
-        Assert.assertEquals(randomValue, token.getState());
+        assertEquals(randomValue, token.getState());
     }
 }

@@ -31,7 +31,6 @@ import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -45,6 +44,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -91,7 +91,7 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         URI callback = UriBuilder.fromPath("http://example.com").build();
 
         Response r = a.delegate(config, callback);
-        Assert.assertNull(r);
+        assertNull(r);
     }
 
     /**
@@ -140,8 +140,9 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
-        Assert.assertEquals("login", i.getRemoteId());
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params,
+                null);
+        assertEquals("login", i.getRemoteId());
     }
 
     /**
@@ -179,8 +180,9 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "wrongIdentity");
         params.add("password", "password");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
-        Assert.assertNull(i);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params,
+                null);
+        assertNull(i);
     }
 
     /**
@@ -194,7 +196,8 @@ public final class PasswordAuthenticatorTest extends DatabaseTest {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("username", "login");
         params.add("password", "wrongpassword");
-        UserIdentity i = a.authenticate(context.getAuthenticator(), params, null);
-        Assert.assertNull(i);
+        UserIdentity i = a.authenticate(context.getAuthenticator(), params,
+                null);
+        assertNull(i);
     }
 }

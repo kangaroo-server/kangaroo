@@ -51,17 +51,10 @@ public final class O2AuthorizationFilterTest {
     private O2SecurityContext securityContext;
 
     /**
-     * The filter under test.
-     */
-    private O2AuthorizationFilter filter;
-
-    /**
      * Setup the test.
      */
     @Before
     public void setup() {
-        filter = new O2AuthorizationFilter();
-
         requestContext = mock(ContainerRequestContext.class);
         securityContext = mock(O2SecurityContext.class);
 
@@ -75,6 +68,8 @@ public final class O2AuthorizationFilterTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void assertFailWithWrongPrincipalType() {
+        O2AuthorizationFilter filter = new O2AuthorizationFilter();
+
         Principal principal = () -> "wrong type";
         doReturn(principal)
                 .when(securityContext)
@@ -88,6 +83,8 @@ public final class O2AuthorizationFilterTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void assertFailWithNoPrincipal() {
+        O2AuthorizationFilter filter = new O2AuthorizationFilter();
+
         doReturn(null)
                 .when(securityContext)
                 .getUserPrincipal();
@@ -100,6 +97,8 @@ public final class O2AuthorizationFilterTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void assertFailWithNoClient() {
+        O2AuthorizationFilter filter = new O2AuthorizationFilter();
+
         O2Principal p = new O2Principal();
 
         doReturn(p)
@@ -110,10 +109,12 @@ public final class O2AuthorizationFilterTest {
     }
 
     /**
-     * If we do have a public client, pass.
+     * If we have a public client, pass.
      */
     @Test
-    public void assertPassWithClient() {
+    public void assertPassWithPublicClient() {
+        O2AuthorizationFilter filter = new O2AuthorizationFilter();
+
         Client c = new Client();
         c.setId(IdUtil.next());
         O2Principal p = new O2Principal(c);

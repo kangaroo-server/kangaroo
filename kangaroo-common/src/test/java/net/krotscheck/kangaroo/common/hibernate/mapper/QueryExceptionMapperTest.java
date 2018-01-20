@@ -20,11 +20,12 @@ package net.krotscheck.kangaroo.common.hibernate.mapper;
 
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
 import org.hibernate.QueryException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Query exception mapping.
@@ -42,9 +43,9 @@ public final class QueryExceptionMapperTest {
         Response r = mapper.toResponse(e);
         ErrorResponse er = (ErrorResponse) r.getEntity();
 
-        Assert.assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
-        Assert.assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        Assert.assertEquals("Bad Request", er.getErrorDescription());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
+        assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
+        assertEquals("Bad Request", er.getErrorDescription());
     }
 
 }

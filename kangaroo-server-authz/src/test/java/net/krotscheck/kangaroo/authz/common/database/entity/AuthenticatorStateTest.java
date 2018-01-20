@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -27,6 +26,9 @@ import java.net.URI;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.spy;
 
 /**
@@ -44,9 +46,9 @@ public final class AuthenticatorStateTest {
         AuthenticatorState token = new AuthenticatorState();
         Authenticator authenticator = new Authenticator();
 
-        Assert.assertNull(token.getAuthenticator());
+        assertNull(token.getAuthenticator());
         token.setAuthenticator(authenticator);
-        Assert.assertEquals(authenticator, token.getAuthenticator());
+        assertEquals(authenticator, token.getAuthenticator());
     }
 
     /**
@@ -57,9 +59,9 @@ public final class AuthenticatorStateTest {
         AuthenticatorState state = new AuthenticatorState();
 
         // Default
-        Assert.assertNull(state.getClientState());
+        assertNull(state.getClientState());
         state.setClientState("state");
-        Assert.assertEquals("state", state.getClientState());
+        assertEquals("state", state.getClientState());
     }
 
     /**
@@ -71,9 +73,9 @@ public final class AuthenticatorStateTest {
         URI testUri = UriBuilder.fromUri("http://valid.example.com/").build();
 
         // Default
-        Assert.assertNull(state.getClientRedirect());
+        assertNull(state.getClientRedirect());
         state.setClientRedirect(testUri);
-        Assert.assertEquals(testUri, state.getClientRedirect());
+        assertEquals(testUri, state.getClientRedirect());
     }
 
     /**
@@ -85,10 +87,10 @@ public final class AuthenticatorStateTest {
         SortedMap<String, ApplicationScope> scopes = new TreeMap<>();
         scopes.put("test", new ApplicationScope());
 
-        Assert.assertEquals(0, state.getClientScopes().size());
+        assertEquals(0, state.getClientScopes().size());
         state.setClientScopes(scopes);
-        Assert.assertEquals(scopes, state.getClientScopes());
-        Assert.assertNotSame(scopes, state.getClientScopes());
+        assertEquals(scopes, state.getClientScopes());
+        assertNotSame(scopes, state.getClientScopes());
     }
 
     /**
@@ -100,7 +102,7 @@ public final class AuthenticatorStateTest {
         Authenticator spy = spy(new Authenticator());
 
         // Null check
-        Assert.assertNull(state.getOwner());
+        assertNull(state.getOwner());
 
         state.setAuthenticator(spy);
         state.getOwner();

@@ -18,18 +18,20 @@
 
 package net.krotscheck.kangaroo.authz;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for the Authz Server configuration options.
  *
  * @author Michael Krotscheck
  */
-public class AuthzServerConfigTest {
+public final class AuthzServerConfigTest {
 
     /**
      * Assert that the header is private.
@@ -39,7 +41,7 @@ public class AuthzServerConfigTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = AuthzServerConfig.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -51,14 +53,14 @@ public class AuthzServerConfigTest {
      */
     @Test
     public void testConfigurationValues() {
-        Assert.assertEquals("kangaroo.authz_session_name",
+        assertEquals("kangaroo.authz_session_name",
                 AuthzServerConfig.SESSION_NAME.getKey());
-        Assert.assertEquals("kangaroo",
+        assertEquals("kangaroo",
                 AuthzServerConfig.SESSION_NAME.getValue());
 
-        Assert.assertEquals("kangaroo.authz_session_max_age",
+        assertEquals("kangaroo.authz_session_max_age",
                 AuthzServerConfig.SESSION_MAX_AGE.getKey());
-        Assert.assertEquals((Integer) 86400,
+        assertEquals((Integer) 86400,
                 AuthzServerConfig.SESSION_MAX_AGE.getValue());
     }
 }

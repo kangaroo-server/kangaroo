@@ -17,7 +17,6 @@
 
 package net.krotscheck.kangaroo.util;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.BadRequestException;
@@ -25,6 +24,9 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for our ParamUtil.
@@ -41,7 +43,7 @@ public final class ParamUtilTest {
     @Test
     public void testPrivateConstructor() throws Exception {
         Constructor c = ParamUtil.class.getDeclaredConstructor();
-        Assert.assertTrue(Modifier.isPrivate(c.getModifiers()));
+        assertTrue(Modifier.isPrivate(c.getModifiers()));
 
         // Create a new instance for coverage.
         c.setAccessible(true);
@@ -57,7 +59,7 @@ public final class ParamUtilTest {
         params.add("foo", "bar");
 
         String result = ParamUtil.getOne(params, "foo");
-        Assert.assertEquals("bar", result);
+        assertEquals("bar", result);
     }
 
     /**

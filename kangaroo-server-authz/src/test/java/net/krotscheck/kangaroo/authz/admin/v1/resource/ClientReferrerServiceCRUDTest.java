@@ -28,7 +28,6 @@ import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -41,6 +40,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Unit test suite for the client redirect subresource.
@@ -51,7 +52,8 @@ public final class ClientReferrerServiceCRUDTest
     /**
      * Convenience generic type for response decoding.
      */
-    private static final GenericType<ListResponseEntity<ClientReferrer>> LIST_TYPE =
+    private static final GenericType<ListResponseEntity<ClientReferrer>>
+            LIST_TYPE =
             new GenericType<ListResponseEntity<ClientReferrer>>() {
 
             };
@@ -350,8 +352,8 @@ public final class ClientReferrerServiceCRUDTest
         Response r = putEntity(cr, getAdminToken());
         if (shouldSucceed()) {
             ClientReferrer response = r.readEntity(ClientReferrer.class);
-            Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
-            Assert.assertEquals(cr, response);
+            assertEquals(Status.OK.getStatusCode(), r.getStatus());
+            assertEquals(cr, response);
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -441,7 +443,7 @@ public final class ClientReferrerServiceCRUDTest
     public void testScopes() throws Exception {
         ClientReferrerService cs = new ClientReferrerService(IdUtil.next());
 
-        Assert.assertEquals(Scope.CLIENT_ADMIN, cs.getAdminScope());
-        Assert.assertEquals(Scope.CLIENT, cs.getAccessScope());
+        assertEquals(Scope.CLIENT_ADMIN, cs.getAdminScope());
+        assertEquals(Scope.CLIENT, cs.getAccessScope());
     }
 }

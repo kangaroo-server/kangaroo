@@ -36,7 +36,6 @@ import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -50,6 +49,11 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -191,13 +195,13 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         s.setSecurityContext(c);
         s.setUriInfo(info);
 
-        Assert.assertEquals(injector, s.getInjector());
-        Assert.assertEquals(session, s.getSession());
-        Assert.assertEquals(factory, s.getSearchFactory());
-        Assert.assertEquals(ftSession, s.getFullTextSession());
-        Assert.assertEquals(c, s.getSecurityContext());
-        Assert.assertEquals(config, s.getConfig());
-        Assert.assertEquals(info, s.getUriInfo());
+        assertEquals(injector, s.getInjector());
+        assertEquals(session, s.getSession());
+        assertEquals(factory, s.getSearchFactory());
+        assertEquals(ftSession, s.getFullTextSession());
+        assertEquals(c, s.getSecurityContext());
+        assertEquals(config, s.getConfig());
+        assertEquals(info, s.getUriInfo());
     }
 
     /**
@@ -213,8 +217,8 @@ public final class AbstractServiceTest extends AbstractResourceTest {
                 .when(mockContext).getUserPrincipal();
 
         User user = service.getCurrentUser();
-        Assert.assertNotNull(user);
-        Assert.assertEquals(adminContext.getToken().getIdentity().getUser(),
+        assertNotNull(user);
+        assertEquals(adminContext.getToken().getIdentity().getUser(),
                 user);
     }
 
@@ -232,7 +236,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Mockito.doReturn(adminContext.getToken())
                 .when(mockContext).getUserPrincipal();
 
-        Assert.assertNull(service.getCurrentUser());
+        assertNull(service.getCurrentUser());
     }
 
     /**
@@ -241,7 +245,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
     @Test
     public void testGetAdminApplication() {
         Application a = service.getAdminApplication();
-        Assert.assertEquals(getAdminContext().getApplication(), a);
+        assertEquals(getAdminContext().getApplication(), a);
     }
 
     /**
@@ -273,7 +277,6 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         service.assertCanAccess(userContext.getApplication(),
                 Scope.APPLICATION_ADMIN);
-        Assert.assertTrue(true);
     }
 
     /**
@@ -293,7 +296,6 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         service.assertCanAccess(userApp.getApplication(),
                 Scope.APPLICATION_ADMIN);
-        Assert.assertTrue(true);
     }
 
     /**
@@ -334,7 +336,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         service.assertCanAccess(userApp.getApplication(),
                 Scope.APPLICATION_ADMIN);
-        Assert.assertTrue(true);
+        assertTrue(true);
     }
 
     /**
@@ -375,7 +377,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
                 .isUserInRole(Scope.APPLICATION_ADMIN);
 
         User user = service.resolveOwnershipFilter(null);
-        Assert.assertNull(user);
+        assertNull(user);
     }
 
     /**
@@ -417,7 +419,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         User requestedUser = adminContext.getUser();
         User user = service.resolveOwnershipFilter(requestedUser.getId());
-        Assert.assertEquals(requestedUser, user);
+        assertEquals(requestedUser, user);
     }
 
     /**
@@ -438,7 +440,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         User requestedUser = adminContext.getUser();
         User user = service.resolveOwnershipFilter(null);
-        Assert.assertEquals(adminContext.getUser(), user);
+        assertEquals(adminContext.getUser(), user);
     }
 
     /**
@@ -480,7 +482,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         User requestedUser = adminContext.getToken().getIdentity().getUser();
         User user = service.resolveOwnershipFilter(requestedUser.getId());
-        Assert.assertEquals(requestedUser, user);
+        assertEquals(requestedUser, user);
     }
 
     /**
@@ -538,7 +540,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Application a =
                 service.requireEntityInput(Application.class,
                         userApp.getApplication());
-        Assert.assertEquals(userApp.getApplication(), a);
+        assertEquals(userApp.getApplication(), a);
     }
 
     /**
@@ -559,7 +561,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
 
         Application result =
                 service.resolveFilterEntity(Application.class, null);
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -600,7 +602,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Application a =
                 service.resolveFilterEntity(Application.class,
                         userApp.getApplication().getId());
-        Assert.assertEquals(userApp.getApplication(), a);
+        assertEquals(userApp.getApplication(), a);
     }
 
     /**
@@ -640,7 +642,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
                 .isUserInRole(Scope.APPLICATION);
 
         Application a = service.resolveFilterEntity(Application.class, null);
-        Assert.assertNull(a);
+        assertNull(a);
     }
 
     /**
@@ -732,7 +734,7 @@ public final class AbstractServiceTest extends AbstractResourceTest {
         Application a =
                 service.resolveFilterEntity(Application.class,
                         userContext.getApplication().getId());
-        Assert.assertEquals(adminContext.getUser(), a.getOwner());
+        assertEquals(adminContext.getUser(), a.getOwner());
     }
 
     /**

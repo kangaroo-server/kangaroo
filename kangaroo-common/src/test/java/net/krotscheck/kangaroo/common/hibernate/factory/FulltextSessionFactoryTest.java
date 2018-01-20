@@ -28,12 +28,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.search.FullTextSession;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for our fulltext search factory.
@@ -63,7 +66,7 @@ public final class FulltextSessionFactoryTest {
      * Setup the application handler for this test.
      */
     @Before
-    public void setup() {
+    public void setUp() {
         injector = Injections.createInjectionManager();
         injector.register(new SystemConfiguration.Binder());
         injector.register(new HibernateServiceRegistryFactory.Binder());
@@ -77,7 +80,7 @@ public final class FulltextSessionFactoryTest {
      * Teardown the application handler.
      */
     @After
-    public void teardown() {
+    public void tearDown() {
         injector.shutdown();
         injector = null;
     }
@@ -96,16 +99,16 @@ public final class FulltextSessionFactoryTest {
 
         // Make sure that we can create a session.
         FullTextSession session = factory.get();
-        Assert.assertNotNull(session);
-        Assert.assertTrue(session.isOpen());
+        assertNotNull(session);
+        assertTrue(session.isOpen());
 
         // Make sure we can dispose of the session.
         factory.dispose(session);
-        Assert.assertFalse(session.isOpen());
+        assertFalse(session.isOpen());
 
         // Make sure we can dispose of the session again.
         factory.dispose(session);
-        Assert.assertFalse(session.isOpen());
+        assertFalse(session.isOpen());
 
         // Make sure accidentally passing null doesn't blow up.
         factory.dispose(null);

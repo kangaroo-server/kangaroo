@@ -56,14 +56,31 @@ public final class O2ClientBodyFilter
         extends AbstractO2AuthenticationFilter {
 
     /**
+     * Permit private clients.
+     */
+    private final Boolean permitPrivate;
+
+    /**
+     * Permit public clients.
+     */
+    private final Boolean permitPublic;
+
+    /**
      * Create a new instance of this filter.
      *
      * @param requestProvider The request provider.
      * @param sessionProvider The session provider.
+     * @param permitPrivate   Whether to permit private clients.
+     * @param permitPublic    Whether to permit public clients.
      */
     public O2ClientBodyFilter(final Provider<ContainerRequest> requestProvider,
-                              final Provider<Session> sessionProvider) {
+                              final Provider<Session> sessionProvider,
+                              final Boolean permitPrivate,
+                              final Boolean permitPublic) {
         super(requestProvider, sessionProvider);
+
+        this.permitPrivate = permitPrivate;
+        this.permitPublic = permitPublic;
     }
 
     /**
@@ -132,6 +149,12 @@ public final class O2ClientBodyFilter
                 .filter(c -> Objects.equals(c.getClientSecret(),
                         creds.getValue()))
                 .orElseThrow(AccessDeniedException::new);
+
+
+        if (!client.isPublic().equals(permitPublic)
+                && !client.isPrivate().equals(permitPrivate)) {
+            throw new AccessDeniedException();
+        }
 
         // Valid client and auth.
         setPrincipal(new O2Principal(client));

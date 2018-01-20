@@ -34,7 +34,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -45,6 +44,7 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public class ServerFactoryTest {
+public final class ServerFactoryTest {
 
     /**
      * Ensure that we have a working directory.
@@ -82,7 +82,7 @@ public class ServerFactoryTest {
     public void testSimpleBuild() {
         ServerFactory f = new ServerFactory();
         HttpServer s = f.build();
-        Assert.assertNotNull(s);
+        assertNotNull(s);
     }
 
     /**
@@ -117,7 +117,7 @@ public class ServerFactoryTest {
                         "--kangaroo.cert_alias=kangaroo",
                         "--kangaroo.cert_key_password=kangaroo"
                 });
-        Assert.assertNotNull(f.build());
+        assertNotNull(f.build());
     }
 
     /**

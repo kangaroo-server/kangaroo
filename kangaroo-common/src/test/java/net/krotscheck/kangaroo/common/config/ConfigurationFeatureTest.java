@@ -19,7 +19,6 @@ package net.krotscheck.kangaroo.common.config;
 
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -29,6 +28,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for the configuration feature.
@@ -56,7 +57,7 @@ public final class ConfigurationFeatureTest extends KangarooJerseyTest {
     @Test
     public void testStatus() {
         String response = target("/").request().get(String.class);
-        Assert.assertEquals("dev", response);
+        assertEquals("dev", response);
     }
 
     /**

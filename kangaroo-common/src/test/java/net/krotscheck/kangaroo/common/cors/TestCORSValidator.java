@@ -28,7 +28,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-public class TestCORSValidator implements ICORSValidator {
+public final class TestCORSValidator implements ICORSValidator {
 
     /**
      * Return true if the origin is 'http://valid.example.com'.

@@ -20,11 +20,12 @@ package net.krotscheck.kangaroo.common.status;
 
 import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests to ensure that the status service returns the expected results.
@@ -51,6 +52,6 @@ public final class StatusServiceTest extends KangarooJerseyTest {
     @Test
     public void testStatus() {
         Response r = target("/status").request().get();
-        Assert.assertEquals(Status.OK.getStatusCode(), r.getStatus());
+        assertEquals(Status.OK.getStatusCode(), r.getStatus());
     }
 }

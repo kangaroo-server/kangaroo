@@ -18,7 +18,6 @@
 
 package net.krotscheck.kangaroo.common.hibernate.type;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -27,6 +26,11 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Calendar;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 
 /**
@@ -44,8 +48,8 @@ public final class CalendarTimestampTypeTest {
         CalendarTimestampType type = new CalendarTimestampType();
 
         int[] types = type.sqlTypes();
-        Assert.assertEquals(1, types.length);
-        Assert.assertEquals(Types.BIGINT, types[0]);
+        assertEquals(1, types.length);
+        assertEquals(Types.BIGINT, types[0]);
     }
 
     /**
@@ -55,7 +59,7 @@ public final class CalendarTimestampTypeTest {
     public void returnedClass() {
         CalendarTimestampType type = new CalendarTimestampType();
 
-        Assert.assertEquals(Calendar.class, type.returnedClass());
+        assertEquals(Calendar.class, type.returnedClass());
     }
 
     /**
@@ -71,12 +75,12 @@ public final class CalendarTimestampTypeTest {
         three.add(Calendar.MINUTE, 1);
 
         // Basic comparison
-        Assert.assertTrue(type.equals(one, two));
-        Assert.assertFalse(type.equals(three, two));
-        Assert.assertFalse(type.equals(two, three));
-        Assert.assertTrue(type.equals(null, null));
-        Assert.assertFalse(type.equals(null, two));
-        Assert.assertFalse(type.equals(two, null));
+        assertTrue(type.equals(one, two));
+        assertFalse(type.equals(three, two));
+        assertFalse(type.equals(two, three));
+        assertTrue(type.equals(null, null));
+        assertFalse(type.equals(null, two));
+        assertFalse(type.equals(two, null));
     }
 
     /**
@@ -87,7 +91,7 @@ public final class CalendarTimestampTypeTest {
         CalendarTimestampType type = new CalendarTimestampType();
 
         Calendar one = Calendar.getInstance();
-        Assert.assertEquals(one.hashCode(), type.hashCode(one));
+        assertEquals(one.hashCode(), type.hashCode(one));
     }
 
     /**
@@ -106,7 +110,7 @@ public final class CalendarTimestampTypeTest {
         Calendar result = (Calendar)
                 type.nullSafeGet(rs, names, null, null);
 
-        Assert.assertEquals(one, result);
+        assertEquals(one, result);
     }
 
     /**
@@ -123,7 +127,7 @@ public final class CalendarTimestampTypeTest {
         Calendar result = (Calendar)
                 type.nullSafeGet(rs, names, null, null);
 
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     /**
@@ -161,7 +165,7 @@ public final class CalendarTimestampTypeTest {
     public void deepCopy() {
         CalendarTimestampType type = new CalendarTimestampType();
         Calendar one = Calendar.getInstance();
-        Assert.assertSame(one, type.deepCopy(one));
+        assertSame(one, type.deepCopy(one));
     }
 
     /**
@@ -170,7 +174,7 @@ public final class CalendarTimestampTypeTest {
     @Test
     public void isMutable() {
         CalendarTimestampType type = new CalendarTimestampType();
-        Assert.assertFalse(type.isMutable());
+        assertFalse(type.isMutable());
     }
 
     /**
@@ -182,7 +186,7 @@ public final class CalendarTimestampTypeTest {
 
         Calendar one = Calendar.getInstance();
         long result = (long) type.disassemble(one);
-        Assert.assertEquals(one.getTimeInMillis(), result);
+        assertEquals(one.getTimeInMillis(), result);
     }
 
     /**
@@ -194,7 +198,7 @@ public final class CalendarTimestampTypeTest {
 
         Calendar one = Calendar.getInstance();
         Calendar result = (Calendar) type.assemble(one.getTimeInMillis(), null);
-        Assert.assertTrue(one.equals(result));
+        assertTrue(one.equals(result));
     }
 
     /**
@@ -208,6 +212,6 @@ public final class CalendarTimestampTypeTest {
         Calendar two = Calendar.getInstance();
         Calendar result = (Calendar) type.replace(one, two, null);
 
-        Assert.assertSame(one, result);
+        assertSame(one, result);
     }
 }
