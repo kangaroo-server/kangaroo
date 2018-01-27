@@ -32,7 +32,8 @@
     <appender-ref ref="STDOUT"/>
   </root>
 
-  <!-- Hibernate -->
+  <!-- Disable certain loggers -->
   <logger name="org.hibernate.orm.deprecation" level="OFF"/>
+  <logger name="org.reflections.Reflections" level="OFF"/>
 
 </configuration>
