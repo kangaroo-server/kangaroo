@@ -92,6 +92,7 @@ public final class SwaggerContainerLifecycleListener
         beanConfig.setResourcePackage(classPath);
         beanConfig.setScannerId(scannerId);
         beanConfig.setBasePath(basePath);
+        beanConfig.setUsePathBasedConfig(true);
         beanConfig.setScan(true);
     }
 
