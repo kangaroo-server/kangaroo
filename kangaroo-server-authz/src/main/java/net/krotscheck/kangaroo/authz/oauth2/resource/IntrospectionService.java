@@ -20,6 +20,7 @@ package net.krotscheck.kangaroo.authz.oauth2.resource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.oauth2.authn.O2AuthScheme;
@@ -91,6 +92,7 @@ public final class IntrospectionService {
     @O2BearerToken()
     @ApiOperation(value = "OAuth2 Introspection endpoint.")
     public Response introspectionRequest(
+            @ApiParam(type = "string")
             @FormParam("token") final BigInteger tokenId) {
 
         // Pull the principal, to check the style of introspection request

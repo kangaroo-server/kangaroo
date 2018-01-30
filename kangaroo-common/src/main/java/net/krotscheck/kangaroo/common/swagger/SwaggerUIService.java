@@ -18,18 +18,13 @@
 
 package net.krotscheck.kangaroo.common.swagger;
 
-import org.apache.commons.io.IOUtils;
-
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,30 +41,22 @@ public final class SwaggerUIService {
     /**
      * Files available to be served out of the swagger directory.
      */
-    private final List<String> files = new ArrayList<>();
+    private final List<String> files = Arrays.asList(
+            "favicon-16x16.png",
+            "favicon-32x32.png",
+            "index.html",
+            "oauth2-redirect.html",
+            "swagger-ui.css",
+            "swagger-ui.js",
+            "swagger-ui-bundle.js",
+            "swagger-ui-standalone-preset.js"
+    );
 
     /**
      * The classloader used to resolve any existing resources from the
      * swagger bundle.
      */
     private final ClassLoader classLoader = getClass().getClassLoader();
-
-    /**
-     * Create a new instance of the UI service.
-     *
-     * @throws IOException Thrown if the files cannot be read.
-     */
-    public SwaggerUIService() throws IOException {
-        ClassLoader classLoader = SwaggerUIService.class.getClassLoader();
-        InputStream dir = classLoader.getResourceAsStream("swagger");
-        BufferedReader in = new BufferedReader(new InputStreamReader(dir));
-        String line;
-
-        while ((line = in.readLine()) != null) {
-            files.add(line);
-        }
-        IOUtils.closeQuietly(dir);
-    }
 
     /**
      * If the root resource is requested, return index.html.
