@@ -118,6 +118,7 @@ public final class ConfigurationBuilder {
             cmd = parser.parse(commandlineOptions, args, false);
         } catch (ParseException e) {
             HelpFormatter formater = new HelpFormatter();
+            formater.setWidth(120);
             formater.printHelp("Main", commandlineOptions);
             throw new RuntimeException();
         }
