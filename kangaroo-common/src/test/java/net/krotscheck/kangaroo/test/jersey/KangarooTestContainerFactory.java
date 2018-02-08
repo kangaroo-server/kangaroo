@@ -31,6 +31,8 @@ import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.glassfish.jersey.test.spi.TestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -47,8 +49,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This container factory simulates, as closely as possible, a kangaroo
@@ -123,7 +123,7 @@ public final class KangarooTestContainerFactory
          * Logger.
          */
         private static final Logger LOGGER =
-                Logger.getLogger(KangarooTestContainer.class.getName());
+                LoggerFactory.getLogger(KangarooTestContainer.class.getName());
 
         /**
          * The deployment context for this container.
@@ -200,11 +200,11 @@ public final class KangarooTestContainerFactory
         @Override
         public void start() {
             if (server.isStarted()) {
-                LOGGER.log(Level.WARNING, "Ignoring start request"
+                LOGGER.warn("Ignoring start request"
                         + " - KangarooTestContainer is already started.");
 
             } else {
-                LOGGER.log(Level.FINE, "Starting KangarooTestContainer...");
+                LOGGER.debug("Starting KangarooTestContainer...");
                 try {
                     server.start();
 
@@ -213,7 +213,7 @@ public final class KangarooTestContainerFactory
                                 .port(server.getListener("grizzly")
                                         .getPort())
                                 .build();
-                        LOGGER.log(Level.INFO, "Started KangarooTestContainer"
+                        LOGGER.info("Started KangarooTestContainer"
                                 + " at the base URI " + baseUri);
                     }
                 } catch (final IOException ioe) {
@@ -228,10 +228,10 @@ public final class KangarooTestContainerFactory
         @Override
         public void stop() {
             if (server.isStarted()) {
-                LOGGER.log(Level.FINE, "Stopping KangarooTestContainer...");
+                LOGGER.debug("Stopping KangarooTestContainer...");
                 this.server.shutdownNow();
             } else {
-                LOGGER.log(Level.WARNING, "Ignoring stop request"
+                LOGGER.warn("Ignoring stop request"
                         + " - KangarooTestContainer is already stopped.");
             }
         }
