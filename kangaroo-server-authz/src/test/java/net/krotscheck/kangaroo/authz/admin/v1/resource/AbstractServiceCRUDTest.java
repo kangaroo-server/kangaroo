@@ -632,7 +632,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = deleteEntity(testingEntity, adminAppToken);
 
         if (isAccessible(testingEntity, adminAppToken)) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);

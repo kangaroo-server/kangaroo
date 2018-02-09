@@ -177,7 +177,7 @@ public final class RoleScopeService extends AbstractService {
         role.getScopes().remove(scope.getName());
         s.update(role);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**

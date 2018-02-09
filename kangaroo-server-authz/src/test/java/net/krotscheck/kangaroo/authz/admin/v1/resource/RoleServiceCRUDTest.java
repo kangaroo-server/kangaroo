@@ -813,7 +813,7 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (isAccessible(newScope, token)) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
 
             getSession().refresh(editedRole);
@@ -1040,7 +1040,7 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (shouldSucceed) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
 
             getSession().refresh(editedRole);

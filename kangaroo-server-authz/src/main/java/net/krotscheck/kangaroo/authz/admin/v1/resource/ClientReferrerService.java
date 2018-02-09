@@ -330,7 +330,7 @@ public final class ClientReferrerService extends AbstractService {
         s.delete(referrer);
         s.update(client);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**

@@ -491,7 +491,7 @@ public final class ScopeServiceCRUDTest
         Response r = deleteEntity(scope, getAdminToken());
 
         if (isAccessible(scope, getAdminToken())) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
         } else {
             ErrorResponse response = r.readEntity(ErrorResponse.class);
