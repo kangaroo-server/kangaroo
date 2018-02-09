@@ -55,7 +55,8 @@ public final class ConfigTest {
      */
     @Test
     public void testConfigurationValues() {
-        String currentWorkingPath = Paths.get(".", "kangaroo")
+        String currentWorkingPath = Paths
+                .get(System.getProperty("user.home"), ".kangaroo")
                 .toAbsolutePath().normalize().toString();
 
         assertEquals("kangaroo.host", Config.HOST.getKey());
