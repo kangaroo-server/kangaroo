@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.apache.lucene.search.Query;
@@ -573,7 +574,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         params.put("owner", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new MalformedIdException());
     }
 
     /**
@@ -588,7 +589,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, new InvalidScopeException());
         } else {
-
             assertListResponse(r, 0, 0, 10, 0);
         }
     }

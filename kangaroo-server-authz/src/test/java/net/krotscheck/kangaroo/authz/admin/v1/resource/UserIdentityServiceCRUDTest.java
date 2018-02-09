@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
@@ -347,8 +348,7 @@ public final class UserIdentityServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new InvalidEntityPropertyException("type"));
     }
 
     /**
@@ -364,7 +364,8 @@ public final class UserIdentityServiceCRUDTest
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("type"));
     }
 
     /**
@@ -382,7 +383,8 @@ public final class UserIdentityServiceCRUDTest
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("user"));
     }
 
     /**
@@ -398,7 +400,8 @@ public final class UserIdentityServiceCRUDTest
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("user"));
     }
 
     /**
@@ -414,7 +417,8 @@ public final class UserIdentityServiceCRUDTest
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("remoteId"));
     }
 
     /**
@@ -430,7 +434,8 @@ public final class UserIdentityServiceCRUDTest
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("password"));
     }
 
     /**
@@ -484,7 +489,8 @@ public final class UserIdentityServiceCRUDTest
         Response r = putEntity(testEntity, getAdminToken());
 
         if (isAccessible(testEntity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("type"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -513,7 +519,8 @@ public final class UserIdentityServiceCRUDTest
         Response r = putEntity(testEntity, getAdminToken());
 
         if (isAccessible(originalEntity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("user"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

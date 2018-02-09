@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -66,6 +68,10 @@ import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
 import java.net.URI;
 
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.ClientCredentials;
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.Implicit;
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.OwnerCredentials;
+
 /**
  * A RESTful api that permits management of OAuth Tokens that were issued by
  * the ancillary servlets.
@@ -76,18 +82,18 @@ import java.net.URI;
 @ScopesAllowed({Scope.TOKEN_ADMIN, Scope.TOKEN})
 @Transactional
 @Api(tags = "Token",
-        authorizations = {
-                @Authorization(value = "Kangaroo", scopes = {
-                        @AuthorizationScope(
-                                scope = Scope.TOKEN,
-                                description = "Modify tokens in one"
-                                        + " application."),
-                        @AuthorizationScope(
-                                scope = Scope.TOKEN_ADMIN,
-                                description = "Modify tokens in all"
-                                        + " applications.")
-                })
-        })
+     authorizations = {
+             @Authorization(value = "Kangaroo", scopes = {
+                     @AuthorizationScope(
+                             scope = Scope.TOKEN,
+                             description = "Modify tokens in one"
+                                     + " application."),
+                     @AuthorizationScope(
+                             scope = Scope.TOKEN_ADMIN,
+                             description = "Modify tokens in all"
+                                     + " applications.")
+             })
+     })
 public final class OAuthTokenService extends AbstractService {
 
     /**
@@ -324,7 +330,7 @@ public final class OAuthTokenService extends AbstractService {
 
         // Validate that we have no ID.
         if (validToken.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Assert that we can create a token in this application.
@@ -377,22 +383,22 @@ public final class OAuthTokenService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(token)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Make sure that we're not trying to change something we're not
         // permitted to change.
         if (!ObjectUtils.equals(current.getIdentity(), token.getIdentity())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("identity");
         }
         if (!ObjectUtils.equals(current.getClient(), token.getClient())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("client");
         }
         if (!current.getTokenType().equals(token.getTokenType())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("tokenType");
         }
         if (!ObjectUtils.equals(current.getAuthToken(), token.getAuthToken())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("authToken");
         }
 
         // Run all our other validations...
@@ -442,47 +448,52 @@ public final class OAuthTokenService extends AbstractService {
     private OAuthToken validateInputData(final OAuthToken input) {
         // Validate that we have a body.
         if (input == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
 
         // Validate that the token type is set.
         if (input.getTokenType() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("tokenType");
         }
 
         // Validate that expiresIn is set and larger than zero.
         if (input.getExpiresIn() == null || input.getExpiresIn() < 1) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("expiresIn");
         }
 
         // Validate that we have a valid client.
-        Client client = requireEntityInput(Client.class, input.getClient());
+        Client client = resolveEntityInput(Client.class, input.getClient());
+        if (client == null) {
+            throw new InvalidEntityPropertyException("client");
+        }
         ClientType clientType = client.getType();
         input.setClient(client);
 
         // Validate that this particular client permits the creation of this
         // tokenType.
-        if (clientType.equals(ClientType.OwnerCredentials)) {
+        if (clientType.equals(OwnerCredentials)) {
             if (input.getTokenType().equals(OAuthTokenType.Authorization)) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("tokenType");
             }
-        } else if (clientType.in(ClientType.ClientCredentials,
-                ClientType.Implicit)
+        } else if (clientType.in(ClientCredentials, Implicit)
                 && !input.getTokenType().equals(OAuthTokenType.Bearer)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("tokenType");
         }
 
         // Assert that we have a valid identity.
-        if (clientType.equals(ClientType.ClientCredentials)) {
+        if (clientType.equals(ClientCredentials)) {
             if (input.getIdentity() != null) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("identity");
             }
         } else {
-            UserIdentity identity = requireEntityInput(UserIdentity.class,
+            UserIdentity identity = resolveEntityInput(UserIdentity.class,
                     input.getIdentity());
+            if (identity == null) {
+                throw new InvalidEntityPropertyException("identity");
+            }
             if (!identity.getUser().getApplication()
                     .equals(client.getApplication())) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("identity");
             }
             input.setIdentity(identity);
         }
@@ -491,21 +502,25 @@ public final class OAuthTokenService extends AbstractService {
         // to an auth token. Otherwise it must not be.
         if (!input.getTokenType().equals(OAuthTokenType.Refresh)) {
             if (input.getAuthToken() != null) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("authToken");
             }
         } else {
             // Make sure we have a valid auth token.
-            OAuthToken authToken = requireEntityInput(OAuthToken.class,
+            OAuthToken authToken = resolveEntityInput(OAuthToken.class,
                     input.getAuthToken());
+
+            if (authToken == null) {
+                throw new InvalidEntityPropertyException("authToken");
+            }
 
             // Make sure it's the correct type.
             if (!authToken.getTokenType().equals(OAuthTokenType.Bearer)) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("authToken");
             }
 
             // Make sure it's for the correct user.
             if (!authToken.getIdentity().equals(input.getIdentity())) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("identity");
             }
 
             // It's valid, put it back.
@@ -515,13 +530,13 @@ public final class OAuthTokenService extends AbstractService {
         // Only authorization tokens use redirects.
         if (!input.getTokenType().equals(OAuthTokenType.Authorization)) {
             if (input.getRedirect() != null) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("redirect");
             }
         } else {
             URI redirect = ValidationUtil.validateRedirect(input.getRedirect(),
                     client.getRedirects());
             if (redirect == null) {
-                throw new BadRequestException();
+                throw new InvalidEntityPropertyException("redirect");
             }
         }
 

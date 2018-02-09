@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
@@ -275,13 +277,13 @@ public final class ScopeService extends AbstractService {
 
         // Input value checks.
         if (scope == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (scope.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (scope.getApplication() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // Assert that we can create a scope in this application.
@@ -340,12 +342,12 @@ public final class ScopeService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentScope.equals(scope)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentScope.getApplication().equals(scope.getApplication())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // Transfer all the values we're allowed to edit.

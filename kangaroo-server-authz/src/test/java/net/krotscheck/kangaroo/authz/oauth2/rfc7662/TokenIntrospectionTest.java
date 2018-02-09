@@ -29,6 +29,7 @@ import net.krotscheck.kangaroo.authz.oauth2.resource.IntrospectionResponseEntity
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
@@ -522,7 +523,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new MalformedIdException());
     }
 
     /**

@@ -28,6 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -266,7 +267,7 @@ public final class AuthenticatorServiceSearchTest
         if (isLimitedByClientCredentials()) {
             assertErrorResponse(r, new InvalidScopeException());
         } else {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r, new MalformedIdException());
         }
     }
 
@@ -280,7 +281,7 @@ public final class AuthenticatorServiceSearchTest
         params.put("client", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new MalformedIdException());
     }
 
     /**

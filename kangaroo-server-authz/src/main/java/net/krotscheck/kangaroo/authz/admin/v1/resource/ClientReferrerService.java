@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractClientUri;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
@@ -39,7 +41,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -199,17 +200,17 @@ public final class ClientReferrerService extends AbstractService {
 
         // Make sure we're allowed to access the client.
         Client client = s.get(Client.class, clientId);
-        assertCanAccessSubresource(client, getAdminScope());
+        assertCanAccess(client, getAdminScope());
 
         // Input value checks.
         if (referrer == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (referrer.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (referrer.getUri() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("uri");
         }
 
         // Check for duplicates
@@ -269,11 +270,11 @@ public final class ClientReferrerService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentReferrer.equals(referrer)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
-        // Make sure we're not trying to null the redirect.
+        // Make sure we're not trying to null the referrer.
         if (referrer.getUri() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("uri");
         }
 
         // Make sure we're not creating a duplicate.

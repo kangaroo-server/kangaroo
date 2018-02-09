@@ -22,7 +22,6 @@ import com.google.common.net.HttpHeaders;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -201,7 +200,7 @@ public final class RequestUtilTest {
      *
      * @throws Exception Should not be thrown.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidHostException.class)
     public void testGetHostInvalid() throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.HOST, "host.example.com:string");
@@ -217,7 +216,7 @@ public final class RequestUtilTest {
      *
      * @throws Exception Should not be thrown.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidHostException.class)
     public void testGetHostEmpty() throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.HOST, "");
@@ -478,7 +477,7 @@ public final class RequestUtilTest {
      *
      * @throws Exception Should not be thrown.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidHostException.class)
     public void testCrossOriginWithOriginAndInvalidForward() throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.ORIGIN, "http://example.com:8080");
@@ -583,7 +582,7 @@ public final class RequestUtilTest {
      *
      * @throws Exception Should not be thrown.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidHostException.class)
     public void testCrossOriginWithReferrerAndInvalidForward()
             throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
@@ -604,7 +603,7 @@ public final class RequestUtilTest {
      *
      * @throws Exception Should not be thrown.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidHostException.class)
     public void testCrossOriginNoOriginOrReferrer() throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.X_FORWARDED_PROTO, "http");
@@ -623,7 +622,7 @@ public final class RequestUtilTest {
      *
      * @throws Exception Should not be thrown.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidHostException.class)
     public void testCrossOriginNoHostOrForward() throws Exception {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.ORIGIN, "http://example.com:8080");

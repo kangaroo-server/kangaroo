@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -35,6 +36,8 @@ import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -45,6 +48,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.AuthorizationGrant;
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.ClientCredentials;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -161,13 +166,13 @@ public final class OAuthTokenServiceCRUDTest
                         false
                 },
                 new Object[]{
-                        ClientType.ClientCredentials,
+                        ClientCredentials,
                         Scope.TOKEN_ADMIN,
                         false,
                         true
                 },
                 new Object[]{
-                        ClientType.ClientCredentials,
+                        ClientCredentials,
                         Scope.TOKEN,
                         false,
                         false
@@ -195,22 +200,27 @@ public final class OAuthTokenServiceCRUDTest
                                         final OAuthTokenType type) {
         OAuthToken token = null;
 
+        Session s = getSession();
+        s.getTransaction().begin();
+
         switch (type) {
             case Authorization:
                 token = createAuthorizationToken(context);
+                s.save(token);
                 break;
             case Refresh:
-                token = createRefreshToken(context);
+                OAuthToken bearer = createBearerToken(context);
+                token = createRefreshToken(context, bearer);
+
+                s.save(bearer);
+                s.save(token);
                 break;
             case Bearer:
             default:
                 token = createBearerToken(context);
+                s.save(token);
                 break;
         }
-
-        Session s = getSession();
-        s.getTransaction().begin();
-        s.save(token);
         s.getTransaction().commit();
 
         return token;
@@ -376,14 +386,15 @@ public final class OAuthTokenServiceCRUDTest
     /**
      * Create a valid refresh token in the present context.
      *
-     * @param context The test application context.
+     * @param context     The test application context.
+     * @param bearerToken The bearer token to attach to this refresh token.
      * @return A valid refresh token in the present context.
      */
     private OAuthToken createRefreshToken(
-            final ApplicationContext context) {
-        OAuthToken bearerToken = createBearerToken(context);
-
+            final ApplicationContext context,
+            final OAuthToken bearerToken) {
         OAuthToken token = new OAuthToken();
+        token.setAuthToken(bearerToken);
         token.setClient(bearerToken.getClient());
         token.setTokenType(OAuthTokenType.Refresh);
         token.setExpiresIn(bearerToken.getClient().getRefreshTokenExpireIn());
@@ -431,11 +442,21 @@ public final class OAuthTokenServiceCRUDTest
 
         // Identities should only be added if the type calls for it.
         if (identities.size() > 0
-                && !client.getType().equals(ClientType.ClientCredentials)) {
+                && !client.getType().equals(ClientCredentials)) {
             token.setIdentity(identities.get(0));
         }
 
         return token;
+    }
+
+    /**
+     * Return whether this particular auth flow permits refresh tokens.
+     *
+     * @return True or false.
+     */
+    private boolean permitsRefresh() {
+        return !getClientType().in(ClientType.Implicit,
+                ClientCredentials);
     }
 
     /**
@@ -451,7 +472,8 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("expiresIn"));
     }
 
     /**
@@ -466,7 +488,24 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("expiresIn"));
+    }
+
+    /**
+     * Assert you cannot create a token without a client.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPostNoClient() throws Exception {
+        OAuthToken testEntity = createValidEntity(getAdminContext());
+        testEntity.setClient(null);
+
+        // Issue the request.
+        Response r = postEntity(testEntity, getAdminToken());
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("client"));
     }
 
     /**
@@ -481,7 +520,8 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("tokenType"));
     }
 
     /**
@@ -500,17 +540,25 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        if (shouldSucceed()
-                && !getClientType().equals(ClientType.ClientCredentials)) {
+        if (shouldSucceed()) {
+            if (!getClientType().equals(ClientCredentials)) {
+                assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
+                assertNotNull(r.getLocation());
 
-            assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
-            assertNotNull(r.getLocation());
-
-            Response getResponse = getEntity(r.getLocation(), getAdminToken());
-            OAuthToken response = getResponse.readEntity(OAuthToken.class);
-            assertContentEquals(testEntity, response);
+                Response getResponse = getEntity(r.getLocation(), getAdminToken());
+                OAuthToken response = getResponse.readEntity(OAuthToken.class);
+                assertContentEquals(testEntity, response);
+            } else {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("identity"));
+            }
         } else {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            if (!getClientType().equals(ClientCredentials)) {
+                assertErrorResponse(r, new BadRequestException());
+            } else {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("identity"));
+            }
         }
     }
 
@@ -532,7 +580,8 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("identity"));
     }
 
     /**
@@ -547,6 +596,7 @@ public final class OAuthTokenServiceCRUDTest
         OAuthToken testEntity = createValidEntity(getAdminContext());
         testEntity.setTokenType(OAuthTokenType.Refresh);
         testEntity.setAuthToken(bearerToken);
+        testEntity.setIdentity(bearerToken.getIdentity());
         testEntity.setRedirect(null);
 
         // In some cases this won't be set.
@@ -556,18 +606,18 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        if (shouldSucceed()
-                && !getClientType().equals(ClientType.Implicit)
-                && !getClientType().equals(ClientType.ClientCredentials)) {
-
+        if (shouldSucceed() && permitsRefresh()) {
             assertEquals(Status.CREATED.getStatusCode(), r.getStatus());
             assertNotNull(r.getLocation());
 
             Response getResponse = getEntity(r.getLocation(), getAdminToken());
             OAuthToken response = getResponse.readEntity(OAuthToken.class);
             assertContentEquals(testEntity, response);
+        } else if (permitsRefresh()) {
+            assertErrorResponse(r, new BadRequestException());
         } else {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
         }
     }
 
@@ -590,7 +640,16 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+
+        // Is this a flow that permits refresh tokens?
+        if (getClientType()
+                .in(ClientCredentials, ClientType.Implicit)) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("identity"));
+        }
     }
 
     /**
@@ -606,7 +665,13 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (permitsRefresh()) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("authToken"));
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
+        }
     }
 
     /**
@@ -624,11 +689,18 @@ public final class OAuthTokenServiceCRUDTest
         OAuthToken testEntity = createValidEntity(getAdminContext());
         testEntity.setTokenType(OAuthTokenType.Refresh);
         testEntity.setAuthToken(authToken);
+        testEntity.setIdentity(authToken.getIdentity());
         testEntity.setRedirect(null);
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (permitsRefresh()) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("authToken"));
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
+        }
     }
 
     /**
@@ -653,7 +725,13 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (permitsRefresh()) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("identity"));
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
+        }
     }
 
     /**
@@ -676,7 +754,16 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+
+        // Is this a flow that permits refresh tokens?
+        if (getClientType()
+                .in(ClientCredentials, ClientType.Implicit)) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("redirect"));
+        }
     }
 
     /**
@@ -696,7 +783,8 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("redirect"));
     }
 
     /**
@@ -715,7 +803,8 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("authToken"));
     }
 
     /**
@@ -731,7 +820,8 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("redirect"));
     }
 
     /**
@@ -752,7 +842,14 @@ public final class OAuthTokenServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (getClientType().in(ClientType.AuthorizationGrant)) {
+            // Only authorization grant flows permit authorization codes.
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("redirect"));
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
+        }
     }
 
     /**
@@ -768,7 +865,8 @@ public final class OAuthTokenServiceCRUDTest
 
         Response r = putEntity(token, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("expiresIn"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -786,7 +884,27 @@ public final class OAuthTokenServiceCRUDTest
 
         Response r = putEntity(token, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("expiresIn"));
+        } else {
+            assertErrorResponse(r, Status.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Assert that you cannot update a token with a blank client field.
+     *
+     * @throws Exception Exception encountered during test.
+     */
+    @Test
+    public void testPutNoClient() throws Exception {
+        OAuthToken token = (OAuthToken) getAdminToken().clone();
+        token.setClient(null);
+
+        Response r = putEntity(token, getAdminToken());
+        if (shouldSucceed()) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("client"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -804,7 +922,8 @@ public final class OAuthTokenServiceCRUDTest
 
         Response r = putEntity(token, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("tokenType"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -853,7 +972,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("identity"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -878,7 +998,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("identity"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -903,7 +1024,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("identity"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -923,9 +1045,17 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            if (!getClientType().in(ClientCredentials)) {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("identity"));
+            } else {
+                // CLient Credentials starts with no identity, so here we're
+                // expecting a complaint about the token type.
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("tokenType"));
+            }
         } else {
-            assertErrorResponse(r, Status.NOT_FOUND);
+            assertErrorResponse(r, new NotFoundException());
         }
     }
 
@@ -940,7 +1070,7 @@ public final class OAuthTokenServiceCRUDTest
                 OAuthTokenType.Refresh);
         Client client = getAdminContext()
                 .getBuilder()
-                .client(ClientType.ClientCredentials)
+                .client(ClientCredentials)
                 .build()
                 .getClient();
         testEntity.setClient(client);
@@ -948,7 +1078,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("client"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -968,7 +1099,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("client"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -988,7 +1120,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("authToken"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1010,7 +1143,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("authToken"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1036,7 +1170,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("identity"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1061,7 +1196,13 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            if (permitsRefresh()) {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("redirect"));
+            } else {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("tokenType"));
+            }
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1086,7 +1227,8 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("redirect"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1108,7 +1250,13 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            if (getClientType().equals(AuthorizationGrant)) {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("redirect"));
+            } else {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("tokenType"));
+            }
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1132,7 +1280,13 @@ public final class OAuthTokenServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            if (getClientType().equals(AuthorizationGrant)) {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("redirect"));
+            } else {
+                assertErrorResponse(r,
+                        new InvalidEntityPropertyException("tokenType"));
+            }
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

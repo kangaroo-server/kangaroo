@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -267,13 +269,13 @@ public final class ClientService extends AbstractService {
 
         // Input value checks.
         if (client == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (client.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (client.getApplication() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // Assert that we can create a scope in this application.
@@ -324,7 +326,7 @@ public final class ClientService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(client)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Additional special case: We cannot modify the client we're
@@ -337,7 +339,7 @@ public final class ClientService extends AbstractService {
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getApplication().equals(client.getApplication())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // Transfer all the values we're allowed to edit.

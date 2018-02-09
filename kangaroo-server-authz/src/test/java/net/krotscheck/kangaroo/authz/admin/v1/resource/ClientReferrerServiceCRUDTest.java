@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
@@ -31,6 +32,8 @@ import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -305,7 +308,12 @@ public final class ClientReferrerServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isAccessible(testEntity.getClient(), getAdminToken())) {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("uri"));
+        } else {
+            assertErrorResponse(r, new NotFoundException());
+        }
     }
 
     /**
@@ -327,6 +335,8 @@ public final class ClientReferrerServiceCRUDTest
         Response r = postEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
             assertErrorResponse(r, Status.CONFLICT);
+        } else if (isSubresource()) {
+            assertErrorResponse(r, new NotFoundException());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -378,7 +388,8 @@ public final class ClientReferrerServiceCRUDTest
         // Issue the request.
         Response r = putEntity(duplicateReferrer, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("uri"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

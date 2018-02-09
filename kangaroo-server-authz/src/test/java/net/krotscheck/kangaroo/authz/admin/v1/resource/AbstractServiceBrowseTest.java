@@ -29,6 +29,7 @@ import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeExcept
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
@@ -44,6 +45,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.nio.charset.MalformedInputException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -479,7 +481,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                         HttpUtil.authHeaderBearer(adminAppToken.getId()))
                 .get();
 
-        assertErrorResponse(response, Status.BAD_REQUEST);
+        assertErrorResponse(response, new MalformedIdException());
     }
 
     /**

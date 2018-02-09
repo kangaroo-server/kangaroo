@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
@@ -264,7 +265,8 @@ public final class RoleServiceCRUDTest
         testEntity.setApplication(null);
 
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("application"));
     }
 
     /**
@@ -368,7 +370,8 @@ public final class RoleServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (isAccessible(entity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("application"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -646,7 +649,8 @@ public final class RoleServiceCRUDTest
 
         if (isAccessible(role, testContext.getToken())) {
             // Bad request because OMG really?
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("application"));
         } else {
             // Bad request because we can't tell you about it.
             assertErrorResponse(r, Status.NOT_FOUND);
