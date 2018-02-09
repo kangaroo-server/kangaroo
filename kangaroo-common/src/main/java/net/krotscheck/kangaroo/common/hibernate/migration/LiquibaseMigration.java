@@ -60,6 +60,12 @@ public final class LiquibaseMigration
     private final PooledDataSource dataSource;
 
     /**
+     * Default path to the liquibase migration master manifest. Can be changed
+     * for testing purposes.
+     */
+    private String migrationPath = "liquibase/db.changelog-master.yaml";
+
+    /**
      * Create a new instance of the lifecycle listener, with an
      * injected factory.
      *
@@ -68,6 +74,24 @@ public final class LiquibaseMigration
     @Inject
     public LiquibaseMigration(final PooledDataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    /**
+     * Get the current migration path.
+     *
+     * @return The current resource file path to the migration manifest.
+     */
+    public String getMigrationPath() {
+        return migrationPath;
+    }
+
+    /**
+     * Set the migration path.
+     *
+     * @param migrationPath The new resource path to the migration manifest.
+     */
+    public void setMigrationPath(final String migrationPath) {
+        this.migrationPath = migrationPath;
     }
 
     /**
@@ -87,10 +111,8 @@ public final class LiquibaseMigration
                 Database database = DatabaseFactory.getInstance()
                         .findCorrectDatabaseImplementation(connection);
 
-                Liquibase liquibase = new Liquibase(
-                        "liquibase/db.changelog-master.yaml",
-                        new ClassLoaderResourceAccessor(),
-                        database);
+                Liquibase liquibase = new Liquibase(getMigrationPath(),
+                        new ClassLoaderResourceAccessor(), database);
 
                 // Determine the list of run changesets
                 List<ChangeSetStatus> changesets = liquibase

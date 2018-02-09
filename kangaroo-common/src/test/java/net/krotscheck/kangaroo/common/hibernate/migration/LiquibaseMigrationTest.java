@@ -22,9 +22,11 @@ import com.mchange.v2.c3p0.PooledDataSource;
 import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
+import net.krotscheck.kangaroo.test.rule.WorkingDirectoryRule;
 import net.krotscheck.kangaroo.test.rule.database.ITestDatabase;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.krotscheck.kangaroo.test.jersey.BinderAssertion.assertBinderContains;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -52,6 +55,19 @@ import static org.mockito.Mockito.mock;
 public final class LiquibaseMigrationTest {
 
     /**
+     * Set up, and tear down, a temporary working directory, so that we don't
+     * overwrite/interfere with existing database migrations.
+     */
+    @Rule
+    public final WorkingDirectoryRule workingDir = new WorkingDirectoryRule();
+
+    /**
+     * A mock system configuration, to be used for testing.
+     */
+    private String testingMigration =
+            "liquibase/db.changelog-commons-master.yaml";
+
+    /**
      * Reset the database factory (if necessary).
      */
     @After
@@ -63,7 +79,7 @@ public final class LiquibaseMigrationTest {
      * Check to make sure the applications table does not exist. Since some
      * databases include their own meta tables (h2 for instance), we're
      * checking for the existence of a table we create, rather than one
-     * provided by the database.s
+     * provided by the database.
      *
      * @param c A connection instance to the database.
      * @return True if the 'applications' table exists.
@@ -109,6 +125,7 @@ public final class LiquibaseMigrationTest {
             Mockito.doReturn(testConnection).when(ps).getConnection();
 
             LiquibaseMigration listener = new LiquibaseMigration(ps);
+            listener.setMigrationPath(testingMigration);
             listener.get();
 
             // Assert that the connection is closed after migration.
@@ -132,6 +149,7 @@ public final class LiquibaseMigrationTest {
         doThrow(LiquibaseException.class).when(ps).getConnection();
 
         LiquibaseMigration listener = new LiquibaseMigration(ps);
+        listener.setMigrationPath(testingMigration);
 
         try {
             listener.get();
@@ -153,6 +171,7 @@ public final class LiquibaseMigrationTest {
         doThrow(SQLException.class).when(ps).getConnection();
 
         LiquibaseMigration listener = new LiquibaseMigration(ps);
+        listener.setMigrationPath(testingMigration);
 
         try {
             listener.get();
@@ -174,6 +193,7 @@ public final class LiquibaseMigrationTest {
         Mockito.doReturn(null).when(ps).getConnection();
 
         LiquibaseMigration listener = new LiquibaseMigration(ps);
+        listener.setMigrationPath(testingMigration);
 
         try {
             listener.get();
@@ -210,6 +230,7 @@ public final class LiquibaseMigrationTest {
 
             try {
                 LiquibaseMigration listener = new LiquibaseMigration(ps);
+                listener.setMigrationPath(testingMigration);
                 listener.get();
                 Assert.fail();
             } catch (RuntimeException e) {
@@ -263,5 +284,14 @@ public final class LiquibaseMigrationTest {
             // Ensure that the tables have been created.
             assertFalse(hasTestTable(c));
         }
+    }
+
+    /**
+     * Assert that we can inject values using this binder.
+     */
+    @Test
+    public void testBinder() {
+        assertBinderContains(new LiquibaseMigration.Binder(),
+                DatabaseMigrationState.class);
     }
 }

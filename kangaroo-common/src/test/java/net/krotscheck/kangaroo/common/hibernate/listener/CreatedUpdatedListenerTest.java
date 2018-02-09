@@ -26,7 +26,9 @@ import org.hibernate.event.service.spi.EventListenerRegistrationException;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PreInsertEvent;
+import org.hibernate.event.spi.PreInsertEventListener;
 import org.hibernate.event.spi.PreUpdateEvent;
+import org.hibernate.event.spi.PreUpdateEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 
+import static net.krotscheck.kangaroo.test.jersey.BinderAssertion.assertBinderContains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -176,5 +179,15 @@ public final class CreatedUpdatedListenerTest extends DatabaseTest {
 
         listener.onPreUpdate(updateEvent);
         verifyZeroInteractions(entity);
+    }
+
+    /**
+     * Assert that we can inject values using this binder.
+     */
+    @Test
+    public void testBinder() {
+        assertBinderContains(new CreatedUpdatedListener.Binder(),
+                PreInsertEventListener.class,
+                PreUpdateEventListener.class);
     }
 }

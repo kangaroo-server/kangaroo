@@ -19,9 +19,12 @@
 package net.krotscheck.kangaroo.common.hibernate.context;
 
 import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
+import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener.Binder;
 import net.krotscheck.kangaroo.common.hibernate.migration.DatabaseMigrationState;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
+import org.glassfish.jersey.internal.inject.Binding;
 import org.glassfish.jersey.server.spi.Container;
+import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
@@ -30,7 +33,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -211,5 +220,20 @@ public final class SearchIndexContainerLifecycleListenerTest
                 mockMigrationState);
         FullTextSession f = listener.getFulltextSession(testSession);
         assertNotNull(f);
+    }
+
+    /**
+     * Assert that we can inject values using this binder.
+     */
+    @Test
+    public void testBinder() {
+        Binder b = new SearchIndexContainerLifecycleListener.Binder();
+        List<Binding> bindings = new ArrayList<>(b.getBindings());
+
+        assertEquals(1, bindings.size());
+
+        Binding binding = bindings.get(0);
+        Set types = binding.getContracts();
+        assertTrue(types.contains(ContainerLifecycleListener.class));
     }
 }
