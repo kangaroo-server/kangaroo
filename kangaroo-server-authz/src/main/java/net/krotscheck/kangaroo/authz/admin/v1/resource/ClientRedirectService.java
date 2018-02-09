@@ -328,7 +328,7 @@ public final class ClientRedirectService extends AbstractService {
         s.delete(redirect);
         s.update(client);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**

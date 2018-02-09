@@ -377,7 +377,7 @@ public final class ClientService extends AbstractService {
         // Let's hope they now what they're doing.
         s.delete(client);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**

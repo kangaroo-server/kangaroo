@@ -58,6 +58,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
 import java.net.URI;
 
@@ -380,7 +381,7 @@ public final class ScopeService extends AbstractService {
         // Let's hope they now what they're doing.
         s.delete(a);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**
