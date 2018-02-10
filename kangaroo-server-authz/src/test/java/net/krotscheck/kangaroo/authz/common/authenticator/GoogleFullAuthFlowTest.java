@@ -21,6 +21,7 @@ package net.krotscheck.kangaroo.authz.common.authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.test.IntegrationTest;
 import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import net.krotscheck.kangaroo.util.HttpUtil;
@@ -28,6 +29,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -49,6 +51,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.urlContains;
  *
  * @author Michael Krotscheck
  */
+@Category(IntegrationTest.class)
 @RunWith(SingleInstanceTestRunner.class)
 public final class GoogleFullAuthFlowTest
         extends AbstractBrowserLoginTest {

@@ -157,6 +157,9 @@
     <jacoco.version>0.8.0</jacoco.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <skipTests.unit>${skipTests}</skipTests.unit>
+    <skipTests.integration>${skipTests}</skipTests.integration>
   </properties>
 
   <build>
@@ -269,7 +272,7 @@
           <version>3.0.0</version>
         </plugin>
 
-        <!-- Surefire reporting -->
+        <!-- Unit Test Runner -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -282,7 +285,9 @@
             </dependency>
           </dependencies>
           <configuration>
+            <skipTests>${skipTests.unit}</skipTests>
             <argLine>-Xmx1024m</argLine>
+            <excludedGroups>net.krotscheck.kangaroo.test.IntegrationTest</excludedGroups>
 
             <systemPropertyVariables>
               <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
@@ -296,6 +301,40 @@
               <hibernate.root.password>${hibernate.root.password}</hibernate.root.password>
             </systemPropertyVariables>
           </configuration>
+        </plugin>
+
+        <!-- Integration Test Runner -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>2.20.1</version>
+          <executions>
+            <execution>
+              <id>integration-tests</id>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+              <configuration>
+                <skipTests>${skipTests.integration}</skipTests>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
+                <groups>net.krotscheck.kangaroo.test.IntegrationTest</groups>
+                <systemPropertyVariables>
+                  <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                  <java.security.egd>file:/dev/./urandom</java.security.egd>
+                  <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
+                  <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
+                  <hibernate.connection.username>oid</hibernate.connection.username>
+                  <hibernate.connection.password>oid</hibernate.connection.password>
+                  <hibernate.connection.driver_class>${hibernate.connection.driver_class}</hibernate.connection.driver_class>
+                  <hibernate.dialect>${hibernate.dialect}</hibernate.dialect>
+                  <hibernate.root.password>${hibernate.root.password}</hibernate.root.password>
+                </systemPropertyVariables>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
 
         <!-- Test coverage -->

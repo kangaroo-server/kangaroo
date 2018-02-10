@@ -215,12 +215,6 @@ public final class TestConfig {
      * @return A port which should be unique _per test run_.
      */
     public static String getTestingPort() {
-        switch (getDatabase()) {
-            case H2:
-                return "7778";
-            case MARIADB:
-            default:
-                return "7777";
-        }
+        return "7777";
     }
 }
