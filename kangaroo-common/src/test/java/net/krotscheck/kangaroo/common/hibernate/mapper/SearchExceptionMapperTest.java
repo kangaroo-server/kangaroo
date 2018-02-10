@@ -25,7 +25,9 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.ExceptionMapper;
 
+import static net.krotscheck.kangaroo.test.jersey.BinderAssertion.assertBinderContains;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -67,5 +69,14 @@ public final class SearchExceptionMapperTest {
                 r.getStatus());
         assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         assertEquals("Bad Request", er.getErrorDescription());
+    }
+
+    /**
+     * Assert that we can inject values using this binder.
+     */
+    @Test
+    public void testBinder() {
+        assertBinderContains(new SearchExceptionMapper.Binder(),
+                ExceptionMapper.class);
     }
 }

@@ -89,7 +89,7 @@ public final class HibernateServiceRegistryFactory
         // Configure default values for the search index.
         File indexDir = new File(workingDir, "lucene_indexes");
         if (!Files.exists(indexDir.toPath())) {
-            Files.createDirectory(indexDir.toPath());
+            Files.createDirectories(indexDir.toPath());
         }
 
         defaultSettings.put("hibernate.search.default.directory_provider",

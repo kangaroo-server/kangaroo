@@ -95,6 +95,15 @@
         <artifactId>maven-pmd-plugin</artifactId>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <test.db.changelog>liquibase/db.changelog-commons-master.yaml</test.db.changelog>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

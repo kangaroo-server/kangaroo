@@ -29,7 +29,7 @@ import java.io.File;
 
 /**
  * This JUnit4 Rule creates, and tears down, a kangaroo 'working' directory,
- * and updates the necessary systme properties.
+ * and updates the necessary system properties.
  *
  * @author Michael Krotscheck
  */

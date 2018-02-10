@@ -36,8 +36,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertNotNull;
@@ -138,17 +136,5 @@ public final class HibernateServiceRegistryFactoryTest {
         assertSame(serviceRegistry, serviceRegistry2);
 
         injector.shutdown();
-    }
-
-    /**
-     * A private class to test our feature injection.
-     */
-    private static class TestFeature implements Feature {
-
-        @Override
-        public boolean configure(final FeatureContext context) {
-            context.register(new HibernateServiceRegistryFactory.Binder());
-            return true;
-        }
     }
 }

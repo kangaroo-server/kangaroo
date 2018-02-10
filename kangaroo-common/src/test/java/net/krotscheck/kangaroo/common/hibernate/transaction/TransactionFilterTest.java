@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.common.hibernate.transaction;
 
+import net.krotscheck.kangaroo.common.hibernate.transaction.TransactionFilter.Binder;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -29,12 +30,15 @@ import org.mockito.Mockito;
 
 import javax.inject.Provider;
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response.Status;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.krotscheck.kangaroo.test.jersey.BinderAssertion.assertBinderContains;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 
@@ -174,39 +178,12 @@ public final class TransactionFilterTest {
     }
 
     /**
-     * Assert that we can invoke the binder.
-     *
-     * @throws Exception An authenticator exception.
+     * Assert that we can inject values using this binder.
      */
     @Test
-    public void testBinder() throws Exception {
-//        InjectionManager manager = Injections.createInjectionManager();
-//
-//        Binder b = new TransactionFilter.Binder();
-//        manager.register(b);
-//
-//        // Ensure it's a request filter.
-//        List<ActiveDescriptor<?>> reqDescriptors =
-//                locator.getDescriptors(
-//                        BuilderHelper.createContractFilter(
-//                                ContainerRequestFilter.class.getName()));
-//        assertEquals(1, reqDescriptors.size());
-//
-//        ActiveDescriptor reqDescriptor = reqDescriptors.get(0);
-//        assertNotNull(reqDescriptor);
-//        assertEquals(Singleton.class.getCanonicalName(),
-//                reqDescriptor.getScope());
-//
-//        // Ensure it's a response filter.
-//        List<ActiveDescriptor<?>> respDescriptors =
-//                locator.getDescriptors(
-//                        BuilderHelper.createContractFilter(
-//                                ContainerResponseFilter.class.getName()));
-//        assertEquals(1, respDescriptors.size());
-//
-//        ActiveDescriptor respDescriptor = respDescriptors.get(0);
-//        assertNotNull(respDescriptor);
-//        assertEquals(Singleton.class.getCanonicalName(),
-//                respDescriptor.getScope());
+    public void testBinder() {
+        assertBinderContains(new Binder(),
+                ContainerRequestFilter.class,
+                ContainerResponseFilter.class);
     }
 }
