@@ -24,6 +24,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.IntrospectionResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
@@ -372,7 +373,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
 
-        assertErrorResponse(r, Status.UNAUTHORIZED, "access_denied");
+        assertErrorResponse(r, new AccessDeniedException());
     }
 
     /**
@@ -423,7 +424,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
 
-        assertErrorResponse(r, Status.UNAUTHORIZED, "access_denied");
+        assertErrorResponse(r, new AccessDeniedException());
     }
 
     /**
@@ -717,6 +718,6 @@ public final class TokenIntrospectionTest extends ContainerTest {
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
 
-        assertErrorResponse(r, Status.UNAUTHORIZED, "access_denied");
+        assertErrorResponse(r, new AccessDeniedException());
     }
 }

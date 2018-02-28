@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2NotAuthorizedException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -295,10 +296,10 @@ public abstract class AbstractSubserviceBrowseTest<K
                 adminAppToken).size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             assertListResponse(r,
@@ -324,10 +325,10 @@ public abstract class AbstractSubserviceBrowseTest<K
                 getAccessibleEntities(parentEntity, adminAppToken).size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             assertListResponse(r,
@@ -353,10 +354,10 @@ public abstract class AbstractSubserviceBrowseTest<K
                 adminAppToken).size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             assertListResponse(r,
@@ -381,10 +382,10 @@ public abstract class AbstractSubserviceBrowseTest<K
                 adminAppToken).size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             List<T> results = assertListResponse(r,
@@ -413,10 +414,10 @@ public abstract class AbstractSubserviceBrowseTest<K
                 adminAppToken).size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             List<T> results = assertListResponse(r,
@@ -446,10 +447,10 @@ public abstract class AbstractSubserviceBrowseTest<K
 
         if (clientType.equals(ClientType.ClientCredentials)
                 && tokenScope.equals(getRegularScope())) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             List<T> results = assertListResponse(r,
@@ -478,10 +479,10 @@ public abstract class AbstractSubserviceBrowseTest<K
                 adminAppToken).size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else if (!isAccessible(parentEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.NOT_FOUND.getStatusCode(),
+            assertErrorResponse(r, Status.NOT_FOUND,
                     "not_found");
         } else {
             List<T> results = assertListResponse(r,
@@ -504,6 +505,7 @@ public abstract class AbstractSubserviceBrowseTest<K
                 .request()
                 .get();
 
-        assertErrorResponse(response, Status.UNAUTHORIZED);
+        assertErrorResponse(response,
+                new OAuth2NotAuthorizedException(null, null));
     }
 }

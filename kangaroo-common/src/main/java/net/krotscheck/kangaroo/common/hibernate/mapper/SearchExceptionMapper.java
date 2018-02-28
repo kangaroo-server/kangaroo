@@ -24,8 +24,8 @@ import org.hibernate.search.exception.EmptyQueryException;
 import org.hibernate.search.exception.SearchException;
 
 import javax.inject.Singleton;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
@@ -45,7 +45,7 @@ public final class SearchExceptionMapper
     public Response toResponse(final SearchException exception) {
         if (exception instanceof EmptyQueryException) {
             return ErrorResponseBuilder
-                    .from(Status.BAD_REQUEST)
+                    .from(new BadRequestException())
                     .build();
         }
 
