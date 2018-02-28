@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2NotAuthorizedException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -41,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
@@ -319,7 +321,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = getEntity(testingEntity, token);
 
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -334,8 +336,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = getEntity(testingEntity, null);
-
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -397,7 +398,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPostNoBody() throws Exception {
         // Issue the request.
         Response r = postEntity(null, adminAppToken);
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new BadRequestException());
     }
 
     /**
@@ -412,7 +413,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testEntity, adminAppToken);
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new BadRequestException());
     }
 
     /**
@@ -449,7 +450,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPostNoEntity() throws Exception {
         // Issue the request.
         Response r = postEntity(null, adminAppToken);
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new BadRequestException());
     }
 
     /**
@@ -464,7 +465,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testEntity, getSecondaryContext().getToken());
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -522,8 +523,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testingEntity, (OAuthToken) null);
-
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -551,7 +551,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
                 HttpUtil.authHeaderBearer(adminAppToken.getId()));
 
         if (this.isAccessible(testEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r, new BadRequestException());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -570,7 +570,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = putEntity(testingEntity, token);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -583,7 +583,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPutByUnknown() throws Exception {
         T testingEntity = getEntity(getSecondaryContext());
         Response r = putEntity(testingEntity, (OAuthToken) null);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -652,7 +652,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = deleteEntity(testingEntity,
                 getSecondaryContext().getToken());
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -672,7 +672,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         s.getTransaction().commit();
 
         Response r = deleteEntity(testingEntity, null);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**

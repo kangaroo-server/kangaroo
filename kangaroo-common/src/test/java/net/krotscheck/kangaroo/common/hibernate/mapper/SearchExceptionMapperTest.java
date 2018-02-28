@@ -68,7 +68,7 @@ public final class SearchExceptionMapperTest {
         assertEquals(Status.BAD_REQUEST.getStatusCode(),
                 r.getStatus());
         assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
-        assertEquals("Bad Request", er.getErrorDescription());
+        assertEquals("HTTP 400 Bad Request", er.getErrorDescription());
     }
 
     /**

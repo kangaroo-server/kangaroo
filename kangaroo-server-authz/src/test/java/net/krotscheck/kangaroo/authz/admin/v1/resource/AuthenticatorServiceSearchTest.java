@@ -26,6 +26,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
 import org.junit.Test;
@@ -238,8 +239,7 @@ public final class AuthenticatorServiceSearchTest
         Integer expectedLimit = 10;
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else if (!isAccessible(c, token)) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
@@ -264,8 +264,7 @@ public final class AuthenticatorServiceSearchTest
 
         Response r = search(params, token);
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -315,8 +314,7 @@ public final class AuthenticatorServiceSearchTest
         Integer expectedLimit = 10;
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertTrue(expectedTotal > 0);
 

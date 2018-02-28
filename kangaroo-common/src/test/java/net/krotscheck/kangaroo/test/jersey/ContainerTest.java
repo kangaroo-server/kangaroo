@@ -18,7 +18,9 @@
 
 package net.krotscheck.kangaroo.test.jersey;
 
+import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
+import net.krotscheck.kangaroo.common.exception.KangarooException;
 import net.krotscheck.kangaroo.test.rule.ActiveSessions;
 import net.krotscheck.kangaroo.test.rule.DatabaseResource;
 import net.krotscheck.kangaroo.test.rule.HibernateResource;
@@ -39,6 +41,7 @@ import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Cookie;
@@ -226,14 +229,29 @@ public abstract class ContainerTest extends KangarooJerseyTest {
     /**
      * Test for a specific error response.
      *
-     * @param r                  The error response.
-     * @param expectedHttpStatus The expected http status.
+     * @param r                 The error response.
+     * @param expectedException The expected exception.
      */
     protected final void assertErrorResponse(final Response r,
-                                             final Status expectedHttpStatus) {
-        String expectedMessage = expectedHttpStatus.getReasonPhrase()
-                .toLowerCase().replace(" ", "_");
-        assertErrorResponse(r, expectedHttpStatus, expectedMessage);
+                                             final WebApplicationException expectedException) {
+        ErrorResponse response = ErrorResponseBuilder.from(expectedException)
+                .buildEntity();
+        assertErrorResponse(r, response.getHttpStatus(), response.getError(),
+                response.getErrorDescription());
+    }
+
+    /**
+     * Test for a specific error response.
+     *
+     * @param r                 The error response.
+     * @param expectedException The expected exception.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final KangarooException expectedException) {
+        ErrorResponse response = ErrorResponseBuilder.from(expectedException)
+                .buildEntity();
+        assertErrorResponse(r, response.getHttpStatus(), response.getError(),
+                response.getErrorDescription());
     }
 
     /**
@@ -241,12 +259,53 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      *
      * @param r                  The error response.
      * @param expectedHttpStatus The expected http status.
-     * @param message            The expected message.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final Status expectedHttpStatus) {
+        String expectedError = expectedHttpStatus.getReasonPhrase()
+                .toLowerCase().replace(" ", "_");
+        String expectedMessage = "HTTP " + expectedHttpStatus.getStatusCode() +
+                ' ' + expectedHttpStatus.getReasonPhrase();
+
+        assertErrorResponse(r, expectedHttpStatus, expectedError,
+                expectedMessage);
+    }
+
+    /**
+     * Test for a specific error response.
+     *
+     * @param r                  The error response.
+     * @param expectedHttpStatus The expected http status.
+     * @param expectedError      The expected error code.
      */
     protected final void assertErrorResponse(final Response r,
                                              final Status expectedHttpStatus,
-                                             final String message) {
-        assertErrorResponse(r, expectedHttpStatus.getStatusCode(), message);
+                                             final String expectedError) {
+        String expectedMessage = "HTTP " + expectedHttpStatus.getStatusCode() +
+                ' ' + expectedHttpStatus.getReasonPhrase();
+
+        assertErrorResponse(r,
+                expectedHttpStatus.getStatusCode(),
+                expectedError,
+                expectedMessage);
+    }
+
+    /**
+     * Test for a specific error response, code, and message.
+     *
+     * @param r                  The response to test.
+     * @param expectedHttpStatus The expected status.
+     * @param expectedError      The expected message.
+     * @param expectedMessage    The expected error message.
+     */
+    protected final void assertErrorResponse(final Response r,
+                                             final Status expectedHttpStatus,
+                                             final String expectedError,
+                                             final String expectedMessage) {
+        assertErrorResponse(r,
+                expectedHttpStatus.getStatusCode(),
+                expectedError,
+                expectedMessage);
     }
 
     /**
@@ -254,16 +313,19 @@ public abstract class ContainerTest extends KangarooJerseyTest {
      *
      * @param r               THe response to test.
      * @param statusCode      The expected status code.
-     * @param expectedMessage The expected message.
+     * @param expectedError   The expected message.
+     * @param expectedMessage The expected error message.
      */
     protected final void assertErrorResponse(final Response r,
                                              final int statusCode,
+                                             final String expectedError,
                                              final String expectedMessage) {
         assertFalse(
                 String.format("%s must not be a success code", r.getStatus()),
                 r.getStatus() < 400);
         ErrorResponse response = r.readEntity(ErrorResponse.class);
         assertEquals(statusCode, r.getStatus());
-        assertEquals(expectedMessage, response.getError());
+        assertEquals(expectedError, response.getError());
+        assertEquals(expectedMessage, response.getErrorDescription());
     }
 }
