@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -233,7 +234,9 @@ public final class ClientServiceCRUDTest
         testEntity.setApplication(null);
 
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, new BadRequestException());
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException(
+                        "application"));
     }
 
     /**
@@ -367,7 +370,8 @@ public final class ClientServiceCRUDTest
         // Issue the request.
         Response r = putEntity(client, getAdminToken());
         if (isAccessible(entity, getAdminToken())) {
-            assertErrorResponse(r, new BadRequestException());
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("application"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

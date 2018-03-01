@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractClientUri;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
@@ -39,7 +41,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -68,18 +69,18 @@ import java.net.URI;
 @ScopesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
 @Transactional
 @Api(tags = "Client",
-        authorizations = {
-                @Authorization(value = "Kangaroo", scopes = {
-                        @AuthorizationScope(
-                                scope = Scope.CLIENT,
-                                description = "Modify redirects in"
-                                        + " one application."),
-                        @AuthorizationScope(
-                                scope = Scope.CLIENT_ADMIN,
-                                description = "Modify redirects in"
-                                        + " all applications.")
-                })
-        })
+     authorizations = {
+             @Authorization(value = "Kangaroo", scopes = {
+                     @AuthorizationScope(
+                             scope = Scope.CLIENT,
+                             description = "Modify redirects in"
+                                     + " one application."),
+                     @AuthorizationScope(
+                             scope = Scope.CLIENT_ADMIN,
+                             description = "Modify redirects in"
+                                     + " all applications.")
+             })
+     })
 public final class ClientRedirectService extends AbstractService {
 
     /**
@@ -197,17 +198,17 @@ public final class ClientRedirectService extends AbstractService {
 
         // Make sure we're allowed to access the client.
         Client client = s.get(Client.class, clientId);
-        assertCanAccessSubresource(client, getAdminScope());
+        assertCanAccess(client, getAdminScope());
 
         // Input value checks.
         if (redirect == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (redirect.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (redirect.getUri() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("uri");
         }
 
         // Check for duplicates
@@ -267,11 +268,11 @@ public final class ClientRedirectService extends AbstractService {
         }
         // Make sure the body ID's match
         if (!currentRedirect.equals(redirect)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         // Make sure we're not trying to null the redirect.
         if (redirect.getUri() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("uri");
         }
 
         // Make sure we're not creating a duplicate.

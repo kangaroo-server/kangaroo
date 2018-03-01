@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.Config;
 import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
@@ -27,6 +28,7 @@ import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.common.response.ListResponseBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.glassfish.jersey.internal.inject.InjectionManager;
@@ -297,31 +299,6 @@ public abstract class AbstractService {
     }
 
     /**
-     * This method tests whether a particular subresource entity may be
-     * accessed. It defers most of its logic to assertCanAccess, except that
-     * it will rethrow NotFoundExceptions as BadRequestExceptions in the
-     * case where a user does not have permissions to see the parent resource.
-     *
-     * @param entity              The entity to check.
-     * @param requiredParentScope The scope required to access the parent
-     *                            entity.
-     */
-    protected final void assertCanAccessSubresource(
-            final AbstractAuthzEntity entity,
-            final String requiredParentScope) {
-        // No null entities permitted.
-        if (entity == null) {
-            throw new NotFoundException();
-        }
-
-        try {
-            assertCanAccess(entity, requiredParentScope);
-        } catch (NotFoundException e) {
-            throw new BadRequestException();
-        }
-    }
-
-    /**
      * Determine the appropriate owner on which we should be filtering.
      *
      * @param ownerId The passed-in owner id, could be null.
@@ -473,7 +450,7 @@ public abstract class AbstractService {
         // Attempt to resolve...
         K entity = getSession().get(requestedType, entityId);
         if (entity == null) {
-            throw new BadRequestException();
+            throw new MalformedIdException();
         }
         return entity;
     }
@@ -491,7 +468,7 @@ public abstract class AbstractService {
             final K entity) {
         K resolved = resolveEntityInput(requestedType, entity);
         if (resolved == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         return resolved;
     }

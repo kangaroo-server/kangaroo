@@ -24,7 +24,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MultivaluedMap;
 import java.net.URI;
@@ -154,7 +153,7 @@ public final class RequestUtil {
             return builder.build();
         } catch (URISyntaxException | NumberFormatException
                 | NullPointerException e) {
-            throw new BadRequestException(e);
+            throw new InvalidHostException(e);
         }
     }
 
@@ -200,13 +199,13 @@ public final class RequestUtil {
      *
      * @param request The request from which to extract the X-Forwarded-Host.
      * @return True if this is an OWASP-evaluated cross-origin request.
-     * @throws BadRequestException Thrown if the source or target cannot be
-     *                             determined from the provided headers.
+     * @throws InvalidHostException Thrown if the source or target cannot be
+     *                              determined from the provided headers.
      * @see <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet#Verifying_Same_Origin_with_Standard_Headers">https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet#Verifying_Same_Origin_with_Standard_Headers</a>
      */
     public static Boolean isCrossOriginRequest(
             final ContainerRequestContext request)
-            throws BadRequestException {
+            throws InvalidHostException {
 
         URI origin = getOrigin(request);
         URI referer = getReferer(request);

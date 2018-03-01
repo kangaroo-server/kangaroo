@@ -24,6 +24,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
@@ -32,7 +33,6 @@ import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScope;
 import org.hibernate.Session;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
@@ -54,18 +54,18 @@ import java.math.BigInteger;
 @ScopesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
 @Transactional
 @Api(tags = "Role",
-        authorizations = {
-                @Authorization(value = "Kangaroo", scopes = {
-                        @AuthorizationScope(
-                                scope = Scope.ROLE,
-                                description = "Modify scopes in one"
-                                        + " application."),
-                        @AuthorizationScope(
-                                scope = Scope.ROLE_ADMIN,
-                                description = "Modify scopes in all"
-                                        + " applications.")
-                })
-        })
+     authorizations = {
+             @Authorization(value = "Kangaroo", scopes = {
+                     @AuthorizationScope(
+                             scope = Scope.ROLE,
+                             description = "Modify scopes in one"
+                                     + " application."),
+                     @AuthorizationScope(
+                             scope = Scope.ROLE_ADMIN,
+                             description = "Modify scopes in all"
+                                     + " applications.")
+             })
+     })
 public final class RoleScopeService extends AbstractService {
 
     /**
@@ -113,7 +113,7 @@ public final class RoleScopeService extends AbstractService {
 
         // If the parent application doesn't match, error.
         if (!role.getApplication().equals(scope.getApplication())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // If the role is already linked to this scope, error.

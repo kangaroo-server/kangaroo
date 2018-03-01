@@ -20,7 +20,6 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 
 import org.junit.Test;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
@@ -214,7 +213,7 @@ public final class Base16BigIntegerConverterProviderTest {
     /**
      * Fail a conversion using a form annotation.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = MalformedIdException.class)
     public void testFailConvertForm() {
         Annotation[] annotations = new Annotation[]{formAnnotation};
 
@@ -227,7 +226,7 @@ public final class Base16BigIntegerConverterProviderTest {
     /**
      * Fail a conversion using a query annotation.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = MalformedIdException.class)
     public void testFailConvertQuery() {
         Annotation[] annotations = new Annotation[]{queryAnnotation};
 

@@ -25,6 +25,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
@@ -74,18 +76,18 @@ import java.net.URI;
 @ScopesAllowed({Scope.IDENTITY, Scope.IDENTITY_ADMIN})
 @Transactional
 @Api(tags = "User Identity",
-        authorizations = {
-                @Authorization(value = "Kangaroo", scopes = {
-                        @AuthorizationScope(
-                                scope = Scope.IDENTITY,
-                                description = "Modify identities in one"
-                                        + " application."),
-                        @AuthorizationScope(
-                                scope = Scope.IDENTITY_ADMIN,
-                                description = "Modify identities in all"
-                                        + " applications.")
-                })
-        })
+     authorizations = {
+             @Authorization(value = "Kangaroo", scopes = {
+                     @AuthorizationScope(
+                             scope = Scope.IDENTITY,
+                             description = "Modify identities in one"
+                                     + " application."),
+                     @AuthorizationScope(
+                             scope = Scope.IDENTITY_ADMIN,
+                             description = "Modify identities in all"
+                                     + " applications.")
+             })
+     })
 public final class UserIdentityService extends AbstractService {
 
     /**
@@ -285,28 +287,33 @@ public final class UserIdentityService extends AbstractService {
 
         // Input value checks.
         if (identity == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (identity.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (identity.getType() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("type");
         }
         if (identity.getUser() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("user");
         }
         if (identity.getRemoteId() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("remoteId");
         }
         if (identity.getPassword() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("password");
         }
 
         // Resolve the parent identity
         User parent = getSession().get(User.class, identity.getUser().getId());
         if (parent == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("user");
+        }
+
+        // Ensure that the type is 'Password'
+        if (!identity.getType().equals(AuthenticatorType.Password)) {
+            throw new InvalidEntityPropertyException("type");
         }
 
         // Assert that we can create an identity in this application.
@@ -316,11 +323,6 @@ public final class UserIdentityService extends AbstractService {
                     || !getCurrentUser().equals(scopeApp.getOwner())) {
                 throw new BadRequestException();
             }
-        }
-
-        // Ensure that the type is 'Password'
-        if (!identity.getType().equals(AuthenticatorType.Password)) {
-            throw new BadRequestException();
         }
 
         // Encrypt the password.
@@ -368,19 +370,18 @@ public final class UserIdentityService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(identity)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getUser().equals(identity.getUser())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("user");
         }
 
         // Make sure we're not trying to change the type.
         if (!current.getType().equals(identity.getType())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("type");
         }
-
 
         // Only permit changing the password if this uses the password
         // authenticator.
