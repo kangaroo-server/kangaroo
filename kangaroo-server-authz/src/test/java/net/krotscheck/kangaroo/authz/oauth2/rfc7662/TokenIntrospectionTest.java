@@ -33,6 +33,7 @@ import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.rule.TestDataResource;
+import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import net.krotscheck.kangaroo.util.StringUtil;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.spi.TestContainerException;
@@ -41,12 +42,12 @@ import org.hibernate.Session;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -67,6 +68,7 @@ import static org.junit.Assert.assertNull;
  *
  * @author Michael Krotscheck
  */
+@RunWith(SingleInstanceTestRunner.class)
 public final class TokenIntrospectionTest extends ContainerTest {
 
     /**
