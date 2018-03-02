@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
+import net.krotscheck.kangaroo.authz.oauth2.authn.O2AuthScheme;
 import net.krotscheck.kangaroo.authz.oauth2.authn.O2BearerToken;
 import net.krotscheck.kangaroo.authz.oauth2.authn.O2Client;
 import net.krotscheck.kangaroo.authz.oauth2.authn.O2Principal;
@@ -100,13 +101,15 @@ public final class RevocationService {
         O2Principal principal = ObjectUtil
                 .safeCast(securityContext.getUserPrincipal(), O2Principal.class)
                 .orElseThrow(AccessDeniedException::new);
+        O2AuthScheme scheme = O2AuthScheme.valueOf(principal.getScheme());
 
         Optional<OAuthToken> revokedToken;
 
         OAuthToken authToken = principal.getOAuthToken();
         Client client = principal.getContext();
 
-        if (client.getType().equals(ClientCredentials)) {
+        if (client.getType().equals(ClientCredentials)
+                || scheme.equals(O2AuthScheme.ClientPrivate)) {
             // We're authorized via the client, or via a token belonging to a
             // client-credentials client. In this case, any token may be
             // revoked, as long as it exists and belongs to the same
