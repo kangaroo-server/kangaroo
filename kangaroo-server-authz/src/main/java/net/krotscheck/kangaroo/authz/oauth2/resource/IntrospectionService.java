@@ -45,6 +45,8 @@ import javax.ws.rs.core.SecurityContext;
 import java.math.BigInteger;
 import java.util.Optional;
 
+import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.ClientCredentials;
+
 /**
  * Introspection endpoint of the OAuth2 service, complies with RFC-7662.
  *
@@ -102,32 +104,33 @@ public final class IntrospectionService {
                 .orElseThrow(AccessDeniedException::new);
         O2AuthScheme scheme = O2AuthScheme.valueOf(principal.getScheme());
 
-        OAuthToken introspectedToken;
+        Optional<OAuthToken> introspectedToken;
+        Client client = principal.getContext();
 
-        if (scheme.equals(O2AuthScheme.BearerToken)) {
-            // If authorized via a bearer token, make sure the token matches the
-            // requested introspection ID.
-            introspectedToken = Optional
-                    .ofNullable(principal.getOAuthToken())
-                    .filter(t -> t.getId().equals(tokenId))
-                    .orElse(null);
-        } else {
-            // If authorized via a bearer token, make sure the token matches the
-            // requested introspection ID.
-            Client client = principal.getContext();
+        if (client.getType().equals(ClientCredentials)
+                || scheme.equals(O2AuthScheme.ClientPrivate)) {
+            // We're authorized via the client, or via a token belonging to a
+            // client-credentials client. In this case, any token may be
+            // viewed, as long as it exists and belongs to the same
+            // application.
             introspectedToken = Optional
                     .ofNullable(tokenId)
                     .map(id -> session.get(OAuthToken.class, id))
                     .filter(token -> token.getClient()
                             .getApplication()
-                            .equals(client.getApplication()))
-                    .orElse(null);
+                            .equals(client.getApplication()));
+        } else {
+            // We are authorizing via a non-client-credentials token, meaning
+            // it's attached to a user and identity. In this case, any token
+            // belonging to the user may be viewed.
+            introspectedToken = Optional
+                    .ofNullable(principal.getOAuthToken())
+                    .filter(t -> t.getId().equals(tokenId));
         }
 
-        IntrospectionResponseEntity responseEntity =
-                Optional.ofNullable(introspectedToken)
-                        .map(IntrospectionResponseEntity::new)
-                        .orElse(new IntrospectionResponseEntity());
+        IntrospectionResponseEntity responseEntity = introspectedToken
+                .map(IntrospectionResponseEntity::new)
+                .orElse(new IntrospectionResponseEntity());
 
         return Response.ok(responseEntity).build();
     }
