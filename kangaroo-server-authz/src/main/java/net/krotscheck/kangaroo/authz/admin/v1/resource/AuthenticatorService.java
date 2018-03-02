@@ -25,6 +25,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.authenticator.IAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -60,6 +62,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
 import java.net.URI;
 
@@ -270,21 +273,21 @@ public final class AuthenticatorService extends AbstractService {
 
         // Input value checks.
         if (authenticator == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (authenticator.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (authenticator.getClient() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("client");
         }
         if (authenticator.getType() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("type");
         }
         Client parent = getSession().get(Client.class,
                 authenticator.getClient().getId());
         if (parent == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("client");
         }
 
         // Assert that we can create an authenticator in this application.
@@ -340,17 +343,17 @@ public final class AuthenticatorService extends AbstractService {
 
         // Make sure the body ID's match
         if (!current.equals(authenticator)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Make sure we're not trying to change the parent entity.
         if (!current.getClient().equals(authenticator.getClient())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("client");
         }
 
         // Make sure the type isn't void.
         if (authenticator.getType() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("type");
         }
 
         // Assert that the configuration values are correct for this
@@ -389,7 +392,7 @@ public final class AuthenticatorService extends AbstractService {
         // Let's hope they know what they're doing.
         s.delete(authenticator);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**

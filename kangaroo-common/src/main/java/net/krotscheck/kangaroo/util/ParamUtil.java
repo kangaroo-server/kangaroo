@@ -17,7 +17,6 @@
 
 package net.krotscheck.kangaroo.util;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
 
@@ -49,10 +48,10 @@ public final class ParamUtil {
                                 final String key) {
         List<String> listValues = values.get(key);
         if (listValues == null) {
-            throw new BadRequestException("Invalid Field: " + key);
+            throw new InvalidFieldException(key);
         }
         if (listValues.size() != 1) {
-            throw new BadRequestException("Invalid Field: " + key);
+            throw new InvalidFieldException(key);
         }
         return listValues.get(0);
     }

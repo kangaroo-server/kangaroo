@@ -19,7 +19,6 @@ package net.krotscheck.kangaroo.util;
 
 import org.junit.Test;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.lang.reflect.Constructor;
@@ -65,7 +64,7 @@ public final class ParamUtilTest {
     /**
      * Assert that testOne throws an exception if no value exists to retrieve.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidFieldException.class)
     public void testGetOneNoValue() {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         ParamUtil.getOne(params, "does_not_exist");
@@ -74,7 +73,7 @@ public final class ParamUtilTest {
     /**
      * Assert that testOne throws an exception if more than one value exists.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidFieldException.class)
     public void testGetOneMultiResult() {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("foo", "one");

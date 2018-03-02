@@ -31,6 +31,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import java.math.BigInteger;
 import java.util.List;
@@ -103,7 +104,10 @@ public final class O2ClientBodyFilter
         }
 
         // Only form data is permitted.
-        if (!context.getMediaType().equals(APPLICATION_FORM_URLENCODED_TYPE)) {
+        MediaType type = Optional.ofNullable(context.getMediaType())
+                .filter(m -> m.equals(APPLICATION_FORM_URLENCODED_TYPE))
+                .orElse(null);
+        if (type == null) {
             return;
         }
 

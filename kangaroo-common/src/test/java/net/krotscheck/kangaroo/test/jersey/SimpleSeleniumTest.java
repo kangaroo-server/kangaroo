@@ -20,10 +20,12 @@ package net.krotscheck.kangaroo.test.jersey;
 
 import com.google.common.base.Strings;
 import net.krotscheck.kangaroo.common.status.StatusFeature;
+import net.krotscheck.kangaroo.test.IntegrationTest;
 import net.krotscheck.kangaroo.test.rule.SeleniumRule;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.openqa.selenium.WebDriver;
 
 import javax.ws.rs.core.UriBuilder;
@@ -38,7 +40,8 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Michael Krotscheck
  */
-public final class SimpleSeleniumTest extends ContainerTest {
+@Category(IntegrationTest.class)
+public final class SimpleSeleniumTest extends KangarooJerseyTest {
 
     /**
      * The selenium rule.

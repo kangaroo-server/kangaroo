@@ -23,7 +23,7 @@ import net.krotscheck.kangaroo.common.exception.KangarooException;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Private, common implementation of all exceptions that need to return a
@@ -57,12 +57,17 @@ public abstract class WWWChallengeException extends KangarooException {
         super(code);
         this.requiredScopes = requiredScopes;
 
-        UriBuilder realmBuilder = requestInfo.getBaseUriBuilder();
-        List<String> paths = requestInfo.getMatchedURIs();
-        if (paths.size() > 0) {
-            realmBuilder.path(paths.get(paths.size() - 1));
-        }
-        this.realm = realmBuilder.build();
+        UriBuilder realmBuilder = Optional.ofNullable(requestInfo)
+                .map(UriInfo::getBaseUriBuilder)
+                .orElse(UriBuilder.fromUri("/"));
+
+        String realmPath = Optional.ofNullable(requestInfo)
+                .map(UriInfo::getMatchedURIs)
+                .filter(paths -> paths.size() > 0)
+                .map(paths -> paths.get(paths.size() - 1))
+                .orElse("");
+
+        this.realm = realmBuilder.path(realmPath).build();
     }
 
     /**

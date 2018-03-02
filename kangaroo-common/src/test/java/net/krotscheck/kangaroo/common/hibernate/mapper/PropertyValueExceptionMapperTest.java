@@ -24,7 +24,9 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.ExceptionMapper;
 
+import static net.krotscheck.kangaroo.test.jersey.BinderAssertion.assertBinderContains;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -51,5 +53,14 @@ public final class PropertyValueExceptionMapperTest {
         assertEquals(Status.BAD_REQUEST, er.getHttpStatus());
         assertEquals("Property \"name\" is invalid.",
                 er.getErrorDescription());
+    }
+
+    /**
+     * Assert that we can inject values using this binder.
+     */
+    @Test
+    public void testBinder() {
+        assertBinderContains(new PropertyValueExceptionMapper.Binder(),
+                ExceptionMapper.class);
     }
 }

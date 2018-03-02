@@ -18,137 +18,102 @@
 
 package net.krotscheck.kangaroo.common.hibernate;
 
-import net.krotscheck.kangaroo.common.config.ConfigurationFeature;
-import net.krotscheck.kangaroo.test.jersey.KangarooJerseyTest;
-import net.krotscheck.kangaroo.test.rule.DatabaseResource;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.search.FullTextSession;
-import org.hibernate.search.SearchFactory;
-import org.hibernate.service.ServiceRegistry;
-import org.junit.ClassRule;
+import net.krotscheck.kangaroo.common.hibernate.factory.FulltextSearchFactoryFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.FulltextSessionFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.HibernateServiceRegistryFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.HibernateSessionFactoryFactory;
+import net.krotscheck.kangaroo.common.hibernate.factory.PooledDataSourceFactory;
+import net.krotscheck.kangaroo.common.hibernate.id.Base16BigIntegerConverterProvider;
+import net.krotscheck.kangaroo.common.hibernate.lifecycle.SearchIndexContainerLifecycleListener;
+import net.krotscheck.kangaroo.common.hibernate.listener.CreatedUpdatedListener;
+import net.krotscheck.kangaroo.common.hibernate.mapper.ConstraintViolationExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.HibernateExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.PersistenceExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.PropertyValueExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.QueryExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.mapper.SearchExceptionMapper;
+import net.krotscheck.kangaroo.common.hibernate.migration.LiquibaseMigration;
+import net.krotscheck.kangaroo.common.hibernate.transaction.TransactionFilter;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.FeatureContext;
 
-import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Test that all expected classes are in the hibernate feature.
  *
  * @author Michael Krotscheck
  */
-public final class HibernateFeatureTest extends KangarooJerseyTest {
+public final class HibernateFeatureTest {
 
-    /**
-     * Ensure that the JNDI Resource exists.
-     */
-    @ClassRule
-    public static final TestRule DATABASE = new DatabaseResource();
-
-    /**
-     * Configure the application.
-     *
-     * @return A properly configured application.
-     */
-    @Override
-    protected ResourceConfig createApplication() {
-        ResourceConfig config = new ResourceConfig();
-        config.register(ConfigurationFeature.class);
-        config.register(HibernateFeature.class);
-        config.register(TestService.class);
-
-        return config;
-    }
 
     /**
      * Run a service request.
      */
     @Test
-    public void testService() {
-        target("/test")
-                .request(MediaType.APPLICATION_JSON)
-                .get();
+    public void testInjections() {
+
+        HibernateFeature f = new HibernateFeature();
+        FeatureContext context = mock(FeatureContext.class);
+        f.configure(context);
+
+        verify(context, times(1))
+                .register(any(SearchIndexContainerLifecycleListener
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(CreatedUpdatedListener
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(LiquibaseMigration
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(HibernateSessionFactory
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(HibernateSessionFactoryFactory
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(HibernateServiceRegistryFactory
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(FulltextSearchFactoryFactory
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(FulltextSessionFactory
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(PooledDataSourceFactory
+                        .Binder.class));
+
+        verify(context, times(1))
+                .register(any(QueryExceptionMapper
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(HibernateExceptionMapper
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(ConstraintViolationExceptionMapper
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(PersistenceExceptionMapper
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(PropertyValueExceptionMapper
+                        .Binder.class));
+        verify(context, times(1))
+                .register(any(SearchExceptionMapper
+                        .Binder.class));
+
+        verify(context, times(1))
+                .register(any(TransactionFilter
+                        .Binder.class));
+
+        verify(context, times(1))
+                .register(Base16BigIntegerConverterProvider.class);
     }
-
-    /**
-     * A test service that asserts our injection scopes.
-     */
-    @Path("/test")
-    public static final class TestService {
-
-        /**
-         * Hibernate service registry.
-         */
-        private ServiceRegistry serviceRegistry;
-
-        /**
-         * Session factory.
-         */
-        private SessionFactory factory;
-
-        /**
-         * Search factory injection.
-         */
-        private SearchFactory searchFactory;
-
-        /**
-         * FullText session injector.
-         */
-        private FullTextSession ftSession;
-
-        /**
-         * Session injector.
-         */
-        private Session session;
-
-        /**
-         * Create a new instance of our test service.
-         *
-         * @param sr  ServiceRegistry
-         * @param f   Session Factory
-         * @param s   Hibernate Session
-         * @param sF  Search Factory
-         * @param ftS Full text session
-         */
-        @Inject
-        public TestService(final ServiceRegistry sr,
-                           final SessionFactory f,
-                           final SearchFactory sF,
-                           final Session s,
-                           final FullTextSession ftS) {
-            serviceRegistry = sr;
-            factory = f;
-            session = s;
-            searchFactory = sF;
-            ftSession = ftS;
-        }
-
-        /**
-         * Run the test service.
-         *
-         * @return An OK response.
-         */
-        @GET
-        @Produces(MediaType.APPLICATION_JSON)
-        public Response testService() {
-            assertNotNull(serviceRegistry);
-            assertNotNull(searchFactory);
-            assertNotNull(factory);
-            assertNotNull(ftSession);
-            assertNotNull(session);
-
-            return Response.ok().build();
-        }
-    }
-
 }
-
-

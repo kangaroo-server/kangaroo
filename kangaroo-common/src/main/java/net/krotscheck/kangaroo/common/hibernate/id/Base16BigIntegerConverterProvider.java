@@ -21,7 +21,6 @@ package net.krotscheck.kangaroo.common.hibernate.id;
 import org.glassfish.jersey.internal.inject.Custom;
 
 import javax.inject.Singleton;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
@@ -70,10 +69,10 @@ public final class Base16BigIntegerConverterProvider
                 return new BigIntConverter<>(NotFoundException::new);
             }
             if (a instanceof QueryParam) {
-                return new BigIntConverter<>(BadRequestException::new);
+                return new BigIntConverter<>(MalformedIdException::new);
             }
             if (a instanceof FormParam) {
-                return new BigIntConverter<>(BadRequestException::new);
+                return new BigIntConverter<>(MalformedIdException::new);
             }
         }
 

@@ -18,14 +18,17 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2NotAuthorizedException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
 import org.apache.lucene.search.Query;
@@ -40,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Collections;
@@ -330,7 +334,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         params.put("q", "and");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new BadRequestException());
     }
 
     /**
@@ -361,8 +365,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         Integer expectedLimit = 10;
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertTrue(expectedTotal > 1);
 
@@ -402,8 +405,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         Integer expectedLimit = 10;
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertTrue(expectedTotal > 1);
 
@@ -443,8 +445,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         Integer expectedLimit = limit;
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertTrue(expectedTotal > 1);
 
@@ -488,12 +489,10 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         Response r = search(params, adminToken);
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else if (!getAdminScope().equals(tokenScope)
                 && !adminToken.getIdentity().getUser().equals(secondaryOwner)) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertTrue(expectedTotal > 0);
 
@@ -561,8 +560,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         if (tokenScope.equals(getAdminScope())) {
             assertErrorResponse(r, Status.BAD_REQUEST);
         } else {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         }
     }
 
@@ -576,7 +574,7 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         params.put("owner", "malformed");
 
         Response r = search(params, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r, new MalformedIdException());
     }
 
     /**
@@ -589,10 +587,8 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         Response r = search(params, getAdminToken());
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
-
             assertListResponse(r, 0, 0, 10, 0);
         }
     }
@@ -606,6 +602,6 @@ public abstract class AbstractServiceSearchTest<T extends AbstractAuthzEntity>
         params.put("q", "single");
 
         Response r = search(params, null);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 }

@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
@@ -56,6 +58,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
 import java.net.URI;
 
@@ -69,18 +72,18 @@ import java.net.URI;
 @ScopesAllowed({Scope.USER, Scope.USER_ADMIN})
 @Transactional
 @Api(tags = "User",
-        authorizations = {
-                @Authorization(value = "Kangaroo", scopes = {
-                        @AuthorizationScope(
-                                scope = Scope.USER,
-                                description = "Modify users in one"
-                                        + " application."),
-                        @AuthorizationScope(
-                                scope = Scope.USER_ADMIN,
-                                description = "Modify users in all"
-                                        + " applications.")
-                })
-        })
+     authorizations = {
+             @Authorization(value = "Kangaroo", scopes = {
+                     @AuthorizationScope(
+                             scope = Scope.USER,
+                             description = "Modify users in one"
+                                     + " application."),
+                     @AuthorizationScope(
+                             scope = Scope.USER_ADMIN,
+                             description = "Modify users in all"
+                                     + " applications.")
+             })
+     })
 public final class UserService extends AbstractService {
 
     /**
@@ -286,13 +289,13 @@ public final class UserService extends AbstractService {
 
         // Input value checks.
         if (user == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (user.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
         if (user.getApplication() == null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // Assert that we can create a scope in this application.
@@ -343,12 +346,12 @@ public final class UserService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentUser.equals(user)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentUser.getApplication().equals(user.getApplication())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("application");
         }
 
         // Transfer all the values we're allowed to edit.
@@ -379,7 +382,7 @@ public final class UserService extends AbstractService {
         // Let's hope they now what they're doing.
         s.delete(user);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**

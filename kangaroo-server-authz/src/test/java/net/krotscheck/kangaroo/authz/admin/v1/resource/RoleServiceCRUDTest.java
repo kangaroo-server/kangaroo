@@ -19,12 +19,14 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ApplicationScope;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.common.response.ListResponseEntity;
@@ -34,6 +36,7 @@ import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -262,7 +265,8 @@ public final class RoleServiceCRUDTest
         testEntity.setApplication(null);
 
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("application"));
     }
 
     /**
@@ -277,7 +281,12 @@ public final class RoleServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isAccessible(testEntity, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "bad_request",
+                    "Role name must be between 3 and 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -292,7 +301,12 @@ public final class RoleServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isAccessible(testEntity, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "bad_request",
+                    "Role name must be between 3 and 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -307,7 +321,12 @@ public final class RoleServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isAccessible(testEntity, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "bad_request",
+                    "A Role name is required");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -351,7 +370,8 @@ public final class RoleServiceCRUDTest
         // Issue the request.
         Response r = putEntity(testEntity, getAdminToken());
         if (isAccessible(entity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("application"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -629,7 +649,8 @@ public final class RoleServiceCRUDTest
 
         if (isAccessible(role, testContext.getToken())) {
             // Bad request because OMG really?
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("application"));
         } else {
             // Bad request because we can't tell you about it.
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -669,7 +690,7 @@ public final class RoleServiceCRUDTest
                 .post(null);
 
         if (isAccessible(testContext.getScope(), token)) {
-            assertErrorResponse(r, Status.BAD_REQUEST, "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -813,7 +834,7 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (isAccessible(newScope, token)) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
 
             getSession().refresh(editedRole);
@@ -985,7 +1006,7 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (isAccessible(scope, token)) {
-            assertErrorResponse(r, Status.BAD_REQUEST, "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -1040,7 +1061,7 @@ public final class RoleServiceCRUDTest
                 .delete();
 
         if (shouldSucceed) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
 
             getSession().refresh(editedRole);

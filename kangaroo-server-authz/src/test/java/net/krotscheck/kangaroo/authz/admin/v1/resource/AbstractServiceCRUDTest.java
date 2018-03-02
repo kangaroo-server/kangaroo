@@ -18,6 +18,9 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2NotAuthorizedException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
@@ -41,6 +44,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
@@ -319,7 +323,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = getEntity(testingEntity, token);
 
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -334,8 +338,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = getEntity(testingEntity, null);
-
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -383,6 +386,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
             Response getResponse = getEntity(r.getLocation(), adminAppToken);
             T response = getResponse.readEntity(typingClass);
             assertContentEquals(testEntity, response);
+        } else if (isSubresource()) {
+            assertErrorResponse(r, new NotFoundException());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -397,7 +402,11 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPostNoBody() throws Exception {
         // Issue the request.
         Response r = postEntity(null, adminAppToken);
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isSubresource() && !shouldSucceed()) {
+            assertErrorResponse(r, new NotFoundException());
+        } else {
+            assertErrorResponse(r, new EntityRequiredException());
+        }
     }
 
     /**
@@ -412,11 +421,16 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testEntity, adminAppToken);
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isSubresource() && !isAccessible(testEntity, getAdminToken())) {
+            assertErrorResponse(r, new NotFoundException());
+        } else {
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("id"));
+        }
     }
 
     /**
-     * Assert that some users may create entities for other parents.
+     * Assert that some users may create entities for in other applications.
      *
      * @throws Exception Exception encountered during test.
      */
@@ -435,6 +449,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
             T response = getResponse.readEntity(typingClass);
             assertNotNull(response.getId());
             assertContentEquals(testEntity, response);
+        } else if (isSubresource()) {
+            assertErrorResponse(r, new NotFoundException());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -449,7 +465,11 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPostNoEntity() throws Exception {
         // Issue the request.
         Response r = postEntity(null, adminAppToken);
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isSubresource() && !shouldSucceed()) {
+            assertErrorResponse(r, new NotFoundException());
+        } else {
+            assertErrorResponse(r, new EntityRequiredException());
+        }
     }
 
     /**
@@ -464,7 +484,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testEntity, getSecondaryContext().getToken());
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -489,7 +509,11 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = postEntity(testingEntity, adminAppToken);
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            if (isSubresource()) {
+                assertErrorResponse(r, new NotFoundException());
+            } else {
+                assertErrorResponse(r, Status.BAD_REQUEST);
+            }
         } else if (testingEntity instanceof Application
                 && adminAppToken.getIdentity() == null) {
             assertErrorResponse(r, Status.BAD_REQUEST);
@@ -505,6 +529,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
             assertNotNull(responseEntity.getCreatedDate());
             assertNotNull(responseEntity.getModifiedDate());
             assertContentEquals(testingEntity, responseEntity);
+        } else if (isSubresource()) {
+            assertErrorResponse(r, new NotFoundException());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -522,8 +548,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = postEntity(testingEntity, (OAuthToken) null);
-
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -551,7 +576,8 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
                 HttpUtil.authHeaderBearer(adminAppToken.getId()));
 
         if (this.isAccessible(testEntity, adminAppToken)) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("id"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -570,7 +596,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
 
         // Issue the request.
         Response r = putEntity(testingEntity, token);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -583,7 +609,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
     public final void testPutByUnknown() throws Exception {
         T testingEntity = getEntity(getSecondaryContext());
         Response r = putEntity(testingEntity, (OAuthToken) null);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -632,7 +658,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = deleteEntity(testingEntity, adminAppToken);
 
         if (isAccessible(testingEntity, adminAppToken)) {
-            assertEquals(Status.NO_CONTENT.getStatusCode(),
+            assertEquals(Status.RESET_CONTENT.getStatusCode(),
                     r.getStatus());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
@@ -652,7 +678,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         // Issue the request.
         Response r = deleteEntity(testingEntity,
                 getSecondaryContext().getToken());
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -672,7 +698,7 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         s.getTransaction().commit();
 
         Response r = deleteEntity(testingEntity, null);
-        assertErrorResponse(r, Status.UNAUTHORIZED);
+        assertErrorResponse(r, new OAuth2NotAuthorizedException(null, null));
     }
 
     /**
@@ -697,5 +723,14 @@ public abstract class AbstractServiceCRUDTest<T extends AbstractAuthzEntity>
         Response r = deleteEntity(IdUtil.toString(IdUtil.next()),
                 HttpUtil.authHeaderBearer(adminAppToken.getId()));
         assertErrorResponse(r, Status.NOT_FOUND);
+    }
+
+    /**
+     * Is this a subresource or not?
+     *
+     * @return
+     */
+    public boolean isSubresource() {
+        return this instanceof AbstractSubserviceCRUDTest;
     }
 }

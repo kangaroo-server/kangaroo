@@ -20,9 +20,16 @@ package net.krotscheck.kangaroo.common.hibernate.factory;
 
 import com.mchange.v2.c3p0.PoolBackedDataSource;
 import com.mchange.v2.c3p0.PooledDataSource;
+import net.krotscheck.kangaroo.common.hibernate.factory.PooledDataSourceFactory.Binder;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
+import org.glassfish.jersey.internal.inject.Binding;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -44,5 +51,20 @@ public final class PooledDataSourceFactoryTest extends DatabaseTest {
         PooledDataSource ds = factory.get();
         assertNotNull(ds);
         assertTrue(ds instanceof PoolBackedDataSource);
+    }
+
+    /**
+     * Assert that we can inject values using this binder.
+     */
+    @Test
+    public void testBinder() {
+        Binder b = new PooledDataSourceFactory.Binder();
+        List<Binding> bindings = new ArrayList<>(b.getBindings());
+
+        assertEquals(1, bindings.size());
+
+        Binding binding = bindings.get(0);
+        Set types = binding.getContracts();
+        assertTrue(types.contains(PooledDataSource.class));
     }
 }

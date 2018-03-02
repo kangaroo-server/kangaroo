@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -238,7 +240,8 @@ public final class ApplicationServiceCRUDTest
         // Issue the request.
         Response r = postEntity(newApp, getAdminToken());
 
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("id"));
     }
 
     /**
@@ -256,7 +259,13 @@ public final class ApplicationServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(newApp, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (this.isAccessible(newApp, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST,
+                    "bad_request",
+                    "Application name must be between 3 and 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -275,7 +284,13 @@ public final class ApplicationServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(newApp, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (this.isAccessible(newApp, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST,
+                    "bad_request",
+                    "Application description cannot exceed 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -295,7 +310,13 @@ public final class ApplicationServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(newApp, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (this.isAccessible(newApp, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST,
+                    "bad_request",
+                    "Application name must be between 3 and 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -317,7 +338,13 @@ public final class ApplicationServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(newApp, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (this.isAccessible(newApp, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST,
+                    "bad_request",
+                    "Application name must be between 3 and 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -614,7 +641,8 @@ public final class ApplicationServiceCRUDTest
         Response r = putEntity(newApp, getAdminToken());
 
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("owner"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

@@ -73,6 +73,7 @@ pipeline {
                                 -Dcheckstyle.skip=true \
                                 -Dpmd.skip=true \
                                 -Dcpdskip=true \
+                                -DskipTests.integration=true \
                                 -pl kangaroo-common \
                                 -Ph2 \
                                 -Dtarget-directory=target-h2
@@ -84,6 +85,7 @@ pipeline {
                                 -Dcheckstyle.skip=true \
                                 -Dpmd.skip=true \
                                 -Dcpdskip=true \
+                                -DskipTests.integration=true \
                                 -pl kangaroo-common \
                                 -Pmariadb \
                                 -Dtarget-directory=target-mariadb \
@@ -111,6 +113,7 @@ pipeline {
                                 -Dcheckstyle.skip=true \
                                 -Dpmd.skip=true \
                                 -Dcpdskip=true \
+                                -DskipTests.integration=true \
                                 -pl kangaroo-server-authz \
                                 -Ph2 \
                                 -Dtarget-directory=target-h2
@@ -122,12 +125,29 @@ pipeline {
                                 -Dcheckstyle.skip=true \
                                 -Dpmd.skip=true \
                                 -Dcpdskip=true \
+                                -DskipTests.integration=true \
                                 -pl kangaroo-server-authz \
                                 -Pmariadb \
                                 -Dtarget-directory=target-mariadb \
                                 -Dhibernate.connection.url=${jdbc_mariadb}
                         """
                         })
+            }
+        }
+
+        /**
+         * Integration tests.
+         */
+        stage('integration') {
+            steps {
+                sh """
+                    mvn integration-test verify \
+                        -Dcheckstyle.skip=true \
+                        -Dpmd.skip=true \
+                        -Dcpdskip=true \
+                        -DskipTests.unit=true \
+                        -Ph2
+                """
             }
         }
     }

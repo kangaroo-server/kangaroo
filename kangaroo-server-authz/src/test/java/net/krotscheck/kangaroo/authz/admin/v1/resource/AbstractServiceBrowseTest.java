@@ -18,15 +18,18 @@
 
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.exception.OAuth2NotAuthorizedException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
 import net.krotscheck.kangaroo.authz.common.database.entity.UserIdentity;
+import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.InvalidScopeException;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
+import net.krotscheck.kangaroo.common.hibernate.id.MalformedIdException;
 import net.krotscheck.kangaroo.common.response.ApiParam;
 import net.krotscheck.kangaroo.test.jersey.SingletonTestContainerFactory;
 import net.krotscheck.kangaroo.test.runner.ParameterizedSingleInstanceTestRunner.ParameterizedSingleInstanceTestRunnerFactory;
@@ -42,6 +45,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.nio.charset.MalformedInputException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -266,8 +270,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertListResponse(r,
                     Math.min(expectedResults, 10),
@@ -291,8 +294,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             List<T> results = this.assertListResponse(r,
                     Math.min(expectedResults, limit),
@@ -316,8 +318,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertListResponse(r,
                     Math.min(expectedResults - offset, 10),
@@ -340,8 +341,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             List<? extends AbstractEntity> results = assertListResponse(r,
                     Math.min(expectedResults, 10),
@@ -368,8 +368,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             List<? extends AbstractEntity> results = assertListResponse(r,
                     Math.min(expectedResults, 10),
@@ -397,8 +396,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
 
         if (clientType.equals(ClientType.ClientCredentials)
                 && tokenScope.equals(getRegularScope())) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             List<? extends AbstractEntity> results = assertListResponse(r,
                     Math.min(expectedResults, 10),
@@ -425,8 +423,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .size();
 
         if (isLimitedByClientCredentials()) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             List<? extends AbstractEntity> results = assertListResponse(r,
                     Math.min(expectedResults, 10),
@@ -460,8 +457,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
 
         if (isLimitedByClientCredentials()
                 || !isAccessible(owner, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST.getStatusCode(),
-                    "invalid_scope");
+            assertErrorResponse(r, new InvalidScopeException());
         } else {
             assertTrue(expectedResults > 0);
 
@@ -485,7 +481,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                         HttpUtil.authHeaderBearer(adminAppToken.getId()))
                 .get();
 
-        assertErrorResponse(response, Status.BAD_REQUEST);
+        assertErrorResponse(response, new MalformedIdException());
     }
 
     /**
@@ -526,6 +522,7 @@ public abstract class AbstractServiceBrowseTest<T extends AbstractAuthzEntity>
                 .request()
                 .get();
 
-        assertErrorResponse(response, Status.UNAUTHORIZED);
+        assertErrorResponse(response,
+                new OAuth2NotAuthorizedException(null, null));
     }
 }

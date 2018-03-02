@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -54,6 +55,10 @@ public final class ConfigTest {
      */
     @Test
     public void testConfigurationValues() {
+        String currentWorkingPath = Paths
+                .get(System.getProperty("user.home"), ".kangaroo")
+                .toAbsolutePath().normalize().toString();
+
         assertEquals("kangaroo.host", Config.HOST.getKey());
         assertEquals("127.0.0.1", Config.HOST.getValue());
 
@@ -62,7 +67,7 @@ public final class ConfigTest {
 
         assertEquals("kangaroo.working_dir",
                 Config.WORKING_DIR.getKey());
-        assertEquals("/var/lib/kangaroo",
+        assertEquals(currentWorkingPath,
                 Config.WORKING_DIR.getValue());
 
         assertEquals("kangaroo.keystore_path",

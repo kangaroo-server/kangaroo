@@ -19,6 +19,7 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -30,6 +31,9 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -230,7 +234,9 @@ public final class ClientServiceCRUDTest
         testEntity.setApplication(null);
 
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException(
+                        "application"));
     }
 
     /**
@@ -245,7 +251,12 @@ public final class ClientServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isAccessible(testEntity, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "bad_request",
+                    "Client name must be between 3 and 255 characters.");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -260,7 +271,12 @@ public final class ClientServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        if (isAccessible(testEntity, getAdminToken())) {
+            assertErrorResponse(r, Status.BAD_REQUEST, "bad_request",
+                    "may not be null");
+        } else {
+            assertErrorResponse(r, new BadRequestException());
+        }
     }
 
     /**
@@ -305,9 +321,10 @@ public final class ClientServiceCRUDTest
         Response r = putEntity(newClient, getAdminToken());
 
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.CONFLICT);
+            assertErrorResponse(r,
+                    new WebApplicationException(Status.CONFLICT));
         } else {
-            assertErrorResponse(r, Status.NOT_FOUND);
+            assertErrorResponse(r, new NotFoundException());
         }
     }
 
@@ -353,7 +370,8 @@ public final class ClientServiceCRUDTest
         // Issue the request.
         Response r = putEntity(client, getAdminToken());
         if (isAccessible(entity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("application"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

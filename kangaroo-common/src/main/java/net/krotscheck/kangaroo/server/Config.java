@@ -18,6 +18,7 @@
 
 package net.krotscheck.kangaroo.server;
 
+import java.nio.file.Paths;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 
@@ -47,8 +48,10 @@ public final class Config {
      * The filesystem path used for the server's working directory. Used
      * throughout the application.
      */
-    public static final Entry<String, String> WORKING_DIR = new
-            SimpleImmutableEntry<>("kangaroo.working_dir", "/var/lib/kangaroo");
+    public static final Entry<String, String> WORKING_DIR =
+            new SimpleImmutableEntry<>("kangaroo.working_dir", Paths
+                    .get(System.getProperty("user.home"), ".kangaroo")
+                    .toAbsolutePath().normalize().toString());
 
     /**
      * Configuration property for an externally provided keystore.

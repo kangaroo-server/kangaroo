@@ -19,7 +19,9 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import net.krotscheck.kangaroo.authz.admin.Scope;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
+import net.krotscheck.kangaroo.authz.common.authenticator.exception.MisconfiguredAuthenticatorException;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.Authenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
@@ -231,7 +233,7 @@ public final class AuthenticatorServiceCRUDTest
 
         Response r = postEntity(testEntity, getAdminToken());
         if (shouldSucceed()) {
-            assertErrorResponse(r, Status.BAD_REQUEST, "misconfigured");
+            assertErrorResponse(r, new MisconfiguredAuthenticatorException());
         } else {
             assertErrorResponse(r, Status.BAD_REQUEST);
         }
@@ -249,7 +251,8 @@ public final class AuthenticatorServiceCRUDTest
         testEntity.setClient(null);
 
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("client"));
     }
 
     /**
@@ -266,7 +269,8 @@ public final class AuthenticatorServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("client"));
     }
 
     /**
@@ -281,7 +285,8 @@ public final class AuthenticatorServiceCRUDTest
 
         // Issue the request.
         Response r = postEntity(testEntity, getAdminToken());
-        assertErrorResponse(r, Status.BAD_REQUEST);
+        assertErrorResponse(r,
+                new InvalidEntityPropertyException("type"));
     }
 
     /**
@@ -340,7 +345,7 @@ public final class AuthenticatorServiceCRUDTest
         Response r = putEntity(a, getAdminToken());
 
         if (isAccessible(a, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST, "misconfigured");
+            assertErrorResponse(r, new MisconfiguredAuthenticatorException());
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -371,7 +376,8 @@ public final class AuthenticatorServiceCRUDTest
         // Issue the request.
         Response r = putEntity(authenticator, getAdminToken());
         if (isAccessible(entity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("client"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }
@@ -390,7 +396,8 @@ public final class AuthenticatorServiceCRUDTest
         // Issue the request.
         Response r = putEntity(entity, getAdminToken());
         if (isAccessible(entity, getAdminToken())) {
-            assertErrorResponse(r, Status.BAD_REQUEST);
+            assertErrorResponse(r,
+                    new InvalidEntityPropertyException("type"));
         } else {
             assertErrorResponse(r, Status.NOT_FOUND);
         }

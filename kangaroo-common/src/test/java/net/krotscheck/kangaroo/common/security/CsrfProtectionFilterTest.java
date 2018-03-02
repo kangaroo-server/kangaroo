@@ -66,7 +66,7 @@ public final class CsrfProtectionFilterTest {
     /**
      * Assert that the filter will fail the request if no header is included.
      */
-    @Test(expected = BadRequestException.class)
+    @Test(expected = NoCSRFHeaderException.class)
     public void assertFailsWithoutHeader() {
         CsrfProtectionFilter filter = new CsrfProtectionFilter();
         doReturn("POST").when(mockContext).getMethod();

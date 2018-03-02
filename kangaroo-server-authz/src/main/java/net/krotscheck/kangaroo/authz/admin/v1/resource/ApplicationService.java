@@ -24,6 +24,8 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.auth.ScopesAllowed;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.EntityRequiredException;
+import net.krotscheck.kangaroo.authz.admin.v1.exception.InvalidEntityPropertyException;
 import net.krotscheck.kangaroo.authz.common.database.entity.Application;
 import net.krotscheck.kangaroo.authz.common.database.entity.Role;
 import net.krotscheck.kangaroo.authz.common.database.entity.User;
@@ -57,6 +59,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.Objects;
@@ -71,16 +74,16 @@ import java.util.Objects;
 @ScopesAllowed({Scope.APPLICATION, Scope.APPLICATION_ADMIN})
 @Transactional
 @Api(tags = "Application",
-        authorizations = {
-                @Authorization(value = "Kangaroo", scopes = {
-                        @AuthorizationScope(
-                                scope = Scope.APPLICATION,
-                                description = "Modify one application."),
-                        @AuthorizationScope(
-                                scope = Scope.APPLICATION_ADMIN,
-                                description = "Modify all applications.")
-                })
-        })
+     authorizations = {
+             @Authorization(value = "Kangaroo", scopes = {
+                     @AuthorizationScope(
+                             scope = Scope.APPLICATION,
+                             description = "Modify one application."),
+                     @AuthorizationScope(
+                             scope = Scope.APPLICATION_ADMIN,
+                             description = "Modify all applications.")
+             })
+     })
 public final class ApplicationService extends AbstractService {
 
     /**
@@ -220,10 +223,10 @@ public final class ApplicationService extends AbstractService {
     public Response createResource(final Application application) {
         // Validate that the ID is empty.
         if (application == null) {
-            throw new BadRequestException();
+            throw new EntityRequiredException();
         }
         if (application.getId() != null) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Only admins can change the owner.
@@ -280,12 +283,12 @@ public final class ApplicationService extends AbstractService {
 
         // Make sure the body ID's match
         if (!currentApp.equals(application)) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("id");
         }
 
         // Make sure we're not trying to change data we're not allowed.
         if (!currentApp.getOwner().equals(application.getOwner())) {
-            throw new BadRequestException();
+            throw new InvalidEntityPropertyException("owner");
         }
 
         // Did the role change?
@@ -339,7 +342,7 @@ public final class ApplicationService extends AbstractService {
         // Let's hope they now what they're doing.
         s.delete(a);
 
-        return Response.noContent().build();
+        return Response.status(Status.RESET_CONTENT).build();
     }
 
     /**
