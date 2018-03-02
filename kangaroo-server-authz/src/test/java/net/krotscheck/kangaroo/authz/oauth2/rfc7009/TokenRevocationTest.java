@@ -618,7 +618,7 @@ public class TokenRevocationTest extends ContainerTest {
     }
 
     /**
-     * Assert that client credentials can revoke an authorization code issued
+     * Assert that authorization code can revoke an authorization code issued
      * to a different client in the same application.
      */
     @Test
@@ -641,6 +641,77 @@ public class TokenRevocationTest extends ContainerTest {
                 .post(buildEntity(values));
 
         assertValidRevocation(r, revokedToken);
+    }
+
+
+    /**
+     * Assert that authorization code can revoke a bearer token issued to the
+     * same client.
+     */
+    @Test
+    public void testRevokeBearerBySamePrivateClient() {
+        ApplicationContext testContext = context.getBuilder()
+                .client(ClientType.AuthorizationGrant, true)
+                .bearerToken("debug")
+                .build();
+        Client c = testContext.getClient();
+        String header = authHeaderBasic(c.getId(), c.getClientSecret());
+
+        OAuthToken revokedToken = testContext.getToken();
+
+        Map<String, String> values = new HashMap<>();
+        values.put("token", IdUtil.toString(revokedToken.getId()));
+
+        Response r = target("/revoke")
+                .request()
+                .header(AUTHORIZATION, header)
+                .post(buildEntity(values));
+
+        assertValidRevocation(r, revokedToken);
+    }
+
+    /**
+     * Assert that authorization code cannot revoke a malformed token.
+     */
+    @Test
+    public void testRevokeMalformedByPrivateClient() {
+        ApplicationContext testContext = context.getBuilder()
+                .client(ClientType.AuthorizationGrant, true)
+                .build();
+        Client c = testContext.getClient();
+        String header = authHeaderBasic(c.getId(), c.getClientSecret());
+
+        Map<String, String> values = new HashMap<>();
+        values.put("token", "malformed_token");
+
+        Response r = target("/revoke")
+                .request()
+                .header(AUTHORIZATION, header)
+                .post(buildEntity(values));
+
+        assertErrorResponse(r, new MalformedIdException());
+    }
+
+    /**
+     * Assert that authorization code cannot revoke a nonexistent token.
+     */
+    @Test
+    public void testRevokeInvalidByPrivateClient() {
+        ApplicationContext testContext = context.getBuilder()
+                .client(ClientType.AuthorizationGrant, true)
+                .build();
+        Client c = testContext.getClient();
+        String header = authHeaderBasic(c.getId(), c.getClientSecret());
+
+        Map<String, String> values = new HashMap<>();
+        values.put("token", IdUtil.toString(IdUtil.next()));
+
+        Response r = target("/revoke")
+                .request()
+                .header(AUTHORIZATION, header)
+                .post(buildEntity(values));
+
+        assertErrorResponse(r, new NotFoundException());
     }
 
     /**
