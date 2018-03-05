@@ -300,7 +300,7 @@ public final class ServerFactory {
         serverConfiguration.setDefaultErrorPageGenerator(
                 new KangarooErrorPageGenerator()
         );
-        serverLambdas.forEach(s -> s.operation(server));
+        serverLambdas.forEach(s -> s.operation(server, config));
 
         return server;
     }
@@ -417,8 +417,9 @@ public final class ServerFactory {
         /**
          * Operation handler.
          *
+         * @param server The server.
          * @param config The server configuration.
          */
-        void operation(HttpServer config);
+        void operation(HttpServer server, Configuration config);
     }
 }
