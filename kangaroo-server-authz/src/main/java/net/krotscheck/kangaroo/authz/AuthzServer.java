@@ -20,11 +20,9 @@ package net.krotscheck.kangaroo.authz;
 
 import net.krotscheck.kangaroo.authz.admin.AdminV1API;
 import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
-import net.krotscheck.kangaroo.server.ConfigurationBuilder;
 import net.krotscheck.kangaroo.server.ServerFactory;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.configuration.Configuration;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -86,26 +84,20 @@ public final class AuthzServer {
      */
     public static void main(final String[] args)
             throws IOException, InterruptedException {
-
-        Configuration config = new ConfigurationBuilder()
-                .withCommandlineOptions(CLI_OPTIONS)
-                .addCommandlineArgs(args)
-                .addPropertiesFile("kangaroo.authz.properties")
-                .build();
-
-        Integer sessionMaxAge = config.getInt(
-                AuthzServerConfig.SESSION_MAX_AGE.getKey(),
-                AuthzServerConfig.SESSION_MAX_AGE.getValue());
-
         HttpServer server = new ServerFactory()
                 .withCommandlineOptions(CLI_OPTIONS)
                 .withCommandlineArgs(args)
                 .withPropertiesFile("kangaroo.authz.properties")
                 .withResource("/v1", new AdminV1API())
                 .withResource("/oauth2", new OAuthAPI())
-                .configureServer((s) -> {
-                    ServerConfiguration c = s.getServerConfiguration();
-                    c.setSessionTimeoutSeconds(sessionMaxAge);
+                .configureServer((s, c) -> {
+                    Integer sessionMaxAge = c.getInt(
+                            AuthzServerConfig.SESSION_MAX_AGE.getKey(),
+                            AuthzServerConfig.SESSION_MAX_AGE.getValue());
+
+                    ServerConfiguration serverConf =
+                            s.getServerConfiguration();
+                    serverConf.setSessionTimeoutSeconds(sessionMaxAge);
                 })
                 .build();
 

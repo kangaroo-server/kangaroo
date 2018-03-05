@@ -303,7 +303,7 @@ public final class ServerFactoryTest {
     @Test
     public void testConfigureServer() throws Exception {
         ServerFactory f = new ServerFactory()
-                .configureServer(s -> {
+                .configureServer((s, c) -> {
                     s.getServerConfiguration().setSessionTimeoutSeconds(1000);
                 });
 
