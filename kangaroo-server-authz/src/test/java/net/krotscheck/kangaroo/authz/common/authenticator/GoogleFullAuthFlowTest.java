@@ -33,6 +33,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -189,6 +191,22 @@ public final class GoogleFullAuthFlowTest
     public void testNewLogin() {
         String testState = RandomStringUtils.randomAlphanumeric(20);
 
+        // Which account do you want to log in as page.
+        String accountChooserUrl =
+                "https://accounts.google.com/signin/oauth/oauthchooseaccount";
+        ExpectedCondition<Boolean> accountChooser =
+                urlContains(accountChooserUrl);
+
+        // Google "do you want to grant access?" button.
+        By approveAccessButton = By.id("submit_approve_access");
+        ExpectedCondition<WebElement> approveOAuthApp =
+                elementToBeClickable(approveAccessButton);
+
+        // Success url.
+        String exampleUrl = "www.example.com";
+        ExpectedCondition<Boolean> successPage =
+                urlContains("www.example.com");
+
         // Issue a request against our /authorize endpoint.
         URI requestUri = UriBuilder.fromUri(getBaseUri())
                 .path("/authorize")
@@ -203,27 +221,30 @@ public final class GoogleFullAuthFlowTest
         WebDriver d = SELENIUM.getDriver();
         d.get(requestUri.toString());
         SELENIUM.screenshot();
+
+        // One of three things will happen.
         (new WebDriverWait(d, TIMEOUT))
-                .until(or(
-                        urlContains("https://accounts.google.com/"
-                                + "signin/oauth/oauthchooseaccount"),
-                        elementToBeClickable(By.id("submit_approve_access"))
-                ));
+                .until(or(accountChooser, approveOAuthApp, successPage));
         SELENIUM.screenshot();
 
-        // Test for the account chooser.
-        if (d.getCurrentUrl().contains("https://accounts.google"
-                + ".com/signin/oauth/oauthchooseaccount")) {
+        // First, did we hit the account chooser?
+        if (d.getCurrentUrl().contains(accountChooserUrl)) {
             d.findElement(By.cssSelector("[data-profileindex=\"0\"]"))
                     .click();
             SELENIUM.screenshot();
-        } else {
-            d.findElement(By.id("submit_approve_access")).click();
+        }
+
+        // Wait for our other cases to resolve
+        (new WebDriverWait(d, TIMEOUT)).until(or(approveOAuthApp, successPage));
+
+        // Did we hit the approve app page?
+        if (d.findElements(approveAccessButton).size() > 0) {
+            d.findElement(approveAccessButton).click();
             SELENIUM.screenshot();
         }
 
-        (new WebDriverWait(d, TIMEOUT))
-                .until(urlContains("www.example.com"));
+        // Now we're expecting the success page.
+        (new WebDriverWait(d, TIMEOUT)).until(successPage);
         SELENIUM.screenshot();
 
         String url = d.getCurrentUrl();

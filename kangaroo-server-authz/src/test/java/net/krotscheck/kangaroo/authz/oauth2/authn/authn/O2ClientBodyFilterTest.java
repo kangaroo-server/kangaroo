@@ -36,12 +36,12 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.HashMap;
 import java.util.Map;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -59,6 +59,12 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
     @ClassRule
     public static final TestDataResource TEST_DATA_RESOURCE =
             new TestDataResource(HIBERNATE_RESOURCE);
+
+    /**
+     * A encoded media type with additional parameters.
+     */
+    private static final MediaType MT =
+            MediaType.APPLICATION_FORM_URLENCODED_TYPE.withCharset("UTF-8");
 
     /**
      * Setup an application.
@@ -92,8 +98,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
     @Test
     public void testNoBody() {
         Form requestData = new Form();
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -110,8 +115,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         Form requestData = new Form();
         requestData.param("hello", "world");
         requestData.param("hello", "kitty");
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -148,8 +152,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
     public void testMalformedClientId() {
         Form requestData = new Form();
         requestData.param("client_id", "malformed client id");
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -166,8 +169,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         Form requestData = new Form();
         requestData.param("client_id",
                 IdUtil.toString(IdUtil.next()));
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -191,8 +193,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         Form requestData = new Form();
         requestData.param("client_id", IdUtil.toString(c.getId()));
         requestData.param("client_secret", "bad_secret");
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -217,8 +218,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         requestData.param("client_id", IdUtil.toString(c1.getId()));
         requestData.param("client_id", IdUtil.toString(c2.getId()));
         requestData.param("client_secret", c1.getClientSecret());
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -242,8 +242,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         requestData.param("client_id", IdUtil.toString(c.getId()));
         requestData.param("client_secret", c.getClientSecret());
         requestData.param("client_secret", c.getClientSecret());
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -266,8 +265,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
 
         Form requestData = new Form();
         requestData.param("client_id", IdUtil.toString(c.getId()));
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -290,8 +288,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
 
         Form requestData = new Form();
         requestData.param("client_id", IdUtil.toString(c.getId()));
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client/private")
                 .request()
@@ -314,8 +311,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         Form requestData = new Form();
         requestData.param("client_id", IdUtil.toString(c.getId()));
         requestData.param("client_secret", c.getClientSecret());
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
@@ -339,8 +335,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         Form requestData = new Form();
         requestData.param("client_id", IdUtil.toString(c.getId()));
         requestData.param("client_secret", c.getClientSecret());
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client/public")
                 .request()
@@ -363,8 +358,7 @@ public final class O2ClientBodyFilterTest extends ContainerTest {
         Form requestData = new Form();
         requestData.param("client_id", IdUtil.toString(c.getId()));
         requestData.param("client_secret", c.getClientSecret());
-        Entity<Form> testEntity = Entity.entity(requestData,
-                APPLICATION_FORM_URLENCODED_TYPE);
+        Entity<Form> testEntity = Entity.entity(requestData, MT);
 
         Response r = target("/client")
                 .request()
