@@ -105,7 +105,7 @@ public final class O2ClientBodyFilter
 
         // Only form data is permitted.
         MediaType type = Optional.ofNullable(context.getMediaType())
-                .filter(m -> m.equals(APPLICATION_FORM_URLENCODED_TYPE))
+                .filter(m -> m.isCompatible(APPLICATION_FORM_URLENCODED_TYPE))
                 .orElse(null);
         if (type == null) {
             return;
