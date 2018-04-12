@@ -1,6 +1,7 @@
 /**
  * Java build pipeline for the kangaroo-server project.
  */
+@Library('kangaroo-jenkins') _
 
 def gitCommit = ''
 def jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes"
