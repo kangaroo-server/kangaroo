@@ -36,6 +36,7 @@ pipeline {
                                     -Dcheckstyle.skip=true \
                                     -Dpmd.skip=true \
                                     -Dcpdskip=true
+                                mvn dependency:go-offline
                             '''
                         },
                         "stat": {
