@@ -59,6 +59,11 @@ public final class GoogleFullAuthFlowTest
         extends AbstractBrowserLoginTest {
 
     /**
+     * The selenium screenshot prefix.
+     */
+    private static final String S_PREFIX = "google";
+
+    /**
      * Login page V1 flow.
      */
     private void googleLoginV1() {
@@ -73,7 +78,7 @@ public final class GoogleFullAuthFlowTest
         d.findElement(emailInput).clear();
         d.findElement(emailInput).sendKeys(TestConfig.getGoogleAccountId());
         d.findElement(nextButton).click();
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, TIMEOUT)
                 .until(elementToBeClickable(passInput));
 
@@ -90,7 +95,7 @@ public final class GoogleFullAuthFlowTest
      */
     private void googleLoginV2() {
         WebDriver d = SELENIUM.getDriver();
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
 
         By emailInput = By.id("Email");
         By nextButton = By.id("next");
@@ -117,7 +122,7 @@ public final class GoogleFullAuthFlowTest
         WebDriver d = SELENIUM.getDriver();
 
         // Test for different conditions here.
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, TIMEOUT)
                 .until(or(
                         urlContains("https://myaccount.google.com"),
@@ -130,7 +135,7 @@ public final class GoogleFullAuthFlowTest
         // Test for the sign-in challenge
         if (d.getCurrentUrl().contains("https://accounts.google.com/"
                 + "signin/v2/challenge/selection")) {
-            SELENIUM.screenshot();
+            SELENIUM.screenshot(S_PREFIX);
             d.findElement(By.cssSelector("[data-challengetype=16]")).click();
 
             new WebDriverWait(d, TIMEOUT)
@@ -157,7 +162,7 @@ public final class GoogleFullAuthFlowTest
 
         // Hit the login page, then wait to see which page we've been given.
         d.get("https://accounts.google.com/ServiceLogin");
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, 10)
                 .until(or(
                         elementToBeClickable(By.id("identifierId")),
@@ -178,10 +183,10 @@ public final class GoogleFullAuthFlowTest
     public void googleLogout() {
         WebDriver d = SELENIUM.getDriver();
         d.get("https://accounts.google.com/Logout");
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, TIMEOUT)
                 .until(urlContains("https://accounts.google.com/"));
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
     }
 
     /**
@@ -220,18 +225,18 @@ public final class GoogleFullAuthFlowTest
 
         WebDriver d = SELENIUM.getDriver();
         d.get(requestUri.toString());
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
 
         // One of three things will happen.
         (new WebDriverWait(d, TIMEOUT))
                 .until(or(accountChooser, approveOAuthApp, successPage));
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
 
         // First, did we hit the account chooser?
         if (d.getCurrentUrl().contains(accountChooserUrl)) {
             d.findElement(By.cssSelector("[data-profileindex=\"0\"]"))
                     .click();
-            SELENIUM.screenshot();
+            SELENIUM.screenshot(S_PREFIX);
         }
 
         // Wait for our other cases to resolve
@@ -240,12 +245,12 @@ public final class GoogleFullAuthFlowTest
         // Did we hit the approve app page?
         if (d.findElements(approveAccessButton).size() > 0) {
             d.findElement(approveAccessButton).click();
-            SELENIUM.screenshot();
+            SELENIUM.screenshot(S_PREFIX);
         }
 
         // Now we're expecting the success page.
         (new WebDriverWait(d, TIMEOUT)).until(successPage);
-        SELENIUM.screenshot();
+        SELENIUM.screenshot(S_PREFIX);
 
         String url = d.getCurrentUrl();
         URI uri = URI.create(url);

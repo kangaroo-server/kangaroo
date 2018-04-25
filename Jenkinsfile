@@ -18,6 +18,8 @@ pipeline {
 
     environment {
         KANGAROO_FB_APP = credentials('jenkins_facebook_app')
+        KANGAROO_GITHUB_APP = credentials('jenkins_github_app')
+        KANGAROO_GITHUB_ACCOUNT = credentials('jenkins_github_account')
         KANGAROO_GOOGLE_APP = credentials('jenkins_google_app')
         KANGAROO_GOOGLE_ACCOUNT = credentials('jenkins_google_account')
     }
@@ -143,7 +145,7 @@ pipeline {
         stage('integration') {
             steps {
                 sh """
-                    mvn integration-test verify \
+                    mvn clean integration-test verify \
                         -Dcheckstyle.skip=true \
                         -Dpmd.skip=true \
                         -Dcpdskip=true \
