@@ -40,6 +40,7 @@ public final class AuthenticatorTypeTest {
             if (type.in(AuthenticatorType.Password,
                     AuthenticatorType.Test,
                     AuthenticatorType.Google,
+                    AuthenticatorType.Github,
                     AuthenticatorType.Facebook)) {
                 assertTrue(type.isPrivate());
             } else {

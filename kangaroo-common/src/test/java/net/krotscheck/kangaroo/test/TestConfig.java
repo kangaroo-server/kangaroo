@@ -43,7 +43,7 @@ public final class TestConfig {
     /**
      * Get the database type under test.
      *
-     * @return The path.
+     * @return The path.w
      */
     public static TestDB getDatabase() {
         return TestDB.fromDialect(getDbDialect());
@@ -169,6 +169,42 @@ public final class TestConfig {
      */
     public static String getFacebookAppSecret() {
         return System.getenv("KANGAROO_FB_APP_PSW");
+    }
+
+    /**
+     * Evaluate the github test app id. Must be set.
+     *
+     * @return The github app id.
+     */
+    public static String getGithubAppId() {
+        return System.getenv("KANGAROO_GITHUB_APP_USR");
+    }
+
+    /**
+     * Evaluate the github test app secret. Must be set.
+     *
+     * @return The github app secret.
+     */
+    public static String getGithubAppSecret() {
+        return System.getenv("KANGAROO_GITHUB_APP_PSW");
+    }
+
+    /**
+     * Evaluate the github test user login. Must be set.
+     *
+     * @return The github test user login.
+     */
+    public static String getGithubAccountId() {
+        return System.getenv("KANGAROO_GITHUB_ACCOUNT_USR").trim();
+    }
+
+    /**
+     * Evaluate the github test user password. Must be set.
+     *
+     * @return The github test user password.
+     */
+    public static String getGithubAccountSecret() {
+        return System.getenv("KANGAROO_GITHUB_ACCOUNT_PSW").trim();
     }
 
     /**

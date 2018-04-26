@@ -359,6 +359,7 @@ public abstract class AbstractOAuth2Authenticator implements IAuthenticator {
         // Issue the request
         Response r = client.target(getTokenEndpoint())
                 .request()
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .post(postEntity);
         try {

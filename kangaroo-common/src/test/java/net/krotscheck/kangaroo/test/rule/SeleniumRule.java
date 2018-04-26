@@ -27,6 +27,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This JUnit4 rule catpures and harnesses a chrome browser for direct testing.
@@ -39,6 +41,11 @@ public final class SeleniumRule implements TestRule {
      * The web driver for this rule.
      */
     private ChromeDriver driver;
+
+    /**
+     * A running count of the # of screenshots we took in each namespcae.
+     */
+    private Map<String, Integer> scCount = new HashMap<>();
 
     /**
      * Create a new selenium chrome rule.
@@ -57,14 +64,22 @@ public final class SeleniumRule implements TestRule {
 
     /**
      * Test helper, permits ad-hoc creation of screenshots.
+     *
+     * @param prefix The screenshot prefix name, to permit easy sequencing.
      */
-    public void screenshot() {
+    public void screenshot(final String prefix) {
+        Integer idx = scCount.getOrDefault(prefix, 0);
         File scrFile = driver.getScreenshotAs(OutputType.FILE);
+        String newFileName = String.format("%s-%s-%s",
+                prefix, idx, scrFile.getName());
 
         try {
             FileUtils.copyFile(scrFile,
-                    new File("target/screenshots/" + scrFile.getName()));
+                    new File("target/screenshots/" + newFileName));
         } catch (Exception e) {
+            // Silence exceptions, this is a testing utility.
+        } finally {
+            scCount.put(prefix, idx + 1);
         }
     }
 

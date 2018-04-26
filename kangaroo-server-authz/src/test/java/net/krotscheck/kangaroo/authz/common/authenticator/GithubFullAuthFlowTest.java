@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Michael Krotscheck
+ * Copyright (c) 2018 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -22,13 +22,11 @@ import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.IntegrationTest;
-import net.krotscheck.kangaroo.test.rule.FacebookTestUser;
 import net.krotscheck.kangaroo.test.runner.SingleInstanceTestRunner;
 import net.krotscheck.kangaroo.util.HttpUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -42,94 +40,92 @@ import javax.ws.rs.core.UriBuilder;
 import java.math.BigInteger;
 import java.net.URI;
 
+import static net.krotscheck.kangaroo.test.TestConfig.getGithubAccountId;
+import static net.krotscheck.kangaroo.test.TestConfig.getGithubAccountSecret;
 import static org.junit.Assert.assertEquals;
 import static org.openqa.selenium.support.ui.ExpectedConditions.and;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 
 /**
- * This test performs a series of full login flows against facebook.
+ * This test performs a series of full login flows against github.
  *
  * @author Michael Krotscheck
  */
 @Category(IntegrationTest.class)
 @RunWith(SingleInstanceTestRunner.class)
-public final class FacebookFullAuthFlowTest
+public final class GithubFullAuthFlowTest
         extends AbstractBrowserLoginTest {
 
     /**
      * The selenium screenshot prefix.
      */
-    private static final String S_PREFIX = "facebook";
+    private static final String S_PREFIX = "github";
 
     /**
-     * A facebook test user.
-     */
-    @ClassRule
-    public static final FacebookTestUser FB_USER = new FacebookTestUser();
-
-    /**
-     * Reset the facebook account before every test.
+     * Reset the github account before every test.
      */
     @Before
-    public void facebookLogin() {
+    public void githubLogin() {
         WebDriver d = SELENIUM.getDriver();
 
-        // Login to facebook.
-        d.get("https://www.facebook.com/");
+        // Login to github.
+        d.get("https://github.com/login");
         new WebDriverWait(d, TIMEOUT)
                 .until(and(
-                        elementToBeClickable(By.id("loginbutton")),
-                        elementToBeClickable(By.id("email")),
-                        elementToBeClickable(By.id("pass"))
+                        elementToBeClickable(By.id("login_field")),
+                        elementToBeClickable(By.id("password"))
                 ));
+        SELENIUM.screenshot(S_PREFIX);
 
-        d.findElement(By.id("email")).clear();
-        d.findElement(By.id("email")).sendKeys(FB_USER.getEmail());
-        d.findElement(By.id("pass")).clear();
-        d.findElement(By.id("pass")).sendKeys(FB_USER.getPassword());
-        d.findElement(By.id("loginbutton")).click();
+        d.findElement(By.id("login_field")).clear();
+        d.findElement(By.id("login_field"))
+                .sendKeys(getGithubAccountId());
+        d.findElement(By.id("password")).clear();
+        d.findElement(By.id("password"))
+                .sendKeys(getGithubAccountSecret());
+        d.findElement(By.cssSelector("div#login input[type='submit']"))
+                .click();
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, TIMEOUT)
-                .until(presenceOfElementLocated(By.id("pagelet_welcome")));
+                .until(presenceOfElementLocated(By.id("user-links")));
+        SELENIUM.screenshot(S_PREFIX);
     }
 
     /**
-     * Reset the facebook account before every test.
+     * Reset the github account before every test.
      */
     @After
-    public void facebookLogout() {
+    public void githubLogout() {
         WebDriver d = SELENIUM.getDriver();
+        // Capture the last state before an error.
+        SELENIUM.screenshot(S_PREFIX);
 
-        d.get("https://www.facebook.com/");
+        d.get("https://github.com/logout");
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, TIMEOUT)
                 .until(presenceOfElementLocated(
-                        By.cssSelector("a#pageLoginAnchor")))
+                        By.cssSelector("form input[type='submit']")))
                 .click();
+        SELENIUM.screenshot(S_PREFIX);
         new WebDriverWait(d, TIMEOUT)
                 .until(presenceOfElementLocated(
-                        By.partialLinkText("Log Out")))
-                .click();
-        new WebDriverWait(d, TIMEOUT)
-                .until(presenceOfElementLocated(
-                        By.id("loginbutton")))
-                .click();
+                        By.id("user[login]")));
     }
 
     /**
-     * 1. Someone new to your app logs in with Facebook
-     * - Go to your app and tap on the Log in with Facebook button
-     * - Tap OK to accept the read permissions
-     * - Click OK again to accept write permissions if applicable
-     * - Go to app settings and verify that the granted permissions are there
+     * A simple, round-trip login via github. This presumes that your
+     * user has already logged in and approved the application.
      */
     @Test
     public void testNewLogin() {
         String testState = RandomStringUtils.randomAlphanumeric(20);
+        SELENIUM.screenshot(S_PREFIX);
 
         // Issue a request against our /authorize endpoint.
         URI requestUri = UriBuilder.fromUri(getBaseUri())
                 .path("/authorize")
-                .queryParam("authenticator", AuthenticatorType.Facebook)
+                .queryParam("authenticator", AuthenticatorType.Github)
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(getContext().getClient().getId()))
@@ -143,6 +139,7 @@ public final class FacebookFullAuthFlowTest
         // We should go to the "redirect" at this point.
         (new WebDriverWait(d, TIMEOUT))
                 .until(ExpectedConditions.urlContains("www.example.com"));
+        SELENIUM.screenshot(S_PREFIX);
 
         String url = d.getCurrentUrl();
         URI uri = URI.create(url);
@@ -153,7 +150,7 @@ public final class FacebookFullAuthFlowTest
         OAuthToken authToken = getSession().get(OAuthToken.class, code);
         assertEquals(authToken.getClient().getId(),
                 getContext().getClient().getId());
-        assertEquals(AuthenticatorType.Facebook,
+        assertEquals(AuthenticatorType.Github,
                 authToken.getIdentity().getType());
         assertEquals(OAuthTokenType.Authorization,
                 authToken.getTokenType());
