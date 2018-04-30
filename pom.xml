@@ -31,7 +31,7 @@
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.6</version>
             <configuration>
-              <passphrase>${gpg.passphrase}</passphrase>
+              <useAgent>true</useAgent>
             </configuration>
             <executions>
               <execution>
@@ -187,7 +187,6 @@
             </dependency>
           </dependencies>
           <configuration>
-            <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
             <releaseProfiles>h2</releaseProfiles>
             <tagNameFormat>v@{project.version}</tagNameFormat>
             <autoVersionSubmodules>true</autoVersionSubmodules>
