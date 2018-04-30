@@ -145,7 +145,7 @@ pipeline {
         stage('integration') {
             steps {
                 sh """
-                    mvn clean integration-test verify \
+                    mvn integration-test verify \
                         -Dcheckstyle.skip=true \
                         -Dpmd.skip=true \
                         -Dcpdskip=true \

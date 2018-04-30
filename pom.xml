@@ -289,7 +289,7 @@
             <excludedGroups>net.krotscheck.kangaroo.test.IntegrationTest</excludedGroups>
 
             <systemPropertyVariables>
-              <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+              <jacoco-agent.destfile>${target-directory}/jacoco.exec</jacoco-agent.destfile>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
               <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
