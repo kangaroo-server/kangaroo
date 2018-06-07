@@ -34,6 +34,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -41,6 +42,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.openqa.selenium.support.ui.ExpectedConditions.and;
@@ -101,18 +103,26 @@ public final class FacebookFullAuthFlowTest
         WebDriver d = SELENIUM.getDriver();
 
         d.get("https://www.facebook.com/");
-        new WebDriverWait(d, TIMEOUT)
+        WebElement loginAnchor = new WebDriverWait(d, TIMEOUT)
                 .until(presenceOfElementLocated(
-                        By.cssSelector("a#pageLoginAnchor")))
-                .click();
+                        By.cssSelector("a#pageLoginAnchor")));
+
+        // If the GDPR window exists, remove it
+        String css = "[data-testid=\"gdpr_flow_dialog\"] "
+                + "[data-testid=\"parent_deny_consent_button\"] button";
+        List<WebElement> gdprCancel = d.findElements(By.cssSelector(css));
+        if (gdprCancel.size() > 0) {
+            gdprCancel.get(0).click();
+        }
+
+        loginAnchor.click();
         new WebDriverWait(d, TIMEOUT)
                 .until(presenceOfElementLocated(
                         By.partialLinkText("Log Out")))
                 .click();
         new WebDriverWait(d, TIMEOUT)
                 .until(presenceOfElementLocated(
-                        By.id("loginbutton")))
-                .click();
+                        By.id("loginbutton")));
     }
 
     /**
