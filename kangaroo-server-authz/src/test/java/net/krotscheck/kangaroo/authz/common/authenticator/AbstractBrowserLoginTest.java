@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType.Facebook;
+import static net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType.Github;
 import static net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType.Google;
 import static net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator.CLIENT_ID_KEY;
 import static net.krotscheck.kangaroo.authz.common.authenticator.oauth2.AbstractOAuth2Authenticator.CLIENT_SECRET_KEY;
@@ -97,6 +98,12 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
                     fbConfig.put(CLIENT_SECRET_KEY,
                             TestConfig.getFacebookAppSecret());
 
+                    Map<String, String> githubConfig = new HashMap<>();
+                    githubConfig.put(CLIENT_ID_KEY,
+                            TestConfig.getGithubAppId());
+                    githubConfig.put(CLIENT_SECRET_KEY,
+                            TestConfig.getGithubAppSecret());
+
                     context = ApplicationBuilder
                             .newApplication(session)
                             .scope("debug")
@@ -105,6 +112,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
                             .client(ClientType.AuthorizationGrant)
                             .authenticator(Google, googleConfig)
                             .authenticator(Facebook, fbConfig)
+                            .authenticator(Github, githubConfig)
                             .redirect("https://www.example.com/")
                             .build();
                 }

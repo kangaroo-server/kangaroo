@@ -31,7 +31,7 @@
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.6</version>
             <configuration>
-              <passphrase>${gpg.passphrase}</passphrase>
+              <useAgent>true</useAgent>
             </configuration>
             <executions>
               <execution>
@@ -187,7 +187,6 @@
             </dependency>
           </dependencies>
           <configuration>
-            <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
             <releaseProfiles>h2</releaseProfiles>
             <tagNameFormat>v@{project.version}</tagNameFormat>
             <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -290,7 +289,7 @@
             <excludedGroups>net.krotscheck.kangaroo.test.IntegrationTest</excludedGroups>
 
             <systemPropertyVariables>
-              <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+              <jacoco-agent.destfile>${target-directory}/jacoco.exec</jacoco-agent.destfile>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
               <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
@@ -756,7 +755,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>22.0</version>
+        <version>25.0-jre</version>
       </dependency>
 
       <!-- Hibernate -->
@@ -859,7 +858,7 @@
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.195</version>
+        <version>1.4.197</version>
       </dependency>
       <dependency>
         <groupId>org.mariadb.jdbc</groupId>

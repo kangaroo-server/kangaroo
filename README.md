@@ -36,6 +36,7 @@ supported.
 - The google `chromedriver` available on your `$PATH`
 - A facebook application (unpublished is ok)
 - A testing google email account and oauth2 application.
+- A testing github OAuth2 Application and login.
 - MySQL, exposed at `mysql://localhost:3306/`, with the root password blank, 
   or a `~/.my.cnf` client configuration with database creation credentials.
 
@@ -49,6 +50,12 @@ export KANGAROO_GOOGLE_ACCOUNT_USR=<your_google_login>
 export KANGAROO_GOOGLE_ACCOUNT_PSW=<your_google_password>
 export KANGAROO_GOOGLE_APP_USR=<your_google_app_id>
 export KANGAROO_GOOGLE_APP_PSW=<your_google_app_secret>
+
+export KANGAROO_GITHUB_ACCOUNT_USR=<your_github_login>
+export KANGAROO_GITHUB_ACCOUNT_PSW=<your_github_password>
+export KANGAROO_GITHUB_APP_USR=<your_github_app_id>
+export KANGAROO_GITHUB_APP_PSW=<your_github_app_secret>
+
 ```
 
 ### Build and test the project.
