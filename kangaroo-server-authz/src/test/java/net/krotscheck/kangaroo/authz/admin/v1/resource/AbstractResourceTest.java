@@ -19,9 +19,8 @@
 package net.krotscheck.kangaroo.authz.admin.v1.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import net.krotscheck.kangaroo.authz.admin.AdminV1API;
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
-import net.krotscheck.kangaroo.authz.common.authenticator.test.TestAuthenticator;
 import net.krotscheck.kangaroo.authz.common.database.entity.AbstractAuthzEntity;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientRedirect;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientReferrer;
@@ -104,8 +103,7 @@ public abstract class AbstractResourceTest<T extends AbstractEntity>
     @Override
     protected final ResourceConfig createApplication() {
         if (testApplication == null) {
-            testApplication = new AdminV1API();
-            testApplication.register(new TestAuthenticator.Binder());
+            testApplication = new AuthzAPI();
         }
         return testApplication;
     }

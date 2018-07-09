@@ -18,11 +18,11 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.rfc7009;
 
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
@@ -110,6 +110,7 @@ public class TokenRevocationTest extends ContainerTest {
                             .build();
                 }
             };
+
     /**
      * Test container factory.
      */
@@ -150,7 +151,7 @@ public class TokenRevocationTest extends ContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         if (testApplication == null) {
-            testApplication = new OAuthAPI();
+            testApplication = new AuthzAPI();
         }
         return testApplication;
     }
@@ -202,7 +203,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(bearerToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -229,7 +230,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -258,7 +259,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -280,7 +281,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", "malformed_token");
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -302,7 +303,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(IdUtil.next()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -328,7 +329,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(refreshToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -356,7 +357,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -386,7 +387,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -413,7 +414,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -442,7 +443,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -467,7 +468,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -486,7 +487,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", "malformed_token");
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -505,7 +506,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(IdUtil.next()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -531,7 +532,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -557,7 +558,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -584,7 +585,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -609,7 +610,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -635,7 +636,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -662,7 +663,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -684,7 +685,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", "malformed_token");
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -706,7 +707,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(IdUtil.next()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -731,7 +732,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -750,7 +751,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", "malformed_token");
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -770,7 +771,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(IdUtil.next()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -796,7 +797,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -822,7 +823,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -849,7 +850,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -874,7 +875,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -901,7 +902,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -927,7 +928,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -952,7 +953,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -977,7 +978,7 @@ public class TokenRevocationTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(revokedToken.getId()));
 
-        Response r = target("/revoke")
+        Response r = target("/oauth2/revoke")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));

@@ -52,7 +52,7 @@ import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.Cl
  *
  * @author Michael Krotscheck
  */
-@Path("/introspect")
+@Path("/oauth2/introspect")
 @PermitAll
 @Transactional
 @Api(tags = "OAuth2")

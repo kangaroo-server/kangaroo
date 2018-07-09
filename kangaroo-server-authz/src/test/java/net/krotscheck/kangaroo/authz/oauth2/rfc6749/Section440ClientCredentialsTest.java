@@ -102,7 +102,7 @@ public final class Section440ClientCredentialsTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -129,7 +129,7 @@ public final class Section440ClientCredentialsTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -153,7 +153,7 @@ public final class Section440ClientCredentialsTest
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 
         // Make the request
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -178,7 +178,7 @@ public final class Section440ClientCredentialsTest
         f.param("client_secret", c.getClientSecret());
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -203,7 +203,7 @@ public final class Section440ClientCredentialsTest
         f.param("scope", "debug");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -230,7 +230,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -256,7 +256,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -285,7 +285,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -314,7 +314,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "client_credentials");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -341,7 +341,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "password");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -367,7 +367,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "refresh_token");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -393,7 +393,7 @@ public final class Section440ClientCredentialsTest
         f.param("grant_type", "unknown_grant_type");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());

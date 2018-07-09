@@ -149,7 +149,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testValidBearerToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(validBearerToken.getId()))
@@ -162,7 +162,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testNoAuthHeader() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .get();
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -173,7 +173,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testValidBearerTokenWithoutScope() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(noScopeBearerToken.getId()))
@@ -186,7 +186,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testExpiredBearerToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(expiredBearerToken.getId()))
@@ -199,7 +199,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testNonexistentBearerToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(
@@ -213,7 +213,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testMalformedBearerToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer YUIIUYIY")
                 .get();
@@ -226,7 +226,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testAuthorizationToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         HttpUtil.authHeaderBearer(authToken.getId()))
@@ -239,7 +239,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testWrongPrefixTokenToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION,
                         String.format("HMAC %s", authToken.getId()))
@@ -252,7 +252,7 @@ public final class OAuth2AuthenticationFilterTest
      */
     @Test
     public void testMalformedToken() {
-        Response r = target("/user")
+        Response r = target("/v1/user")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OMGOMGOMG")
                 .get();

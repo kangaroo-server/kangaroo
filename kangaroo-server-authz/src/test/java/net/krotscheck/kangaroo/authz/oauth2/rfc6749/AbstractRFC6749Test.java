@@ -17,10 +17,10 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.rfc6749;
 
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.oauth2.resource.TokenResponseEntity;
 import net.krotscheck.kangaroo.common.hibernate.id.IdUtil;
 import net.krotscheck.kangaroo.test.jersey.ContainerTest;
@@ -53,6 +53,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      * Test container factory.
      */
     private SingletonTestContainerFactory testContainerFactory;
+
     /**
      * The current running test application.
      */
@@ -94,7 +95,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
      * @param requireIdentity Whether a User Identity is required.
      */
     protected final void assertValidBearerToken(final TokenResponseEntity token,
-                                          final boolean requireIdentity) {
+                                                final boolean requireIdentity) {
         Session s = getSession();
 
         // Validate the token itself.
@@ -161,7 +162,7 @@ public abstract class AbstractRFC6749Test extends ContainerTest {
     @Override
     protected final ResourceConfig createApplication() {
         if (testApplication == null) {
-            testApplication = new OAuthAPI();
+            testApplication = new AuthzAPI();
         }
         return testApplication;
     }

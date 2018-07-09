@@ -181,7 +181,7 @@ public final class RoleServiceSearchTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/role/")
+        return UriBuilder.fromPath("/v1/role/")
                 .path(id)
                 .build();
     }

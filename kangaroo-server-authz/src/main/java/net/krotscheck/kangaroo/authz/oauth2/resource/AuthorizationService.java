@@ -63,7 +63,7 @@ import java.util.SortedMap;
  *
  * @author Michael Krotscheck
  */
-@Path("/authorize")
+@Path("/oauth2/authorize")
 @Transactional
 @Api(tags = "OAuth2")
 public final class AuthorizationService {

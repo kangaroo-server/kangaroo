@@ -71,7 +71,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/authenticator")
+@Path("/v1/authenticator")
 @ScopesAllowed({Scope.AUTHENTICATOR, Scope.AUTHENTICATOR_ADMIN})
 @Transactional
 @Api(tags = "Authenticator",

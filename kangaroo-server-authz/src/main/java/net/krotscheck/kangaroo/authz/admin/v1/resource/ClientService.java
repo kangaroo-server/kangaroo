@@ -71,7 +71,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/client")
+@Path("/v1/client")
 @ScopesAllowed({Scope.CLIENT, Scope.CLIENT_ADMIN})
 @Transactional
 @Api(tags = "Client",

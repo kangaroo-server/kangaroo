@@ -182,7 +182,7 @@ public final class UserServiceSearchTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/user/")
+        return UriBuilder.fromPath("/v1/user/")
                 .path(id)
                 .build();
     }

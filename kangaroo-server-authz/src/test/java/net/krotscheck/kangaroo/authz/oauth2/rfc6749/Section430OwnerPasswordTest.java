@@ -117,7 +117,7 @@ public final class Section430OwnerPasswordTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -143,7 +143,7 @@ public final class Section430OwnerPasswordTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -169,7 +169,7 @@ public final class Section430OwnerPasswordTest
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 
         // Make the request
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -193,7 +193,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -219,7 +219,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -248,7 +248,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -276,7 +276,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -307,7 +307,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", badHeader)
                 .post(postEntity);
@@ -340,7 +340,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .post(postEntity);
 
         // Assert various response-specific parameters.
@@ -370,7 +370,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -397,7 +397,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -422,7 +422,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -447,7 +447,7 @@ public final class Section430OwnerPasswordTest
         f.param("password", password);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());

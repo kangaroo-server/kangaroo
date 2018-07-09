@@ -146,7 +146,7 @@ public final class ScopeServiceSearchTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/scope/")
+        return UriBuilder.fromPath("/v1/scope/")
                 .path(id)
                 .build();
     }

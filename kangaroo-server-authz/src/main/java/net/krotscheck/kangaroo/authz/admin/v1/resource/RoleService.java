@@ -69,7 +69,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/role")
+@Path("/v1/role")
 @ScopesAllowed({Scope.ROLE, Scope.ROLE_ADMIN})
 @Transactional
 @Api(tags = "Role",

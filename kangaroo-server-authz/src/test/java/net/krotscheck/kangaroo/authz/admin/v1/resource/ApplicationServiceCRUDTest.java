@@ -202,7 +202,7 @@ public final class ApplicationServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/application/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/application/");
         if (id != null) {
             builder.path(id);
         }

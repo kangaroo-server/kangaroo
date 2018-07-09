@@ -17,10 +17,10 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientConfig;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
@@ -56,6 +56,7 @@ public final class TokenServiceTest extends ContainerTest {
      * Simple testing context.
      */
     private static ApplicationContext context;
+
     /**
      * Test data loading for this test.
      */
@@ -80,7 +81,7 @@ public final class TokenServiceTest extends ContainerTest {
      */
     @Override
     protected ResourceConfig createApplication() {
-        return new OAuthAPI();
+        return new AuthzAPI();
     }
 
     /**
@@ -97,7 +98,7 @@ public final class TokenServiceTest extends ContainerTest {
         Entity testEntity = Entity.entity(testData,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 
-        Response response = target("/token")
+        Response response = target("/oauth2/token")
                 .request()
                 .post(testEntity);
 
@@ -124,7 +125,7 @@ public final class TokenServiceTest extends ContainerTest {
         Entity testEntity = Entity.entity(testData,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 
-        TokenResponseEntity token = target("/token")
+        TokenResponseEntity token = target("/oauth2/token")
                 .request()
                 .post(testEntity, TokenResponseEntity.class);
 

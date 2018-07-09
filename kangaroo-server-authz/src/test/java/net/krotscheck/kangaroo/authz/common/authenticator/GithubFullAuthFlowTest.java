@@ -124,7 +124,7 @@ public final class GithubFullAuthFlowTest
 
         // Issue a request against our /authorize endpoint.
         URI requestUri = UriBuilder.fromUri(getBaseUri())
-                .path("/authorize")
+                .path("/oauth2/authorize")
                 .queryParam("authenticator", AuthenticatorType.Github)
                 .queryParam("response_type", "code")
                 .queryParam("client_id",

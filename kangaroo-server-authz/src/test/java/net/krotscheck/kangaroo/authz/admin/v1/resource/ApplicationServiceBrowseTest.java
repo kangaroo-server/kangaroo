@@ -179,7 +179,7 @@ public final class ApplicationServiceBrowseTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/application/")
+        return UriBuilder.fromPath("/v1/application/")
                 .path(id)
                 .build();
     }

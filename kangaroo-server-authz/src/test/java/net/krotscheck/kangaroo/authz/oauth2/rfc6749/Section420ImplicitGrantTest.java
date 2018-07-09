@@ -251,7 +251,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeSimpleRequest() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -282,7 +282,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeResponseTypeInvalid() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "invalid")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -312,7 +312,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeClientIdMalformed() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id", "invalid_client_id")
                 .request()
@@ -335,7 +335,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeClientIdInvalid() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(IdUtil.next()))
@@ -359,7 +359,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeScopeSimple() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -392,7 +392,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeNone() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(noauthContext.getClient().getId()))
@@ -423,7 +423,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeScopeInvalid() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -458,7 +458,7 @@ public final class Section420ImplicitGrantTest
     public void testAuthorizeStateSimple() {
         String state =
                 IdUtil.toString(IdUtil.next());
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -492,7 +492,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectSimple() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("scope", "debug")
                 .queryParam("client_id",
@@ -527,7 +527,7 @@ public final class Section420ImplicitGrantTest
     @Test
     public void testAuthorizeRedirectMulti() {
         // Register a new redirect on the current builder.
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -563,7 +563,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoneRegistered() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -589,7 +589,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoneRegisteredWithRequest() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -618,7 +618,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectMultiNoneProvided() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(twoRedirectContext.getClient().getId()))
@@ -643,7 +643,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectDefault() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -657,7 +657,7 @@ public final class Section420ImplicitGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -678,7 +678,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectInvalid() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -707,7 +707,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoRole() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -721,7 +721,7 @@ public final class Section420ImplicitGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -752,7 +752,7 @@ public final class Section420ImplicitGrantTest
                 .role("test", new String[]{})
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("scope", "debug")
                 .queryParam("client_id",
@@ -767,7 +767,7 @@ public final class Section420ImplicitGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -788,7 +788,7 @@ public final class Section420ImplicitGrantTest
      */
     @Test
     public void testAuthorizeRedirectRoleWantsNoScope() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
 
@@ -802,7 +802,7 @@ public final class Section420ImplicitGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -832,7 +832,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -870,7 +870,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -908,7 +908,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "invalid")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -948,7 +948,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id", "malformed_client_id")
                 .request()
@@ -979,7 +979,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -1017,7 +1017,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -1055,7 +1055,7 @@ public final class Section420ImplicitGrantTest
                 .build();
 
         String state = IdUtil.toString(IdUtil.next());
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -1095,7 +1095,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("scope", "debug")
                 .queryParam("client_id",
@@ -1135,7 +1135,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(roleNoScopeContext.getClient().getId()))
@@ -1179,7 +1179,7 @@ public final class Section420ImplicitGrantTest
                 .httpSession(false)
                 .build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -1192,7 +1192,7 @@ public final class Section420ImplicitGrantTest
         URI location = first.getLocation();
         assertEquals("http", location.getScheme());
         assertEquals("localhost", location.getHost());
-        assertEquals("/authorize/callback", location.getPath());
+        assertEquals("/oauth2/authorize/callback", location.getPath());
     }
 
     /**
@@ -1215,7 +1215,7 @@ public final class Section420ImplicitGrantTest
                 refreshBuilder.getContext().getHttpSession());
         ApplicationContext refreshContext = refreshBuilder.build();
 
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "token")
                 .queryParam("client_id",
                         IdUtil.toString(refreshContext.getClient().getId()))
@@ -1228,7 +1228,7 @@ public final class Section420ImplicitGrantTest
         URI location = first.getLocation();
         assertEquals("http", location.getScheme());
         assertEquals("localhost", location.getHost());
-        assertEquals("/authorize/callback", location.getPath());
+        assertEquals("/oauth2/authorize/callback", location.getPath());
 
         // Make sure the refresh tokens are gone.
         Session s = getSession();

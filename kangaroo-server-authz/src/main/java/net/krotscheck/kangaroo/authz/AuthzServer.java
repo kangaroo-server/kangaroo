@@ -18,8 +18,6 @@
 
 package net.krotscheck.kangaroo.authz;
 
-import net.krotscheck.kangaroo.authz.admin.AdminV1API;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.server.ServerFactory;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -88,8 +86,7 @@ public final class AuthzServer {
                 .withCommandlineOptions(CLI_OPTIONS)
                 .withCommandlineArgs(args)
                 .withPropertiesFile("kangaroo.authz.properties")
-                .withResource("/v1", new AdminV1API())
-                .withResource("/oauth2", new OAuthAPI())
+                .withResource("/", new AuthzAPI())
                 .configureServer((s, c) -> {
                     Integer sessionMaxAge = c.getInt(
                             AuthzServerConfig.SESSION_MAX_AGE.getKey(),

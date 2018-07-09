@@ -18,8 +18,8 @@
 
 package net.krotscheck.kangaroo.authz.common.authenticator;
 
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.test.TestConfig;
@@ -74,6 +74,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
      * The test context for a regular application.
      */
     private static ApplicationContext context;
+
     /**
      * Test data loading for this test.
      */
@@ -117,6 +118,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
                             .build();
                 }
             };
+
     /**
      * Test container factory.
      */
@@ -166,7 +168,7 @@ public abstract class AbstractBrowserLoginTest extends ContainerTest {
     @Override
     protected final ResourceConfig createApplication() {
         if (testApplication == null) {
-            testApplication = new OAuthAPI();
+            testApplication = new AuthzAPI();
         }
         return testApplication;
     }
