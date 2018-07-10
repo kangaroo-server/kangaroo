@@ -217,7 +217,7 @@ public final class ClientRedirectServiceCRUDTest
      */
     private URI getUrlForEntity(final String parentId, final String childId) {
         UriBuilder builder = UriBuilder
-                .fromPath("/client")
+                .fromPath("/v1/client")
                 .path(parentId)
                 .path("redirect");
 

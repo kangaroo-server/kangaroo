@@ -18,12 +18,12 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.rfc7662;
 
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.Client;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthTokenType;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.oauth2.exception.RFC6749.AccessDeniedException;
 import net.krotscheck.kangaroo.authz.oauth2.resource.IntrospectionResponseEntity;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
@@ -85,10 +85,12 @@ public final class TokenIntrospectionTest extends ContainerTest {
      * The test context for a peer application.
      */
     private static ApplicationContext otherContext;
+
     /**
      * Authorization header for the peer context.
      */
     private static String otherContextAuthHeader;
+
     /**
      * Test data loading for this test.
      */
@@ -139,6 +141,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
 
                 }
             };
+
     /**
      * Test container factory.
      */
@@ -179,7 +182,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
     @Override
     protected ResourceConfig createApplication() {
         if (testApplication == null) {
-            testApplication = new OAuthAPI();
+            testApplication = new AuthzAPI();
         }
         return testApplication;
     }
@@ -292,7 +295,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(bearerToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -320,7 +323,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(bearerToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -348,7 +351,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(authToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -371,7 +374,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(authToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -398,7 +401,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(refreshToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -422,7 +425,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(refreshToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -444,7 +447,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(targetToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
@@ -466,7 +469,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(targetToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
@@ -488,7 +491,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(targetToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
@@ -504,7 +507,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(IdUtil.next()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
@@ -520,7 +523,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", "malformed_token");
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
@@ -541,7 +544,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(targetToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, contextAuthHeader)
                 .post(buildEntity(values));
@@ -566,7 +569,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         values.put("client_id", IdUtil.toString(queryClient.getId()));
         values.put("client_secret", queryClient.getClientSecret());
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .post(buildEntity(values));
 
@@ -591,7 +594,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         values.put("client_id", IdUtil.toString(queryClient.getId()));
         values.put("client_secret", queryClient.getClientSecret());
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .post(buildEntity(values));
 
@@ -616,7 +619,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(targetToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -642,7 +645,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         values.put("client_id", IdUtil.toString(queryClient.getId()));
         values.put("client_secret", queryClient.getClientSecret());
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .post(buildEntity(values));
 
@@ -663,7 +666,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         Map<String, String> values = new HashMap<>();
         values.put("token", IdUtil.toString(bearerToken.getId()));
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, otherContextAuthHeader)
                 .post(buildEntity(values));
@@ -690,7 +693,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         values.put("client_id", IdUtil.toString(queryClient.getId()));
         values.put("client_secret", queryClient.getClientSecret());
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));
@@ -716,7 +719,7 @@ public final class TokenIntrospectionTest extends ContainerTest {
         values.put("client_id", IdUtil.toString(queryClient.getId()));
         values.put("client_secret", queryClient.getClientSecret());
 
-        Response r = target("/introspect")
+        Response r = target("/oauth2/introspect")
                 .request()
                 .header(AUTHORIZATION, header)
                 .post(buildEntity(values));

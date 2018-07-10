@@ -192,7 +192,7 @@ public final class UserServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/user/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/user/");
         if (id != null) {
             builder.path(id);
         }

@@ -36,7 +36,7 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
      */
     @Test
     public void testAuthorizationEndpoint() {
-        Response response = target("/authorize").request().get();
+        Response response = target("/oauth2/authorize").request().get();
         assertNotEquals(Status.NOT_FOUND.getStatusCode(),
                 response.getStatus());
     }
@@ -46,7 +46,7 @@ public final class Section300EndpointsTest extends AbstractRFC6749Test {
      */
     @Test
     public void testTokenEndpoint() {
-        Response response = target("/token").request().get();
+        Response response = target("/oauth2/token").request().get();
         assertNotEquals(Status.NOT_FOUND.getStatusCode(),
                 response.getStatus());
     }

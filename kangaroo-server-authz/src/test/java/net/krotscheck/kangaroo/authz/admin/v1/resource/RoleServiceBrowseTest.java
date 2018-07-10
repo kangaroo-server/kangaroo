@@ -195,7 +195,7 @@ public final class RoleServiceBrowseTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/role/")
+        return UriBuilder.fromPath("/v1/role/")
                 .path(id)
                 .build();
     }

@@ -68,7 +68,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/user")
+@Path("/v1/user")
 @ScopesAllowed({Scope.USER, Scope.USER_ADMIN})
 @Transactional
 @Api(tags = "User",

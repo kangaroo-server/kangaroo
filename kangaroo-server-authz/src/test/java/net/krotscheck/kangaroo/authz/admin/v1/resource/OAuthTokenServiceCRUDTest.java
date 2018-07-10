@@ -234,7 +234,7 @@ public final class OAuthTokenServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/token/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/token/");
         if (id != null) {
             builder.path(id);
         }

@@ -26,6 +26,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,10 +98,9 @@ public final class SeleniumRule implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
-
                 try {
                     final ChromeOptions chromeOptions = new ChromeOptions();
-                    chromeOptions.setHeadless(true);
+                    chromeOptions.setHeadless(GraphicsEnvironment.isHeadless());
                     chromeOptions.addArguments("--disable-notifications");
                     chromeOptions.addArguments("--window-size=1920,1080");
                     driver = new ChromeDriver(chromeOptions);

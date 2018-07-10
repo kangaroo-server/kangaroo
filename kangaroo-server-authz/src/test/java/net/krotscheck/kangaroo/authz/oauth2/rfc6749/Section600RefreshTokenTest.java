@@ -120,7 +120,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -155,7 +155,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -188,7 +188,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -219,7 +219,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
 
@@ -256,7 +256,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .header("Authorization", badHeader)
                 .post(postEntity);
 
@@ -292,7 +292,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
 
@@ -327,7 +327,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
 
@@ -360,7 +360,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
 
@@ -392,7 +392,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request()
+        Response r = target("/oauth2/token").request()
                 .post(postEntity);
 
         // Assert various response-specific parameters.
@@ -420,7 +420,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -455,7 +455,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -487,7 +487,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -499,7 +499,7 @@ public final class Section600RefreshTokenTest
         assertNull(entity.getScope());
 
         // Now do the whole thing again.
-        Response r2 = target("/token").request().post(postEntity);
+        Response r2 = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r2.getStatus());
@@ -536,7 +536,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -573,7 +573,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -607,7 +607,7 @@ public final class Section600RefreshTokenTest
 
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());

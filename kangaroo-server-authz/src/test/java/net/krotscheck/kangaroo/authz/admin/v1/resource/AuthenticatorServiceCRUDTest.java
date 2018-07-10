@@ -142,7 +142,7 @@ public final class AuthenticatorServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/authenticator/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/authenticator/");
         if (id != null) {
             builder.path(id);
         }

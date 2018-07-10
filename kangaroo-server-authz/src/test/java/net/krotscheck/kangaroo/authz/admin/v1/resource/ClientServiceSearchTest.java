@@ -188,7 +188,7 @@ public final class ClientServiceSearchTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/client/")
+        return UriBuilder.fromPath("/v1/client/")
                 .path(id)
                 .build();
     }

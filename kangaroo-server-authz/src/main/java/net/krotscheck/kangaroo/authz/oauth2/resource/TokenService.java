@@ -54,7 +54,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/token")
+@Path("/oauth2/token")
 @Transactional
 @Api(tags = "OAuth2")
 public final class TokenService {

@@ -70,7 +70,7 @@ import java.util.Objects;
  *
  * @author Michael Krotscheck
  */
-@Path("/application")
+@Path("/v1/application")
 @ScopesAllowed({Scope.APPLICATION, Scope.APPLICATION_ADMIN})
 @Transactional
 @Api(tags = "Application",

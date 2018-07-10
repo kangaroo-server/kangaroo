@@ -78,7 +78,7 @@ import static net.krotscheck.kangaroo.authz.common.database.entity.ClientType.Ow
  *
  * @author Michael Krotscheck
  */
-@Path("/token")
+@Path("/v1/token")
 @ScopesAllowed({Scope.TOKEN_ADMIN, Scope.TOKEN})
 @Transactional
 @Api(tags = "Token",

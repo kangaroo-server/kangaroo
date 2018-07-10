@@ -141,7 +141,7 @@ public final class ClientServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/client/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/client/");
         if (id != null) {
             builder.path(id);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Michael Krotscheck
+ * Copyright (c) 2018 Michael Krotscheck
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,10 +13,24 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package net.krotscheck.kangaroo.authz.oauth2;
+package net.krotscheck.kangaroo.authz;
 
+import net.krotscheck.kangaroo.authz.admin.v1.auth.OAuth2AuthFeature;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.ApplicationService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.AuthenticatorService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.ClientService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.ConfigService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.OAuthTokenService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.RoleScopeService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.RoleService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.ScopeService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.UserIdentityService;
+import net.krotscheck.kangaroo.authz.admin.v1.resource.UserService;
+import net.krotscheck.kangaroo.authz.admin.v1.servlet.FirstRunContainerLifecycleListener;
+import net.krotscheck.kangaroo.authz.admin.v1.servlet.ServletConfigFactory;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorFeature;
 import net.krotscheck.kangaroo.authz.common.cors.AuthzCORSFeature;
 import net.krotscheck.kangaroo.authz.common.database.DatabaseFeature;
@@ -51,12 +65,12 @@ import org.glassfish.jersey.server.ServerProperties;
  *
  * @author Michael Krotscheck
  */
-public class OAuthAPI extends ResourceConfig {
+public class AuthzAPI extends ResourceConfig {
 
     /**
      * Constructor. Creates a new application instance.
      */
-    public OAuthAPI() {
+    public AuthzAPI() {
         // No autodiscovery, we load everything explicitly.
         property(ServerProperties.FEATURE_AUTO_DISCOVERY_DISABLE, true);
         property(ServerProperties.WADL_FEATURE_DISABLE, true);
@@ -75,8 +89,17 @@ public class OAuthAPI extends ResourceConfig {
         register(LoggingFeature.class);          // API logging feature.
 
         // Swagger UI & API Documentation.
-        register(new SwaggerFeature("net.krotscheck.kangaroo.authz.oauth2"));
+        register(new SwaggerFeature("net.krotscheck.kangaroo.authz"));
 
+        registerOAuth2Feature();
+        registerAdminV1Features();
+    }
+
+    /**
+     * Register all the features required for the operation of the OAuth2
+     * Endpoints.
+     */
+    private void registerOAuth2Feature() {
         // Authorization context
         register(O2AuthDynamicFeature.class);
         register(SessionFeature.class);
@@ -102,5 +125,32 @@ public class OAuthAPI extends ResourceConfig {
         register(AuthorizationService.class);
         register(IntrospectionService.class);
         register(RevocationService.class);
+    }
+
+    /**
+     * Register all the features required for the administration portion of
+     * this application.
+     */
+    private void registerAdminV1Features() {
+        // Internal components
+        register(new ServletConfigFactory.Binder());
+        register(new FirstRunContainerLifecycleListener.Binder());
+
+        // API Authentication and Authorization.
+        register(OAuth2AuthFeature.class);
+
+        // API Resources
+        register(ConfigService.class);
+        register(ApplicationService.class);
+        register(AuthenticatorService.class);
+        register(ScopeService.class);
+        register(ClientService.class);
+        register(RoleService.class);
+        register(UserService.class);
+        register(UserIdentityService.class);
+        register(OAuthTokenService.class);
+
+        // API Subresources
+        register(new RoleScopeService.Binder());
     }
 }

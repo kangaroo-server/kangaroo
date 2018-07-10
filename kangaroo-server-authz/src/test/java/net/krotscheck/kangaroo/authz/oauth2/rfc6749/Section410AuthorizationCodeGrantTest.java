@@ -190,7 +190,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeSimpleRequest() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -220,7 +220,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeAuthHeaderValid() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
@@ -250,7 +250,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeAuthHeaderMismatchClientId() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", IdUtil.toString(IdUtil.next()))
                 .request()
@@ -274,7 +274,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeAuthHeaderValidNoExplicitClientId() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri", "http://valid.example.com/redirect")
                 .request()
@@ -291,7 +291,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeAuthHeaderInvalid() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(authContext.getClient().getId()))
@@ -315,7 +315,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeAuthSecretInUrl() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(authContext.getClient().getId()))
@@ -340,7 +340,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeResponseTypeInvalid() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "invalid")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -371,7 +371,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeClientIdMalformed() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", "malformed_client_id")
                 .request()
@@ -393,7 +393,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeClientIdInvalid() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(IdUtil.next()))
@@ -416,7 +416,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeScopeSimple() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -446,7 +446,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeNoAuthenticator() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(noauthContext.getClient().getId()))
@@ -477,7 +477,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeNotConfiguredAuthenticator() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("authenticator", "Test")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
@@ -510,7 +510,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeScopeInvalid() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -545,7 +545,7 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testAuthorizeStateSimple() {
         String state = IdUtil.toString(IdUtil.next());
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -576,7 +576,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectSimple() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -607,7 +607,7 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testAuthorizeRedirectState() {
         BigInteger state = IdUtil.next();
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("state", state.toString())
                 .queryParam("client_id",
@@ -638,7 +638,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectMulti() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri",
                         "http://redirect.example.com/redirect")
@@ -669,7 +669,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoneRegistered() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(bareContext.getClient().getId()))
@@ -693,7 +693,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoneRegisteredWithRequest() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(bareContext.getClient().getId()))
@@ -720,7 +720,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectMultiNoneProvided() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .request()
                 .header("Authorization", authHeader)
@@ -743,7 +743,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectDefault() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -774,7 +774,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectPartial() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -807,7 +807,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectInvalid() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -834,7 +834,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectNoRole() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(noUserRoleContext.getClient().getId()))
@@ -846,7 +846,7 @@ public final class Section410AuthorizationCodeGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -867,7 +867,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectRoleWithoutRequestedScope() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("scope", "debug1")
                 .queryParam("client_id",
@@ -880,7 +880,7 @@ public final class Section410AuthorizationCodeGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -902,7 +902,7 @@ public final class Section410AuthorizationCodeGrantTest
      */
     @Test
     public void testAuthorizeRedirectRoleWantsNoScope() {
-        Response first = target("/authorize")
+        Response first = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(noScopeRoleContext.getClient().getId()))
@@ -914,7 +914,7 @@ public final class Section410AuthorizationCodeGrantTest
         URI firstLocation = first.getLocation();
         assertEquals("http", firstLocation.getScheme());
         assertEquals("localhost", firstLocation.getHost());
-        assertEquals("/authorize/callback", firstLocation.getPath());
+        assertEquals("/oauth2/authorize/callback", firstLocation.getPath());
 
         // Follow the redirect
         Response second = followRedirect(first);
@@ -945,7 +945,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -973,7 +973,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
@@ -997,7 +997,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1026,7 +1026,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1055,7 +1055,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1085,7 +1085,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://redirect.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -1119,7 +1119,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -1152,7 +1152,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("code", IdUtil.toString(token.getId()));
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -1188,7 +1188,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, badHeader)
                 .post(postEntity);
@@ -1223,7 +1223,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://redirect.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -1254,7 +1254,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://redirect.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -1286,7 +1286,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1316,7 +1316,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1346,7 +1346,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1376,7 +1376,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1406,7 +1406,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1431,7 +1431,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1456,7 +1456,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1487,7 +1487,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1518,7 +1518,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1549,7 +1549,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1581,7 +1581,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1612,7 +1612,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -1642,7 +1642,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -1675,7 +1675,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token")
+        Response r = target("/oauth2/token")
                 .request()
                 .header("Authorization", authHeader)
                 .post(postEntity);
@@ -1709,7 +1709,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("grant_type", "authorization_code");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1743,7 +1743,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect?foo=bar");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), r.getStatus());
@@ -1778,7 +1778,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://valid.example.com/redirect?lol=cat");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1809,7 +1809,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("redirect_uri", "http://other.example.com/redirect");
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response r = target("/token").request().post(postEntity);
+        Response r = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.BAD_REQUEST.getStatusCode(), r.getStatus());
@@ -1827,7 +1827,7 @@ public final class Section410AuthorizationCodeGrantTest
     @Test
     public void testFullAuthorizationFlow() {
         String state1 = IdUtil.toString(IdUtil.next());
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -1862,7 +1862,7 @@ public final class Section410AuthorizationCodeGrantTest
         f.param("state", state2);
         Entity postEntity = Entity.entity(f,
                 MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-        Response tr = target("/token").request().post(postEntity);
+        Response tr = target("/oauth2/token").request().post(postEntity);
 
         // Assert various response-specific parameters.
         assertEquals(Status.OK.getStatusCode(), tr.getStatus());

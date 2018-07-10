@@ -115,7 +115,7 @@ public final class ConfigServiceTest extends AbstractResourceTest {
 
         Application a = session.get(Application.class, applicationId);
 
-        Response r = target("/config")
+        Response r = target("/v1/config")
                 .request()
                 .get();
 

@@ -72,7 +72,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/identity")
+@Path("/v1/identity")
 @ScopesAllowed({Scope.IDENTITY, Scope.IDENTITY_ADMIN})
 @Transactional
 @Api(tags = "User Identity",

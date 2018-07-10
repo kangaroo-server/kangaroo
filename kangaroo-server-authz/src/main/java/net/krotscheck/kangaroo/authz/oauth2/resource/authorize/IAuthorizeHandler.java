@@ -89,7 +89,7 @@ public interface IAuthorizeHandler {
     default URI buildCallback(final UriInfo info,
                               final AuthenticatorState state) {
         return info.getBaseUriBuilder()
-                .path("/authorize/callback")
+                .path("/oauth2/authorize/callback")
                 .queryParam("state", IdUtil.toString(state.getId()))
                 .build();
     }

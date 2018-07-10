@@ -17,9 +17,9 @@
 
 package net.krotscheck.kangaroo.authz.oauth2.resource;
 
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.common.authenticator.AuthenticatorType;
 import net.krotscheck.kangaroo.authz.common.database.entity.ClientType;
-import net.krotscheck.kangaroo.authz.oauth2.OAuthAPI;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder;
 import net.krotscheck.kangaroo.authz.test.ApplicationBuilder.ApplicationContext;
 import net.krotscheck.kangaroo.common.exception.ErrorResponseBuilder.ErrorResponse;
@@ -55,10 +55,12 @@ public final class AuthorizationServiceTest extends ContainerTest {
      * Simple testing context.
      */
     private static ApplicationContext context;
+
     /**
      * An owner context.
      */
     private static ApplicationContext ownerContext;
+
     /**
      * Test data loading for this test.
      */
@@ -92,7 +94,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Override
     protected ResourceConfig createApplication() {
-        return new OAuthAPI();
+        return new AuthzAPI();
     }
 
     /**
@@ -100,7 +102,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testInvalidResponseType() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "invalid")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -124,7 +126,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testValidResponseType() {
-        Response r = target("/authorize")
+        Response r = target("/oauth2/authorize")
                 .queryParam("response_type", "test")
                 .queryParam("client_id",
                         IdUtil.toString(context.getClient().getId()))
@@ -146,7 +148,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testCallbackMalformedStateId() {
-        Response r = target("/authorize/callback")
+        Response r = target("/oauth2/authorize/callback")
                 .queryParam("state", "not_a_parseable_BigInteger")
                 .request()
                 .get();
@@ -163,7 +165,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testCallbackInvalidStateId() {
-        Response r = target("/authorize/callback")
+        Response r = target("/oauth2/authorize/callback")
                 .queryParam("state", IdUtil.toString(IdUtil.next()))
                 .request()
                 .get();
@@ -184,7 +186,7 @@ public final class AuthorizationServiceTest extends ContainerTest {
      */
     @Test
     public void testCallbackStateWithInvalidClientType() throws Exception {
-        Response r = target("/authorize/callback")
+        Response r = target("/oauth2/authorize/callback")
                 .queryParam("state",
                         IdUtil.toString(ownerContext.getAuthenticatorState()
                                 .getId()))

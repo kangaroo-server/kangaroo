@@ -184,7 +184,7 @@ public final class UserIdentityServiceSearchTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/identity/")
+        return UriBuilder.fromPath("/v1/identity/")
                 .path(id)
                 .build();
     }

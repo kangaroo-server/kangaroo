@@ -165,7 +165,7 @@ public final class ScopeServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/scope/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/scope/");
         if (id != null) {
             builder.path(id);
         }

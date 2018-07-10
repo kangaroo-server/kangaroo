@@ -148,7 +148,7 @@ public final class RoleServiceCRUDTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        UriBuilder builder = UriBuilder.fromPath("/role/");
+        UriBuilder builder = UriBuilder.fromPath("/v1/role/");
         if (id != null) {
             builder.path(id);
         }

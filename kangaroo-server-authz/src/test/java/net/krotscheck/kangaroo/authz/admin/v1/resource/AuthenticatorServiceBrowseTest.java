@@ -199,7 +199,7 @@ public final class AuthenticatorServiceBrowseTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/authenticator/")
+        return UriBuilder.fromPath("/v1/authenticator/")
                 .path(id)
                 .build();
     }

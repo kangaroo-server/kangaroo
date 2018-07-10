@@ -70,7 +70,7 @@ import java.net.URI;
  *
  * @author Michael Krotscheck
  */
-@Path("/scope")
+@Path("/v1/scope")
 @ScopesAllowed({Scope.SCOPE, Scope.SCOPE_ADMIN})
 @Transactional
 @Api(tags = "Scope",

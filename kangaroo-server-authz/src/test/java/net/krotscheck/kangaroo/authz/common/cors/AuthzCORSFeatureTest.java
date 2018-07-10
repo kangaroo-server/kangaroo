@@ -19,7 +19,7 @@
 package net.krotscheck.kangaroo.authz.common.cors;
 
 import com.google.common.net.HttpHeaders;
-import net.krotscheck.kangaroo.authz.admin.AdminV1API;
+import net.krotscheck.kangaroo.authz.AuthzAPI;
 import net.krotscheck.kangaroo.authz.admin.Scope;
 import net.krotscheck.kangaroo.authz.admin.v1.test.rule.TestDataResource;
 import net.krotscheck.kangaroo.authz.common.database.entity.OAuthToken;
@@ -58,7 +58,7 @@ public final class AuthzCORSFeatureTest extends ContainerTest {
      */
     @Override
     protected ResourceConfig createApplication() {
-        return new AdminV1API();
+        return new AuthzAPI();
     }
 
     /**
@@ -76,7 +76,7 @@ public final class AuthzCORSFeatureTest extends ContainerTest {
                 .build()
                 .getToken();
 
-        Response r = target("/application/")
+        Response r = target("/v1/application/")
                 .request()
                 .header(HttpHeaders.ORIGIN, "http://valid.example.com")
                 .header(HttpHeaders.AUTHORIZATION,

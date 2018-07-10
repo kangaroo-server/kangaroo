@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @author Michael Krotscheck
  */
-@Path("/config")
+@Path("/v1/config")
 public final class ConfigService {
 
     /**

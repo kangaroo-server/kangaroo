@@ -184,7 +184,7 @@ public final class OAuthTokenServiceSearchTest
      */
     @Override
     protected URI getUrlForId(final String id) {
-        return UriBuilder.fromPath("/token/")
+        return UriBuilder.fromPath("/v1/token/")
                 .path(id)
                 .build();
     }
