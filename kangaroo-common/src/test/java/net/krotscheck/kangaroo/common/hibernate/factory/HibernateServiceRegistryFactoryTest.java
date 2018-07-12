@@ -27,7 +27,6 @@ import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.Injections;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MariaDBDialect;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Assert;
@@ -82,9 +81,6 @@ public final class HibernateServiceRegistryFactoryTest {
                 .getDialect();
 
         switch (dbDriver) {
-            case "org.h2.Driver":
-                assertTrue(d instanceof H2Dialect);
-                break;
             case "org.mariadb.jdbc.Driver":
                 assertTrue(d instanceof MariaDBDialect);
                 break;
@@ -120,9 +116,6 @@ public final class HibernateServiceRegistryFactoryTest {
                 .buildMetadata().getDatabase().getDialect();
 
         switch (dbDriver) {
-            case "org.h2.Driver":
-                assertTrue(d instanceof H2Dialect);
-                break;
             case "org.mariadb.jdbc.Driver":
                 assertTrue(d instanceof MariaDBDialect);
                 break;

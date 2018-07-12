@@ -25,7 +25,6 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import net.krotscheck.kangaroo.test.TestConfig;
-import net.krotscheck.kangaroo.test.rule.database.H2TestDatabase;
 import net.krotscheck.kangaroo.test.rule.database.ITestDatabase;
 import net.krotscheck.kangaroo.test.rule.database.MariaDBTestDatabase;
 import org.junit.rules.TestRule;
@@ -63,11 +62,8 @@ public final class DatabaseResource implements TestRule {
     public ITestDatabase createDatabase() {
         switch (TestConfig.getDatabase()) {
             case MARIADB:
-                database = new MariaDBTestDatabase();
-                break;
-            case H2:
             default:
-                database = new H2TestDatabase();
+                database = new MariaDBTestDatabase();
         }
         database.create();
         return database;

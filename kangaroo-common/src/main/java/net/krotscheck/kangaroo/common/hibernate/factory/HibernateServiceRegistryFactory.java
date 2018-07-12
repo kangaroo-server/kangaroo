@@ -77,13 +77,13 @@ public final class HibernateServiceRegistryFactory
 
         defaultSettings = new HashMap<>();
         defaultSettings.put("hibernate.connection.url",
-                String.format("jdbc:h2:file:%s/h2.db", workingDir));
+                "jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes");
         defaultSettings.put("hibernate.connection.username", "oid");
         defaultSettings.put("hibernate.connection.password", "oid");
         defaultSettings.put("hibernate.connection.driver_class",
-                "org.h2.Driver");
+                "org.mariadb.jdbc.Driver");
         defaultSettings.put("hibernate.dialect",
-                "org.hibernate.dialect.H2Dialect");
+                "org.hibernate.dialect.MariaDBDialect");
 
 
         // Configure default values for the search index.

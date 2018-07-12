@@ -2,8 +2,6 @@ databaseChangeLog:
   - preConditions:
     - or:
       - dbms:
-          type: h2
-      - dbms:
           # Actually MariaDB.
           type: mysql
   - include:

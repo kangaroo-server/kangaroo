@@ -19,10 +19,8 @@
 package net.krotscheck.kangaroo.common.hibernate.id;
 
 import net.krotscheck.kangaroo.common.hibernate.entity.TestEntity;
-import net.krotscheck.kangaroo.test.TestConfig;
 import net.krotscheck.kangaroo.test.jersey.DatabaseTest;
 import org.hibernate.Session;
-import org.hibernate.dialect.H2Dialect;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerationException;
 import org.junit.Test;
@@ -142,10 +140,6 @@ public final class SecureRandomIdGeneratorTest extends DatabaseTest {
 
         // Mariadb can signal an error directly.
         String sql = "signal set message_text='an error occurred';";
-
-        if (TestConfig.getDbDialect().equals(H2Dialect.class.getName())) {
-            sql = "select id from test where 1=0";
-        }
 
         // This should return a null result set, causing an SQL Exception.
         generator.setSql(sql);
