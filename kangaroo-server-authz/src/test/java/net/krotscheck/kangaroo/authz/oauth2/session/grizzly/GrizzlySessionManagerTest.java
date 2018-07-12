@@ -100,9 +100,9 @@ public final class GrizzlySessionManagerTest extends DatabaseTest {
         hSession.beginTransaction();
         hSession.save(s);
         Query q = hSession.createQuery("update HttpSession set "
-                + "createdDate=?, modifiedDate=?");
-        q.setParameter(0, zero);
+                + "createdDate=?1, modifiedDate=?2");
         q.setParameter(1, zero);
+        q.setParameter(2, zero);
         q.executeUpdate();
         hSession.evict(s);
         hSession.getTransaction().commit();

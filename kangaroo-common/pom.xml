@@ -102,7 +102,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <test.db.changelog>liquibase/db.changelog-commons-master.yaml</test.db.changelog>
+            <test.db.changelog>liquibase/db.changelog-commons-master.yaml
+            </test.db.changelog>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -112,7 +113,8 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <test.db.changelog>liquibase/db.changelog-commons-master.yaml</test.db.changelog>
+            <test.db.changelog>liquibase/db.changelog-commons-master.yaml
+            </test.db.changelog>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -180,6 +182,10 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-infinispan</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-c3p0</artifactId>
     </dependency>
     <dependency>
@@ -195,8 +201,8 @@
       <artifactId>hibernate-search-orm</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
+      <groupId>javax.persistence</groupId>
+      <artifactId>javax.persistence-api</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.transaction</groupId>
@@ -205,16 +211,16 @@
 
     <!-- Hibernate Validation -->
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml</groupId>
-      <artifactId>classmate</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.el</groupId>
       <artifactId>javax.el-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml</groupId>
+      <artifactId>classmate</artifactId>
     </dependency>
     <dependency>
       <groupId>org.glassfish.web</groupId>

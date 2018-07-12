@@ -273,7 +273,7 @@ public final class ClientServiceCRUDTest
         Response r = postEntity(testEntity, getAdminToken());
         if (isAccessible(testEntity, getAdminToken())) {
             assertErrorResponse(r, Status.BAD_REQUEST, "bad_request",
-                    "may not be null");
+                    "must not be null");
         } else {
             assertErrorResponse(r, new BadRequestException());
         }

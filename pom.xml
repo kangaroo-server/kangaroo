@@ -127,11 +127,11 @@
     <target-directory>target</target-directory>
     <jdk.version>1.8</jdk.version>
     <jackson.version>2.9.5</jackson.version>
-    <hibernate.version>5.2.10.Final</hibernate.version>
-    <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
-    <hibernate-search.version>5.8.2.Final</hibernate-search.version>
-    <jersey.version>2.26</jersey.version>
-    <grizzly.version>2.4.2</grizzly.version>
+    <hibernate.version>5.3.2.Final</hibernate.version>
+    <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
+    <hibernate-search.version>5.10.2.Final</hibernate-search.version>
+    <jersey.version>2.27</jersey.version>
+    <grizzly.version>2.4.3</grizzly.version>
     <slf4j.version>1.7.25</slf4j.version>
     <jacoco.version>0.8.0</jacoco.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -747,6 +747,11 @@
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-infinispan</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
         <artifactId>hibernate-java8</artifactId>
         <version>${hibernate.version}</version>
       </dependency>
@@ -766,9 +771,9 @@
         <version>${hibernate-search.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.hibernate.javax.persistence</groupId>
-        <artifactId>hibernate-jpa-2.1-api</artifactId>
-        <version>1.0.0.Final</version>
+        <groupId>javax.persistence</groupId>
+        <artifactId>javax.persistence-api</artifactId>
+        <version>2.2</version>
       </dependency>
       <dependency>
         <groupId>javax.transaction</groupId>
@@ -778,7 +783,7 @@
 
       <!-- Hibernate validation annotations -->
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate-validator.version}</version>
       </dependency>
@@ -790,7 +795,7 @@
       <dependency>
         <groupId>javax.el</groupId>
         <artifactId>javax.el-api</artifactId>
-        <version>2.2.4</version>
+        <version>3.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.web</groupId>
