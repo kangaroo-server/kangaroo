@@ -46,27 +46,6 @@
         </plugins>
       </build>
     </profile>
-
-    <!-- Database profiles -->
-    <profile>
-      <id>h2</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <hibernate.connection.url>jdbc:h2:file:${project.basedir}/${target-directory}/h2.test.db</hibernate.connection.url>
-        <hibernate.connection.driver_class>org.h2.Driver</hibernate.connection.driver_class>
-        <hibernate.dialect>org.hibernate.dialect.H2Dialect</hibernate.dialect>
-      </properties>
-    </profile>
-    <profile>
-      <id>mariadb</id>
-      <properties>
-        <hibernate.connection.url>jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes</hibernate.connection.url>
-        <hibernate.connection.driver_class>org.mariadb.jdbc.Driver</hibernate.connection.driver_class>
-        <hibernate.dialect>org.hibernate.dialect.MariaDBDialect</hibernate.dialect>
-      </properties>
-    </profile>
   </profiles>
 
   <!-- The license under which this package is released -->
@@ -187,7 +166,6 @@
             </dependency>
           </dependencies>
           <configuration>
-            <releaseProfiles>h2</releaseProfiles>
             <tagNameFormat>v@{project.version}</tagNameFormat>
             <autoVersionSubmodules>true</autoVersionSubmodules>
           </configuration>
@@ -292,12 +270,11 @@
               <jacoco-agent.destfile>${target-directory}/jacoco.exec</jacoco-agent.destfile>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
-              <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
+              <hibernate.connection.url>jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes</hibernate.connection.url>
+              <hibernate.connection.driver_class>org.mariadb.jdbc.Driver</hibernate.connection.driver_class>
+              <hibernate.dialect>org.hibernate.dialect.MariaDBDialect</hibernate.dialect>
               <hibernate.connection.username>oid</hibernate.connection.username>
               <hibernate.connection.password>oid</hibernate.connection.password>
-              <hibernate.connection.driver_class>${hibernate.connection.driver_class}</hibernate.connection.driver_class>
-              <hibernate.dialect>${hibernate.dialect}</hibernate.dialect>
-              <hibernate.root.password>${hibernate.root.password}</hibernate.root.password>
             </systemPropertyVariables>
           </configuration>
         </plugin>
@@ -324,12 +301,11 @@
                   <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
                   <java.security.egd>file:/dev/./urandom</java.security.egd>
                   <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
-                  <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
+                  <hibernate.connection.url>jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes</hibernate.connection.url>
+                  <hibernate.connection.driver_class>org.mariadb.jdbc.Driver</hibernate.connection.driver_class>
+                  <hibernate.dialect>org.hibernate.dialect.MariaDBDialect</hibernate.dialect>
                   <hibernate.connection.username>oid</hibernate.connection.username>
                   <hibernate.connection.password>oid</hibernate.connection.password>
-                  <hibernate.connection.driver_class>${hibernate.connection.driver_class}</hibernate.connection.driver_class>
-                  <hibernate.dialect>${hibernate.dialect}</hibernate.dialect>
-                  <hibernate.root.password>${hibernate.root.password}</hibernate.root.password>
                 </systemPropertyVariables>
               </configuration>
             </execution>
@@ -855,11 +831,6 @@
       </dependency>
 
       <!-- Database drivers. -->
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>1.4.197</version>
-      </dependency>
       <dependency>
         <groupId>org.mariadb.jdbc</groupId>
         <artifactId>mariadb-java-client</artifactId>

@@ -21,7 +21,7 @@ package net.krotscheck.kangaroo.test;
 import net.krotscheck.kangaroo.test.rule.database.TestDB;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
-import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.MariaDBDialect;
 
 import java.io.File;
 
@@ -56,7 +56,7 @@ public final class TestConfig {
      */
     public static String getDbJdbcPath() {
         return System.getProperty("hibernate.connection.url",
-                "jdbc:h2:file:./target/h2.test.db");
+                "jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes");
     }
 
     /**
@@ -66,7 +66,7 @@ public final class TestConfig {
      */
     public static String getDbDriver() {
         return System.getProperty("hibernate.connection.driver_class",
-                "org.h2.Driver");
+                "org.mariadb.jdbc.Driver");
     }
 
     /**
@@ -140,7 +140,7 @@ public final class TestConfig {
      */
     public static String getDbDialect() {
         return System.getProperty("hibernate.dialect",
-                H2Dialect.class.getSimpleName());
+                MariaDBDialect.class.getSimpleName());
     }
 
     /**

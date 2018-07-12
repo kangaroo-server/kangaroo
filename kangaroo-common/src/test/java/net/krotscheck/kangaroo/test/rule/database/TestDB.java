@@ -19,7 +19,6 @@
 package net.krotscheck.kangaroo.test.rule.database;
 
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MariaDB53Dialect;
 import org.hibernate.dialect.MariaDBDialect;
 
@@ -37,12 +36,7 @@ public enum TestDB {
     /**
      * A MariaDB database (Also usable for mysql).
      */
-    MARIADB(MariaDBDialect.class, MariaDB53Dialect.class),
-
-    /**
-     * An H2 database.
-     */
-    H2(H2Dialect.class);
+    MARIADB(MariaDBDialect.class, MariaDB53Dialect.class);
 
     /**
      * The db's dialect.
@@ -62,13 +56,13 @@ public enum TestDB {
      * Find the correct DB type from a dialect string.
      *
      * @param dbDialect The dialect string.
-     * @return The DB Type, or H2 as the default.
+     * @return The DB Type, or MARIADB as the default.
      */
     public static TestDB fromDialect(final String dbDialect) {
         try {
             return fromDialect(Class.forName(dbDialect));
         } catch (ClassNotFoundException cnfe) {
-            return H2;
+            return MARIADB;
         }
     }
 
@@ -84,6 +78,6 @@ public enum TestDB {
                 return value;
             }
         }
-        return H2;
+        return MARIADB;
     }
 }

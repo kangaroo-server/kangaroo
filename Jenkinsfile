@@ -3,8 +3,12 @@
  */
 @Library('kangaroo-jenkins') _
 
-def gitCommit = ''
-def jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/oid?useUnicode=yes"
+def dbName = env.BUILD_TAG
+        .replaceAll(/\%[0-9A-F]{2}/, "-")
+        .replaceAll(/[^_a-zA-Z0-9]/, "_")
+        .toLowerCase()
+def jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/${dbName}?useUnicode=yes"
+
 
 pipeline {
 
@@ -47,14 +51,6 @@ pipeline {
                                 sh 'env'
                                 sh 'mvn --version'
                             }
-                        },
-                        "vars": {
-                            script {
-                                gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                                jdbc_mariadb = "jdbc:mariadb://127.0.0.1:3306/" +
-                                        "test_${gitCommit.substring(0, 16)}" +
-                                        "?useUnicode=yes"
-                            }
                         })
             }
         }
@@ -66,12 +62,12 @@ pipeline {
             steps {
                 parallel(
                         "pmd": {
-                            sh "mvn pmd:check -pl kangaroo-common "
+                            sh "mvn pmd:check -pl kangaroo-common"
                         },
                         "checkstyle": {
                             sh "mvn checkstyle:check -pl kangaroo-common"
                         },
-                        "unit-h2": {
+                        "unit": {
                             sh """
                             mvn test \
                                 -Dcheckstyle.skip=true \
@@ -79,20 +75,6 @@ pipeline {
                                 -Dcpdskip=true \
                                 -DskipTests.integration=true \
                                 -pl kangaroo-common \
-                                -Ph2 \
-                                -Dtarget-directory=target-h2
-                        """
-                        },
-                        "unit-mariadb": {
-                            sh """
-                            mvn test \
-                                -Dcheckstyle.skip=true \
-                                -Dpmd.skip=true \
-                                -Dcpdskip=true \
-                                -DskipTests.integration=true \
-                                -pl kangaroo-common \
-                                -Pmariadb \
-                                -Dtarget-directory=target-mariadb \
                                 -Dhibernate.connection.url=${jdbc_mariadb}
                         """
                         })
@@ -111,7 +93,7 @@ pipeline {
                         "checkstyle": {
                             sh "mvn checkstyle:check -pl kangaroo-server-authz"
                         },
-                        "unit-h2": {
+                        "unit": {
                             sh """
                             mvn test \
                                 -Dcheckstyle.skip=true \
@@ -119,20 +101,6 @@ pipeline {
                                 -Dcpdskip=true \
                                 -DskipTests.integration=true \
                                 -pl kangaroo-server-authz \
-                                -Ph2 \
-                                -Dtarget-directory=target-h2
-                        """
-                        },
-                        "unit-mariadb": {
-                            sh """
-                            mvn test \
-                                -Dcheckstyle.skip=true \
-                                -Dpmd.skip=true \
-                                -Dcpdskip=true \
-                                -DskipTests.integration=true \
-                                -pl kangaroo-server-authz \
-                                -Pmariadb \
-                                -Dtarget-directory=target-mariadb \
                                 -Dhibernate.connection.url=${jdbc_mariadb}
                         """
                         })
@@ -150,7 +118,7 @@ pipeline {
                         -Dpmd.skip=true \
                         -Dcpdskip=true \
                         -DskipTests.unit=true \
-                        -Ph2
+                        -Dhibernate.connection.url=${jdbc_mariadb}
                 """
             }
         }
@@ -193,7 +161,7 @@ pipeline {
             /**
              * JUnit reports
              */
-            junit '**/target-*/surefire-reports/*.xml'
+            junit '**/target/surefire-reports/*.xml'
 
             /**
              * Checkstyle tests.
@@ -206,7 +174,7 @@ pipeline {
                     failedTotalLow     : '0',
                     failedTotalNormal  : '0',
                     healthy            : '100',
-                    pattern            : '**/target-*/checkstyle-result.xml',
+                    pattern            : '**/target/checkstyle-result.xml',
                     unHealthy          : '100',
                     unstableTotalAll   : '0',
                     unstableTotalHigh  : '0',
@@ -217,7 +185,7 @@ pipeline {
             /**
              * PMD & PMD/CPD
              */
-            pmd(pattern: '**/target-*/pmd.xml', unstableTotalAll: '0')
+            pmd(pattern: '**/target/pmd.xml', unstableTotalAll: '0')
 
             /**
              * Delete everything, to keep track of disk size.

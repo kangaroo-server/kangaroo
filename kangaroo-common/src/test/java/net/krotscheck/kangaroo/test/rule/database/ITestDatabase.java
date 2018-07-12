@@ -23,8 +23,7 @@ import java.sql.Connection;
 /**
  * This interface describes a class by which a test database may be
  * provisioned. It is assumed that the returned DBReference instance will
- * maintain the lifecycle of the database (as perhaps with short-lived h2
- * databases).
+ * maintain the lifecycle of the database.
  */
 public interface ITestDatabase extends AutoCloseable {
 

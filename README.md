@@ -63,10 +63,8 @@ export KANGAROO_GITHUB_APP_PSW=<your_github_app_secret>
 This is a maven project, with no divergences from the standard maven 
 lifecycle. The following maven profiles are supported:
 
-- `mvn clean install -p h2` (default) <br/>
-  Tests are run against an in-memory h2 database.
-- `mvn clean install -p mariadb` <br/>
-  Tests are run against a MariaDB instance at `mysql://localhost:3306/`.
+- `mvn clean install` (default) <br/>
+  Tests are run against a MariaDB instance at `mysql://oid:oid@localhost:3306/oid`.
 
 ### Community
 
