@@ -36,15 +36,11 @@ pipeline {
         stage('init') {
             steps {
                 parallel(
-                        "install": {
-                            sh '''
-                                mvn clean install \
-                                    -DskipTests=true \
-                                    -Dcheckstyle.skip=true \
-                                    -Dpmd.skip=true \
-                                    -Dcpdskip=true
-                                mvn dependency:go-offline
-                            '''
+                        "bootstrap": {
+                            sh """
+                                mvn clean install -pl kangaroo-common -DskipTests=true
+                                mvn dependency:resolve dependency:resolve-plugins
+                            """
                         },
                         "stat": {
                             script {
@@ -56,69 +52,12 @@ pipeline {
         }
 
         /**
-         * Kangaroo-common.
+         * Build all the binaries, make sure it all compiles.
          */
-        stage('kangaroo-common') {
-            steps {
-                parallel(
-                        "pmd": {
-                            sh "mvn pmd:check -pl kangaroo-common"
-                        },
-                        "checkstyle": {
-                            sh "mvn checkstyle:check -pl kangaroo-common"
-                        },
-                        "unit": {
-                            sh """
-                            mvn test \
-                                -Dcheckstyle.skip=true \
-                                -Dpmd.skip=true \
-                                -Dcpdskip=true \
-                                -DskipTests.integration=true \
-                                -pl kangaroo-common \
-                                -Dhibernate.connection.url=${jdbc_mariadb}
-                        """
-                        })
-            }
-        }
-
-        /**
-         * Kangaroo-server-authz.
-         */
-        stage('kangaroo-server-authz') {
-            steps {
-                parallel(
-                        "pmd": {
-                            sh "mvn pmd:check -pl kangaroo-server-authz "
-                        },
-                        "checkstyle": {
-                            sh "mvn checkstyle:check -pl kangaroo-server-authz"
-                        },
-                        "unit": {
-                            sh """
-                            mvn test \
-                                -Dcheckstyle.skip=true \
-                                -Dpmd.skip=true \
-                                -Dcpdskip=true \
-                                -DskipTests.integration=true \
-                                -pl kangaroo-server-authz \
-                                -Dhibernate.connection.url=${jdbc_mariadb}
-                        """
-                        })
-            }
-        }
-
-        /**
-         * Integration tests.
-         */
-        stage('integration') {
+        stage('Build') {
             steps {
                 sh """
-                    mvn integration-test verify \
-                        -Dcheckstyle.skip=true \
-                        -Dpmd.skip=true \
-                        -Dcpdskip=true \
-                        -DskipTests.unit=true \
-                        -Dhibernate.connection.url=${jdbc_mariadb}
+                    mvn clean install -Dhibernate.connection.url=${jdbc_mariadb}
                 """
             }
         }
