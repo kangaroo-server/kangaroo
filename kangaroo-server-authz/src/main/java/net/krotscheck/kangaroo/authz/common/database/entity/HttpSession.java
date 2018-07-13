@@ -20,8 +20,11 @@ package net.krotscheck.kangaroo.authz.common.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.krotscheck.kangaroo.common.hibernate.entity.AbstractEntity;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Basic;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,6 +41,8 @@ import java.util.List;
  * @author Michael Krotscheck
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "http_sessions")
 public final class HttpSession extends AbstractEntity {
 

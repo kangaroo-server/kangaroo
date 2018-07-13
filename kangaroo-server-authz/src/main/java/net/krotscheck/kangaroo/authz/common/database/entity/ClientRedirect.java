@@ -18,8 +18,11 @@
 
 package net.krotscheck.kangaroo.authz.common.database.entity;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.search.annotations.Indexed;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -29,6 +32,8 @@ import javax.persistence.Table;
  * @author Michael Krotscheck
  */
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "client_redirects")
 @Indexed(index = "client_redirects")
 public final class ClientRedirect extends AbstractClientUri {
