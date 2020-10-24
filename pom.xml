@@ -731,7 +731,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>25.0-jre</version>
+        <version>30.0-android</version>
       </dependency>
 
       <!-- Hibernate -->
