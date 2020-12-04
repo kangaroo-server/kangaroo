@@ -130,7 +130,7 @@
     <hibernate.version>5.2.10.Final</hibernate.version>
     <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
     <hibernate-search.version>5.8.2.Final</hibernate-search.version>
-    <jersey.version>2.26</jersey.version>
+    <jersey.version>3.0.0</jersey.version>
     <grizzly.version>2.4.2</grizzly.version>
     <slf4j.version>1.7.25</slf4j.version>
     <jacoco.version>0.8.0</jacoco.version>
@@ -695,7 +695,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.5.3</version>
+        <version>4.5.13</version>
       </dependency>
 
       <!-- Apache Commons -->
