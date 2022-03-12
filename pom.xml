@@ -126,7 +126,7 @@
   <properties>
     <target-directory>target</target-directory>
     <jdk.version>1.8</jdk.version>
-    <jackson.version>2.9.5</jackson.version>
+    <jackson.version>2.13.0</jackson.version>
     <hibernate.version>5.2.10.Final</hibernate.version>
     <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
     <hibernate-search.version>5.8.2.Final</hibernate-search.version>
